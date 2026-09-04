@@ -1,0 +1,381 @@
+#!/usr/bin/env python3
+
+# Usage:
+#  1. Start the server as follows (adjust model path and args as needed):
+# python -m sglang.launch_server --model-path /models/Qwen3.6-27B --tp 2 --context-length 262144 --disable-radix-cache
+#
+#  2. Run this benchmark script (default: 4 test cases):
+# python benchmarks/benchmark_throughput_serve.py
+#
+# [Optional] Run all 10 test cases:
+# python benchmarks/benchmark_throughput_serve.py --enable-all
+
+
+import argparse
+import csv
+import json
+import os
+import re
+import subprocess
+import time
+from datetime import datetime
+from statistics import mean
+
+MODEL = "MODEL_NAME"
+TOKENIZER_PATH = "/path/to/tokenizer"
+SHAREGPT_PATH = "/path/to/ShareGPT_V3_unfiltered_cleaned_split.json"
+
+HOST = "127.0.0.1"
+PORT = 30000
+RUNS = 3
+SKIP_FIRST = 1
+
+COMMON_ARGS = [
+    "python3",
+    "-m",
+    "sglang.bench_serving",
+    "--backend",
+    "sglang",
+    "--model",
+    MODEL,
+    "--tokenizer",
+    TOKENIZER_PATH,
+    "--host",
+    HOST,
+    "--port",
+    str(PORT),
+    "--dataset-name",
+    "random",
+    "--dataset-path",
+    SHAREGPT_PATH,
+]
+
+DEFAULT_TEST_CASES = [
+    (1024, 1024, 64, 128),
+    # (4096, 1024, 64, 128),
+    # (16384, 1024, 64, 128),
+    # (32768, 1024, 64, 128),
+    # (65536, 1024, 64, 128),
+]
+
+ALL_TEST_CASES = [
+    *DEFAULT_TEST_CASES,
+    (4096, 1024, 1, 256),
+    (4096, 1024, 4, 256),
+    (4096, 1024, 16, 256),
+    (4096, 1024, 256, 256),
+    (131072, 1024, 64, 64),
+    (262144, 1024, 64, 64),
+]
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--enable-all",
+        action="store_true",
+        help="Enable all 10 test cases. If not set, run default 4 cases.",
+    )
+    return parser.parse_args()
+
+
+PATTERNS = {
+    "successful_requests": r"Successful requests:\s+([0-9.]+)",
+    "benchmark_duration": r"Benchmark duration \(s\):\s+([0-9.]+)",
+    "total_input_tokens": r"Total input tokens:\s+([0-9.]+)",
+    "total_output_tokens": r"Total generated tokens:\s+([0-9.]+)",
+    "request_throughput": r"Request throughput \(req/s\):\s+([0-9.]+)",
+    "output_throughput": r"Output token throughput \(tok/s\):\s+([0-9.]+)",
+    "total_token_throughput": r"Total token throughput \(tok/s\):\s+([0-9.]+)",
+    "mean_ttft_ms": r"Mean TTFT \(ms\):\s+([0-9.]+)",
+    "median_ttft_ms": r"Median TTFT \(ms\):\s+([0-9.]+)",
+    "p99_ttft_ms": r"P99 TTFT \(ms\):\s+([0-9.]+)",
+    "mean_tpot_ms": r"Mean TPOT \(ms\):\s+([0-9.]+)",
+    "median_tpot_ms": r"Median TPOT \(ms\):\s+([0-9.]+)",
+    "p99_tpot_ms": r"P99 TPOT \(ms\):\s+([0-9.]+)",
+    "mean_itl_ms": r"Mean ITL \(ms\):\s+([0-9.]+)",
+    "median_itl_ms": r"Median ITL \(ms\):\s+([0-9.]+)",
+    "p99_itl_ms": r"P99 ITL \(ms\):\s+([0-9.]+)",
+    "mean_e2el_ms": r"Mean E2EL \(ms\):\s+([0-9.]+)",
+    "median_e2el_ms": r"Median E2EL \(ms\):\s+([0-9.]+)",
+    "p99_e2el_ms": r"P99 E2EL \(ms\):\s+([0-9.]+)",
+}
+
+CSV_COLUMNS = [
+    "Prefill",
+    "Decode",
+    "Conc",
+    "Num Prompts",
+    "Run",
+    "Successful Requests",
+    "Benchmark Duration (s)",
+    "Total Input Tokens",
+    "Total Output Tokens",
+    "Req/s",
+    "Output tok/s",
+    "Total tok/s",
+    "Mean TTFT (ms)",
+    "Median TTFT (ms)",
+    "P99 TTFT (ms)",
+    "Mean TPOT (ms)",
+    "Median TPOT (ms)",
+    "P99 TPOT (ms)",
+    "Mean ITL (ms)",
+    "Median ITL (ms)",
+    "P99 ITL (ms)",
+    "Mean E2EL (ms)",
+    "Median E2EL (ms)",
+    "P99 E2EL (ms)",
+]
+
+
+def extract_metrics(output_text):
+    result = {}
+    for key, pattern in PATTERNS.items():
+        match = re.search(pattern, output_text, re.IGNORECASE)
+        result[key] = float(match.group(1)) if match else None
+    return result
+
+
+def save_error_log(cmd, case, run_id, stdout, stderr, returncode, output_dir):
+    """当测试出现服务端报错时，保存完整的请求信息到错误日志文件"""
+    error_log_dir = os.path.join(output_dir, "error_logs")
+    os.makedirs(error_log_dir, exist_ok=True)
+    input_len, output_len, concurrency, num_prompts = case
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"error_in{input_len}_out{output_len}_c{concurrency}_run{run_id}_{timestamp}.json"
+    filepath = os.path.join(error_log_dir, filename)
+    error_record = {
+        "timestamp": datetime.now().isoformat(),
+        "request_params": {
+            "input_len": input_len,
+            "output_len": output_len,
+            "concurrency": concurrency,
+            "num_prompts": num_prompts,
+            "run_id": run_id,
+        },
+        "command": " ".join(cmd),
+        "command_list": cmd,
+        "returncode": returncode,
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(error_record, f, ensure_ascii=False, indent=2)
+    print(f"[ERROR LOG] saved to: {filepath}")
+
+
+def format_result(case, metrics, run_label=""):
+    input_len, output_len, concurrency, num_prompts = case
+    return {
+        "Prefill": input_len,
+        "Decode": output_len,
+        "Conc": concurrency,
+        "Num Prompts": num_prompts,
+        "Run": run_label,
+        "Successful Requests": metrics.get("successful_requests"),
+        "Benchmark Duration (s)": metrics.get("benchmark_duration"),
+        "Total Input Tokens": metrics.get("total_input_tokens"),
+        "Total Output Tokens": metrics.get("total_output_tokens"),
+        "Req/s": metrics.get("request_throughput"),
+        "Output tok/s": metrics.get("output_throughput"),
+        "Total tok/s": metrics.get("total_token_throughput"),
+        "Mean TTFT (ms)": metrics.get("mean_ttft_ms"),
+        "Median TTFT (ms)": metrics.get("median_ttft_ms"),
+        "P99 TTFT (ms)": metrics.get("p99_ttft_ms"),
+        "Mean TPOT (ms)": metrics.get("mean_tpot_ms"),
+        "Median TPOT (ms)": metrics.get("median_tpot_ms"),
+        "P99 TPOT (ms)": metrics.get("p99_tpot_ms"),
+        "Mean ITL (ms)": metrics.get("mean_itl_ms"),
+        "Median ITL (ms)": metrics.get("median_itl_ms"),
+        "P99 ITL (ms)": metrics.get("p99_itl_ms"),
+        "Mean E2EL (ms)": metrics.get("mean_e2el_ms"),
+        "Median E2EL (ms)": metrics.get("median_e2el_ms"),
+        "P99 E2EL (ms)": metrics.get("p99_e2el_ms"),
+    }
+
+
+def append_csv(row, filename, columns):
+    file_exists = os.path.exists(filename)
+    with open(filename, "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=columns)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(row)
+
+
+def run_once(case, run_id, output_dir):
+    input_len, output_len, concurrency, num_prompts = case
+    name = f"{input_len}_{output_len}_c{concurrency}"
+
+    print("=" * 80)
+    print(f"Running: {name} | Run {run_id}/{RUNS}")
+    print("=" * 80)
+
+    cmd = COMMON_ARGS + [
+        "--random-input-len",
+        str(input_len),
+        "--random-output-len",
+        str(output_len),
+        "--random-range-ratio",
+        "1.0",
+        "--max-concurrency",
+        str(concurrency),
+        "--num-prompts",
+        str(num_prompts),
+    ]
+
+    print(" ".join(cmd))
+    print()
+
+    start_time = time.time()
+    process = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    elapsed = time.time() - start_time
+
+    output = process.stdout
+    print(output)
+    if process.stderr:
+        print(process.stderr)
+
+    metrics = extract_metrics(output)
+    metrics["elapsed_sec"] = round(elapsed, 2)
+
+    # 检测服务端报错：returncode 非零 或 successful_requests 不符合预期
+    has_error = process.returncode != 0
+    if metrics.get("successful_requests") is not None and metrics["successful_requests"] != num_prompts:
+        has_error = True
+
+    if has_error:
+        save_error_log(
+            cmd, case, run_id,
+            stdout=process.stdout, stderr=process.stderr,
+            returncode=process.returncode, output_dir=output_dir
+        )
+
+    return metrics
+
+
+def average_metrics(results):
+    avg_result = {}
+    keys = results[0].keys()
+    for key in keys:
+        values = [r[key] for r in results if isinstance(r.get(key), (int, float))]
+        if values:
+            avg_result[key] = round(mean(values), 2)
+    return avg_result
+
+
+def run_test_case(case, csv_file, output_dir):
+    all_runs = []
+
+    for run_id in range(1, RUNS + 1):
+        metrics = run_once(case, run_id, output_dir)
+
+        expected_successful_requests = case[3]
+        status = (
+            "SUCCESS"
+            if metrics.get("successful_requests") == expected_successful_requests
+            else "FAILED"
+        )
+
+        raw_row = format_result(case, metrics, run_label=f"Run{run_id}({status})")
+        append_csv(raw_row, csv_file, CSV_COLUMNS)
+
+        all_runs.append(metrics)
+
+    valid_runs = all_runs[SKIP_FIRST:]
+
+    expected_successful_requests = case[3]
+    has_failed_run = any(
+        run.get("successful_requests") != expected_successful_requests
+        for run in valid_runs
+    )
+
+    avg_metrics = average_metrics(valid_runs)
+
+    summary_row = format_result(case, avg_metrics, run_label="SUMMARY")
+    append_csv(summary_row, csv_file, CSV_COLUMNS)
+
+    return summary_row, has_failed_run
+
+
+def print_summary(results):
+    print()
+    print("=" * 80)
+    print("Summary")
+    print("=" * 80)
+
+    for r in results:
+        print(
+            f"Prefill={r['Prefill']} "
+            f"Decode={r['Decode']} "
+            f"Conc={r['Conc']} "
+            f"NumPrompts={r['Num Prompts']} "
+            f"Req/s={r['Req/s']} "
+            f"Total tok/s={r['Total tok/s']} "
+            f"TTFT={r['Mean TTFT (ms)']}ms"
+        )
+
+
+def main():
+    args = parse_args()
+
+    test_cases = ALL_TEST_CASES if args.enable_all else DEFAULT_TEST_CASES
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    output_dir = os.path.join("benchmark_results", MODEL)
+    os.makedirs(output_dir, exist_ok=True)
+
+    all_summary = []
+
+    print()
+    print(f"RUNS={RUNS}")
+    print(f"SKIP_FIRST={SKIP_FIRST}")
+    print(f"ENABLE_ALL={args.enable_all}")
+    print(f"TOTAL_CASES={len(test_cases)}")
+    print(f"TEST_CASES={test_cases}")
+    print()
+
+    csv_files = []
+
+    for case in test_cases:
+        input_len, output_len, concurrency, num_prompts = case
+        scenario_name = f"{input_len}in_{output_len}out_c{concurrency}_n{num_prompts}"
+        csv_file = os.path.join(
+            output_dir, f"{MODEL}_{scenario_name}_{timestamp}.csv"
+        )
+
+        try:
+            summary_row, has_failed_run = run_test_case(
+                case,
+                csv_file,
+                output_dir,
+            )
+
+            csv_files.append(csv_file)
+
+            if has_failed_run:
+                print(f"SKIP SUMMARY ROW (failed case): {case}")
+                continue
+
+            all_summary.append(summary_row)
+
+        except Exception as e:
+            print(f"ERROR: {e}")
+
+    print_summary(all_summary)
+
+    print()
+    print("CSV files:")
+    for f in csv_files:
+        print(f"  {f}")
+
+
+if __name__ == "__main__":
+    main()

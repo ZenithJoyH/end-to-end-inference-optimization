@@ -1,0 +1,7 @@
+interface:
+  display_name: "关键算子分析"
+  short_description: "分析大模型推理关键算子并复用 MLA 与 mHC 知识"
+  default_prompt: "Use $key-operator-analysis to trace and analyze the operator bottleneck found in this inference workload."
+
+policy:
+  allow_implicit_invocation: true

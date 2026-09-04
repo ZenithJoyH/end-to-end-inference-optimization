@@ -1,0 +1,3 @@
+---
+accelerator_platform: Moore Threads
+accelerator_query_command: mthreads-gmi

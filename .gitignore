@@ -1,0 +1,19 @@
+.ansible/
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Large or generated performance artifacts
+benchmark_results/
+outputs/
+results/
+logs/
+traces/
+profiles/
+*.pt.trace.json
+*.pt.trace.json.gz
+*.sqlite
+*.sqlite_*.db
+ShareGPT_V3_unfiltered_cleaned_split.json

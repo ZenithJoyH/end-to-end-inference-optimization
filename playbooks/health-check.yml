@@ -1,0 +1,84 @@
+---
+- name: Collect read-only health information from all managed hosts
+  hosts: managed
+  gather_facts: false
+
+  tasks:
+    # raw is intentional here: it verifies SSH and works before a host has a
+    # usable Python interpreter for regular Ansible modules.
+    - name: Read hostname
+      ansible.builtin.raw: hostname
+      register: hostname_result
+      changed_when: false
+      failed_when: >-
+        hostname_result.rc != 0
+        or hostname_result.stdout | trim | length == 0
+        or 'match asset failed' in hostname_result.stdout
+        or '未发现匹配的资产' in hostname_result.stdout
+
+    - name: Read uptime
+      ansible.builtin.raw: uptime
+      register: uptime_result
+      changed_when: false
+      failed_when: false
+
+    - name: Read root filesystem usage
+      ansible.builtin.raw: df -h /
+      register: disk_result
+      changed_when: false
+      failed_when: false
+
+    - name: Detect Python
+      ansible.builtin.raw: >-
+        if command -v python3 >/dev/null 2>&1; then
+          printf 'path='; command -v python3; python3 --version 2>&1;
+        elif command -v python >/dev/null 2>&1; then
+          printf 'path='; command -v python; python --version 2>&1;
+        else
+          printf 'not-installed\n';
+        fi
+      register: python_result
+      changed_when: false
+      failed_when: false
+
+    - name: Detect ModelScope
+      ansible.builtin.raw: >-
+        if command -v modelscope >/dev/null 2>&1; then
+          printf 'path='; command -v modelscope;
+          if command -v python3 >/dev/null 2>&1; then
+            python3 -c 'import modelscope; print("version=" + modelscope.__version__)'
+              2>/dev/null || printf 'version=unknown\n';
+          else
+            printf 'version=unknown\n';
+          fi;
+        else
+          printf 'not-installed\n';
+        fi
+      register: modelscope_result
+      changed_when: false
+      failed_when: false
+
+    - name: Run the platform-specific accelerator query
+      ansible.builtin.raw: "{{ accelerator_query_command }}"
+      register: accelerator_result
+      changed_when: false
+      failed_when: false
+
+    - name: Report host health
+      ansible.builtin.debug:
+        msg:
+          - "hostname={{ hostname_result.stdout | trim }}"
+          - "uptime={{ uptime_result.stdout | trim }}"
+          - "disk={{ disk_result.stdout_lines | default([]) | map('trim') | join(' | ') }}"
+          - "python={{ python_result.stdout_lines | default([]) | map('trim') | join(' | ') }}"
+          - >-
+            modelscope={{ modelscope_result.stdout_lines
+            | default([]) | map('trim') | join(' | ') }}
+          - >-
+            accelerator={{ accelerator_platform }};
+            command={{ accelerator_query_command }};
+            rc={{ accelerator_result.rc }};
+            output={{ (accelerator_result.stdout_lines | default([]))[:12]
+            | map('trim') | join(' | ') }};
+            error={{ accelerator_result.stderr | default('') | trim
+            if accelerator_result.rc != 0 else '' }}

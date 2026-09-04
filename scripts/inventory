@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+binary="${repo_root}/.venv/bin/ansible-inventory"
+
+if [[ ! -x "${binary}" ]]; then
+  printf 'Missing %s. Run ./scripts/bootstrap-control-node first.\n' "${binary}" >&2
+  exit 1
+fi
+
+cd "${repo_root}"
+export ANSIBLE_HOME="${repo_root}/.ansible"
+exec "${binary}" --graph "$@"

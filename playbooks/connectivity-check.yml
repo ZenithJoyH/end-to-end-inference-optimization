@@ -1,0 +1,19 @@
+---
+- name: Verify SSH connectivity for all managed hosts
+  hosts: managed
+  gather_facts: false
+
+  tasks:
+    - name: Read remote hostname without requiring Python
+      ansible.builtin.raw: hostname
+      register: hostname_result
+      changed_when: false
+      failed_when: >-
+        hostname_result.rc != 0
+        or hostname_result.stdout | trim | length == 0
+        or 'match asset failed' in hostname_result.stdout
+        or '未发现匹配的资产' in hostname_result.stdout
+
+    - name: Report connected host
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} -> {{ hostname_result.stdout | trim }}"

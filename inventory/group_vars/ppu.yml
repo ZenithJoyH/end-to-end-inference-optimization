@@ -1,0 +1,3 @@
+---
+accelerator_platform: T-Head PPU
+accelerator_query_command: ppu-smi

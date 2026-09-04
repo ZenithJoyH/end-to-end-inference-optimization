@@ -1,0 +1,4 @@
+---
+accelerator_platform: Hygon
+accelerator_query_command: hy-smi
+accelerator_process_query_command: hy-smi --showpids

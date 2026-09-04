@@ -1,0 +1,3 @@
+---
+accelerator_platform: Huawei Ascend
+accelerator_query_command: npu-smi info

@@ -1,0 +1,46 @@
+---
+- name: Query accelerators with each platform's native command
+  hosts: managed
+  gather_facts: false
+
+  vars:
+    selected_accelerator_query: >-
+      {{ accelerator_process_query_command | default(accelerator_query_command)
+         if show_processes | default(false) | bool
+         else accelerator_query_command }}
+
+  tasks:
+    - name: Run platform-specific accelerator query
+      ansible.builtin.raw: "{{ selected_accelerator_query }}"
+      register: accelerator_result
+      changed_when: false
+      failed_when: false
+
+    - name: Report accelerator query
+      ansible.builtin.debug:
+        msg:
+          - "platform={{ accelerator_platform }}"
+          - "command={{ selected_accelerator_query }}"
+          - "return_code={{ accelerator_result.rc }}"
+          - >-
+            stdout={{ accelerator_result.stdout_lines | default([])
+            if full_output | default(false) | bool
+            else (accelerator_result.stdout_lines | default([]))[:24] }}
+          - >-
+            output_truncated={{ not (full_output | default(false) | bool)
+            and accelerator_result.stdout_lines | default([]) | length > 24 }}
+          - >-
+            stderr={{ accelerator_result.stderr_lines | default([])
+            if accelerator_result.rc != 0 else [] }}
+
+    - name: Require a successful accelerator query
+      ansible.builtin.assert:
+        that:
+          - accelerator_result.rc == 0
+          - "'match asset failed' not in accelerator_result.stdout"
+          - "'未发现匹配的资产' not in accelerator_result.stdout"
+        fail_msg: >-
+          {{ inventory_hostname }} could not run
+          '{{ selected_accelerator_query }}'. The platform command may be
+          missing, the accelerator may not be exposed to the container, or the
+          SSH asset may be unavailable.

@@ -1,0 +1,3 @@
+---
+accelerator_platform: MetaX
+accelerator_query_command: mx-smi

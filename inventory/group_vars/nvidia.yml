@@ -1,0 +1,3 @@
+---
+accelerator_platform: NVIDIA
+accelerator_query_command: nvidia-smi

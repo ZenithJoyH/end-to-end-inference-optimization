@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+cd "${repo_root}"
+"${repo_root}/scripts/inventory" >/dev/null
+
+bash -n \
+  scripts/accelerator-check \
+  scripts/ansible \
+  scripts/bootstrap-control-node \
+  scripts/connectivity-check \
+  scripts/health-check \
+  scripts/inventory \
+  scripts/playbook \
+  scripts/syntax-check
+
+for playbook in playbooks/*.yml; do
+  "${repo_root}/scripts/playbook" "${playbook}" --syntax-check
+done
+
+printf 'Inventory, shell, and playbook checks passed.\n'
