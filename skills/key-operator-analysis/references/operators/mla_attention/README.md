@@ -2,6 +2,8 @@
 
 > 状态：**阶段性结果**。本文完成数学定义、主流实现调用链、理论性能模型和实验方案；当前环境没有目标 GPU，未执行自有 H800/H100/B200 profiler，因此所有性能数字均明确标注为上游项目公开结果，不能视为本项目实测。
 
+本文只维护 MLA 的稳定语义、实现和性能模型。项目实际案例、平台数字和负面证据见 [case-index.md](case-index.md)；由案例提炼、可用于下一次快速决策的检查与候选见 [optimization-map.md](optimization-map.md)。不把单次案例流水账追加到本文。
+
 ## 1. 摘要
 
 Multi-head Latent Attention（MLA）通过共享低秩 latent 压缩历史 K/V，并用 decoupled RoPE 保留可吸收的非位置投影。以 DeepSeek-V3/R1 的典型配置为例：`n_heads=128`、`kv_lora_rank=512`、`qk_nope_head_dim=128`、`qk_rope_head_dim=64`、`v_head_dim=128`。每 token、每层只缓存 `512+64=576` 个元素，而直接缓存展开后的 K/V 需要 `128*(192+128)=40,960` 个元素。
