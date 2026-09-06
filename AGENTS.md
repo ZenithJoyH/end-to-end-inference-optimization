@@ -97,7 +97,8 @@ skills/
 模型路径：<远端权重路径>
 平台：<nvidia|ppu|metax|ascend|mthreads|hygon>
 目标机器：<inventory 中的 SSH Host 别名>
-容器或运行环境：<容器名称或明确的宿主机环境>
+源适配容器：<已经完成模型适配、用于复刻优化环境的容器名称>
+优化容器：<为本次优化新建的独立容器名称；未创建时留空>
 推理引擎：<vLLM|SGLang|其他及版本>
 优化目标：<TTFT|TPOT|ITL|吞吐|显存|稳定性|成本|综合目标>
 工作负载：<输入长度、输出长度、并发、请求数、数据集或流量分布>
@@ -118,6 +119,7 @@ skills/
 - 本项目不自动读取、更新或同步其他模型适配工作区。
 - 不重新执行模型架构分析、环境适配、模型注册或正式适配验收，除非它们成为当前优化的明确阻塞且用户要求处理。
 - 用户声明模型已完成适配时，将其作为任务前提；仍需用最小 smoke test 确认当前服务没有漂移或失效。
+- 每次性能优化都必须从用户指定的已适配容器复刻一个新的专用优化容器。源适配容器只作为环境事实和基线来源，不直接承载源码修改、profiling 或性能实验。
 - 默认不改模型权重和 tokenizer，不重新训练，不改变输出语义。
 - 用户已授权在端到端性能优化任务中直接修改目标模型推理环境内的 `vllm-plugin-FL` 和 `FlagGems` 源码。针对当前任务的框架优化、算子接入和算子实现优化，无需仅因修改这两个仓库而再次申请授权。
 - 默认保持 vLLM 源码只读；优先使用启动参数、Plugin 扩展点、FlagGems、平台 backend 或独立 Triton 实现。
@@ -172,6 +174,20 @@ skills/
 - 不关闭 SSH host-key checking，不使用宽泛的破坏性命令，不掩盖失败验证。
 - 不在日志中记录密码、Token、密钥内容、SSH 用户或堡垒机细节。
 
+### 5.4 优化容器复刻与挂载一致性
+
+每个新的端到端性能优化任务都必须创建独立优化容器，并把“容器来源正确”和“目录映射一致”作为进入正确性与性能测试前的硬门禁：
+
+1. 先精确解析用户指定的源适配容器，保存其容器 runtime 的只读 inspect 结果，并记录镜像引用、镜像 ID/digest、entrypoint、command、working directory、user、关键环境变量、设备、IPC、共享内存、ulimit、网络和资源限制。
+2. 新优化容器必须以源适配容器的有效适配状态为起点。若适配结果全部位于挂载目录和启动配置中，可使用相同镜像与配置复刻；若必要适配改动仍在源容器 writable layer 中，先生成并校验不可变的适配状态镜像或等价快照，不能静默退回适配前的基础镜像。
+3. 从源容器 inspect 结果生成规范化目录挂载清单。所有目录型 bind mount 和 named volume 必须逐项保持相同的宿主机/volume `Source`、容器内 `Destination`、只读/可写模式、传播属性及适用的 subpath 选项；不得用复制文件、符号链接或另一个宿主机目录伪装成相同映射。
+4. 容器启动后再次生成优化容器的规范化挂载清单并做机器可读 diff。存在缺失、额外挂载、源路径变化、目标路径变化或访问模式变化时，`mount_parity` 判定失败，停止后续源码修改、正确性评测和性能测试，先修正容器创建配置。
+5. 容器名、宿主机端口和日志路径必须使用不会冲突的新值；它们不属于目录映射一致性的要求。容器内服务端口、设备拓扑和其他影响可比性的运行参数应保持一致，任何必要差异都必须记录为环境变量并触发相应的新基线。
+6. 启动前检查设备、端口、共享内存和宿主机资源冲突。保留源适配容器，不在本任务中直接停止、重启、修改或删除它；若其正在占用本次优化所需的独占资源，先隔离资源或取得影响该服务的明确授权，不能通过争抢资源得到基线。
+7. 相同目录映射意味着新旧容器可能共享模型、Plugin、FlagGems、缓存或输出目录。修改前记录这些目录的 revision、工作区状态和共享使用者，并保存补丁与回退方法；不得把“新建容器”误认为“宿主机挂载内容已经隔离”。
+
+源、目标 inspect 原文可以保存在外部产物路径；当前项目至少记录校验后的镜像身份、规范化挂载清单路径、diff 结果、例外及批准依据。只有 `image_lineage=verified` 且 `mount_parity=passed` 后，优化容器才可用于 baseline、candidate 和 revert 测量。
+
 ## 6. `vllm-plugin-FL` 分析资料的使用
 
 本地分析文档为 `docs/vllm-plugin-FL-analysis.md`。它基于文档中记录的特定 revision 做静态分析，用于快速理解：
@@ -199,11 +215,14 @@ skills/
 
 1. 检查当前仓库状态，保护用户已有改动。
 2. 阅读当前 SOP，并检索相似案例和相关算子知识。
-3. 解析模型、平台、Host、容器、服务和优化目标。
+3. 解析模型、平台、Host、源适配容器、服务和优化目标。
 4. 检查连接、设备、无关工作负载和可用资源。
-5. 记录权重、tokenizer、镜像、引擎、Plugin、FlagGems、驱动/runtime 和启动参数。
-6. 查询服务 `/v1/models`、readiness 和当前 endpoint。
-7. 创建案例记录并形成 `baseline-manifest.yml`，未知项保持未知，不自行补值。
+5. 只读检查源适配容器，记录有效适配状态、镜像身份、完整目录挂载和运行配置。
+6. 基于源适配容器创建新的专用优化容器；复用原目录映射，并为容器名、宿主机端口和日志路径分配不冲突的值。
+7. 对源容器与优化容器执行镜像谱系和规范化挂载 diff；未达到 `image_lineage=verified`、`mount_parity=passed` 时不得继续。
+8. 在优化容器内记录权重、tokenizer、引擎、Plugin、FlagGems、驱动/runtime、启动参数和实际导入路径。
+9. 仅在优化容器内启动目标服务，查询 `/v1/models`、readiness 和当前 endpoint。
+10. 创建案例记录并形成 `baseline-manifest.yml`，未知项保持未知，不自行补值。
 
 ### 阶段 1：正确性护栏
 
@@ -409,7 +428,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
 ## 12. 实验记录最小字段
 
 ```yaml
-schema_version: 1
+schema_version: 2
 experiment_id: YYYYMMDD-HHMM-short-name
 objective: ""
 status: planned
@@ -419,8 +438,16 @@ target:
   weight_revision: ""
   platform: ""
   host: ""
-  container_name: ""
-  container_image: ""
+  source_container_name: ""
+  optimization_container_name: ""
+  source_image_ref: ""
+  source_image_id: ""
+  optimization_image_id: ""
+  image_lineage: unverified  # unverified | verified | failed
+  source_mount_manifest: ""
+  optimization_mount_manifest: ""
+  mount_diff: ""
+  mount_parity: unverified  # unverified | passed | failed
 runtime:
   engine: ""
   engine_revision: ""
@@ -533,6 +560,7 @@ python3 evaluation/performance/vllm_profile.py --help
 
 ```text
 优化对象：模型 / 平台 / Host / revision
+容器谱系：源适配容器 / 新优化容器 / 镜像身份 / 挂载一致性证据
 优化目标：主指标、守护指标、通过门槛
 当前环境：容器、引擎、Plugin、FlagGems、硬件与启动配置
 瓶颈证据：请求、阶段、框架、通信或算子证据
