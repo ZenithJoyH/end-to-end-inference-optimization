@@ -29,9 +29,17 @@
 
 ## 4. 全量精度
 
+- 目标机器：
+- 评测容器名称：
+- 评测镜像引用与 image ID/digest：
+- 正式 runner 路径与 SHA-256：`test/Accuracy_test/llmrun.py`
+- 任务配置：`gpqa_diamond_generative_cot` / `limit=0` / `expected_samples=198`
+- 优化容器中的服务模型名、endpoint 与网络路径：
 - [ ] `--preflight-only` 通过
+- [ ] 评测容器基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1`
+- [ ] 使用单服务 `llmrun.py`（若例外使用分片，已记录用户指示和合并验证）
 - [ ] 正式进程正常结束
-- [ ] 唯一样本数与预期一致
+- [ ] 198 个唯一完整样本与预期一致
 - [ ] `results_*.json` 和 `samples_*.jsonl` 完整
 - [ ] 超时、空输出、截断和异常重复已检查
 - [ ] 绝对或相对精度门禁通过

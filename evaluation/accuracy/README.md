@@ -1,19 +1,20 @@
-# 精度评测脚本说明
+# 参数化精度工具说明
 
-本目录保存 GPQA Diamond 精度评测工具。新模型适配的正式精度验收固定使用：
+本目录保存 GPQA Diamond runner 的参数化副本、示例配置和结果门禁工具。当前项目默认的正式模型级精度入口是 [`test/Accuracy_test/llmrun.py`](../../test/Accuracy_test/llmrun.py)，不是本目录中的同名副本。
 
-- `llmrun.py`：基于 `lm-evaluation-harness`（命令为 `lm_eval`）的正式单服务评测入口。
-- `llmrun_parallel.py`：保留用于明确指定的多服务、多 shard 场景，不能替代新模型适配的默认正式验收入口。
+本目录中的文件用途为：
 
-正式评测必须在目标机器上进入基于
-`harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的容器执行。默认评测完整的
-198 道 `gpqa_diamond_generative_cot`。
+- `llmrun.py`：用于维护和等价性核对的参数化单服务副本。
+- `llmrun_parallel.py`：用于用户明确指定的多服务、多 shard 场景，不能替代默认正式入口。
+- `verify_accuracy.py`：对正式结果应用预先冻结的绝对或相对精度门槛。
+
+正式评测仍必须在目标机器上进入基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的容器，调用 `test/Accuracy_test/llmrun.py`，默认评测完整的 198 道 `gpqa_diamond_generative_cot`。只有用户明确指定替代流程并记录 runner 等价性时，本目录的 runner 才能作为正式入口。
 
 ## 文件说明
 
 | 文件 | 作用 |
 | --- | --- |
-| `llmrun.py` | 单服务、单评测进程入口；支持服务等待、重试、本地响应缓存、结果校验和阶段计分。 |
+| `llmrun.py` | 参数化单服务副本；支持服务等待、重试、本地响应缓存、结果校验和阶段计分。 |
 | `llm_config.example.json` | `llmrun.py` 的配置模板；复制为案例专属配置后使用。 |
 | `llmrun_parallel.py` | 多服务、多 shard 并行评测入口；各 shard 完成后合并正式结果。 |
 | `llm_parallel_config.example.json` | `llmrun_parallel.py` 的配置模板。 |
@@ -42,10 +43,10 @@ docker exec -it <container-name> bash
 - 已缓存的 GPQA Diamond 数据集（当前配置为离线模式）
 - 可访问的 OpenAI 兼容接口及 `/v1/models` 接口
 
-进入脚本目录：
+正式流程进入原始 runner 目录：
 
 ```bash
-cd <容器内项目目录>/evaluation/accuracy
+cd <容器内项目目录>/test/Accuracy_test
 ```
 
 先做只读预检：
