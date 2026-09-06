@@ -16,7 +16,7 @@
 - revision：vLLM 0.24.0+empty；Plugin `f91f4ed08e1cfef0e0efe1380a7721928eccc033`；FlagGems `5941cd2225798bdfa611626f34e459c42cdf2904`。
 - 阶段和实现：单 token dense decode；Plugin `forward_mqa` 实际进入 FlagGems `_dense_decode_kernel`。
 - 有效 shape：每 rank H8、DQK576、DV512、SQ1、page16/64、最后一维连续。
-- 完整证据：[案例摘要](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md)、[瓶颈观测](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-observation.md)、[单变量实验](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-tile-experiment.md)、[补丁](../../../../../models/XingChen4-29B-A4B/ppu/patches/mla-tile16.patch)。
+- 完整证据：[案例摘要](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md)、[瓶颈观测](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-observation.md)、[单变量实验](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-tile-experiment.md)、[补丁](../../../../../models/XingChen4-29B-A4B/ppu/optimize/patches/mla-tile16.patch)。
 
 ### 瓶颈、改动和结果摘要
 

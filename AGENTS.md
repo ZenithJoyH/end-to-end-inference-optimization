@@ -100,6 +100,8 @@ skills/
 
 单次案例结论先记录为 observation 或 reproduced，不直接升级为通用规则。只有跨场景复现、机制和边界明确的经验，或正确性/安全/测量有效性要求，才进入 SOP。不得为了让知识库显得完整而填写未执行的数据或虚构案例。
 
+`docs/cases/<case-id>/` 是可读的案例证据摘要，不是远端操作脚本归档目录。默认保留 `README.md`，只有当瓶颈分析、单变量实验或多轮结果无法在摘要中清晰表达时才增加少量专题 Markdown。一次性的 `install-*`、`run-*`、PID/容器状态快照、监控脚本和硬编码远端修复脚本在结论提取后不长期保存。确实承担复现、正确性或结果校验作用的代码，应参数化后放入对应模型/平台的 `optimize/`，或提升为 `test/`、`scripts/`、`unit_tests/` 中的公共工具。
+
 ### 正式精度评测入口
 
 `test/Accuracy_test/` 是本项目正式模型级精度评测工具目录。默认正式流程固定为：在目标机器上进入基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器，使用 `test/Accuracy_test/llmrun.py` 对候选 graph 服务执行完整 GPQA Diamond（`gpqa_diamond_generative_cot`）评测。
@@ -144,6 +146,7 @@ skills/
 - 上述授权仅限当前任务明确指定的模型、Host、容器和源码副本，不自动扩大到其他服务、共享安装或其他工作区。工具权限要求及共享环境保护规则仍然适用。
 - 确实必须修改 vLLM、基础镜像、权重或共享系统配置时，先说明证据、替代方案、影响范围和回退方式，取得用户明确同意。
 - 不提交模型权重、数据集、完整日志、trace、容器导出、密钥或大体积 benchmark 产物。
+- 不长期保存仅反映某一时刻 PID、容器 ID、进程列表或 health 输出的原始 TXT；把仍有效的镜像、revision、挂载、命中和验证结论写入结构化配置或 Markdown，并记录外部原始产物位置。
 - 不提交或推送代码，除非用户明确要求。
 
 ## 5. 远端连接和安全
@@ -420,20 +423,18 @@ models/<model>/<platform>/
 │   ├── baseline-manifest.yml
 │   ├── workload.yml
 │   └── result-summary.md
-├── experiments/
-│   └── <experiment-id>/
-│       ├── hypothesis.md
-│       ├── config.yml
-│       ├── commands.sh
-│       └── result-summary.md
-├── profiling/
+├── optimize/
 │   ├── README.md
-│   └── summaries/
-├── acceptance/
-│   ├── correctness-config.yml
-│   ├── performance-config.yml
-│   └── optimization-summary.md
-└── patches/
+│   ├── experiments/<experiment-id>/
+│   ├── profiling/
+│   ├── patches/
+│   └── performance-measurements.json
+└── acceptance/
+    ├── accuracy-config.yml
+    ├── performance-config.yml
+    ├── accuracy-result.md
+    ├── performance-result.md
+    └── optimization-summary.md
 
 benchmarks/              # 参数化 benchmark 客户端和 workload
 evaluation/              # 公共精度/性能 runner、模板与验收门禁
@@ -445,6 +446,12 @@ docs/                    # 架构分析和跨模型方法记录
   cases/                 # 已执行案例、失败实验与经验索引
 skills/                  # 项目级可复用技能与按需加载的知识库
 ```
+
+每个实际 `<model>/<platform>/` 下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部可以保留一个导航 `README.md`，不得再创建与三者并列的 `experiments/`、`profiling/`、`patches/` 或其他结果目录。
+
+- `baseline/`：保存优化前的环境、workload、正确性状态和基线性能记录。
+- `optimize/`：保存多轮瓶颈分析、假设、配置、命令、profiling 摘要、源码补丁、失败/回退以及每轮优化后的性能记录。每轮必须可区分，不能只覆盖为最终最好的一轮。
+- `acceptance/`：只保存最终候选的正式性能优化记录、正式精度达标记录、验收配置、结论和回退入口；中间轮次或未达标结果留在 `optimize/`。
 
 不要为未请求的模型或平台批量生成空目录。原始日志、CSV/JSONL、SQLite、trace、profile 和大数据集只记录外部绝对路径或对象存储位置。
 

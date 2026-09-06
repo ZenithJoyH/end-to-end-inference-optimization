@@ -13,6 +13,7 @@
 - `docs/performance-optimization-sop.md`：随实际案例持续演进的端到端优化 SOP
 - `docs/optimization-patterns.md`：从多个案例提炼的可迁移模式、边界和反例
 - `docs/cases/`：成功、失败、回退与阻塞案例的索引和记录模板
+- `models/<model>/<platform>/`：每个平台仅使用 `baseline/`、`optimize/`、`acceptance/` 三个产物目录
 - `evaluation/`：独立的精度评测、性能 benchmark、profiling 工具和验收模板
 - `test/Accuracy_test/`：正式 GPQA Diamond runner；在目标机器的 `flageval-llmeval:v1` 评测容器内使用 `llmrun.py`
 - `test/perf_test/`：从适配流程纳入的原始性能测试与 profiling 工具
