@@ -92,6 +92,8 @@ skills/
 
 不要在尚无算子级证据时加载整套知识库，也不要把历史分析中的硬件、shape、revision 或性能判断直接套用到当前目标。
 
+关键算子知识以实际端到端案例驱动演进，而不是把每次案例按日期追加到算子长文：完整环境、命令、patch、性能数字和失败过程保留在 `docs/cases/`；算子目录的 `case-index.md` 保存可匹配的证据卡；`optimization-map.md` 保存由案例提炼的触发信号、适用条件、首个实验、反例和停止条件；稳定 `README.md` 只在语义、实现模型或跨案例瓶颈理解发生变化时更新。具体规则见技能中的 `references/case-to-knowledge.md`。
+
 ### 性能优化 SOP 与案例库
 
 每个实际优化任务开始前阅读 `docs/performance-optimization-sop.md`，并在 `docs/cases/README.md` 中检索相似案例。开始执行时使用 `docs/cases/TEMPLATE.md` 创建案例记录；任务结束时完成复盘、更新案例索引，并判断是否有足够证据修订 SOP。
@@ -340,8 +342,9 @@ skills/
 1. 完成案例记录，保留成功、失败、负优化、回退和阻塞证据。
 2. 更新 `docs/cases/README.md` 索引与检索标签。
 3. 判断经验等级：`observation`、`reproduced`、`transferred` 或 `invariant`。
-4. 将算子专属的稳定知识更新到关键算子技能，将跨案例工作方法更新到 SOP。
-5. SOP 变更必须关联案例、证据等级、适用范围、收益和风险；单次成功不自动形成强制规则。
+4. 对实际分析过的关键算子写出知识差量：既有判断被确认、细化、反驳，还是没有新增理解。
+5. 将完整证据保留在案例目录，在算子 `case-index.md` 增加证据卡；只有后续诊断动作改变时才更新 `optimization-map.md`，只有稳定理解改变时才更新算子 `README.md`。
+6. 将跨算子的工作方法更新到 SOP。SOP 变更必须关联案例、证据等级、适用范围、收益和风险；单次成功不自动形成强制规则。
 
 ## 8. Workload 和可比性
 
