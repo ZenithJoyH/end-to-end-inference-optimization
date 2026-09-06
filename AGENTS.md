@@ -59,6 +59,16 @@ evaluation/
   ACCEPTANCE_TEMPLATE.md
   accuracy/
   performance/
+test/
+  Accuracy_test/
+    README.md
+    llmrun.py
+    llm_config.json
+    score_progress.py
+  perf_test/
+unit_tests/
+  README.md
+  test_verify_accuracy.py
 skills/
   key-operator-analysis/
     SKILL.md
@@ -87,6 +97,12 @@ skills/
 每个实际优化任务开始前阅读 `docs/performance-optimization-sop.md`，并在 `docs/cases/README.md` 中检索相似案例。开始执行时使用 `docs/cases/TEMPLATE.md` 创建案例记录；任务结束时完成复盘、更新案例索引，并判断是否有足够证据修订 SOP。
 
 单次案例结论先记录为 observation 或 reproduced，不直接升级为通用规则。只有跨场景复现、机制和边界明确的经验，或正确性/安全/测量有效性要求，才进入 SOP。不得为了让知识库显得完整而填写未执行的数据或虚构案例。
+
+### 正式精度评测入口
+
+`test/Accuracy_test/` 是本项目正式模型级精度评测工具目录。默认正式流程固定为：在目标机器上进入基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器，使用 `test/Accuracy_test/llmrun.py` 对候选 graph 服务执行完整 GPQA Diamond（`gpqa_diamond_generative_cot`）评测。
+
+`evaluation/accuracy/` 中的参数化副本和 `verify_accuracy.py` 用于配置模板、预检、结果门禁或工具维护，不能在未说明等价性时替代上述正式 runner。`llmrun_parallel.py` 只在用户明确指定多服务或多 shard 时使用，不是默认正式入口。
 
 ## 3. 任务输入
 
@@ -237,6 +253,8 @@ skills/
 
 本项目的公共评测入口位于 `evaluation/`。每个正式案例在开始测试前从 `evaluation/ACCEPTANCE_TEMPLATE.md` 建立案例专属验收记录，并冻结绝对精度门槛或可信 baseline 的最大允许回退。不得在看到 candidate 分数后选择更有利的 metric、样本子集或放宽门槛。
 
+其中，验收记录和结果门禁位于 `evaluation/`，正式 GPQA Diamond 执行入口固定为 `test/Accuracy_test/llmrun.py`。评测必须在目标机器上的独立评测容器内发起；该容器的镜像必须核验为 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1`。模型服务仍运行在本次新建的优化容器中，评测容器作为客户端访问其 OpenAI 兼容 endpoint，不能把评测容器当成模型推理容器。
+
 ### 阶段 2：建立无 profiler 基线
 
 区分以下阶段：
@@ -306,13 +324,14 @@ skills/
 
 1. 分别确认 `eager` 与 `graph` 能运行；后续正式验收统一使用候选 `graph` 配置。
 2. 使用候选配置完成固定小样本和 8 并发正确性/性能 sanity。
-3. 使用 `evaluation/accuracy/` 或用户指定的正式工具完成全量精度评测。
-4. 核验正式进程、唯一样本数、results/samples、异常回复、空输出、截断、重复和超时，不只看聚合分数或退出码。
-5. 使用预先冻结的绝对门槛，或相对可信 baseline 的最大允许回退判定精度；阶段分数只用于排障。
-6. 精度门禁通过后，使用同一 `graph` 服务配置运行 `evaluation/performance/` 的正式性能测试。
-7. 重跑 baseline、candidate 与 revert，避免把环境时间漂移当成提升。
-8. 需要时完成通信和长时间稳定性验证。
-9. 输出可复现配置、前后对比、限制和回退方法。
+3. 在目标机器上核验或创建基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器，记录容器名、镜像引用和 image ID/digest，并确认它能访问优化容器中的候选 graph 服务及 `/v1/models`。
+4. 在评测容器内使用 `test/Accuracy_test/llmrun.py` 先执行 `--preflight-only`，再运行完整的 `gpqa_diamond_generative_cot`；默认单服务、`limit=0`、`expected_samples=198`，不得用阶段分数、抽样结果或 `llmrun_parallel.py` 替代，除非用户明确改变正式方案。
+5. 核验正式进程、198 个唯一完整样本、`results_*.json`、`samples_*.jsonl`、effective config、异常回复、空输出、截断、重复和超时，不只看聚合分数或退出码。
+6. 使用预先冻结的绝对门槛，或相对可信 baseline 的最大允许回退判定精度；阶段分数只用于排障。
+7. 精度门禁通过后，使用同一 `graph` 服务配置运行 `test/perf_test/` 或项目中已验证等价的参数化性能工具完成正式性能测试。
+8. 重跑 baseline、candidate 与 revert，避免把环境时间漂移当成提升。
+9. 需要时完成通信和长时间稳定性验证。
+10. 输出可复现配置、前后对比、限制和回退方法。
 
 优化过程中可以运行探索性短 benchmark，但没有正式精度工具、可信 baseline 或预先确定的通过标准时，只能报告诊断性性能结果和正确性 sanity，不能宣称候选通过正式性能验收。
 
@@ -416,7 +435,8 @@ models/<model>/<platform>/
 benchmarks/              # 参数化 benchmark 客户端和 workload
 evaluation/              # 公共精度/性能 runner、模板与验收门禁
 scripts/                 # 通用控制与结果处理工具
-tests/                   # 工具单测和正确性回归
+test/                    # 目标环境中实际执行的精度评测、性能 benchmark 和 profiling 工具
+unit_tests/              # 当前项目控制与评测代码的本地单元测试
 docs/                    # 架构分析和跨模型方法记录
   performance-optimization-sop.md
   cases/                 # 已执行案例、失败实验与经验索引
@@ -538,10 +558,11 @@ git diff --check
 PYTHONPYCACHEPREFIX=/tmp/e2e-eval-pycache \
   python3 -m py_compile evaluation/accuracy/*.py evaluation/performance/*.py
 PYTHONPYCACHEPREFIX=/tmp/e2e-eval-pycache \
-  python3 -m unittest discover -s tests -p 'test_*.py'
+  python3 -m unittest discover -s unit_tests -p 'test_*.py'
 python3 evaluation/accuracy/verify_accuracy.py --help
 python3 evaluation/performance/vllm_perf.py --help
 python3 evaluation/performance/vllm_profile.py --help
+python3 test/Accuracy_test/llmrun.py --help
 ```
 
 只有任务确实需要连接目标机器时，才运行：
@@ -569,6 +590,7 @@ python3 evaluation/performance/vllm_profile.py --help
 优化分类：框架层 / 算子接入 / 当前算子优化；排序依据与跨层依赖
 候选结果：同条件多轮对比和波动
 正确性：sanity、正式评测、异常回复和超时
+精度环境：目标机器 / 评测容器 / `flageval-llmeval:v1` 镜像身份 / `llmrun.py` 与配置校验值 / GPQA 198 题完整性
 稳定性与资源：显存、利用率、错误和长稳
 结论：保留、回退、未证实或阻塞
 风险与限制：未覆盖场景和不可比项
