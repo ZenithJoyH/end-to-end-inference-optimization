@@ -12,8 +12,9 @@
 - 分析方式：基于上述 revision 的静态源码、配置、测试及 CI 结构分析；未在目标加速卡上
   执行运行时验证。
 
-后续实际适配前必须重新同步上游代码并记录新的 plugin、vLLM 和 FlagGems revision。
+后续使用本报告时必须只读核对目标环境的 plugin、vLLM 和 FlagGems revision；不因阅读本报告自动同步升级上游代码。
 本报告中的文件位置和结论不得代替目标适配镜像中的实际检查结果。
+当前端到端优化任务的设计与 PR 要求见 [Plugin 优化设计与 PR 准备](plugin-change-review.md)；下文保留特定 revision 的适配分析，不作为修改源适配容器或扩大适配任务范围的授权。
 
 ## 2. 核心结论
 

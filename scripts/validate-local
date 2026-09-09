@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${repo_root}"
+export PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/e2e-eval-pycache"
+python3 -m py_compile evaluation/accuracy/*.py evaluation/performance/*.py scripts/*.py
+python3 -m compileall -q models
+for script in models/*/*/optimize/tools/*.sh; do
+  [[ ! -f "$script" ]] || bash -n "$script"
+done
+python3 -m unittest discover -s unit_tests -p 'test_*.py'
+./scripts/inventory
+./scripts/syntax-check
+python3 evaluation/accuracy/verify_accuracy.py --help >/dev/null
+python3 evaluation/accuracy/formal_accuracy.py --help >/dev/null
+python3 evaluation/accuracy/acceptance.py --help >/dev/null
+python3 evaluation/performance/vllm_perf.py --help >/dev/null
+python3 evaluation/performance/vllm_profile.py --help >/dev/null
+python3 evaluation/performance/compare_performance.py --help >/dev/null
+python3 evaluation/performance/sglang_perf.py --help >/dev/null
+python3 evaluation/performance/sglang_profile.py --help >/dev/null
+python3 evaluation/performance/all_perf.py --help >/dev/null
+python3 evaluation/performance/trace_to_summary.py --help >/dev/null
+python3 test/Accuracy_test/llmrun.py --help >/dev/null
+python3 scripts/verify-container-mounts.py --help >/dev/null
+python3 - <<'PY'
+import hashlib
+from pathlib import Path
+import re
+manifest = Path('test/IMPORT_MANIFEST.md').read_text()
+entries = re.findall(r'\| `((?:Accuracy_test|perf_test)/[^`]+)` \| `([0-9a-f]{64})`', manifest)
+assert len(entries) == 11, 'Unexpected original asset manifest size'
+for name, expected in entries:
+    assert hashlib.sha256((Path('test') / name).read_bytes()).hexdigest() == expected, name
+print(f'Original asset hashes verified: {len(entries)}')
+PY
+git diff --check
+printf 'Local validation passed; no remote checks were run.\n'

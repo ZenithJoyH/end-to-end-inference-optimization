@@ -2,6 +2,16 @@
 - name: Query accelerators with each platform's native command
   hosts: managed
   gather_facts: false
+  serial: 1
+
+  pre_tasks:
+    - name: Require explicit host aliases before any remote command
+      ansible.builtin.assert:
+        that:
+          - ansible_limit | default('') | length > 0
+          - inventory_hostname in (ansible_limit | default('')).split(',')
+          - (ansible_limit | default('')).split(',') | difference(groups['all']) | length == 0
+        fail_msg: "Use --limit with explicit inventory Host aliases, not groups or wildcard patterns."
 
   vars:
     selected_accelerator_query: >-
@@ -37,8 +47,8 @@
       ansible.builtin.assert:
         that:
           - accelerator_result.rc == 0
-          - "'match asset failed' not in accelerator_result.stdout"
-          - "'未发现匹配的资产' not in accelerator_result.stdout"
+          - "'match asset failed' not in ((accelerator_result.stdout ~ accelerator_result.stderr | default('')) | lower)"
+          - "'未发现匹配的资产' not in (accelerator_result.stdout ~ accelerator_result.stderr | default(''))"
         fail_msg: >-
           {{ inventory_hostname }} could not run
           '{{ selected_accelerator_query }}'. The platform command may be

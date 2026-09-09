@@ -10,5 +10,6 @@ if [[ ! -x "${binary}" ]]; then
 fi
 
 cd "${repo_root}"
+export ANSIBLE_CONFIG="${repo_root}/ansible.cfg"
 export ANSIBLE_HOME="${repo_root}/.ansible"
 exec "${binary}" "$@"

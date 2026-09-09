@@ -16,8 +16,11 @@ import argparse
 from datetime import datetime
 from pathlib import Path
 
-sys.stdout.reconfigure(line_buffering=True)
-sys.stderr.reconfigure(line_buffering=True)
+import math
+import uuid
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import vllm_perf
 
 # =============================================================================
 # 服务配置（按需修改）
@@ -35,6 +38,8 @@ DEFAULT_OUTPUT_LEN = 1024
 DEFAULT_CONCURRENCY = 64
 NUM_PROMPTS=256
 TOTAL_ROUNDS = 5
+TIMEOUT_S = 3600
+SEED = 42
 OUTPUT_DIR = Path(f"./unit_test_output_{MODEL_NAME}")
 ERROR_LOG_DIR = OUTPUT_DIR / "error_logs"
 
@@ -78,7 +83,7 @@ METRIC_PATTERNS = {
 def save_error_log(cmd, input_len, output_len, concurrency, round_num, stdout, stderr, returncode):
     """当测试出现服务端报错时，保存完整的请求信息到错误日志文件"""
     ERROR_LOG_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
     filename = f"error_in{input_len}_out{output_len}_c{concurrency}_round{round_num}_{timestamp}.json"
     filepath = ERROR_LOG_DIR / filename
 
@@ -130,65 +135,46 @@ def build_command(input_len, output_len, concurrency):
         "--random-output-len", str(output_len),
         "--endpoint", "/v1/completions",
         "--ignore-eos",
-        "--trust-remote-code",
+        "--random-range-ratio", "0",
+        "--temperature", "0",
+        "--request-rate", "inf",
+        "--seed", str(SEED),
         "--num-prompts", str(NUM_PROMPTS),
         "--max-concurrency", str(concurrency),
     ]
 
 
 def run_single_test(round_num, input_len, output_len, concurrency):
-    """执行单轮测试并返回所有解析后的指标"""
-    print(f"\n--- 第 {round_num}/{TOTAL_ROUNDS} 轮 ---")
+    """Use the maintained native-result validator for this legacy report."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     cmd = build_command(input_len, output_len, concurrency)
-    print(f"  执行命令: {' '.join(cmd)}")
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        # 检测服务端报错：returncode 非零 或 存在 Failed requests
-        has_error = result.returncode != 0
-        metrics = parse_output(result.stdout)
-        failed_requests = metrics.get("Failed requests")
-        if failed_requests is not None and failed_requests > 0:
-            has_error = True
-
-        if has_error:
-            print(f"  错误: 第 {round_num} 轮执行失败 (returncode={result.returncode})")
-            if result.stderr:
-                print(f"  错误输出: {result.stderr[:200]}")
-            save_error_log(
-                cmd, input_len, output_len, concurrency, round_num,
-                stdout=result.stdout, stderr=result.stderr, returncode=result.returncode
-            )
-            if result.returncode != 0:
-                return None
-
-        print(f"  第 {round_num} 轮完成")
-        for key, val in metrics.items():
-            if val is not None:
-                print(f"    {key}: {val}")
-        return metrics
-    except FileNotFoundError:
-        print("  错误: vllm 命令未找到，请确认 vllm 已安装且在 PATH 中")
+    # Per-case flags belong to run_once; keep only shared target/workload flags.
+    for flag in ("--random-input-len", "--random-output-len", "--num-prompts", "--max-concurrency"):
+        index = cmd.index(flag)
+        del cmd[index:index+2]
+    metrics = vllm_perf.run_once((input_len, output_len, concurrency, NUM_PROMPTS), round_num,
+                                 str(OUTPUT_DIR), cmd, timeout_s=TIMEOUT_S)
+    if not metrics.get("valid"):
         return None
-    except Exception as e:
-        print(f"  错误: 第 {round_num} 轮发生未知错误: {e}")
-        save_error_log(
-            cmd, input_len, output_len, concurrency, round_num,
-            stdout="", stderr=str(e), returncode=-1
-        )
-        return None
+    keys = ["successful_requests", "failed_requests", "benchmark_duration", "total_input_tokens",
+            "total_output_tokens", "request_throughput", "output_throughput", "total_token_throughput",
+            "mean_ttft_ms", "median_ttft_ms", "p99_ttft_ms", "mean_tpot_ms", "median_tpot_ms",
+            "p99_tpot_ms", "mean_itl_ms", "median_itl_ms", "p99_itl_ms"]
+    return {label: metrics.get(key) for label, key in zip(METRIC_PATTERNS, keys)}
 
 
 def compute_average(all_round_metrics):
     """对后 4 轮的数值型指标取平均"""
-    last4 = [m for m in all_round_metrics[1:] if m is not None]
+    if len(all_round_metrics) != TOTAL_ROUNDS or any(m is None for m in all_round_metrics):
+        return None
+    last4 = all_round_metrics[1:]
     if not last4:
         return None
 
     avg = {}
     for key in METRIC_PATTERNS:
         values = [m[key] for m in last4 if m.get(key) is not None]
-        if values:
+        if len(values) == len(last4):
             avg[key] = sum(values) / len(values)
         else:
             avg[key] = None
@@ -198,7 +184,7 @@ def compute_average(all_round_metrics):
 def print_and_save_results(all_round_metrics, avg_metrics, input_len, output_len, concurrency):
     """打印每轮完整结果 + 后4轮平均值，并保存到文件"""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
     filename = f"perf_results_in{input_len}_out{output_len}_c{concurrency}_{timestamp}.txt"
     filepath = OUTPUT_DIR / filename
 
@@ -267,12 +253,32 @@ def run_test_group(input_len, output_len, concurrency, dry_run=False):
 
 
 def main():
+    global SERVER_HOST, SERVER_PORT, MODEL_NAME, TOKENIZER_PATH, OUTPUT_DIR, ERROR_LOG_DIR, TIMEOUT_S, SEED
     parser = argparse.ArgumentParser(description="vLLM 性能测试脚本（5轮，取后4轮平均）")
     parser.add_argument("--input-len", type=int, default=None, help=f"输入长度 (指定后仅跑单组，跳过预设组)")
     parser.add_argument("--output-len", type=int, default=None, help=f"输出长度 (默认: {DEFAULT_OUTPUT_LEN})")
     parser.add_argument("--concurrency", type=int, default=None, help=f"并发数 (默认: {DEFAULT_CONCURRENCY})")
     parser.add_argument("--dry-run", action="store_true", help="仅打印命令，不执行")
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--tokenizer", required=True)
+    parser.add_argument("--host", default=SERVER_HOST)
+    parser.add_argument("--port", type=int, default=SERVER_PORT)
+    parser.add_argument("--output-dir", default="benchmark_results")
+    parser.add_argument("--timeout", type=float, default=3600)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
+    if (not 0 < args.port <= 65535 or not math.isfinite(args.timeout) or args.timeout <= 0
+            or not 0 <= args.seed < 2**32
+            or any(value is not None and value <= 0 for value in (args.input_len, args.output_len, args.concurrency))
+            or args.output_len == 1):
+        parser.error("invalid port/timeout/seed/case; output length must exceed one")
+    if args.input_len is None and (args.output_len is not None or args.concurrency is not None):
+        parser.error("--output-len/--concurrency overrides require --input-len")
+    SERVER_HOST, SERVER_PORT, MODEL_NAME, TOKENIZER_PATH = args.host, args.port, args.model, args.tokenizer
+    TIMEOUT_S, SEED = args.timeout, args.seed
+    label = re.sub(r"[^A-Za-z0-9_.-]+", "_", args.model).strip("_") or "model"
+    OUTPUT_DIR = Path(args.output_dir).resolve() / label / f"legacy-{uuid.uuid4().hex}"
+    ERROR_LOG_DIR = OUTPUT_DIR / "error_logs"
 
     print("=" * 70)
     print("vLLM 性能测试")
@@ -286,7 +292,9 @@ def main():
         input_len = args.input_len
         output_len = args.output_len if args.output_len is not None else DEFAULT_OUTPUT_LEN
         concurrency = args.concurrency if args.concurrency is not None else DEFAULT_CONCURRENCY
-        run_test_group(input_len, output_len, concurrency, args.dry_run)
+        avg = run_test_group(input_len, output_len, concurrency, args.dry_run)
+        if not args.dry_run and avg is None:
+            raise SystemExit(1)
     elif args.dry_run:
         # dry-run 模式 → 打印所有预设组的命令
         print("\n[DRY RUN MODE] - 预设三组测试:\n")
@@ -322,6 +330,9 @@ def main():
                 val = avg.get(key)
                 if val is not None:
                     print(f"    {key}: {val:.2f}")
+
+        if any(avg is None for avg in all_group_results.values()):
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":

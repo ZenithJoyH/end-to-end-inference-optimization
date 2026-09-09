@@ -6,11 +6,12 @@
 
 | 案例 ID | 模型 | 平台/硬件 | 引擎 | Workload | 瓶颈 | 主要改动 | 结果 | 证据等级 |
 |---|---|---|---|---|---|---|---|---|
+| [20260904-xingchen4-ppu-isolated-e2e](20260904-xingchen4-ppu-isolated-e2e/README.md) | XingChen4-29B-A4B BF16 | TP4 PPU-ZW810E / PPU-01 | vLLM 0.24.0 + Plugin + FlagGems | P1K/D1K/C64；P4K/D256/C64；P16K/D256/C32，各三轮 | MLA decode约60.6% GPU kernel时间 | operator/improve：H8的head tile64→16，限shape、可回退 | 保留：输出/总吞吐约+95.5%/+73.2%/+31.9%；GPQA按用户指示暂缓 | `reproduced` |
 | [20260903-imported-deepseek-v4-flash-w8a8](20260903-imported-deepseek-v4-flash-w8a8/README.md) | DeepSeek-V4-Flash W8A8 | 8× MetaX C550 | vLLM 0.20.2 + Plugin-FL + FlagGems | P1K/P4K, D1K, C64 | Indexer、Sparse MLA、cache copy、调度 | graph-safe/fusion/shape specialization | 原文最终组合显著提升；本项目未复测 | `observation` |
 | [20260903-imported-glm-5-2-w8a8](20260903-imported-glm-5-2-w8a8/README.md) | GLM-5.2 W8A8 | TP16 MetaX | vLLM + Plugin-FL + FlagGems/MCTlass | P1K/P4K | Indexer、MoE、Sparse MLA、采样、KV 抢占 | 分阶段 backend、精确算法、head packing、调度 | 原文持续演进；本项目未复测 | `observation` |
 | [20260903-imported-qwen3-6-moe](20260903-imported-qwen3-6-moe/README.md) | Qwen3.6-35B-A3B MoE BF16 | Hygon BW gfx936 | vLLM + Plugin-FL + FlagGems/ROCm | P1K/D256/C64 | MoE、DeltaRule、通信 | MoE 分阶段配置与 grouped-GEMM 原型 | 无最终 E2E 验收 | `observation` |
 
-以上为用户历史案例的资料导入，不等同于当前项目重新执行。原始性能数字与结论需回到各案例的环境和版本解释。
+20260904 XingChen4案例为本项目实际执行；其他标记imported的条目为用户历史案例资料导入，不等同于当前项目重新执行。原始性能数字与结论需回到各案例的环境和版本解释。
 
 ## 命名
 
@@ -20,7 +21,7 @@
 YYYYMMDD-<model>-<platform>-<short-objective>
 ```
 
-目录中的 `README.md` 从 [TEMPLATE.md](TEMPLATE.md) 初始化。配置、命令、补丁和小型结果摘要放在同一案例目录；大体积原始结果只记录外部路径和校验信息。
+目录中的 `README.md` 从 [TEMPLATE.md](TEMPLATE.md) 初始化。配置、可复用命令、补丁和逐轮结果保存在模型/平台的 `optimize/`，案例目录只保留少量 Markdown 摘要与链接；大体积原始结果只记录外部路径和校验信息。
 
 ## 检索标签
 

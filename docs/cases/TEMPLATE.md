@@ -2,18 +2,28 @@
 
 ## 1. 摘要
 
+- 执行规则：`policy_version` / `policy_date`（历史未知保持 null）
+- 验收范围：`formal|performance_only|diagnostic`
+- 精度/性能状态：`passed|failed|incomplete`
 - 状态：`planned|running|kept|reverted|not-proven|blocked`
 - 结论：
 - 主指标变化：
 - 守护指标变化：
 - 证据等级：`observation|reproduced|transferred|invariant`
 - 适用边界：
+- 模型/平台产物：`models/<model>/<platform>/{baseline,optimize,acceptance}/`
 
 ## 2. 任务与验收契约
 
 - 模型、权重和 tokenizer：
 - 平台、Host、设备与拓扑：
-- 容器、引擎、Plugin、FlagGems 和 runtime revision：
+- 源适配容器、镜像引用与 image ID/digest：
+- 新优化容器、镜像引用与 image ID/digest：
+- 镜像谱系状态与证据（`unverified|verified|failed`）：
+- 源/优化容器规范化挂载清单路径：
+- 挂载 diff 与 `mount_parity`（`unverified|passed|failed`）：
+- 容器运行配置差异、资源隔离与共享挂载影响：
+- 引擎、Plugin、FlagGems 和 runtime revision：
 - 主指标：
 - 守护指标：
 - 通过门槛：
@@ -63,6 +73,19 @@
 | 排名 | 分类 | 候选 | 瓶颈与命中证据 | 主指标净收益估计 | 成本/风险 | 依赖 | 首个验证实验 | 暂缓理由 |
 |---|---|---|---|---|---|---|---|---|
 
+### Plugin 设计复核（涉及 Plugin 时填写）
+
+规范见 [Plugin 优化设计与 PR 准备](../plugin-change-review.md)，内容或链接保存在模型/平台的 `optimize/`。
+
+- 目标 revision 的设计/贡献规范、相邻实现和复用扩展点：
+- 改动归属及未选择更窄扩展点的理由：
+- 真实支持/调优条件、默认选择、fallback、可选依赖和缓存状态：
+- 共享调用方与非目标模型/平台影响：
+- 代表性正例、反例、边界、graph/worker 测试及未测项：
+- 实验补丁到最终代码的整理与重新验证：
+- Plugin/FlagGems 的独立补丁、依赖及目标 CI：
+- `pr_readiness`：`experimental|needs_revision|ready_for_review`；设计问题与下一步：
+
 ### 已执行实验
 
 | ID | 分类 | 假设 | 主要变量 | 正确性 | 性能结果 | 波动 | 决定 |
@@ -70,14 +93,18 @@
 
 每个实验在正文中补充命令、配置、改动、日志位置和回退方法。组合诊断实验需说明为什么不能直接作为最终结论。
 
+多轮实验、profiling、补丁和逐轮性能摘要归档到模型/平台的 `optimize/`；本节链接相应文件。正式验收前不得把中间最好结果移动到 `acceptance/` 冒充最终结论。
+
 ## 8. 最终候选与回归
 
 - 最终改动：
+- Plugin 设计复核结论、PR 准备状态及未测模型/平台（如适用）：
 - baseline/candidate/revert 多轮对比：
 - workload 矩阵：
 - graph、cache、混合 batch 和长稳结果：
 - 多卡通信和负载均衡：
 - 回退验证：
+- `acceptance/` 中的最终性能和精度达标记录：
 
 ## 9. 结论与限制
 
@@ -93,5 +120,12 @@
 - 无效或负优化及原因：
 - 可更早执行的检查：
 - 可复用脚本、配置或测试：
-- 对关键算子知识库的更新：
+- 涉及的关键算子与知识目录：
+- 案例开始前的既有判断：
+- 知识差量：`confirmed|refined|contradicted|none`
+- 新的稳定理解、适用边界或反例：
+- 下次可提前执行的检查、可跳过方向或更深入实验：
+- 算子 `case-index.md` 证据卡链接：
+- `optimization-map.md` 更新及理由；无更新时说明：
+- 稳定算子 `README.md` 更新及理由；单个新数字不作为理由：
 - 对 SOP 的建议变更及证据等级：

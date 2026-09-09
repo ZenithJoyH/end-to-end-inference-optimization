@@ -1,0 +1,28 @@
+{
+  "host": "",
+  "optimization_container_name": "",
+  "service_instance_id": "",
+  "model_name": "",
+  "base_url": "http://127.0.0.1:8000/v1/chat/completions",
+  "mode": "graph",
+  "model_sha256": "",
+  "tokenizer_sha256": "",
+  "engine_sha256": "",
+  "plugin_sha256": "",
+  "flaggems_sha256": "",
+  "runtime_evidence_sha256": "",
+  "launch_config": {},
+  "image_lineage": "unverified",
+  "mount_parity": "unverified",
+  "tokenizer_path": "",
+  "performance_context": {
+    "platform": "",
+    "device_model": "",
+    "device_ids": [],
+    "driver_version": "",
+    "device_runtime_version": "",
+    "image_id": "",
+    "prefix_cache_state": "not_observed",
+    "cache_preparation": ""
+  }
+}

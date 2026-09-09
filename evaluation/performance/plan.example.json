@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "target": {
+    "model": "MODEL_NAME",
+    "tokenizer": "TOKENIZER_PATH",
+    "host": "127.0.0.1",
+    "port": 8000,
+    "endpoint": "/v1/completions",
+    "trust_remote_code": false
+  },
+  "generation": {"seed": 42, "temperature": 0, "ignore_eos": true, "random_range_ratio": 0},
+  "measurement": {
+    "warmup_rounds": 3,
+    "measured_rounds": 3,
+    "timeout_s": 3600,
+    "required_metrics": ["request_throughput", "output_throughput", "total_token_throughput", "p99_ttft_ms", "p99_tpot_ms", "p99_itl_ms", "p99_e2el_ms"],
+    "slo": {},
+    "warmup_stability": {"metric": "output_throughput", "window": 3, "max_relative_spread": 0.05}
+  },
+  "cases": [
+    {"id": "p1024-d128-c8-batch", "input_tokens": 1024, "output_tokens": 128, "concurrency": 8, "requests": 32, "load_mode": "finite_batch", "request_rate": null, "burstiness": 1},
+    {"id": "p1024-d128-c8-rps1", "input_tokens": 1024, "output_tokens": 128, "concurrency": 8, "requests": 32, "load_mode": "open_loop", "request_rate": 1, "burstiness": 1}
+  ]
+}

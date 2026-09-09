@@ -42,5 +42,5 @@
 1. 用 profiler 和运行时 dispatch 证据确定具体算子与实现。
 2. 读算子 `README.md` 建立语义、数据流和性能模型。
 3. 读 `optimization-map.md`，按当前有效 shape 和环境选首个可证伪实验。
-4. 只打开 map 所链接的匹配案例卡；需要命令、patch 或完整结果时再进入 `docs/cases/`。
+4. 只打开 map 所链接的匹配案例卡；需要进一步证据时，从 `docs/cases/` 的摘要链接到对应模型/平台的 `baseline/`、`optimize/` 或 `acceptance/` 主记录，原始大产物按其中的外部路径查阅。
 5. 案例完成后按 `case-to-knowledge.md` 回写知识差量。

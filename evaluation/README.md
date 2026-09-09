@@ -1,52 +1,78 @@
-# 精度与性能评测
+# 评测入口与验收证据
 
-本目录由“新模型适配”项目的公共评测资产迁入，已成为当前项目的独立副本，不与上游目录建立运行时联系。
+正式流程和例外边界由 [SOP](../docs/performance-optimization-sop.md) 管理。配置字段、可比性和记录格式见 [实验契约](../docs/experiment-contract.md)。本页维护实际命令，不重复定义验收政策。
 
-2026-09-04 用户要求直接重新复制原始脚本。正式精度 runner 的逐字节副本现位于
-[`test/Accuracy_test/`](../test/Accuracy_test/) 和 [`test/perf_test/`](../test/perf_test/)，
-当前副本校验见 [`test/IMPORT_MANIFEST.md`](../test/IMPORT_MANIFEST.md)。本目录已有参数化版本及
-`verify_accuracy.py` 保留。正式模型级精度评测固定使用 `test/Accuracy_test/llmrun.py`；
-本目录的 accuracy runner 只用于模板、维护和已证明等价的辅助流程，不自动替代正式入口。XingChen 当前案例正式评测以新复制的原始 runner 为基础，
-模型、端口和输出目录通过案例专属配置或 wrapper 指定，不运行原始示例中的其他模型目标。
+## 正式精度
 
-## 评测闭环
+在目标机器上的 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 评测容器内，部署本项目 `test/Accuracy_test/` 与 `evaluation/accuracy/`，保留相对目录。模型仍运行在独立优化容器中。准备以下外部文件：
 
-```text
-固定验收契约
-  → eager / graph 启动验证
-  → graph 下 8 并发固定小样本（正确性 + 性能 sanity）
-  → 每轮候选的最小数值/行为回归
-  → 最终候选的全量精度评测
-  → 精度门禁通过
-  → 同一 graph 服务配置下正式性能评测
-  → baseline / candidate / revert 对比
+- 案例配置：从 [llm_config.example.json](accuracy/llm_config.example.json) 复制，填写目标、输出/数据集路径、生成参数及 `seed`。正式流程不读取原始示例默认目标。
+- 契约：从 [contract.example.json](accuracy/contract.example.json) 复制，在评测前冻结正式 metric、最低分或可信 baseline、完整样本 ID，以及下面采集的任务/数据证据。
+- 服务身份：从 [service-manifest.example.json](accuracy/service-manifest.example.json) 复制，依据当前进程/容器只读检查填写。SHA 必须来自实际权重/文件清单、tokenizer、实际引擎/源码副本和运行证据；revision 字符串不能代替未提交代码的内容指纹。
+- 评测容器 inspect：目标机器上对精确评测容器执行 `docker inspect` 的结果，保存在外部产物目录。工具检查规定镜像引用和 image ID；执行者仍需确认命令确实运行在该容器中。
+
+先在规定评测容器中采集实际解析的任务和数据，尚不调用模型服务：
+
+```bash
+python3 evaluation/accuracy/formal_accuracy.py \
+  --config /external/case-config.json \
+  --evaluation-inspect /external/evaluator.inspect.json \
+  --capture-provenance /external/task-provenance.json
 ```
 
-探索阶段可以运行短性能测试帮助定位，但不能作为最终性能结论。正式性能评测必须在最终候选通过全量精度门禁后进行。
+将命令输出的 `dataset_revision` 和 `task_provenance` 原样写入案例契约，再冻结契约。revision 使用实际原始 split 内容指纹；provenance 同时包含处理后题目、有效 task 配置、评测器/辅助源码与版本。配置中的 dataset path/name/split 必须与真实 task 一致；不会自动重写镜像中的任务或把预检路径当作实际评测数据。
 
-## 目录
+然后进行服务预检：
 
-- `accuracy/`：基于 `lm-evaluation-harness` 的单服务和分片评测入口、GPQA 阶段计分与精度门禁。
-- `performance/`：vLLM、SGLang 的稳态 benchmark、Profiler 驱动与 trace 汇总工具。
-- `ACCEPTANCE_TEMPLATE.md`：每个优化案例的精度/性能验收记录模板。
-- `IMPORT_MANIFEST.md`：来源文件、校验值、本地化修改和未导入资产。
+```bash
+python3 evaluation/accuracy/formal_accuracy.py \
+  --config /external/case-config.json \
+  --contract /external/contract.json \
+  --service-manifest /external/service.json \
+  --evaluation-inspect /external/evaluator.inspect.json \
+  --preflight-only
+```
 
-## 强制规则
+预检通过后以同一参数去掉 `--preflight-only` 执行。包装器调用 SHA 校验后的原始 `test/Accuracy_test/llmrun.py` 模块，保持模型 API、任务与生成实现；额外设置显式 seed、每次运行独立缓存命名空间及更严格检查，以采集任务的同一 Python 解释器运行 lm-eval。它不是另一个模型评测实现。直接运行原件不会获得这些外层检查，不能单独产生正式验收记录。
 
-1. 正式精度评测在目标机器上基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器内运行，固定调用 `test/Accuracy_test/llmrun.py`。
-2. 默认任务为完整 `gpqa_diamond_generative_cot`：`limit=0`、`expected_samples=198`；未经用户明确修改，不能用子集、阶段分数或分片 runner 代替。
-3. 在看结果前固定任务、样本数、生成参数、并发、随机种子、指标和通过门槛。
-4. baseline 与 candidate 使用同一权重、tokenizer、prompt/chat template、采样参数、服务模式和数据集 revision。
-5. 优先使用已适配模型的可信结果作相对基线；没有可信基线时使用模型负责人给出的绝对门槛，不能在看到分数后放宽。
-6. 进程退出 0 不等于精度通过；还要验证 198 个唯一完整样本、结果文件、超时、空输出、截断、异常重复和正式 metric。
-7. 中间阶段分数只用于提前发现异常，不能代替最终 `results_*.json`。
-8. 性能正式结果与 profiler 结果分账；profile 轮不进入稳态吞吐/延迟汇总。
-9. 数据集、权重、response cache、原始 trace 和大体积输出不提交仓库，只记录位置、revision 和校验信息。
+正式执行前写出 `effective_config.json` 和 `frozen-inputs.json`；运行前后重验实际任务/数据证据。结束后核对 198 个唯一题目的有效响应与全部冻结 filter、实际题目指纹、重复/缺失项、超时、显式截断、结果文件唯一性和冻结分数阈值，同时检查原生 results 中的模型/endpoint、任务配置、生成参数、seed、缓存运行标识与有效样本数。同题多 filter 可以产生多行，要求原始题目与模型响应一致；不能用行数代替题数。失败保持非零退出，保留外部产物。通过后写出 `run-record.json` 和待填写的 `health-review.template.json`。
 
-## 来源与本地化
+正式精度 contract/run-record/gate 当前使用 schema 2；它们与通用实验记录的 schema 独立。旧记录缺少任务来源证据时不能仅改版本号转为新 gate。当前解析器依据 lm-eval v0.4.9 的 ConfigurableTask 与结果结构编写；目标镜像的实际版本、任务定制或字段不符时拒绝正式签发，需先核对并适配。本地负例测试不代表已经在 `flageval-llmeval:v1` 完成集成验证。不要绕过来源检查来恢复旧行为。
 
-迁入时保留了上游 runner 的核心行为，并做了三项本地化：
+人工或 Agent 逐条检查完整输出与必要日志，填写健康审查的 reviewer、method 和各项结论。缺少 finish_reason/token 信息时不能凭“没看到 length”断言未截断；证据不足保持 pending。结构检查不会把错误答案的空过滤结果误判为空模型输出。
 
-- 示例配置不再包含上游模型或 NFS 路径；
-- 默认不允许超时通过；
-- 增加 `verify_accuracy.py`，用于执行预先确定的绝对或相对精度门禁。
+```bash
+python3 evaluation/accuracy/acceptance.py issue \
+  --run-record /external/run/run-record.json \
+  --health-review /external/run/health-review.json \
+  --output /external/run/accuracy-gate.json
+```
+
+新 gate 不覆盖旧文件。它绑定服务身份、原始 runner、配置、契约、结果、样本和审查文件 SHA；签发或消费时均重新检查。`verify_accuracy.py` 仅检查分数阈值，不生成正式 gate。
+
+## 正式性能与诊断
+
+启动性能测试前重新核验当前服务身份，再检查：
+
+```bash
+python3 evaluation/accuracy/acceptance.py check \
+  --gate /external/run/accuracy-gate.json \
+  --service-manifest /external/current-service.json
+```
+
+核验服务身份不等于自动远程采集。工具检测的是文件一致性，执行者必须根据当前进程、实际导入路径与源码内容重新确认 manifest；不能将旧快照当成当前事实。服务重启改变 `service_instance_id`，权重、代码、tokenizer、启动参数或运行身份变化均使旧 gate 失效。证据文件在消费端必须可访问；需搬运时保持内容 SHA 并明确更新引用，不能仅复制一个 `passed=true`。
+
+XingChen 的 [性能 wrapper](../models/XingChen4-29B-A4B/ppu/optimize/tools/standard_perf.py) 正式模式要求 `--accuracy-gate` 和 `--service-manifest`，并核对实际 benchmark 模型/host/port。单独部署它时用 `--acceptance-tools` 指定随同部署的 `evaluation/accuracy/`。用户批准的纯性能研究使用 `--performance-only`，不生成正式精度达标声明。候选与 baseline/revert 的服务身份分别记录，不能为原路径伪造候选 gate。
+
+[evaluation/performance](performance/README.md) 提供维护版诊断客户端，检查失败退出与完整轮次；[test/perf_test](../test/IMPORT_MANIFEST.md) 保留原始性能资产。直接运行诊断客户端不会自动成为正式验收。正式性能需同一候选 graph 配置、固定 workload、预热与多轮稳态，并完成 baseline/candidate/revert 对比。
+
+需要自动比较时使用 `vllm_perf.py --config` 的计划入口，每次运行通过 `--comparison-contract` 绑定预冻结阈值并生成逐轮 `run-record.json`，最后使用 `compare_performance.py`。比较器重验原始结果/输出/命令、SHA、环境差异和独立进程数，并检查主指标、守护、波动和 SLO；正式范围还重验候选精度 gate。服务 manifest 的 `performance_context` 保存实际设备/runtime与缓存条件，仍由执行者取证。完整示例、三态判定和能力范围见[性能文档](performance/README.md#配置执行与比较)。
+
+## 证据与目录
+
+- `accuracy/`：正式 wrapper、样本检查、分数检查、绑定验收及模板；参数化和分片副本仅用于辅助/显式指定流程。
+- `performance/`：维护版诊断、profiling 与 trace 汇总；原始工具的语义/矩阵变更需重新证明可比性。
+- [ACCEPTANCE_TEMPLATE.md](ACCEPTANCE_TEMPLATE.md)：案例验收记录。
+- [IMPORT_MANIFEST.md](IMPORT_MANIFEST.md)：历史导入与本地化说明；原始 `test/` 文件校验以 [test/IMPORT_MANIFEST.md](../test/IMPORT_MANIFEST.md) 为准。
+
+完整日志、响应、数据集和 trace 留在外部产物路径；项目保存配置、摘要、校验值、失败原因及复现入口。历史记录不因新工具加入而自动通过新门禁。

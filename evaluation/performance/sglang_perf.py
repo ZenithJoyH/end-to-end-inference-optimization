@@ -1,54 +1,42 @@
 #!/usr/bin/env python3
 
-# Usage:
-#  1. Start the server as follows (adjust model path and args as needed):
-# python -m sglang.launch_server --model-path /models/Qwen3.6-27B --tp 2 --context-length 262144 --disable-radix-cache
-#
-#  2. Run this benchmark script (default: 4 test cases):
-# python benchmarks/benchmark_throughput_serve.py
-#
-# [Optional] Run all 10 test cases:
-# python benchmarks/benchmark_throughput_serve.py --enable-all
+"""Parameterized diagnostic SGLang benchmark; not a formal accuracy gate.
 
-
+Native format: sgl-project/sglang v0.5.11, python/sglang/bench_serving.py.
+The maintained workload uses fixed random lengths, infinite arrival rate and
+an explicit concurrency cap. Original imported scripts remain under test/.
+"""
 import argparse
 import csv
 import json
+import math
 import os
+from pathlib import Path
 import re
 import subprocess
+import sys
 import time
+import uuid
 from datetime import datetime
 from statistics import mean
 
-MODEL = "MODEL_NAME"
-TOKENIZER_PATH = "/path/to/tokenizer"
-SHAREGPT_PATH = "/path/to/ShareGPT_V3_unfiltered_cleaned_split.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import vllm_perf
 
 HOST = "127.0.0.1"
 PORT = 30000
 RUNS = 3
 SKIP_FIRST = 1
+COMMON_ARGS = None  # Callers must supply an explicit target.
 
-COMMON_ARGS = [
-    "python3",
-    "-m",
-    "sglang.bench_serving",
-    "--backend",
-    "sglang",
-    "--model",
-    MODEL,
-    "--tokenizer",
-    TOKENIZER_PATH,
-    "--host",
-    HOST,
-    "--port",
-    str(PORT),
-    "--dataset-name",
-    "random",
-    "--dataset-path",
-    SHAREGPT_PATH,
-]
+
+def build_common_args(args):
+    return [sys.executable, "-m", "sglang.bench_serving", "--backend", "sglang",
+            "--model", args.model, "--tokenizer", args.tokenizer,
+            "--host", args.host, "--port", str(args.port), "--dataset-name", "random",
+            "--random-range-ratio", "0", "--request-rate", "inf",
+            "--seed", str(args.seed)]
+
 
 DEFAULT_TEST_CASES = [
     (1024, 1024, 64, 128),
@@ -70,16 +58,24 @@ ALL_TEST_CASES = [
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--enable-all",
-        action="store_true",
-        help="Enable all 10 test cases. If not set, run default 4 cases.",
-    )
-    return parser.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--tokenizer", required=True)
+    parser.add_argument("--host", default=HOST)
+    parser.add_argument("--port", type=int, default=PORT)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--output-dir", default="benchmark_results")
+    parser.add_argument("--timeout", type=float, default=3600)
+    parser.add_argument("--enable-all", action="store_true", help="Run the extended diagnostic matrix")
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    if not 0 < args.port <= 65535 or not 0 <= args.seed < 2**32 or not math.isfinite(args.timeout) or args.timeout <= 0:
+        parser.error("invalid port, seed or timeout")
+    return args
 
 
 PATTERNS = {
+    "failed_requests": r"Failed requests:\s+([0-9.]+)",
     "successful_requests": r"Successful requests:\s+([0-9.]+)",
     "benchmark_duration": r"Benchmark duration \(s\):\s+([0-9.]+)",
     "total_input_tokens": r"Total input tokens:\s+([0-9.]+)",
@@ -142,7 +138,7 @@ def save_error_log(cmd, case, run_id, stdout, stderr, returncode, output_dir):
     error_log_dir = os.path.join(output_dir, "error_logs")
     os.makedirs(error_log_dir, exist_ok=True)
     input_len, output_len, concurrency, num_prompts = case
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
     filename = f"error_in{input_len}_out{output_len}_c{concurrency}_run{run_id}_{timestamp}.json"
     filepath = os.path.join(error_log_dir, filename)
     error_record = {
@@ -204,82 +200,126 @@ def append_csv(row, filename, columns):
         writer.writerow(row)
 
 
-def run_once(case, run_id, output_dir):
+def build_round_command(case, run_id, common_args, raw_path):
     input_len, output_len, concurrency, num_prompts = case
-    name = f"{input_len}_{output_len}_c{concurrency}"
+    if any(type(x) is not int or x <= 0 for x in case) or output_len <= 1:
+        raise ValueError("diagnostic cases require positive integers and output length > 1")
+    if not common_args:
+        raise ValueError("explicit model/tokenizer/host command is required")
+    cmd = list(common_args)
+    if "--seed" in cmd:
+        index = cmd.index("--seed") + 1
+        seed = int(cmd[index]) + input_len * 10 + concurrency * 1000 + run_id
+        if not 0 <= seed < 2**32:
+            raise ValueError("derived seed is outside the client range")
+        cmd[index] = str(seed)
+    return cmd + ["--random-input-len", str(input_len), "--random-output-len", str(output_len),
+                  "--max-concurrency", str(concurrency), "--num-prompts", str(num_prompts),
+                  "--output-file", str(raw_path), "--output-details"]
 
-    print("=" * 80)
-    print(f"Running: {name} | Run {run_id}/{RUNS}")
-    print("=" * 80)
 
-    cmd = COMMON_ARGS + [
-        "--random-input-len",
-        str(input_len),
-        "--random-output-len",
-        str(output_len),
-        "--random-range-ratio",
-        "1.0",
-        "--max-concurrency",
-        str(concurrency),
-        "--num-prompts",
-        str(num_prompts),
-    ]
+def validate_result(case, raw, stdout):
+    if not isinstance(raw, dict):
+        return {}, {"schema": "unknown", "errors": ["native SGLang result must be an object"]}
+    inputs = raw.get("input_lens")
+    adapted = dict(raw)
+    # SGLang has no num_prompts field; derive it from independently saved
+    # per-request inputs, never from the requested case or success counter.
+    adapted["num_prompts"] = len(inputs) if isinstance(inputs, list) else None
+    adapted["total_token_throughput"] = raw.get("total_throughput")
+    metrics, validation = vllm_perf.validate_native_result(case, adapted, vllm_perf.extract_metrics(stdout))
+    validation["schema"] = "sglang_detailed_v0.5.11"
+    for key, expected in (("backend", "sglang"), ("dataset_name", "random"),
+                          ("random_input_len", case[0]), ("random_output_len", case[1]),
+                          ("random_range_ratio", 0), ("max_concurrency", case[2])):
+        if isinstance(raw.get(key), bool) or raw.get(key) != expected:
+            validation["errors"].append(f"native {key} differs from the requested workload")
+    if raw.get("request_rate") != float("inf"):
+        validation["errors"].append("native request_rate differs from finite-batch inf arrival")
+    if (not isinstance(inputs, list) or len(inputs) != case[3]
+            or any(type(n) is not int or n != case[0] for n in inputs)):
+        validation["errors"].append("native input_lens differ from fixed input length")
+    for stat in ("mean", "median", "p99"):
+        key = f"{stat}_e2e_latency_ms"
+        value = raw.get(key)
+        if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+            validation["errors"].append(f"missing or invalid native {key}")
+        metrics[f"{stat}_e2el_ms"] = value
+    return metrics, validation
 
-    print(" ".join(cmd))
-    print()
 
-    start_time = time.time()
-    process = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    elapsed = time.time() - start_time
-
-    output = process.stdout
-    print(output)
-    if process.stderr:
-        print(process.stderr)
-
-    metrics = extract_metrics(output)
-    metrics["elapsed_sec"] = round(elapsed, 2)
-
-    # 检测服务端报错：returncode 非零 或 successful_requests 不符合预期
-    has_error = process.returncode != 0
-    if metrics.get("successful_requests") is not None and metrics["successful_requests"] != num_prompts:
-        has_error = True
-
-    if has_error:
-        save_error_log(
-            cmd, case, run_id,
-            stdout=process.stdout, stderr=process.stderr,
-            returncode=process.returncode, output_dir=output_dir
-        )
-
+def run_once(case, run_id, output_dir, common_args=None, timeout_s=3600):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = output_dir / f"p{case[0]}-d{case[1]}-c{case[2]}-r{run_id}-{uuid.uuid4().hex}.jsonl"
+    cmd = build_round_command(case, run_id, common_args or COMMON_ARGS, raw_path)
+    start = time.monotonic()
+    def as_text(value):
+        return value.decode(errors="replace") if isinstance(value, bytes) else value or ""
+    try:
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout_s)
+    except subprocess.TimeoutExpired as exc:
+        process = subprocess.CompletedProcess(cmd, 124, as_text(exc.stdout), as_text(exc.stderr) + "\nbenchmark timed out")
+    except OSError as exc:
+        process = subprocess.CompletedProcess(cmd, 127, "", str(exc))
+    print(process.stdout)
+    raw, raw_error = {}, None
+    try:
+        lines = [line for line in raw_path.read_text().splitlines() if line.strip()]
+        if len(lines) != 1:
+            raise ValueError("expected exactly one native JSONL result")
+        def unique_pairs(items):
+            result = {}
+            for key, value in items:
+                if key in result:
+                    raise ValueError(f"duplicate native JSON key: {key}")
+                result[key] = value
+            return result
+        raw = json.loads(lines[0], object_pairs_hook=unique_pairs)
+    except (OSError, ValueError) as exc:
+        raw_error = str(exc)
+    metrics, validation = validate_result(case, raw, process.stdout)
+    if raw_error:
+        validation["errors"].append(raw_error)
+    if process.returncode != 0:
+        validation["errors"].append(f"benchmark exited with status {process.returncode}")
+    metrics.update(elapsed_sec=time.monotonic()-start, returncode=process.returncode,
+                   valid=not validation["errors"])
+    # Preserve successful output as well: profiling acknowledgement is evidence,
+    # and native JSON alone cannot explain an export/start/stop failure.
+    evidence = dict(command=cmd, returncode=process.returncode, valid=metrics["valid"],
+                    raw_result=str(raw_path), stdout=process.stdout, stderr=process.stderr, **validation)
+    with raw_path.with_suffix(".validation.json").open("x") as stream:
+        json.dump(evidence, stream, indent=2, allow_nan=False)
+    if not metrics["valid"]:
+        save_error_log(cmd, case, run_id, process.stdout, process.stderr, process.returncode, str(output_dir))
     return metrics
 
 
 def average_metrics(results):
     avg_result = {}
+    if not results or any(not r.get("valid") for r in results):
+        raise ValueError("Cannot aggregate incomplete or failed rounds")
     keys = results[0].keys()
     for key in keys:
+        if key in ("returncode", "valid"):
+            continue
         values = [r[key] for r in results if isinstance(r.get(key), (int, float))]
-        if values:
-            avg_result[key] = round(mean(values), 2)
+        # Missing metrics stay unavailable; do not report a mean from fewer rounds.
+        avg_result[key] = round(mean(values), 2) if len(values) == len(results) else None
     return avg_result
 
 
-def run_test_case(case, csv_file, output_dir):
+def run_test_case(case, csv_file, output_dir, common_args=None, timeout_s=3600):
     all_runs = []
 
     for run_id in range(1, RUNS + 1):
-        metrics = run_once(case, run_id, output_dir)
+        metrics = run_once(case, run_id, output_dir, common_args, timeout_s=timeout_s)
 
         expected_successful_requests = case[3]
         status = (
             "SUCCESS"
-            if metrics.get("successful_requests") == expected_successful_requests
+            if metrics.get("valid") is True
             else "FAILED"
         )
 
@@ -291,10 +331,10 @@ def run_test_case(case, csv_file, output_dir):
     valid_runs = all_runs[SKIP_FIRST:]
 
     expected_successful_requests = case[3]
-    has_failed_run = any(
-        run.get("successful_requests") != expected_successful_requests
-        for run in valid_runs
-    )
+    # A failed warmup also invalidates the case; never average surviving rounds.
+    has_failed_run = any(run.get("valid") is not True for run in all_runs)
+    if has_failed_run or not valid_runs:
+        return None, True
 
     avg_metrics = average_metrics(valid_runs)
 
@@ -327,12 +367,20 @@ def main():
 
     test_cases = ALL_TEST_CASES if args.enable_all else DEFAULT_TEST_CASES
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
 
-    output_dir = os.path.join("benchmark_results", MODEL)
+    model_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", args.model).strip("_") or "model"
+    output_dir = os.path.join(args.output_dir, model_label, timestamp)
+    common_args = build_common_args(args)
+    if args.dry_run:
+        for case in test_cases:
+            for run_id in range(1, RUNS + 1):
+                print(json.dumps(build_round_command(case, run_id, common_args, Path(output_dir) / f"round-{run_id}.jsonl")))
+        return
     os.makedirs(output_dir, exist_ok=True)
 
     all_summary = []
+    failed_cases = []
 
     print()
     print(f"RUNS={RUNS}")
@@ -348,25 +396,27 @@ def main():
         input_len, output_len, concurrency, num_prompts = case
         scenario_name = f"{input_len}in_{output_len}out_c{concurrency}_n{num_prompts}"
         csv_file = os.path.join(
-            output_dir, f"{MODEL}_{scenario_name}_{timestamp}.csv"
+            output_dir, f"{model_label}_{scenario_name}_{timestamp}.csv"
         )
 
         try:
             summary_row, has_failed_run = run_test_case(
                 case,
                 csv_file,
-                output_dir,
+                output_dir, common_args, timeout_s=args.timeout,
             )
 
             csv_files.append(csv_file)
 
             if has_failed_run:
+                failed_cases.append(case)
                 print(f"SKIP SUMMARY ROW (failed case): {case}")
                 continue
 
             all_summary.append(summary_row)
 
         except Exception as e:
+            failed_cases.append(case)
             print(f"ERROR: {e}")
 
     print_summary(all_summary)
@@ -375,6 +425,9 @@ def main():
     print("CSV files:")
     for f in csv_files:
         print(f"  {f}")
+
+    if failed_cases or not all_summary:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

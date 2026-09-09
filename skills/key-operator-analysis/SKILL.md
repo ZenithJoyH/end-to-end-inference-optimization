@@ -30,7 +30,7 @@ Use [knowledge-index.md](references/knowledge-index.md) to select only the mater
 
 ## Case-driven learning loop
 
-Do not append complete case reports to an operator's stable `README.md`. The case directory is the system of record for commands, patches, raw measurements, environment manifests, failures, and final acceptance.
+Do not append complete case reports to an operator's stable `README.md`. Keep `docs/cases/<case>/` to a small number of readable summaries linking to the authoritative records under `models/<model>/<platform>/`: `baseline/` for the original environment and measurements, `optimize/` for experiments, commands, patches, failures and rollback, and `acceptance/` for final acceptance configuration and status. Raw logs, traces and other large artifacts remain external; record their locations and checksums.
 
 At the start of an operator optimization:
 
@@ -48,7 +48,7 @@ When closing the case, read [case-to-knowledge.md](references/case-to-knowledge.
 
 Then update at most the layers justified by the evidence:
 
-1. `docs/cases/<case>/`: always keep the full case evidence here.
+1. Complete the relevant model/platform records and link them from the concise `docs/cases/<case>/` summary; do not duplicate the experiment history or raw artifacts there.
 2. `operators/<operator>/case-index.md`: add a compact evidence card when the case materially analyzed the operator, including failed and negative experiments.
 3. `operators/<operator>/optimization-map.md`: update when the case changes a future diagnostic check, candidate ranking, applicability guard, stop condition, or next experiment.
 4. `operators/<operator>/README.md`: update only when the stable semantic, implementation model, bottleneck model, or cross-case conclusion changed. A new performance number alone is not sufficient.

@@ -14,7 +14,8 @@ bash -n \
   scripts/health-check \
   scripts/inventory \
   scripts/playbook \
-  scripts/syntax-check
+  scripts/syntax-check \
+  scripts/validate-local
 
 for playbook in playbooks/*.yml; do
   "${repo_root}/scripts/playbook" "${playbook}" --syntax-check

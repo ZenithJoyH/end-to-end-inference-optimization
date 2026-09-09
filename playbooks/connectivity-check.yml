@@ -2,6 +2,16 @@
 - name: Verify SSH connectivity for all managed hosts
   hosts: managed
   gather_facts: false
+  serial: 1
+
+  pre_tasks:
+    - name: Require explicit host aliases before any remote command
+      ansible.builtin.assert:
+        that:
+          - ansible_limit | default('') | length > 0
+          - inventory_hostname in (ansible_limit | default('')).split(',')
+          - (ansible_limit | default('')).split(',') | difference(groups['all']) | length == 0
+        fail_msg: "Use --limit with explicit inventory Host aliases, not groups or wildcard patterns."
 
   tasks:
     - name: Read remote hostname without requiring Python
@@ -11,8 +21,8 @@
       failed_when: >-
         hostname_result.rc != 0
         or hostname_result.stdout | trim | length == 0
-        or 'match asset failed' in hostname_result.stdout
-        or '未发现匹配的资产' in hostname_result.stdout
+        or 'match asset failed' in ((hostname_result.stdout ~ hostname_result.stderr | default('')) | lower)
+        or '未发现匹配的资产' in (hostname_result.stdout ~ hostname_result.stderr | default(''))
 
     - name: Report connected host
       ansible.builtin.debug:

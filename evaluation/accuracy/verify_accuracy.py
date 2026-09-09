@@ -52,8 +52,11 @@ def main() -> None:
 
     if args.minimum is None and args.baseline is None:
         parser.error("至少提供 --minimum 或 --baseline")
-    if args.max_regression < 0:
-        parser.error("--max-regression 必须 >= 0")
+    if not math.isfinite(args.max_regression) or args.max_regression < 0:
+        parser.error("--max-regression 必须为有限数且 >= 0")
+
+    if args.minimum is not None and not math.isfinite(args.minimum):
+        parser.error("--minimum 必须为有限数")
 
     candidate = metric_value(load_task_metrics(args.result, args.task), args.metric)
     failures = []
@@ -80,7 +83,7 @@ def main() -> None:
         for failure in failures:
             print(f"FAIL: {failure}")
         raise SystemExit(1)
-    print("PASS: accuracy gate satisfied")
+    print("PASS: score threshold satisfied (sample/service acceptance not checked)")
 
 
 if __name__ == "__main__":

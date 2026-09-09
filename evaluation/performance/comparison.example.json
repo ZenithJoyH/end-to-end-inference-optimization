@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "填写本轮单一优化假设；以下阈值仅为示例，必须在测量前按任务冻结",
+  "variable_paths": ["/flaggems_sha256"],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.05
+  },
+  "guardrails": [
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05,
+      "maximum": 2000
+    }
+  ],
+  "repeats": {
+    "min_processes": 2,
+    "min_measured_rounds": 3,
+    "max_relative_spread": 0.1,
+    "max_baseline_drift": 0.1
+  },
+  "slo_min_attainment": 0.99
+}

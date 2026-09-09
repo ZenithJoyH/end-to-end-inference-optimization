@@ -29,5 +29,6 @@
   "service_poll_interval": 30,
   "service_wait_timeout": 3600,
   "progress_score_interval": 10,
-  "progress_score_poll_seconds": 5
+  "progress_score_poll_seconds": 5,
+  "seed": 42
 }

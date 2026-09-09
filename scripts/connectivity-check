@@ -2,4 +2,8 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-exec "${repo_root}/scripts/playbook" playbooks/connectivity-check.yml "$@"
+if [[ ! -x "${repo_root}/.venv/bin/python" ]]; then
+  printf 'Run ./scripts/bootstrap-control-node first.\n' >&2
+  exit 1
+fi
+exec "${repo_root}/.venv/bin/python" "${repo_root}/scripts/check-targets.py" connectivity-check "$@"

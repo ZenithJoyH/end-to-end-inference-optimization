@@ -16,6 +16,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from sample_validation import validate_sample_file
+
 
 def log(level: str, message: str) -> None:
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -331,43 +333,16 @@ def validate_samples(cfg: Dict, task: str, task_dir: Path) -> bool:
     if samples_file is None:
         log("ERROR", f"No samples JSONL was found for {task} under {task_dir}")
         return False
-    row_count = 0
-    doc_timeouts: Dict[str, bool] = {}
-    with samples_file.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            if not line.strip():
-                continue
-            row_count += 1
-            record = json.loads(line)
-            responses = json.dumps(
-                {
-                    "resps": record.get("resps"),
-                    "filtered_resps": record.get("filtered_resps"),
-                },
-                ensure_ascii=False,
-            )
-            doc_id = str(record.get("doc_id", f"line-{row_count}"))
-            is_timeout = bool(record.get("timeout")) or "<TIMEOUT>" in responses
-            doc_timeouts[doc_id] = doc_timeouts.get(doc_id, False) or is_timeout
-    sample_count = len(doc_timeouts)
-    timeout_count = sum(doc_timeouts.values())
     expected = cfg["limit"] if cfg["limit"] > 0 else cfg.get("expected_samples", 0)
-    log(
-        "INFO",
-        f"Samples file: {samples_file}, unique_samples={sample_count}, "
-        f"rows={row_count}, timeouts={timeout_count}",
-    )
-    if expected and sample_count != expected:
-        log("ERROR", f"Result sample count mismatch: expected {expected}, found {sample_count}")
-        return False
-    if timeout_count and not cfg.get("allow_timeouts", False):
-        log("ERROR", f"Result contains {timeout_count} <TIMEOUT> responses and allow_timeouts is false")
-        return False
-    if timeout_count:
-        log(
-            "WARN",
-            f"Accepting {timeout_count} <TIMEOUT> responses; lm-eval counts them as incorrect answers",
+    try:
+        summary = validate_sample_file(
+            samples_file, expected, cfg.get("expected_doc_ids"),
+            allow_timeouts=cfg.get("allow_timeouts", False),
         )
+    except (ValueError, OSError, TypeError) as exc:
+        log("ERROR", str(exc))
+        return False
+    log("INFO", f"Validated samples: {summary}")
     return True
 
 

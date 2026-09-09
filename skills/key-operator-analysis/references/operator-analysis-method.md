@@ -166,7 +166,7 @@ operators/
     research/              # 论文摘要和固定源码快照
 ```
 
-完整实验不放在技能目录。环境、命令、实现补丁、correctness、benchmark、profile 摘要、失败过程和最终结果属于 `docs/cases/<case-id>/` 与 `models/<model>/<platform>/`；大体积 profiler、权重和数据集只记录外部位置。
+完整实验不放在技能目录。`docs/cases/<case-id>/` 保留少量摘要与链接；环境、配置、命令、实现补丁、正确性、逐轮性能、失败和验收按职责进入 `models/<model>/<platform>/` 的 `baseline/`、`optimize/`、`acceptance/`，具体边界见 [case-to-knowledge.md](case-to-knowledge.md)。原始日志、trace、完整结果、权重和数据集只记录外部位置与校验信息。
 
 不要预先创建空的 `optimization-map.md` 或 `case-index.md`。首个实际案例产生可复用证据后再创建；后续案例按 [case-to-knowledge.md](case-to-knowledge.md) 写知识差量。
 

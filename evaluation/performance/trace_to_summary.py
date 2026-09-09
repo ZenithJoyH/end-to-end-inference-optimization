@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Parse a vLLM torch profiler trace (.json.gz) and generate a summary .txt file
-similar to PyTorch's profiler.key_averages().table().
+with cumulative event durations (not self time or elapsed device busy time).
 
 Usage:
     python perf_test/trace_to_summary.py ./vllm_profile/trace.json.gz
@@ -17,6 +17,8 @@ import gzip
 import json
 import os
 import glob
+import math
+from pathlib import Path
 from collections import defaultdict
 
 
@@ -31,57 +33,57 @@ def load_trace(filepath):
 
     # Chrome trace format: either {"traceEvents": [...]} or just [...]
     if isinstance(data, dict):
-        events = data.get("traceEvents", [])
+        events = data.get("traceEvents")
     elif isinstance(data, list):
         events = data
     else:
-        events = []
+        events = None
 
+    if not isinstance(events, list) or any(not isinstance(event, dict) for event in events):
+        raise ValueError("trace must contain a list of event objects")
     return events
 
 
-def categorize_event(event):
-    """Categorize an event into CPU or CUDA based on its category."""
-    cat = event.get("cat", "")
-    # Common CUDA categories in PyTorch profiler traces
-    if cat in ("kernel", "gpu_memcpy", "gpu_memset"):
-        return "cuda"
-    if "cuda" in cat.lower() or "gpu" in cat.lower():
-        return "cuda"
-    # Events on CUDA streams
-    if "stream" in str(event.get("args", {})).lower():
-        return "cuda"
-    return "cpu"
+DEVICE_CATEGORIES = frozenset(("kernel", "gpu_memcpy", "gpu_memset"))
+CPU_CATEGORIES = frozenset(("cpu_op", "user_annotation", "python_function", "cuda_runtime", "cuda_driver"))
 
 
-def aggregate_events(events):
-    """Aggregate duration events by name, separating CPU and CUDA."""
-    cpu_stats = defaultdict(lambda: {"count": 0, "total_us": 0.0, "min_us": float("inf"), "max_us": 0.0})
-    cuda_stats = defaultdict(lambda: {"count": 0, "total_us": 0.0, "min_us": float("inf"), "max_us": 0.0})
+def categorize_event(event, device_categories=DEVICE_CATEGORIES):
+    """Runtime launch/sync APIs execute on CPU, even when args name a stream.
 
+    Unknown platform categories remain unclassified until explicitly mapped.
+    """
+    categories = {part.strip() for part in str(event.get("cat", "")).split(",")}
+    if categories & CPU_CATEGORIES:
+        return "cpu"
+    if categories & set(device_categories):
+        return "device"
+    return "unclassified"
+
+
+def aggregate_events(events, device_categories=DEVICE_CATEGORIES):
+    def bucket():
+        return defaultdict(lambda: {"count": 0, "total_us": 0.0, "min_us": float("inf"), "max_us": 0.0})
+    groups = {key: bucket() for key in ("cpu", "device", "unclassified")}
     for event in events:
-        # Only process complete events (ph: "X") or duration events
-        ph = event.get("ph", "")
-        if ph not in ("X",):
+        if event.get("ph") != "X":
             continue
-
-        name = event.get("name", "")
-        if not name:
+        name = event.get("name")
+        if not isinstance(name, str) or not name:
+            raise ValueError("complete trace event has no name")
+        dur = event.get("dur")
+        if type(dur) not in (int, float) or not math.isfinite(dur) or dur < 0:
+            raise ValueError(f"event {name!r} has invalid duration")
+        if dur == 0:
             continue
-
-        dur = event.get("dur", 0)  # duration in microseconds
-        if dur <= 0:
-            continue
-
-        device = categorize_event(event)
-        stats = cuda_stats if device == "cuda" else cpu_stats
-
-        stats[name]["count"] += 1
-        stats[name]["total_us"] += dur
-        stats[name]["min_us"] = min(stats[name]["min_us"], dur)
-        stats[name]["max_us"] = max(stats[name]["max_us"], dur)
-
-    return cpu_stats, cuda_stats
+        stats = groups[categorize_event(event, device_categories)][name]
+        stats["count"] += 1
+        stats["total_us"] += dur
+        stats["min_us"] = min(stats["min_us"], dur)
+        stats["max_us"] = max(stats["max_us"], dur)
+    if not any(groups.values()):
+        raise ValueError("trace contains no positive-duration complete events")
+    return groups["cpu"], groups["device"], groups["unclassified"]
 
 
 def format_time(us):
@@ -139,14 +141,14 @@ def generate_table(stats, sort_by="total_us", row_limit=100):
     return "\n".join(lines) + "\n"
 
 
-def process_trace_file(filepath, output_path=None, row_limit=100):
+def process_trace_file(filepath, output_path=None, row_limit=100, device_categories=DEVICE_CATEGORIES):
     """Process a single trace file and write a summary .txt."""
     print(f"Loading: {filepath}")
     events = load_trace(filepath)
     print(f"  Total events: {len(events)}")
 
-    cpu_stats, cuda_stats = aggregate_events(events)
-    print(f"  CPU kernels: {len(cpu_stats)}, CUDA kernels: {len(cuda_stats)}")
+    cpu_stats, cuda_stats, unknown_stats = aggregate_events(events, device_categories)
+    print(f"  CPU activities: {len(cpu_stats)}, device activities: {len(cuda_stats)}, unclassified: {len(unknown_stats)}")
 
     # Determine output path
     if output_path is None:
@@ -165,14 +167,18 @@ def process_trace_file(filepath, output_path=None, row_limit=100):
     lines.append("=" * 80)
 
     lines.append("")
-    lines.append("CUDA Kernel Summary (sorted by total CUDA time)")
+    lines.append("Device Activity Summary (cumulative durations)")
     lines.append("")
     lines.append(generate_table(cuda_stats, sort_by="total_us", row_limit=row_limit))
 
     lines.append("")
-    lines.append("CPU Operation Summary (sorted by total CPU time)")
+    lines.append("CPU Activity Summary (inclusive durations)")
     lines.append("")
     lines.append(generate_table(cpu_stats, sort_by="total_us", row_limit=row_limit))
+
+    lines.append("\nUnclassified Activity Summary (supply --device-category only after verifying platform semantics)")
+    lines.append(generate_table(unknown_stats, sort_by="total_us", row_limit=row_limit))
+    lines.append("Durations are sums of events, may overlap across streams/threads or nesting, and are not elapsed/self time.")
 
     # Overall stats
     total_cuda_us = sum(s["total_us"] for s in cuda_stats.values())
@@ -183,13 +189,13 @@ def process_trace_file(filepath, output_path=None, row_limit=100):
     lines.append("")
     lines.append("-" * 80)
     lines.append("Overall Statistics:")
-    lines.append(f"  Total CUDA time: {format_time(total_cuda_us)} ({total_cuda_calls} calls)")
-    lines.append(f"  Total CPU time:  {format_time(total_cpu_us)} ({total_cpu_calls} calls)")
+    lines.append(f"  Summed device time: {format_time(total_cuda_us)} ({total_cuda_calls} calls)")
+    lines.append(f"  Summed CPU time:  {format_time(total_cpu_us)} ({total_cpu_calls} calls)")
     lines.append("-" * 80)
 
     content = "\n".join(lines) + "\n"
 
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "x", encoding="utf-8") as f:
         f.write(content)
 
     print(f"  Summary written to: {output_path}")
@@ -215,11 +221,19 @@ def main():
         default=None,
         help="Output .txt path (only for single file input)",
     )
+    parser.add_argument("--device-category", action="append", default=[], help="Additional verified device event category")
     args = parser.parse_args()
+    if args.row_limit < 0:
+        parser.error("row-limit must be nonnegative")
+    if set(args.device_category) & CPU_CATEGORIES:
+        parser.error("known CPU runtime categories cannot be reclassified as device execution")
+    device_categories = DEVICE_CATEGORIES | set(args.device_category)
 
     row_limit = args.row_limit if args.row_limit > 0 else None
 
     if os.path.isdir(args.path):
+        if args.output:
+            parser.error("--output is only valid for a single input file")
         # Process all trace files in directory
         patterns = ["*.json.gz", "*.json"]
         files = []
@@ -228,20 +242,24 @@ def main():
 
         if not files:
             print(f"No trace files found in: {args.path}")
-            return
+            raise SystemExit(1)
 
         files.sort()
         print(f"Found {len(files)} trace file(s) in {args.path}\n")
 
+        failed = False
         for f in files:
             try:
-                process_trace_file(f, row_limit=row_limit)
+                process_trace_file(f, row_limit=row_limit, device_categories=device_categories)
             except Exception as e:
+                failed = True
                 print(f"  ERROR processing {f}: {e}")
             print()
+        if failed:
+            raise SystemExit(1)
     else:
         # Single file
-        process_trace_file(args.path, output_path=args.output, row_limit=row_limit)
+        process_trace_file(args.path, output_path=args.output, row_limit=row_limit, device_categories=device_categories)
 
 
 if __name__ == "__main__":
