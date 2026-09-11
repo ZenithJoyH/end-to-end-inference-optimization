@@ -1,5 +1,7 @@
 # 性能工具
 
+端到端优化任务由 [推理性能评测技能](../../skills/inference-performance-evaluation/SKILL.md) 选择 baseline、targeted、checkpoint 或 formal 无 profiler 测量，由 [推理 Profiling 技能](../../skills/inference-profiling/SKILL.md) 选择 capture、analyze 或 reprofile 诊断；本目录仍是实际命令、能力边界和工具语义的唯一维护位置。
+
 | 工具 | 用途与范围 |
 |---|---|
 | `vllm_perf.py` | 参数化 vLLM 多轮诊断；提供绑定 gate 与当前身份后可用于正式候选测量 |
@@ -28,6 +30,8 @@ vllm serve <model> <其余冻结参数> \
 ## 配置执行与比较
 
 新任务从 [plan.example.json](plan.example.json) 和 [comparison.example.json](comparison.example.json) 准备外部配置。示例中的长度、速率、预热和阈值均用于展示字段，必须按任务改好再冻结。若比较要求 SLO 达标率，必须在计划的 `measurement.slo` 填写对应的 `ttft/tpot/e2el` 毫秒阈值；空 SLO 不能产生 goodput 验收。
+
+大模型不要求每轮执行同一份完整计划。可以从预冻结场景目录分别生成 targeted、checkpoint 和 full 计划：targeted 只保留当前瓶颈 case 及必要的低成本哨兵，checkpoint 包含本轮改动影响的全部 case，full 包含最终验收集合。三类计划使用稳定且可追溯的 case ID，各自保存配置和 SHA；缩减请求数或轮数时建立同配置 baseline，不能复用完整计划的汇总值。比较器返回 passed 只覆盖本次计划中的 case，不自动扩大为完整矩阵结论。
 
 每次运行都提供当前 [service manifest](../accuracy/service-manifest.example.json)。自动比较额外核对其中的 `performance_context`：平台、设备身份、驱动/runtime、镜像与缓存准备。字段来自运行时取证，不靠把 unknown 改成字符串补造事实；scope 为诊断时执行器允许不完整身份，但比较器会将不足证据判为 incomplete。
 
@@ -79,6 +83,7 @@ python3 evaluation/performance/compare_performance.py \
 ## 计划支持的测量范围
 
 - case 可分别指定输入/输出长度、请求数、并发、有限批次或有限请求的 open-loop 到达率与 burstiness；多个 case 可构成有限速率扫描。
+- 优化循环可以为不同场景使用独立计划。targeted/checkpoint/full 是实验契约中的结论层级，当前执行器通过实际计划中的 case 集合体现，不会自行判断遗漏场景；最终验收必须由执行者提供预冻结 full 计划并核对场景完整性。
 - `warmup_rounds` 是固定预算。可选 `warmup_stability` 检查末尾窗口的 `(max-min)/median`；预算内未通过就停止。默认固定轮数不证明稳态，也不自动建立业务缓存冷热条件。
 - `required_metrics` 明确本任务不可缺失的原生指标；支持 P50/P95/P99 等已列出的指标。单 token 输出不能要求 TPOT/ITL。`ignore_eos=false` 按每请求实际输出核对，不强行套固定输出总数。
 - 非空 `measurement.slo` 原样传入原生 `--goodput`，采用同一请求同时满足全部 SLO 的结果，再核对 goodput 与时长/请求数。不会从 chunk ITL 猜测 TPOT/E2EL；口径依赖所记录的原生客户端版本。[vLLM 原生计算](https://github.com/vllm-project/vllm/blob/v0.24.0/vllm/benchmarks/serve.py)

@@ -1,5 +1,9 @@
 # 精度工具
 
+实际评测由 [推理精度评测技能](../../skills/inference-accuracy-evaluation/SKILL.md) 编排。启动 baseline sanity、最小回归或正式评测进程前，Skill 创建绑定当前 Codex 任务的 heartbeat 进度通知，默认每 30 分钟一次，并在终态后停用；本目录工具不自行创建或管理计划任务。
+
+当分数、样本完整性或输出健康检查失败时，由 [推理精度问题定位技能](../../skills/inference-accuracy-diagnosis/SKILL.md) 消费这些冻结产物进行分类、最小复现和改动二分；本目录工具的退出码或单一分数差不能独立证明根因。
+
 正式命令与证据要求统一见 [评测入口](../README.md)。
 
 | 工具 | 职责 |
@@ -46,4 +50,4 @@ E2E_LM_EVAL_WHEEL=/external/lm_eval-0.4.9-py3-none-any.whl \
 1. 核验精确容器的镜像引用/image ID 和当前解释器；确认实际 `lm_eval/torch/datasets` 可导入，精确任务已注册，记录实际 task YAML/helper 的来源，不根据版本号推定定制任务存在。
 2. 用同一案例配置执行两次 `--capture-provenance`，输出到不同新文件，确认任务 metadata、实际 dataset path/name/split、原始/处理后题目指纹和 filter 集合一致。采集不会查询模型服务或生成答案；不得为让采集通过而自动改写数据集路径。
 3. 根据采集内容冻结契约，确认源码/schema 与适配器匹配后，再核验服务身份并执行 `--preflight-only`。这是服务 `/v1/models` 预检，不能代替精度评测。
-4. 只有用户明确恢复此前暂缓的正式评测后，才执行完整 GPQA、输出健康审查和 gate 签发；核对真实 metadata 与多 filter 样本，保留失败证据。镜像 API 或结果结构不支持时先形成有依据的适配，保持失败状态，不放宽门禁。
+4. 当精度评测 Skill 的 `formal-gate` 触发条件满足，或用户明确恢复此前暂缓的正式评测后，才执行完整 GPQA、输出健康审查和 gate 签发；核对真实 metadata 与多 filter 样本，保留失败证据。镜像 API 或结果结构不支持时先形成有依据的适配，保持失败状态，不放宽门禁。

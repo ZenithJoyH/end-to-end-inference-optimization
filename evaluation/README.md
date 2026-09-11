@@ -2,6 +2,14 @@
 
 正式流程和例外边界由 [SOP](../docs/performance-optimization-sop.md) 管理。配置字段、可比性和记录格式见 [实验契约](../docs/experiment-contract.md)。本页维护实际命令，不重复定义验收政策。
 
+端到端优化任务通过 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 选择 baseline sanity、最小回归、正式 gate 或 gate check 模式；该 Skill 调用本页工具和命令，本页仍是实际执行接口的唯一维护位置。
+
+当 Skill 实际启动 baseline sanity、最小回归或正式精度进程时，它会先创建绑定当前 Codex 任务的 heartbeat，默认每 30 分钟通知一次可验证进展，并在完成、失败、取消或提前停止后停用。`gate-check` 只核验证据，不创建监控；automation ID、实际频率和清理证据写入实验记录。
+
+精度评测出现失败、回退或输出异常时，使用 [推理精度问题定位技能](../skills/inference-accuracy-diagnosis/SKILL.md) 冻结失败证据、区分测量/身份问题与真实模型回退，并组织最小复现、改动二分和原范围复测。本页工具提供评测证据，不自动给出代码根因。
+
+无 profiler 性能测量通过 [推理性能评测技能](../skills/inference-performance-evaluation/SKILL.md) 选择 baseline、targeted、checkpoint 或 formal 模式；trace 采集与热点归因通过 [推理 Profiling 技能](../skills/inference-profiling/SKILL.md) 选择 capture、analyze 或 reprofile 模式。二者复用 `evaluation/performance/` 的维护版工具，不复制实现，也不把 profile 数据当作正式性能结果。
+
 ## 正式精度
 
 在目标机器上的 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 评测容器内，部署本项目 `test/Accuracy_test/` 与 `evaluation/accuracy/`，保留相对目录。模型仍运行在独立优化容器中。准备以下外部文件：

@@ -53,6 +53,11 @@ Agent 的职责是：
 
 - **推理栈架构资料**：[vllm-plugin-FL-analysis.md](docs/vllm-plugin-FL-analysis.md) 用于理解 Plugin 调用链与扩展点；[FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) 用于理解 vLLM 专用算子、vendor backend 和测试/benchmark；[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于理解通用算子、ATen 注册和多后端特化。三者都是特定 revision 的静态分析，分阶段使用要求见第 6 节。
 - **算子知识**：[关键算子技能](skills/key-operator-analysis/SKILL.md) 包含 MLA Attention、mHC、固定版本 vLLM 源码快照及通用分析方法。仅在端到端测量或 profiler 已收敛到具体算子、dispatch、layout 或相邻融合路径时按需读取；不提前加载整套知识库，不直接套用历史硬件、shape、revision 和性能判断。
+- **精度评测**：公共 `$inference-accuracy-evaluation` Skill 负责选择并执行精度操作，完整测试方法、参数、进度监控、证据校验和三态判定都由 Skill 包维护；本项目只在 `docs/skills-project-contract.md` 映射 `evaluation/accuracy/` 与原始 runner。
+- **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在最小回归、完整 GPQA 或输出健康检查失败时，先区分评测/身份无效与真实数值回退，再通过最小复现、单变量二分、执行路径证明和原范围复测定位根因。问题解决前停止叠加性能优化。
+- **性能评测**：公共 `$inference-performance-evaluation` Skill 负责选择并执行无 profiler 性能测量；场景、预热、重复、指标计算、比较和正式判定都由 Skill 包维护，本项目只映射 `evaluation/performance/` 的 benchmark、比较和回执工具。
+- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
+- **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
 - **模型实验产物**：`models/<model>/<platform>/` 保存该目标的 `baseline/`、`optimize/` 和 `acceptance/`。案例目录保留可读摘要并链接到具体产物；归档与知识沉淀要求见第 11 节。
 
@@ -76,6 +81,7 @@ Agent 的职责是：
 模型路径：<远端权重路径>
 平台：<nvidia|ppu|metax|ascend|mthreads|hygon>
 目标机器：<inventory 中的 SSH Host 别名>
+远程工作目录：<可选；用户指定的目标机器绝对路径，用于本任务远程操作和产物>
 源适配容器：<已经完成模型适配、用于复刻优化环境的容器名称>
 优化容器：<为本次优化新建的独立容器名称；未创建时留空>
 推理引擎：<vLLM|SGLang|其他及版本>
@@ -89,6 +95,7 @@ Agent 的职责是：
 - 先做安全的本地检查和目标机器只读预检。
 - 可以从正在运行的目标服务解析端口、镜像、启动参数和 revision，但不能猜测模型身份或业务 workload。
 - 多个模型、平台、Host 或服务都可能是目标时，不自行选择一个执行变更。
+- 预计产生远程脚本、日志、profile 或大体积结果且用户尚未提供远程工作目录时，可以请求用户提供；该项缺失不妨碍安全的本地检查和目标机器只读预检，但不能自行选择一个可能共享或包含重要数据的远程目录作为任务根目录。
 - 缺少主指标、代表性 workload 或正确性标准时，可以形成诊断报告和候选方案，但不能自行宣布优化达标。
 
 一次实验只属于一个明确的 `<model>/<platform>/<host>/<baseline>`。跨模型、跨平台和跨硬件数量的结果必须分开记录。
@@ -141,10 +148,14 @@ Agent 的职责是：
 
 ### 5.3 远端操作规则
 
+- 用户可以为当前任务提供目标 Host 上的远程工作目录。使用前记录用户提供的原始路径，将其解析为不含 `~`、环境变量和未展开通配符的绝对规范路径，并只在该目录下创建带唯一 `case-id` 的任务子目录。不得把 `/`、用户 home 根目录、模型权重根目录、共享源码根目录或其他范围过大的路径直接作为任务子目录。
+- 远程任务子目录用于集中保存可复用命令、容器 inspect/规范化挂载清单、日志、profile、benchmark/精度原始结果、临时补丁和校验信息。远端可执行脚本与关键配置在执行前保存；当前项目中的案例和模型记录保存远程绝对路径、必要 SHA 和可读摘要，不复制大体积原始产物。
+- 使用前检查目录的实际 owner/权限、可用空间、现有内容和符号链接解析结果。采用唯一文件名和新子目录，不覆盖或清理已有内容；删除、归档或回收远程工作目录中的材料仍需遵循破坏性操作规则，不能因目录由用户提供就推定可以整体清空。
+- 远程工作目录只适用于当前明确的 Host 和任务，不自动复用于其他 Host、模型或案例，不保存密码、Token、私钥及未经筛选的完整环境变量。
 - 状态、日志、磁盘、进程、版本和配置检查属于只读操作。
 - 聚焦的只读诊断可使用 SSH；可复现或多 Host 操作优先写成 Ansible Playbook。
 - 变更前解析精确 Host、容器、服务、PID、端口和代码目录。
-- 新的远端变更命令先保存到当前实验目录，再执行。
+- 新的远端变更命令先保存到当前实验记录再执行；已提供远程工作目录时，将远端执行副本放入对应 `<case-id>/commands/`，本地记录其路径和 SHA。
 - 先在一台 Host 验证；扩大到多 Host 时串行执行并逐台报告。
 - Ansible 模块支持时，变更前先使用 `--check --diff`。
 - 只停止或重启当前任务明确指定的推理服务及其关联进程，并记录操作原因、PID、端口、命令、时间和 readiness。
@@ -167,6 +178,8 @@ Agent 的职责是：
 7. 相同目录映射意味着新旧容器可能共享模型、Plugin、FlagGems、缓存或输出目录。修改前记录这些目录的 revision、工作区状态和共享使用者，并保存补丁与回退方法；不得把“新建容器”误认为“宿主机挂载内容已经隔离”。
 
 共享源码的隔离分支见 [容器隔离流程](docs/container-isolation.md)。挂载完全保持一致；允许在优化容器未挂载的私有目录建立真实源码副本并切换实际导入路径，不能用它伪装挂载相等。
+
+用户提供远程工作目录不会放宽挂载一致性门禁。只有它本来就是源适配容器已有的相同目录挂载时，才能按同一 Source/Destination/访问模式供优化容器直接使用；否则不得为了方便产物访问给优化容器增加额外挂载。可在 Host 侧保存控制文件和回收产物，或使用不改变挂载清单的容器 runtime 文件传输方式，但必须记录容器内外路径和校验信息。
 
 源、目标 inspect 原文可以保存在外部产物路径；当前项目至少记录校验后的镜像身份、规范化挂载清单路径、diff 结果、例外及批准依据。只有 `image_lineage=verified` 且 `mount_parity=passed` 后，优化容器才可用于 baseline、candidate 和 revert 测量。
 
@@ -208,18 +221,21 @@ Agent 的职责是：
 
 执行顺序：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → smoke/C8 护栏 → 无 profiler 基线 → 分层诊断与单变量实验 → 候选回归 → 正式精度 → 同配置正式性能及回退 → 复盘。
 
-- 启动用于性能测试的 vLLM 模型服务时，baseline、candidate 和 revert 的启动命令都必须显式包含 `--no-enable-prefix-caching`，关闭 prefix caching，避免跨请求前缀命中破坏工作量可比性。不要求增加 `--no-enable-log-requests`。启动前先用目标版本的 `vllm serve --help` 或等价方式确认 prefix cache 参数存在；不支持时停止并记录版本差异，不能静默省略或猜测替代参数。
-- 同时保存完整启动命令和进程/runtime 侧证据，在 service manifest 中记录 `enable_prefix_caching=false` 和 `performance_context.prefix_cache_state=disabled`。只写命令但未证明实际服务采用该状态，不能进入正式性能比较。正式精度与正式性能复用同一候选服务时也保持该参数不变。
-- 仅当用户明确把 prefix cache 本身列为优化变量时，才允许在单独契约和新基线中改变 prefix cache 状态；必须记录缓存准备、前缀复用比例和命中证据，不能与默认关闭缓存的结果直接归因为其他优化收益。既有历史案例保持原测量语义，不回写成关闭状态。
-- 正式精度在目标机器上基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器内执行，通过 `evaluation/accuracy/formal_accuracy.py` 包装调用原始 `test/Accuracy_test/llmrun.py`，对候选 graph 服务运行完整 GPQA Diamond（`gpqa_diamond_generative_cot`，默认 198 题）。必须显式提供案例配置、预冻结契约、当前服务身份和评测容器 inspect。
-- 区分每轮最小正确性回归与完整正式精度。每个优化点仍需执行与改动范围匹配的 reference、边界 shape、smoke/C8、eager/graph 或等价低成本检查；完整 GPQA 默认在累计保留 2–3 个低正确性风险优化点后执行一次，不要求每个小优化点后重复执行。案例必须记录尚未经过完整精度的优化点 ID、最近一次完整精度所绑定的源码/配置/服务身份及下一触发条件。
-- 大优化点或高正确性风险改动不进入上述累计，完成最小回归后立即执行完整 GPQA。触发项包括改变数值或输出语义、量化/反量化与 dtype 边界、attention/KV cache、MoE 路由、top-k/top-p/采样、跨算子融合、新算法/backend 或大范围 custom op、rank 数据布局/通信、graph dispatch/fallback 覆盖范围，以及任何已出现异常输出或最小回归可疑的改动。风险按影响面而非代码行数或预期性能增益判断。
-- 每个阶段性精度结果只覆盖其绑定的优化点组合。若 2–3 个点组合后完整精度失败，先停止叠加新优化，通过回退或拆分定位失败点；不得把组合通过解释成每个单点已独立证明。最终候选必须具备与冻结源码、配置和当前服务身份完全一致的正式精度及输出健康审查；最近一次完整精度仍精确绑定该身份且 gate 有效时可直接用于最终验收，否则必须重跑。
-- `evaluation/accuracy/` 中的辅助 runner 不能在未说明等价性时替代原始正式模型评测实现；`verify_accuracy.py` 仅作分数检查。`llmrun_parallel.py` 只在用户明确指定多服务或多 shard 时使用，不是默认正式入口。
-- 完成样本结构与分数检查后，还需对同一 samples SHA 的输出健康做审查，由 `evaluation/accuracy/acceptance.py issue` 生成正式记录。单独数值阈值通过不是正式验收。
-- 正式性能必须核对 gate 与当前服务身份及结果文件 SHA。配置、源码、权重、tokenizer 或服务实例变化后旧 gate 不再适用。baseline/revert 的比较记录与候选正式精度身份分别保存。
-- 原始 `test/` runner 和示例配置保持导入基准；正式流程不裸跑示例默认配置。执行命令见 [评测入口](evaluation/README.md)。
-- 缺少正式精度或主指标门槛时，只报告诊断/性能研究及未完成状态；用户已批准暂缓的步骤按明确范围记录，不反复申请相同授权。
+- 精度和性能测试必须分别调用公共 `$inference-accuracy-evaluation` 与
+  `$inference-performance-evaluation`。测试等级/模式、触发条件、配置字段、并发、预热、重复、
+  指标与比较、进度监控、证据校验、三态判定和报告结构都由对应 Skill 包维护，不得在本
+  AGENTS 文件中复制或重新定义。
+- 执行前读取 `docs/skills-project-contract.md`，将 Skill 方法映射到本项目的 runner、容器、
+  服务、目录和原生回执。该契约只承担项目适配；本项目规则和用户范围可以收紧执行边界，
+  但不能静默替换或削弱 Skill 方法。
+- 低开销指标无法继续归因或需要确认执行路径时调用 `$inference-profiling`；收敛到具体算子
+  后调用 `$key-operator-analysis`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由
+  对应 Skill 决定，不在本文件维护副本。
+- 默认每完成 2–3 个有结果的优化实验后调用 [推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md)。组合改动、热点迁移、跨场景结论冲突、连续失败/证据不足，或准备投入高成本框架/算子方案时提前触发。复盘必须覆盖失败与回退项，以同配置 baseline→当前组合测量作为累计收益依据，并把下一轮 1–3 个候选、首个证伪实验、所需评测 Skill 和停止条件写入 `optimize/planning/`。
+- 精度失败或输出异常时调用 `$inference-accuracy-diagnosis`，冻结证据并停止叠加新优化；只有
+  对应 Skill 要求的原失败范围重新通过后才能恢复性能工作。
+- 每次 Skill 结果都写回当前实验记录，保留准确服务身份、场景/样本范围、原生证据路径、
+  结果和结论边界；不能只在对话中给出口头结论。
 
 ## 10. Plugin、FlagGems 和 Triton 改动要求
 
@@ -276,15 +292,23 @@ docs/                    # 架构分析和跨模型方法记录
   performance-optimization-sop.md
   cases/                 # 已执行案例、失败实验与经验索引
 skills/                  # 项目级可复用技能与按需加载的知识库
+  inference-accuracy-evaluation/  # 优化期间的正确性回归与正式精度门禁
+  inference-accuracy-diagnosis/   # 精度回退、输出异常与数值问题定位
+  inference-performance-evaluation/  # 分层无 profiler 性能测量与正式性能门禁
+  inference-profiling/            # trace 采集、热点归因与优化后复查
+  inference-optimization-planning/  # 多轮实验归纳与下一阶段优先级重排
+  key-operator-analysis/          # profiler 收敛后的关键算子分析
 ```
 
 每个实际 `<model>/<platform>/` 下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部可以保留一个导航 `README.md`，不得再创建与三者并列的 `experiments/`、`profiling/`、`patches/` 或其他结果目录。
 
 - `baseline/`：保存优化前的环境、workload、正确性状态和基线性能记录。
-- `optimize/`：保存多轮瓶颈分析、假设、配置、命令、profiling 摘要、源码补丁、失败/回退以及每轮优化后的性能记录。每轮必须可区分，不能只覆盖为最终最好的一轮。
+- `optimize/`：保存多轮瓶颈分析、假设、配置、命令、profiling 摘要、精度问题定位、阶段性规划复盘、源码补丁、失败/回退以及每轮优化后的性能记录。每轮、每个精度问题与每次规划复盘必须可区分，不能只覆盖为最终最好的一轮。
 - `acceptance/`：只保存最终候选的正式性能优化记录、正式精度达标记录、验收配置、结论和回退入口；中间轮次或未达标结果留在 `optimize/`。
 
 不要为未请求的模型或平台批量生成空目录。原始日志、CSV/JSONL、SQLite、trace、profile 和大数据集只记录外部绝对路径或对象存储位置。
+
+用户提供远程工作目录时，远端原始产物默认归入 `<remote-workdir>/<case-id>/`；本项目仍保存结构化配置、结果摘要、远程绝对路径与必要校验信息。远程目录不是第四个模型/平台产物目录，也不改变 `baseline/`、`optimize/`、`acceptance/` 的本地职责。
 
 ### 案例摘要与知识沉淀
 

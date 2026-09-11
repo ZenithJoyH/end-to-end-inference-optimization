@@ -35,6 +35,12 @@
 
 随机 workload 用于受控吞吐和延迟分析；真实或代表性数据用于业务结论。两类结果分开报告。
 
+### 性能场景和执行层级
+
+大模型或单轮较慢时，不要求每个优化点重复完整矩阵。任务开始时先冻结场景目录和最终验收集合，每个场景使用稳定 `scenario_id`。单轮记录 `test_scope`：`targeted` 只支持目标场景结论，`checkpoint` 支持列出的受影响场景，`full` 才支持最终验收集合。
+
+targeted 可以减少请求数、重复轮和场景数，但同一实验的 baseline/candidate/revert 必须使用相同缩减配置，并记录相对正式场景省略了什么。选择依据在测量前固定；不能根据结果挑选通过的场景。调度、KV、batch、graph、公共 dispatch 或通信改动按影响面升级到 checkpoint。最终 full 的范围是预冻结的代表性场景，不要求穷举所有 shape。
+
 若以上维度本身就是预先声明的主要变量，例如 cache 开关、graph 模式或服务并行配置，可以进行受控 A/B；其余条件固定，明确新增资源、语义及 SLO 取舍。不同卡数/硬件的容量或成本研究单列，不称为同硬件的软件加速比。该规则不扩大权重、量化、共享环境等修改授权。
 
 ### 负载模式与结论范围
@@ -94,12 +100,73 @@ performance_status: incomplete
 experiment_id: YYYYMMDD-HHMM-short-name
 objective: ""
 status: planned
+accuracy_evaluation:
+  skill: inference-accuracy-evaluation
+  mode: minimal-regression  # baseline-sanity | minimal-regression | formal-gate | gate-check
+  covered_experiment_ids: []
+  result: incomplete  # passed | failed | incomplete
+  evidence: ""
+  next_trigger: ""
+  progress_monitor:
+    kind: heartbeat
+    interval_minutes: 30
+    automation_id: ""
+    automation_name: ""
+    status: not_created  # not_created | active | paused | deleted | unavailable | waived
+    monitored_process_and_artifacts: ""
+    last_notification_at: null
+    cleanup_evidence: ""
+accuracy_diagnosis:
+  skill: inference-accuracy-diagnosis
+  issue_id: ""
+  trigger: ""
+  status: not_triggered  # not_triggered | investigating | measurement-invalid | suspected | confirmed | resolved | not-reproduced
+  last_known_good_identity: ""
+  failing_candidate_identity: ""
+  failing_evidence: ""
+  minimal_reproducer: ""
+  isolated_boundary_or_change: ""
+  root_cause_confidence: ""
+  fix_or_rollback: ""
+  revalidation_evidence: ""
+  performance_may_resume: false
+performance_evaluation:
+  skill: inference-performance-evaluation
+  mode: targeted  # baseline | targeted | checkpoint | formal
+  scenario_ids: []
+  result: incomplete  # passed | failed | incomplete
+  evidence: ""
+  conclusion_boundary: ""
+  next_trigger: ""
+profiling:
+  skill: inference-profiling
+  mode: null  # capture | analyze | reprofile
+  scenario_ids: []
+  result: not_run  # not_run | passed | failed | incomplete
+  trace_evidence: ""
+  worker_rank_coverage: ""
+  hotspot_summary: ""
+  next_action: ""
+planning_review:
+  skill: inference-optimization-planning
+  review_id: ""
+  covered_experiment_ids: []
+  evidence_cutoff: ""
+  result: not_run  # not_run | complete | incomplete
+  current_combined_candidate: ""
+  cumulative_evidence: ""
+  ranked_next_directions: []
+  immediate_next_experiment: ""
+  next_trigger: ""
 target:
   model: ""
   model_path: ""
   weight_revision: ""
   platform: ""
   host: ""
+  remote_work_root: ""  # 用户提供的目标 Host 绝对路径；未提供则为空
+  remote_case_dir: ""  # remote_work_root 下唯一的 case-id 子目录
+  remote_workspace_evidence: ""  # 规范路径、owner/权限、空间及符号链接检查
   source_container_name: ""
   optimization_container_name: ""
   source_image_ref: ""
@@ -137,6 +204,13 @@ runtime:
   launch_args:
     - --no-enable-prefix-caching
 workload:
+  scenario_id: ""
+  stage: null  # prefill | decode | mixed
+  test_scope: targeted  # targeted | checkpoint | full
+  scenario_purpose: ""  # 目标瓶颈、哨兵或最终验收
+  acceptance_scenario: false
+  omitted_acceptance_scenarios: []
+  selection_reason: ""
   dataset: ""
   dataset_sha256: null
   endpoint: ""
@@ -172,6 +246,7 @@ measurement:
     aggregation_and_uncertainty: ""
   search_budget: ""
   confirmation_workload: ""
+  next_checkpoint_trigger: ""
 stability:
   status: not_run  # not_run | passed | failed | incomplete | not_applicable
   duration_s: null
@@ -216,9 +291,10 @@ results:
   peak_memory_gb: null
 decision: pending
 artifacts:
-  raw_results: ""
+  raw_results: ""  # 可记录 remote_case_dir 下的绝对路径与 SHA
   logs: ""
   traces: ""
+  remote_manifest: ""  # 远程文件清单、大小、校验和与留存状态
 notes: ""
 ```
 

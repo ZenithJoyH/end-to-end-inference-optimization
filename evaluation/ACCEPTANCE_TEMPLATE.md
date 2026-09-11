@@ -3,6 +3,7 @@
 ## 1. 验收契约（测试前填写）
 
 - 执行规则版本、日期及验收范围（formal/performance_only/diagnostic）：
+- 用户提供的远程工作根目录、本案例子目录及路径/权限/空间检查：
 - 预冻结 contract/config/service manifest 路径与 SHA：
 - 模型、权重 revision、tokenizer 和 chat template：
 - 服务代码、Plugin、算子库和 revision：
@@ -15,6 +16,9 @@
 - 允许的最大回退：
 - 输出健康门槛：超时、空输出、截断、异常重复：
 - 性能 workload、轮数、warmup 和主/守护指标：
+- 性能评测 Skill 模式、场景 ID、结论范围和下一触发条件：
+- 场景目录、稳定 scenario ID 与预冻结 full 验收集合：
+- targeted/checkpoint 计划、被省略场景及最终补齐记录：
 - 负载模式（finite_batch/closed_loop/open_loop）、时长、到达序列和客户端排队口径：
 - 预热完成判据/预算、缓存冷热及正式精度后的状态恢复方案：
 - 独立进程重复、配置顺序、统计单位、不确定性和停止规则：
@@ -30,6 +34,7 @@
 
 ## 3. 正确性回归
 
+- 精度评测 Skill 模式与覆盖 experiment ID：
 - 算子/组件数值对照、shape/dtype/layout 覆盖：
 - graph/eager 一致性：
 - baseline/candidate 输出差异：
@@ -44,6 +49,7 @@
 - 任务配置：`gpqa_diamond_generative_cot` / `limit=0` / `expected_samples=198`
 - 实际解析的 task、数据来源/指纹、评测器版本与预冻结证据：
 - 优化容器中的服务模型名、endpoint 与网络路径：
+- 评测进度 heartbeat automation ID、默认/实际频率、监控路径与终态清理证据：
 - [ ] `--preflight-only` 通过
 - [ ] 评测容器基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1`
 - [ ] 使用单服务 `llmrun.py`（若例外使用分片，已记录用户指示和合并验证）
@@ -63,6 +69,7 @@
 
 > 仅在第 4 节通过后，使用同一 graph 服务配置执行。
 
+- 性能评测 Skill：`inference-performance-evaluation` / `formal`
 - [ ] 当前候选服务身份重新取证且 acceptance.py check 通过
 - [ ] baseline/candidate/revert 条件一致，各身份及比较范围独立记录
 - [ ] 冷启动、warmup、稳态和 profile 分账
@@ -75,6 +82,7 @@
 - 自动比较计划/契约与各角色独立 run-record：
 - compare_performance.py 判定、退出码与结果路径（未覆盖的任务条件另行核验）：
 - 命令、配置、逐轮结果、汇总和原始产物位置：
+- 远程产物清单、校验和、留存状态及回收/清理责任：
 
 ### 长稳计划与结果
 

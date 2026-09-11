@@ -17,6 +17,8 @@
 
 - 模型、权重和 tokenizer：
 - 平台、Host、设备与拓扑：
+- 用户提供的远程工作目录、规范化路径与本案例子目录：
+- 远程目录 owner/权限、可用空间、符号链接和既有内容检查：
 - 源适配容器、镜像引用与 image ID/digest：
 - 新优化容器、镜像引用与 image ID/digest：
 - 镜像谱系状态与证据（`unverified|verified|failed`）：
@@ -31,6 +33,11 @@
 
 ## 3. Workload
 
+- 场景目录：`scenario_id`、Prefill/Decode/Mixed、长度、并发/到达模式、用途：
+- 预冻结的最终验收场景集合：
+- 本轮 `test_scope`：`targeted|checkpoint|full`
+- 性能评测 Skill 模式、场景 ID、结果、结论边界及证据：
+- 本轮目标、哨兵、省略场景及选择理由：
 - 数据集或生成方式：
 - endpoint、EOS 和采样策略：
 - 输入/输出长度及分布：
@@ -40,6 +47,8 @@
 
 ## 4. 正确性护栏
 
+- 精度评测 Skill 模式、覆盖 experiment ID、结果及证据：
+- 精度进度 heartbeat 的 automation ID、频率、状态、监控目标和清理证据：
 - smoke/sanity 请求与预期：
 - baseline 结果：
 - candidate 结果：
@@ -49,6 +58,18 @@
 - 最近一次完整精度绑定的源码、配置和服务身份：
 - 正式精度工具、样本数、阈值和结果：
 - 超时、空回复、截断、重复或格式异常：
+
+### 精度问题定位（触发时填写）
+
+- issue ID、触发模式、失败类型和冻结证据：
+- 最后可信正确状态与失败 candidate 身份：
+- `measurement-invalid|identity/config|output-health|numerical|execution-mode|nondeterminism` 分类：
+- 最小复现、重复性与 baseline/candidate 差异：
+- 改动二分、执行路径/命中证据和竞争解释：
+- 根因：`suspected|confirmed|not-reproduced|measurement-invalid`
+- 修复或回退、最小回归、原失败范围复测及新 gate：
+- 定位记录：`models/<model>/<platform>/optimize/accuracy-diagnosis/<issue-id>.md`
+- 是否允许恢复性能优化及剩余风险：
 
 ## 5. Baseline
 
@@ -61,12 +82,15 @@
 - 显存、利用率、功耗和通信：
 - 失败、超时和服务日志：
 - 原始产物路径与校验：
+- 远程 commands/manifests/logs/profiles/results/patches 清单与留存状态：
 
 ## 6. 瓶颈证据
 
 - 首次判断：
+- Profiling Skill 模式、scenario ID、trace 有效性、rank/worker 覆盖及产物路径：
 - 请求/阶段/框架/通信/算子分解：
 - profiler 配置与扰动说明：
+- 热点结论、竞争解释、置信度和下一可证伪实验：
 - 最终根因：
 - 被排除的替代解释：
 
@@ -94,19 +118,32 @@
 
 ### 已执行实验
 
-| ID | 分类 | 风险 | 假设 | 主要变量 | 最小正确性 | 完整精度批次 | 性能结果 | 波动 | 决定 |
-|---|---|---|---|---|---|---|---|---|---|
+| ID | 分类 | 风险 | test scope / scenario ID | 假设 | 主要变量 | 最小正确性 | 完整精度批次 | 性能结果 | 波动 | 决定 |
+|---|---|---|---|---|---|---|---|---|---|---|
 
 每个实验在正文中补充命令、配置、改动、日志位置和回退方法。组合诊断实验需说明为什么不能直接作为最终结论。
 
 多轮实验、profiling、补丁和逐轮性能摘要归档到模型/平台的 `optimize/`；本节链接相应文件。正式验收前不得把中间最好结果移动到 `acceptance/` 冒充最终结论。
+
+### 阶段性优化规划复盘
+
+- 规划 Skill、review ID、覆盖 experiment ID 和证据截止点：
+- 当前组合候选及同配置 baseline→current 累计结果：
+- 保留、回退、失败、未完成和相互依赖的实验：
+- 已消除、减弱、迁移、暴露及仍不明确的瓶颈：
+- 下一轮 1–3 个候选的排名、支持/反对证据与暂缓理由：
+- 立即执行的首个证伪实验、scenario ID、所需 Skill、门槛和停止条件：
+- 规划记录：`models/<model>/<platform>/optimize/planning/<review-id>.md`
+- 下次规划触发条件：
 
 ## 8. 最终候选与回归
 
 - 最终改动：
 - Plugin 设计复核结论、PR 准备状态及未测模型/平台（如适用）：
 - baseline/candidate/revert 多轮对比：
-- workload 矩阵：
+- 性能评测 Skill `formal` 模式、plan/contract SHA、比较判定与证据：
+- 完整验收 workload 矩阵及各场景结论：
+- targeted/checkpoint 未覆盖项已在 full 中补齐：
 - graph、cache、混合 batch 和长稳结果：
 - 多卡通信和负载均衡：
 - 回退验证：
