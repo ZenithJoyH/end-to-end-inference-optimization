@@ -7,7 +7,7 @@
 
 ## 目录
 
-- `perf_test/`：vLLM、SGLang 的推理性能测试和 Profiling 工具。
+- `perf_test/`：vLLM、SGLang 的推理性能测试和 Profiling 工具。目录内原始 runner 的注释和示例属于导入基准，不作为当前服务启动规范；新 vLLM 性能测试按 [`evaluation/performance/README.md`](../evaluation/performance/README.md) 执行，只强制增加 `--no-enable-prefix-caching`，不要求 `--no-enable-log-requests`。
 - `Accuracy_test/`：精度评测工具；正式流程必须在目标机器上进入基于
   `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的容器，使用 `llmrun.py`
   执行完整 198 题 GPQA Diamond 评测。默认任务为 `gpqa_diamond_generative_cot`，

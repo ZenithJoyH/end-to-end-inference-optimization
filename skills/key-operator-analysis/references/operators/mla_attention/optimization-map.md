@@ -17,6 +17,35 @@
 
 ## 开放假设
 
+### Sparse Prefill：HKV 很小且 Q-head tile 导致重复读取 KV
+
+- 证据等级：`observation`，来自未在本项目复测的 DeepSeek 历史案例。
+- 触发信号：Sparse Prefill 中 HKV=1 或很小，Q head 较多；profile 或访存分析显示同一 KV 被多个过小的 Q-head tile 重复读取。
+- 第一检查：确认实际 Prefill 实现、每 rank Hq/Hkv、BH/BK、KV dtype/dequant 位置、shared-memory 上限和读取次数；不要从模型配置推断运行 tile。
+- 首个实验：只增大一个 Q-head tile 或调整一组 BH/BK，在不改变算法和 layout 的前提下比较完整 Sparse MLA 调用；扫描上限由目标设备 shared memory 和编译约束决定。
+- 必须证据：目标实现命中；KV 读取/调用时间下降；数值、边界 shape、fallback、eager/graph 通过；服务 Prefill/TTFT 有净收益。
+- 停止条件：更大 tile 触发 shared-memory/register 压力、合法性约束、重复 dequant 或服务收益消失。
+- 来源：[DeepSeek 导入 case card](case-index.md#case20260903-imported-deepseek-v4-flash-w8a8)。原案例的 `BH32/BK16` 只是历史观测点。
+
+### Sparse Decode：单 split grid 小于设备并行能力
+
+- 证据等级：`observation`，来自未在本项目复测的 DeepSeek 历史案例。
+- 触发信号：Decode Sparse MLA 的有效 batch/head grid 明显小于 SM/核心并行能力，head tile padding 已不是首要问题。
+- 第一检查：记录实际 grid、SM 数、上下文长度桶、top-k、partial output/LSE workspace、merge kernel 和 graph 地址稳定性。
+- 首个实验：固定 workload 与其他 tile，从最小可行 split 开始一次只增加 split 数；测量 `主 kernel + merge + workspace/copy` 的完整调用，并同步查看服务 TPOT/吞吐。
+- 停止条件：merge、workspace、同步或 graph 成本吞噬收益；短/中上下文回归；局部 kernel 更快但服务阶段变慢。
+- 来源：[DeepSeek 导入 case card](case-index.md#case20260903-imported-deepseek-v4-flash-w8a8)。原案例中 S=8 microbenchmark 优于 S=4、但服务更慢，是 split 非单调的反例。
+
+### Mixed Prefill：TP 后每 rank query head 过少
+
+- 证据等级：`observation`，来自未在本项目复测的 GLM 历史案例。
+- 触发信号：Mixed Prefill 的 Sparse MLA 在 TP 后每 rank head/grid 很小；无通信的小 tile 或已有 backend 仍不能提供足够并行度。
+- 第一检查：量化每 rank H、M bucket、节点内拓扑带宽、两次布局变换/all-to-all 成本、层数复用和 graph 支持；先确认通信不会跨越低带宽边界。
+- 首个实验：固定一个 M bucket，仅比较原路径与 `pack heads → Sparse MLA → restore` 的完整调用；从多个 M 点寻找实测交点，而不是沿用历史阈值。
+- 必须证据：rank 数据映射和输出严格等价；collective 与目标 kernel 均真实命中；无死锁；eager/graph、服务 Mixed Prefill 和端到端指标通过。
+- 停止条件：通信/同步大于计算收益、只有均匀模拟输入获益、跨节点流量出现、graph 不稳定或非目标 M 回归。
+- 来源：[GLM 导入 case card](case-index.md#case20260903-imported-glm-5-2-w8a8)。H4→H32、8 rank 和 M≥512 只用于建立候选，不是复用配置。
+
 ### Dense Decode：长上下文下 sequence 维并行不足
 
 - 证据等级：`observation`，尚无独立单变量实现结果。

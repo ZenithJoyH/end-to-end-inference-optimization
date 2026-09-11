@@ -208,7 +208,13 @@ Agent 的职责是：
 
 执行顺序：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → smoke/C8 护栏 → 无 profiler 基线 → 分层诊断与单变量实验 → 候选回归 → 正式精度 → 同配置正式性能及回退 → 复盘。
 
+- 启动用于性能测试的 vLLM 模型服务时，baseline、candidate 和 revert 的启动命令都必须显式包含 `--no-enable-prefix-caching`，关闭 prefix caching，避免跨请求前缀命中破坏工作量可比性。不要求增加 `--no-enable-log-requests`。启动前先用目标版本的 `vllm serve --help` 或等价方式确认 prefix cache 参数存在；不支持时停止并记录版本差异，不能静默省略或猜测替代参数。
+- 同时保存完整启动命令和进程/runtime 侧证据，在 service manifest 中记录 `enable_prefix_caching=false` 和 `performance_context.prefix_cache_state=disabled`。只写命令但未证明实际服务采用该状态，不能进入正式性能比较。正式精度与正式性能复用同一候选服务时也保持该参数不变。
+- 仅当用户明确把 prefix cache 本身列为优化变量时，才允许在单独契约和新基线中改变 prefix cache 状态；必须记录缓存准备、前缀复用比例和命中证据，不能与默认关闭缓存的结果直接归因为其他优化收益。既有历史案例保持原测量语义，不回写成关闭状态。
 - 正式精度在目标机器上基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器内执行，通过 `evaluation/accuracy/formal_accuracy.py` 包装调用原始 `test/Accuracy_test/llmrun.py`，对候选 graph 服务运行完整 GPQA Diamond（`gpqa_diamond_generative_cot`，默认 198 题）。必须显式提供案例配置、预冻结契约、当前服务身份和评测容器 inspect。
+- 区分每轮最小正确性回归与完整正式精度。每个优化点仍需执行与改动范围匹配的 reference、边界 shape、smoke/C8、eager/graph 或等价低成本检查；完整 GPQA 默认在累计保留 2–3 个低正确性风险优化点后执行一次，不要求每个小优化点后重复执行。案例必须记录尚未经过完整精度的优化点 ID、最近一次完整精度所绑定的源码/配置/服务身份及下一触发条件。
+- 大优化点或高正确性风险改动不进入上述累计，完成最小回归后立即执行完整 GPQA。触发项包括改变数值或输出语义、量化/反量化与 dtype 边界、attention/KV cache、MoE 路由、top-k/top-p/采样、跨算子融合、新算法/backend 或大范围 custom op、rank 数据布局/通信、graph dispatch/fallback 覆盖范围，以及任何已出现异常输出或最小回归可疑的改动。风险按影响面而非代码行数或预期性能增益判断。
+- 每个阶段性精度结果只覆盖其绑定的优化点组合。若 2–3 个点组合后完整精度失败，先停止叠加新优化，通过回退或拆分定位失败点；不得把组合通过解释成每个单点已独立证明。最终候选必须具备与冻结源码、配置和当前服务身份完全一致的正式精度及输出健康审查；最近一次完整精度仍精确绑定该身份且 gate 有效时可直接用于最终验收，否则必须重跑。
 - `evaluation/accuracy/` 中的辅助 runner 不能在未说明等价性时替代原始正式模型评测实现；`verify_accuracy.py` 仅作分数检查。`llmrun_parallel.py` 只在用户明确指定多服务或多 shard 时使用，不是默认正式入口。
 - 完成样本结构与分数检查后，还需对同一 samples SHA 的输出健康做审查，由 `evaluation/accuracy/acceptance.py issue` 生成正式记录。单独数值阈值通过不是正式验收。
 - 正式性能必须核对 gate 与当前服务身份及结果文件 SHA。配置、源码、权重、tokenizer 或服务实例变化后旧 gate 不再适用。baseline/revert 的比较记录与候选正式精度身份分别保存。

@@ -6,6 +6,7 @@
 
 | 案例 ID | 模型 | 平台/硬件 | 引擎 | Workload | 瓶颈 | 主要改动 | 结果 | 证据等级 |
 |---|---|---|---|---|---|---|---|---|
+| [20260911-glm53-flash-ppu-e2e](20260911-glm53-flash-ppu-e2e/README.md) | GLM-5.3-Flash-BF16 | TP16 PPU-ZW810E / PPU-13 | vLLM 0.24.0 + Plugin + FlagGems | 诊断矩阵待冻结 | 待基线与 profiler 定位 | 框架工作点 → 算子 A/B → 必要时深度优化 | 运行中；资源排他待处理 | `observation` |
 | [20260904-xingchen4-ppu-isolated-e2e](20260904-xingchen4-ppu-isolated-e2e/README.md) | XingChen4-29B-A4B BF16 | TP4 PPU-ZW810E / PPU-01 | vLLM 0.24.0 + Plugin + FlagGems | P1K/D1K/C64；P4K/D256/C64；P16K/D256/C32，各三轮 | MLA decode约60.6% GPU kernel时间 | operator/improve：H8的head tile64→16，限shape、可回退 | 保留：输出/总吞吐约+95.5%/+73.2%/+31.9%；GPQA按用户指示暂缓 | `reproduced` |
 | [20260903-imported-deepseek-v4-flash-w8a8](20260903-imported-deepseek-v4-flash-w8a8/README.md) | DeepSeek-V4-Flash W8A8 | 8× MetaX C550 | vLLM 0.20.2 + Plugin-FL + FlagGems | P1K/P4K, D1K, C64 | Indexer、Sparse MLA、cache copy、调度 | graph-safe/fusion/shape specialization | 原文最终组合显著提升；本项目未复测 | `observation` |
 | [20260903-imported-glm-5-2-w8a8](20260903-imported-glm-5-2-w8a8/README.md) | GLM-5.2 W8A8 | TP16 MetaX | vLLM + Plugin-FL + FlagGems/MCTlass | P1K/P4K | Indexer、MoE、Sparse MLA、采样、KV 抢占 | 分阶段 backend、精确算法、head packing、调度 | 原文持续演进；本项目未复测 | `observation` |

@@ -2,7 +2,7 @@
 
 # Usage:
 #  1. Start the server as follows (adjust model path and args as needed):
-# vllm serve /models/Qwen3.6-27B --tensor-parallel-size 2 --max-model-len 262144 --no-enable-log-requests --no-enable-prefix-caching
+# vllm serve /models/Qwen3.6-27B --tensor-parallel-size 2 --max-model-len 262144 --no-enable-prefix-caching
 
 #  2. Run this benchmark script (default workload matrix):
 # python evaluation/performance/vllm_perf.py --model MODEL --tokenizer TOKENIZER

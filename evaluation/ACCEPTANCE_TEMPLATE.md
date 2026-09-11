@@ -7,6 +7,9 @@
 - 模型、权重 revision、tokenizer 和 chat template：
 - 服务代码、Plugin、算子库和 revision：
 - 硬件、并行策略、dtype/量化、graph 配置：
+- vLLM 完整启动命令及 runtime 证据：
+- [ ] baseline/candidate/revert 均显式包含 `--no-enable-prefix-caching`
+- [ ] service manifest 记录 `enable_prefix_caching=false` 且 `prefix_cache_state=disabled`
 - 质量任务、数据集 revision、样本数和生成参数：
 - 绝对精度门槛或可信 baseline：
 - 允许的最大回退：

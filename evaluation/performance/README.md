@@ -12,6 +12,19 @@
 
 原始 `test/perf_test/` 保持导入基准；此目录的维护版修复了失败传播：非零退出、缺少成功计数、失败请求或不完整轮次不能成为成功汇总。预热失败也使整组失败；保留逐轮信息，缺轮不取剩余轮的均值，任何 case 失败整体非零退出。
 
+## 性能服务启动门禁
+
+所有新建 vLLM 性能基线以及对应 candidate/revert 服务，都在其余参数冻结后显式追加：
+
+```bash
+vllm serve <model> <其余冻结参数> \
+  --no-enable-prefix-caching
+```
+
+该参数关闭 prefix caching；性能服务不要求增加 `--no-enable-log-requests`。执行前用目标版本 CLI 帮助确认 prefix cache 参数受支持，执行后保存完整进程参数及服务日志或等价 runtime 证据。service manifest 应填写 `launch_config.enable_prefix_caching=false`、`performance_context.prefix_cache_state=disabled`，并在 `cache_preparation` 说明验证方式；缺少实际状态证据时，比较保持 incomplete。
+
+只有用户明确要求评估 prefix cache 时，才允许在单独契约中改变该状态，并把缓存准备、前缀复用比例和命中证据列为受控变量。不得把开启缓存的结果与默认关闭缓存的结果归因为其他代码或算子优化。历史产物维持原记录，不按本门禁改写。
+
 ## 配置执行与比较
 
 新任务从 [plan.example.json](plan.example.json) 和 [comparison.example.json](comparison.example.json) 准备外部配置。示例中的长度、速率、预热和阈值均用于展示字段，必须按任务改好再冻结。若比较要求 SLO 达标率，必须在计划的 `measurement.slo` 填写对应的 `ttft/tpot/e2el` 毫秒阈值；空 SLO 不能产生 goodput 验收。

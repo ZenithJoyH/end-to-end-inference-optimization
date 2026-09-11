@@ -19,6 +19,8 @@
 - Host、设备数量与拓扑、容器镜像和软件 revision
 - 预热轮数、正式轮数、失败和超时处理方式
 
+默认 vLLM 性能比较的 baseline、candidate 和 revert 服务均在启动时显式追加 `--no-enable-prefix-caching`；不要求追加 `--no-enable-log-requests`。服务 manifest 的 `launch_config.enable_prefix_caching` 记录为 `false`，`performance_context.prefix_cache_state` 记录为 `disabled`，并保存进程/runtime 侧证据。只有 prefix cache 被用户明确声明为主要变量时才允许例外；此时必须建立独立基线并记录缓存准备、复用比例和命中证据。
+
 以下维度存在未声明或未控制的差异时，不能归因为优化收益：
 
 - 不同硬件或设备数量
@@ -132,7 +134,8 @@ runtime:
   kv:
     capacity: null  # 注明单位
     preemption_recompute_evidence: ""
-  launch_args: []
+  launch_args:
+    - --no-enable-prefix-caching
 workload:
   dataset: ""
   dataset_sha256: null

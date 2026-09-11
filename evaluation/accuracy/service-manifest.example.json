@@ -11,7 +11,12 @@
   "plugin_sha256": "",
   "flaggems_sha256": "",
   "runtime_evidence_sha256": "",
-  "launch_config": {},
+  "launch_config": {
+    "enable_prefix_caching": false,
+    "launch_args": [
+      "--no-enable-prefix-caching"
+    ]
+  },
   "image_lineage": "unverified",
   "mount_parity": "unverified",
   "tokenizer_path": "",
@@ -22,7 +27,7 @@
     "driver_version": "",
     "device_runtime_version": "",
     "image_id": "",
-    "prefix_cache_state": "not_observed",
-    "cache_preparation": ""
+    "prefix_cache_state": "disabled",
+    "cache_preparation": "Verified from the current process arguments and runtime evidence."
   }
 }
