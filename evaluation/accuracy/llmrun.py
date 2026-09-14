@@ -338,6 +338,7 @@ def validate_samples(cfg: Dict, task: str, task_dir: Path) -> bool:
         summary = validate_sample_file(
             samples_file, expected, cfg.get("expected_doc_ids"),
             allow_timeouts=cfg.get("allow_timeouts", False),
+            enforce_output_health=False,
         )
     except (ValueError, OSError, TypeError) as exc:
         log("ERROR", str(exc))

@@ -1,0 +1,6 @@
+interface:
+  display_name: "推理精度问题定位"
+  short_description: "定位精度回退、输出异常及图模式或算子数值问题"
+  default_prompt: "Use $inference-accuracy-diagnosis to isolate the observed inference accuracy regression and produce a reproducible root-cause analysis and revalidation plan."
+policy:
+  allow_implicit_invocation: true

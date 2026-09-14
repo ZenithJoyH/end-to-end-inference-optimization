@@ -4,6 +4,23 @@
 
 ## 已验证的限域路径
 
+### Sparse Prefill：辅助索引转换局部提速但端到端无收益
+
+- 证据等级：`reproduced`，限 GLM5.3-Flash/PPU/BF16/TP16/H4/DQK512/
+  DV512/topk2048、token 4096/12401/16384。
+- 触发信号：主 sparse MLA 前存在可独立识别的 logical-to-physical index
+  转换 kernel，且 trace 累计时间看似可观。
+- 第一检查：把辅助 kernel 的累计时间换算为完整请求关键路径中的绝对上限；
+  同时确认它是否与主 kernel、通信或其他 rank 等待重叠。
+- 首个实验：保持主 sparse MLA、top-k 语义、layout 和服务配置不变，只调整
+  转换 tile；先做 exact output/valid-count、代表 shape、eager/graph，再做
+  无 profiler baseline/candidate/revert。
+- 停止条件：即使微基准超过 3x，只要冻结服务场景的主指标不改善，就回退并
+  停止继续优化外围分配/tile，不以 profiler 累计时间宣称收益。
+- 已知反例：GLM5.3 案例中 `BLOCK_N 128→1024` 在三个 shape 达到
+  3.547x–4.542x，但两场景输出吞吐为 -0.041%/-0.005%。
+- 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
+
 ### Dense Decode：head tile 明显大于每 rank 有效 head 数
 
 - 证据等级：`reproduced`，限 XingChen4/PPU/BF16/H8/DQK576/DV512/SQ1/page16/64。

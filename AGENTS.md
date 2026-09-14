@@ -2,7 +2,7 @@
 
 ## 1. 项目定位
 
-本项目用于对用户已经完成适配的模型进行端到端推理优化。模型适配结果是本项目的输入，不在本项目中复刻另一套适配工作流，也不依赖其他本地仓库的目录、状态文件或脚本。
+本项目用于对用户已经完成适配的模型进行端到端推理优化。模型适配结果是本项目的输入，不在本项目中复刻另一套适配工作流。用户指定在“新模型适配”项目中已经完成适配的模型后，本 Agent 可以只读访问 `/Users/baai/Documents/ChatGPT/新模型适配` 中与该模型相关的记录，提取适配容器、模型路径、平台、启动配置、revision、挂载、精度/性能状态和已知问题，并把必要事实快照写入当前案例。不得修改或同步上游项目，也不建立持续目录依赖；实际运行事实仍须在目标环境重新核验。
 
 Agent 的职责是：
 
@@ -21,7 +21,7 @@ Agent 的职责是：
 1. **框架层优化（`framework`）**：在 `vllm-plugin-FL` 的扩展点和配置范围内，优化调度、批处理、KV 管理、graph 执行、主机开销、数据流及并行通信组织。关注“算子如何被组织和执行”，默认不修改 vLLM 源码。
 2. **算子层优化（`operator`）**：关注具体算子或融合算子的实现效率，细分为：
    - **接入更好的算子（`replace`）**：比较现有 FlagGems、平台 vendor/native 等实现，通过 Plugin dispatch/backend 接入在目标 shape 上更快且数值兼容的实现。
-   - **优化当前算子（`improve`）**：对当前实现做 tile、warp、stage、并行划分、访存、layout、融合或算法调整；需要时形成当前实现的特化版本。
+   - **优化当前算子（`improve`）**：对当前实现做 tile、warp、stage、并行划分、访存、layout 或算法调整；也可以融合现有推理链路中相邻或可共同执行的多个算子，减少中间张量、访存、同步和 kernel launch。需要时形成当前实现的特化版本或新的融合算子。
 
 分类按主要收益机制：为替换算子增加 dispatch、shape 白名单和 fallback，仍归入 `operator/replace`；降低通用 dispatch 开销归入 `framework`；新增融合 kernel 归入 `operator/improve`。跨层方案拆成关联实验，明确依赖并分别验证贡献，不重复计算收益。
 
@@ -29,7 +29,7 @@ Agent 的职责是：
 
 ## 2. 当前工作区提供的本地资源
 
-按用途选择资源，优先使用当前仓库中的副本。除非用户明确要求比较或重新导入，不回到其他本地目录查找或执行同名文件。
+按用途选择资源，优先使用当前仓库中的副本。只有用户指定基于“新模型适配”中已完成适配的某个模型开展优化时，才按第 1、3、4 节只读获取该模型的交付事实；除此之外不回到其他本地目录查找或执行同名文件。
 
 ### 2.1 规范文档：确定流程与设计约束
 
@@ -54,7 +54,7 @@ Agent 的职责是：
 - **推理栈架构资料**：[vllm-plugin-FL-analysis.md](docs/vllm-plugin-FL-analysis.md) 用于理解 Plugin 调用链与扩展点；[FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) 用于理解 vLLM 专用算子、vendor backend 和测试/benchmark；[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于理解通用算子、ATen 注册和多后端特化。三者都是特定 revision 的静态分析，分阶段使用要求见第 6 节。
 - **算子知识**：[关键算子技能](skills/key-operator-analysis/SKILL.md) 包含 MLA Attention、mHC、固定版本 vLLM 源码快照及通用分析方法。仅在端到端测量或 profiler 已收敛到具体算子、dispatch、layout 或相邻融合路径时按需读取；不提前加载整套知识库，不直接套用历史硬件、shape、revision 和性能判断。
 - **精度评测**：公共 `$inference-accuracy-evaluation` Skill 负责选择并执行精度操作，完整测试方法、参数、进度监控、证据校验和三态判定都由 Skill 包维护；本项目只在 `docs/skills-project-contract.md` 映射 `evaluation/accuracy/` 与原始 runner。
-- **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在最小回归、完整 GPQA 或输出健康检查失败时，先区分评测/身份无效与真实数值回退，再通过最小复现、单变量二分、执行路径证明和原范围复测定位根因。问题解决前停止叠加性能优化。
+- **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
 - **性能评测**：公共 `$inference-performance-evaluation` Skill 负责选择并执行无 profiler 性能测量；场景、预热、重复、指标计算、比较和正式判定都由 Skill 包维护，本项目只映射 `evaluation/performance/` 的 benchmark、比较和回执工具。
 - **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
 - **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
@@ -66,9 +66,10 @@ Agent 的职责是：
 运行事实的来源优先级为：
 
 1. 当前目标机器、容器、进程和服务的只读检查结果。
-2. 本项目中带日期、revision、命令和原始产物路径的实验记录。
-3. 用户在当前任务中明确提供的信息和文件。
-4. 本项目已有文档中的静态分析结论。
+2. 用户指定模型在“新模型适配”项目中的最新适配交付记录；导入当前案例后仍须由运行时核验。
+3. 本项目中带日期、revision、命令和原始产物路径的实验记录。
+4. 用户在当前任务中明确提供的信息和文件。
+5. 本项目已有文档中的静态分析结论。
 
 静态文档不能替代当前运行时验证。发现冲突时，记录冲突、采用的证据和理由，不静默拼接不一致的信息。
 
@@ -78,6 +79,7 @@ Agent 的职责是：
 
 ```text
 模型：<模型或 served-model-name>
+适配结果来源：<可选；新模型适配项目中的模型/案例路径或用户提供的其他交付记录>
 模型路径：<远端权重路径>
 平台：<nvidia|ppu|metax|ascend|mthreads|hygon>
 目标机器：<inventory 中的 SSH Host 别名>
@@ -102,12 +104,12 @@ Agent 的职责是：
 
 ## 4. 工作边界
 
-- 本项目不自动读取、更新或同步其他模型适配工作区。
+- 本项目不自动扫描、更新或同步其他模型适配工作区；当用户指定基于“新模型适配”中已完成的某个模型开展优化时，允许只读检索该模型相关交付并在当前案例保存来源路径、时间、revision/SHA 和事实摘要。
 - 不重新执行模型架构分析、环境适配、模型注册或正式适配验收，除非它们成为当前优化的明确阻塞且用户要求处理。
 - 用户声明模型已完成适配时，将其作为任务前提；仍需用最小 smoke test 确认当前服务没有漂移或失效。
 - 每次性能优化都必须从用户指定的已适配容器复刻一个新的专用优化容器。源适配容器只作为环境事实和基线来源，不直接承载源码修改、profiling 或性能实验。
 - 默认不改模型权重和 tokenizer，不重新训练，不改变输出语义。
-- 用户已授权在端到端性能优化任务中直接修改目标模型推理环境内的 `vllm-plugin-FL` 和 `FlagGems` 源码。针对当前任务的框架优化、算子接入和算子实现优化，无需仅因修改这两个仓库而再次申请授权。
+- 用户已授权在端到端性能优化任务中直接修改目标模型推理环境内的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码。针对当前任务的框架优化、算子接入和算子实现优化，无需仅因修改这三个仓库而再次申请授权。
 - 默认保持 vLLM 源码只读；优先使用启动参数、Plugin 扩展点、FlagGems、平台 backend 或独立 Triton 实现。
 - 上述授权仅限当前任务明确指定的模型、Host、容器和源码副本，不自动扩大到其他服务、共享安装或其他工作区。工具权限要求及共享环境保护规则仍然适用。
 - 确实必须修改 vLLM、基础镜像、权重或共享系统配置时，先说明证据、替代方案、影响范围和回退方式，取得用户明确同意。
@@ -211,15 +213,15 @@ Agent 的职责是：
 4. 优先选择最窄扩展点：配置参数，其次 Plugin shim/dispatch/backend，再次 Plugin 内 Triton，最后才考虑 runtime patch。
 5. 不以 fallback 成功证明目标 backend 已命中；必须记录实际 `impl_id`、dispatch 日志或等价证据。
 6. Plugin hook 必须幂等，因为 general plugin 可能在多个 worker 中重复加载。
-7. 新实现必须同时考虑 eager 与 graph capture/replay，不能只在 eager 下验证。
+7. 性能优化以 graph 服务为准；新实现必须验证目标 graph 模式可以启动、capture 并至少 replay 两次。eager 只在定位 graph 差异时作为可选诊断，不是进入优化或候选晋级的门禁。
 8. FlagGems 与 FlagGems-vllm 存在同名或相近算子时，从运行中函数对象、import、注册 key 和 profiler 反向确认来源，不按文件名推断。
-9. 当前常规修改授权只覆盖 `vllm-plugin-FL` 和 `FlagGems`；对独立 `FlagGems-vllm` 的只读分析不扩大为修改授权，确需修改时先确认本次任务边界。
+9. 当前常规修改授权覆盖目标推理环境实际使用的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码副本；修改前分别记录 revision、工作区状态、真实导入路径、生效方式和回退方法。该授权不扩大到其他容器、共享安装或无关工作区。
 
 ## 7. 执行流程与门禁入口
 
 完整阶段步骤统一维护在 [SOP](docs/performance-optimization-sop.md)，workload 可比性、指标、实验 schema 和最终报告字段统一维护在 [实验契约](docs/experiment-contract.md)。开始实际优化前必须阅读两者并创建案例。
 
-执行顺序：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → smoke/C8 护栏 → 无 profiler 基线 → 分层诊断与单变量实验 → 候选回归 → 正式精度 → 同配置正式性能及回退 → 复盘。
+执行顺序：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → smoke/C8 护栏 → 无 profiler 基线尝试（过慢时可转 baseline-recovery）→ 分层诊断与单变量实验 → milestone/正式性能检查 → 候选回归 → 最终精度与性能验收 → 复盘。
 
 - 精度和性能测试必须分别调用公共 `$inference-accuracy-evaluation` 与
   `$inference-performance-evaluation`。测试等级/模式、触发条件、配置字段、并发、预热、重复、
@@ -231,13 +233,40 @@ Agent 的职责是：
 - 低开销指标无法继续归因或需要确认执行路径时调用 `$inference-profiling`；收敛到具体算子
   后调用 `$key-operator-analysis`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由
   对应 Skill 决定，不在本文件维护副本。
+- 当前 Agent 的正式性能优化目标目录固定为以下四个 finite-batch 场景，长度单位均为 token：
+  `P1024/D1024/C64/N128`、`P4096/D1024/C64/N128`、`P16384/D1024/C64/N128`、
+  `P32768/D1024/C64/N128`，其中 P/D/C/N 分别表示输入长度、
+  输出长度、并发上限和请求数。这四项约束正式测试，不限制中间优化路径：每轮可以建立较小的
+  `milestone`，使用目标场景子集、缩短输出、减少请求/并发、阶段专项、短探针或算子 microbenchmark
+  快速证伪和推进。每个 milestone 必须记录它服务的最终 `scenario_id`、差异、成功/停止条件和晋级验证；
+  它不是公共性能 Skill 的新模式，也不能直接成为最终性能结果。最终 `full` 仍须覆盖四个原始场景。
+  某场景超出模型上下文、显存或平台能力时，保留该场景并记录 `unsupported/incomplete` 及证据，不得
+  静默删掉、缩短或改名后宣称完整验收通过。
+- 性能优化按 `P1K → P4K → P16K → P32K` 顺序从四个正式场景中每次选取一个当前目标场景，
+  不要求先跑完其他场景 baseline。先冻结当前 `scenario_id` 和 workload，对当前已保留代码建立
+  `scenario-entry baseline`，再围绕它进行 milestone、定位、优化和候选复测。当前场景达到预记录的
+  完成条件后，运行该场景的中间正式测试并切换到下一个目标场景；无需在此时运行其余三个正式场景。
+  全部目标场景完成后，才使用未优化原路径 `anchor baseline` 和最终组合候选运行四场景最终验收。
+- 某场景的 baseline 在测量前记录的诊断时间预算内仍未完成时，可以安全停止本次 benchmark 客户端，
+  保存已运行时长、完成请求数、部分日志和服务状态，并标记为 `deferred-too-slow/incomplete`，随后进入
+  baseline-recovery。恢复方式可选：减少请求数/并发、输入或输出长度建立可完成的 milestone 基线；基于
+  真实源码和执行路径进行静态分析调优；或两者结合。缩减场景可以产生明确的同配置性能数据，但结论只
+  属于该 milestone，不得冒充原目标 baseline 或与不同 workload 计算精确加速比。候选达到晋级条件后，
+  再回到对应目标场景和最终四场景矩阵测量。
+- 当当前目标场景的一个或一组 milestone 获得预先定义的显著性能提升，或该场景主要瓶颈已经迁移时，
+  可以提前触发只覆盖当前目标场景的中间正式测试，使用有效精度 gate 和同配置
+  baseline/candidate/revert。若结果达到场景完成条件，则保留候选并切换下一个正式目标场景；否则继续
+  当前场景优化或回退。中间正式结果归档到 `optimize/`；只有全部四场景完成后的最终组合验收进入
+  `acceptance/`。
 - 默认每完成 2–3 个有结果的优化实验后调用 [推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md)。组合改动、热点迁移、跨场景结论冲突、连续失败/证据不足，或准备投入高成本框架/算子方案时提前触发。复盘必须覆盖失败与回退项，以同配置 baseline→当前组合测量作为累计收益依据，并把下一轮 1–3 个候选、首个证伪实验、所需评测 Skill 和停止条件写入 `optimize/planning/`。
-- 精度失败或输出异常时调用 `$inference-accuracy-diagnosis`，冻结证据并停止叠加新优化；只有
-  对应 Skill 要求的原失败范围重新通过后才能恢复性能工作。
+- 每个优化点仍执行最小正确性回归；低风险点默认累计 4–5 个再运行一次正式完整精度，高风险改动、当前目标场景 formal 前缺少有效 gate、以及最终组合候选仍按触发条件立即执行或补做。
+- 正式分数低于预冻结阈值或评测证据无效时调用 `$inference-accuracy-diagnosis`，冻结证据并停止叠加新优化；
+  必须定位精度下降原因并修复或回退，以相同正式契约重新评测，只有新的 `score >= threshold` gate
+  生成后才能恢复性能优化。输出健康异常单独记录或按需诊断，不改变 `score >= threshold` 结论。
 - 每次 Skill 结果都写回当前实验记录，保留准确服务身份、场景/样本范围、原生证据路径、
   结果和结论边界；不能只在对话中给出口头结论。
 
-## 10. Plugin、FlagGems 和 Triton 改动要求
+## 10. Plugin、FlagGems-vllm、FlagGems 和 Triton 改动要求
 
 **Plugin 修改必须同时考虑端到端收益与上游可维护性。** 用户后续将基于优化代码提交 PR；修改前及形成最终候选前，必须按 [Plugin 优化设计与 PR 准备](docs/plugin-change-review.md) 核对目标 revision 的框架设计、现有扩展点、多模型/多平台影响和验证证据。
 
@@ -247,14 +276,14 @@ Agent 的职责是：
 
 - 修改前记录 Plugin、vLLM、FlagGems-vllm（若安装）和 FlagGems revision、branch 与工作区状态。
 - 解析运行中服务实际使用的 Plugin、FlagGems-vllm（若安装）和 FlagGems 导入路径、安装方式及源码目录，确认修改的是目标服务使用的副本。已有未提交改动必须保留，不 reset、覆盖或擅自同步升级。
-- 框架逻辑及接入代码优先在 Plugin 中修改；当前 FlagGems 算子的实现、调优配置或平台特化可以直接在 FlagGems 中修改，不要求为了避开 FlagGems 源码而复制到 Plugin。
-- 涉及两个仓库时分别保存基线、补丁和回退方法；将源码修改、必要的构建/安装和目标服务重载步骤记录到本项目案例中。验证服务实际加载新代码，不以磁盘文件已更新代替生效证明。
+- 框架逻辑及接入代码优先在 Plugin 中修改；vLLM 专用/融合算子可以直接在 FlagGems-vllm 中修改，通用 FlagGems 算子的实现、调优配置或平台特化可以直接在 FlagGems 中修改，不要求为了避开算子仓库源码而复制到 Plugin。
+- 涉及一个或多个仓库时分别保存基线、补丁和回退方法；将源码修改、必要的构建/安装和目标服务重载步骤记录到本项目案例中。验证服务实际加载新代码，不以磁盘文件已更新代替生效证明。
 - 验证请求确实进入修改路径，不以代码存在代替命中证据。
 - 优先复用 Plugin 已有 dispatch、backend 和 OOT operator 入口。
 - FlagGems 实现必须核对当前符号、支持 dtype、shape/layout 和 graph 能力。
 - FlagGems 不具备兼容实现时，Plugin 内新增 Triton 实现必须有可信 reference。
 - 覆盖数值、dtype、shape、stride/layout、设备、边界 batch 和 zero-token 场景。
-- eager 和 graph capture/replay 分别测试；graph 至少完成 capture 和两次 replay。
+- graph 服务必须能够启动并完成 capture 和至少两次 replay；不要求另行验证 eager 服务，除非 graph 问题定位需要对照。
 - 避免 capture-time host sync、动态分配、数据依赖主机控制流和不稳定地址。
 - fallback 只用于诊断或明确的兼容策略，不能掩盖目标 backend 失效。
 - 性能改动附带最小正确性测试和同条件端到端 benchmark。
@@ -302,8 +331,8 @@ skills/                  # 项目级可复用技能与按需加载的知识库
 
 每个实际 `<model>/<platform>/` 下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部可以保留一个导航 `README.md`，不得再创建与三者并列的 `experiments/`、`profiling/`、`patches/` 或其他结果目录。
 
-- `baseline/`：保存优化前的环境、workload、正确性状态和基线性能记录。
-- `optimize/`：保存多轮瓶颈分析、假设、配置、命令、profiling 摘要、精度问题定位、阶段性规划复盘、源码补丁、失败/回退以及每轮优化后的性能记录。每轮、每个精度问题与每次规划复盘必须可区分，不能只覆盖为最终最好的一轮。
+- `baseline/`：保存优化前的环境、workload、正确性状态和已完成的原路径 `anchor baseline`；多场景时可在其下按稳定 `scenario_id` 分组。
+- `optimize/`：保存多轮瓶颈分析、假设、配置、命令、profiling 摘要、精度问题定位、阶段性规划复盘、源码补丁、失败/回退以及每轮优化后的性能记录。按场景串行优化时，各 `scenario-entry baseline`、父候选身份和该场景的实验闭环可保存在 `optimize/scenarios/<scenario-id>/`；超过诊断预算的未完成 baseline、缩减场景测量、静态分析和当前目标场景的中间 formal 也保存在对应实验下，不能提前写入 `acceptance/`。每轮、每个精度问题与每次规划复盘必须可区分，不能只覆盖为最终最好的一轮。
 - `acceptance/`：只保存最终候选的正式性能优化记录、正式精度达标记录、验收配置、结论和回退入口；中间轮次或未达标结果留在 `optimize/`。
 
 不要为未请求的模型或平台批量生成空目录。原始日志、CSV/JSONL、SQLite、trace、profile 和大数据集只记录外部绝对路径或对象存储位置。

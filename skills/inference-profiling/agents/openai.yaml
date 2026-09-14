@@ -1,0 +1,6 @@
+interface:
+  display_name: "推理 Profiling"
+  short_description: "采集并分析推理 Trace，定位框架、通信与算子瓶颈"
+  default_prompt: "Use $inference-profiling to capture and analyze a representative inference trace and produce an actionable bottleneck hypothesis."
+policy:
+  allow_implicit_invocation: true

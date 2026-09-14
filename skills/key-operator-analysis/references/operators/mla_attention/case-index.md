@@ -6,6 +6,7 @@
 
 | Case | 状态 | 匹配键 | 主要知识差量 | 证据等级 |
 |---|---|---|---|---|
+| [20260911-glm53-flash-ppu-e2e](../../../../../docs/cases/20260911-glm53-flash-ppu-e2e/README.md) | sparse-index candidate rejected；原 native MLA kept | sparse prefill；H4；DQK512/DV512；topk2048；BF16；PPU；TP16 | 辅助索引 kernel 的 3.55x–4.54x 不足以预测端到端收益；必须测完整服务关键路径 | `reproduced`，限当前模型/平台/shape |
 | [20260904-xingchen4-ppu-isolated-e2e](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md) | kept；正式模型精度暂缓 | dense decode；per-rank H8；DQK576/DV512；BF16；page16/64；PPU；graph | tile 判断必须使用 TP 后每 rank 有效 head 数；先检查 head padding ratio | `reproduced`，限当前模型/平台/shape |
 | [20260903-imported-deepseek-v4-flash-w8a8](../../../../../docs/cases/20260903-imported-deepseek-v4-flash-w8a8/README.md) | 原案例 kept；本项目未复测 | sparse prefill HKV1；sparse decode low-grid；KV FP8；MetaX；TP8 | Prefill 的 KV 重读与 Decode 的 grid 不足是不同机制；split 数必须包含 merge 和服务成本 | `observation` |
 | [20260903-imported-glm-5-2-w8a8](../../../../../docs/cases/20260903-imported-glm-5-2-w8a8/README.md) | 原案例 kept；本项目未复测 | mixed prefill；per-rank H4；TP16；节点内 8 rank packing；MetaX | low-grid 时通信换计算粒度可能有净收益，但阈值由拓扑、M 和完整通信成本共同决定 | `observation` |
@@ -40,6 +41,52 @@
 ### 适用限制
 
 当前证据只覆盖列出的 PPU、BF16、dense decode 和 shape guard。其他平台、dtype、TP、模型、32K/64K、真实业务 workload 与长稳均需重新验证。复用的是诊断顺序和实验设计，不是参数或收益数字。
+
+## Case：20260911-glm53-flash-ppu-e2e
+
+### 环境与路径
+
+- 模型/平台：GLM-5.3-Flash-BF16，PPU-ZW810E，TP16/BF16，
+  FULL_DECODE_ONLY，`max_num_batched_tokens=16384`。
+- 阶段和 shape：sparse prefill，per-rank H4、DQK512/DV512、topk2048；
+  主要 token 数为 4096/12401/16384。
+- 实现：Plugin thead backend 调用预编译 `flash_mla` sparse kernel；其前置
+  vLLM Triton 索引转换默认 `BLOCK_N=128`。
+- 完整证据：[案例摘要](../../../../../docs/cases/20260911-glm53-flash-ppu-e2e/README.md)、
+  [实验记录](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-sparse-index-convert/README.md)、
+  [post-MoE trace](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-post-moe-profile/README.md)。
+
+### 瓶颈、改动和结果摘要
+
+- 16-rank trace 中 native sparse MLA 稳定为第一热点；rank0 主 kernel
+  约 2.922 s，前置索引转换的大 prefill shape 约 264.961 ms。
+- 预编译主 kernel 未暴露 tile/warp。首个可证伪变量只将索引转换
+  `BLOCK_N 128→1024`，并以 token≥4096、topk=2048 和显式环境开关保护。
+- 三个主 shape 的索引转换微基准分别提升 3.547x/4.462x/4.542x；
+  output/valid-count exact 一致，graph capture + 两次 replay 通过。
+- 两场景无 profiler baseline/candidate/revert 的输出吞吐却分别为
+  -0.041%/-0.005%，比较器 `failed`；补丁精确回退，未加入保留组合。
+
+### 知识差量
+
+- `prior_belief`：trace 中累计约 265 ms 且可获得 3.5x 以上微基准收益的
+  MLA 辅助 kernel，可能形成可测的 prefill/TTFT 改善。
+- `outcome`：`refined`。
+- `revised_belief`：即使辅助 kernel 的数值和 graph 验证完整，只要它不在
+  请求级关键路径上形成足够占比，局部倍数仍可能完全被调度、主 kernel 和
+  通信覆盖；进入生产前必须用无 profiler A/B/R 验证。
+- `future_first_check`：先估算该辅助 kernel 在完整请求关键路径中的可兑现
+  绝对时间，而不只看 profiler 累计时间；保留最小收益门槛和快速回退。
+- `contradicted_or_unproven`：BN1024 不是可迁移默认值；`out=` 预分配是否有
+  收益未验证，且本轮端到端上限已使其降级。
+- `new_frontier`：同一 trace 的 general mm 有多个累计更大的明确 shape 族，
+  下一步应先比较已有实现，而不是继续细调 sparse-index 外围。
+
+### 适用限制
+
+反例只覆盖上述 PPU、BF16、TP16、topk2048、两个冻结服务 workload。
+它支持“局部辅助 kernel 必须回到端到端验证”的方法，不证明其他模型或
+更高占比场景中的索引转换都没有优化价值。
 
 ## Case：20260903-imported-deepseek-v4-flash-w8a8
 

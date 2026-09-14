@@ -159,9 +159,9 @@ fallback 成功、服务可用或磁盘文件已修改，都不能单独证明�
 1. 公开 API 与 reference 对照。
 2. dtype、shape、stride/layout、边界和异常语义。
 3. in-place/out/alias 及数值容差。
-4. eager 与 graph capture/replay。
+4. 目标 graph 的 capture/replay；eager 仅在定位 graph 差异时按需对照。
 5. Plugin/模型 smoke 与 C8 sanity。
-6. 本项目正式 GPQA Diamond 及输出健康门禁。
+6. 本项目正式 GPQA Diamond 单阈值门禁；输出健康只作为可选诊断观察。
 
 ### 9.3 性能顺序
 

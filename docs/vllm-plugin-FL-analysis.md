@@ -407,8 +407,8 @@ dispatch 只在 Python 异常时切换候选实现；产生错误数值但正常
 
 上游 README 写明 Ascend 需要 eager，但 `PlatformFL` 声明 Ascend 支持 static graph，graph
 wrapper 也包含 NPU 路径，测试矩阵还混合了 eager/graph 用例。这说明“代码存在 graph
-分支”不等于“目标镜像已经验证通过”。本项目仍必须按实际平台完成 eager/graph 跑通，并
-在 graph 模式完成后续验收。
+分支”不等于“目标镜像已经验证通过”。本项目必须按实际平台完成目标 graph 启动与执行，并
+在同一 graph 模式完成后续验收；eager 仅在定位 graph 差异时按需使用。
 
 ### 11.5 存在违反本项目边界的上游做法
 
@@ -458,7 +458,7 @@ kernel、import-time symbol wrapper、正式 dispatch/OOT 扩展，或升级不�
 
 ### Graph 与执行链路
 
-- [ ] eager 和 graph 均可启动并完成最小推理；
+- [ ] 目标 graph 可启动并完成最小推理；eager 仅在需要定位差异时测试；
 - [ ] graph capture 和至少两次 replay 已验证；
 - [ ] 不存在 capture-time host sync、动态分配或数据依赖主机控制流；
 - [ ] shape、stride、地址、workspace、zero-token 和边界 batch 已覆盖；

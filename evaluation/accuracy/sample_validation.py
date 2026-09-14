@@ -25,13 +25,16 @@ def task_filters(task_config):
 
 
 def validate_sample_file(path: Path, expected: int, expected_ids=None, allow_timeouts=False,
-                         expected_filters=None):
+                         expected_filters=None, enforce_output_health=True):
     if isinstance(expected, bool) or not isinstance(expected, int) or expected < 1:
         raise ValueError("expected_samples must be a positive integer")
     ids = set()
     rows = set()
     raw_by_id = {}
     timeout_ids = set()
+    empty_ids = set()
+    garbled_ids = set()
+    truncated_ids = set()
     if expected_filters is not None and (not expected_filters or any(
             not isinstance(name, str) or not name for name in expected_filters)
             or len(set(expected_filters)) != len(expected_filters)):
@@ -68,20 +71,32 @@ def validate_sample_file(path: Path, expected: int, expected_ids=None, allow_tim
             ids.add(key)
             texts = response_texts(record.get("resps"))
             if any(not text.strip() for text in texts):
-                raise ValueError(f"doc_id {key}: empty response")
+                empty_ids.add(key)
+                if enforce_output_health:
+                    raise ValueError(f"doc_id {key}: empty response")
             if any("\ufffd" in text for text in texts):
-                raise ValueError(f"doc_id {key}: Unicode replacement character")
+                garbled_ids.add(key)
+                if enforce_output_health:
+                    raise ValueError(f"doc_id {key}: Unicode replacement character")
             timeout = bool(record.get("timeout")) or any("<TIMEOUT>" in t for t in texts)
             if timeout:
                 timeout_ids.add(key)
-            if timeout and not allow_timeouts:
+            if timeout and not allow_timeouts and enforce_output_health:
                 raise ValueError(f"doc_id {key}: timeout")
             if record.get("finish_reason") in ("length", "max_tokens") or record.get("truncated") is True:
-                raise ValueError(f"doc_id {key}: explicit truncation")
+                truncated_ids.add(key)
+                if enforce_output_health:
+                    raise ValueError(f"doc_id {key}: explicit truncation")
     if len(ids) != expected:
         raise ValueError(f"expected {expected} unique samples, found {len(ids)}")
     if expected_ids is not None and ids != {str(i) for i in expected_ids}:
         raise ValueError("sample IDs do not match the frozen dataset ID set")
     if expected_filters is not None and rows != {(key, name) for key in ids for name in expected_filters}:
         raise ValueError("samples do not contain the complete document/filter set")
-    return {"unique_samples": len(ids), "timeouts": len(timeout_ids)}
+    return {
+        "unique_samples": len(ids),
+        "empty_outputs": len(empty_ids),
+        "garbled_outputs": len(garbled_ids),
+        "timeouts": len(timeout_ids),
+        "truncations": len(truncated_ids),
+    }

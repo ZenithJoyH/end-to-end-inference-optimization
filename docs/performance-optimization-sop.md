@@ -2,9 +2,9 @@
 
 ## 文档状态
 
-- 版本：`0.27`
+- 版本：`0.35`
 - 状态：已包含本项目实际案例与导入案例；导入案例的性能数字尚未在本项目复测
-- 最后更新：2026-09-11
+- 最后更新：2026-09-14
 - 维护方式：由已完成或明确失败的实际优化案例持续修订
 
 本 SOP 是工作入口，不是固定真理。它只保留能够提高诊断效率、实验可比性、正确性或交付质量的步骤。不同模型、平台和业务 workload 可以有不同分支，但任何删减都需要说明原因。
@@ -31,7 +31,7 @@ workload 可比性、指标决策、schema 与最终报告字段统一见 [实�
 
 端到端优化中的正确性和精度步骤统一由 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 编排。SOP 定义触发时机和门禁，Skill 根据 `baseline-sanity`、`minimal-regression`、`formal-gate`、`gate-check` 模式调用现有工具，不维护第二套 runner；前三种模式实际启动评测进程时创建绑定当前任务的 heartbeat 进度通知，默认每 30 分钟一次。
 
-精度评测出现分数回退、最小回归失败或输出健康异常时，调用独立的 [推理精度问题定位技能](../skills/inference-accuracy-diagnosis/SKILL.md)。它先排除评测证据与服务身份失效，再做最小复现、单变量二分、执行路径证明和修复复测；问题未解决前不继续叠加性能候选。
+正式分数低于预冻结阈值、必要的最小回归失败或评测证据无效时，调用独立的 [推理精度问题定位技能](../skills/inference-accuracy-diagnosis/SKILL.md)。超时、空输出、截断、重复或格式异常可按需诊断，但不单独使精度失败或中断性能优化。
 
 端到端优化中的无 profiler 性能测量统一由 [推理性能评测技能](../skills/inference-performance-evaluation/SKILL.md) 编排，按 `baseline`、`targeted`、`checkpoint`、`formal` 模式调用现有 benchmark 和比较工具。Trace 采集与热点归因由独立的 [推理 Profiling 技能](../skills/inference-profiling/SKILL.md) 编排，按 `capture`、`analyze`、`reprofile` 模式调用 profiler 工具；两者不维护第二套 runner，也不混用计时结论。
 
@@ -64,6 +64,12 @@ FlagGems 和 FlagGems-vllm 可能存在同名或相近实现。不得按仓库�
 
 ## 3. 阶段 A：定义目标与冻结环境
 
+### A0. 读取已完成的模型适配交付（按需）
+
+当用户指定基于“新模型适配”项目中已经完成适配的某个模型开展性能优化时，只读访问 `/Users/baai/Documents/ChatGPT/新模型适配`，仅检索该模型相关案例、配置和交付记录。提取模型/served name、权重路径、平台与 Host、源适配容器及镜像、启动参数、引擎与 Plugin/FlagGems-vllm/FlagGems revision、挂载、graph 配置、已有精度/性能结论和已知问题。
+
+在当前案例记录上游来源绝对路径、读取时间、文件 revision/SHA 和事实摘要。上游记录用于缩短交接，不直接证明当前环境仍相同；进入容器复刻前重新核对目标机器、容器和服务。不得修改、回写、同步或执行上游项目的流程脚本，也不在当前配置中建立必须依赖上游目录长期存在的链接。用户没有指定具体模型时不扫描整个上游项目。
+
 ### A1. 定义验收契约
 
 记录：
@@ -78,9 +84,9 @@ FlagGems 和 FlagGems-vllm 可能存在同名或相近实现。不得按仓库�
 
 没有明确通过门槛时，可以完成测量和比较，但结论只能是“改善/回退/未证实”，不能写“达标”。
 
-源码修改范围：用户已授权直接修改当前目标模型推理环境内的 `vllm-plugin-FL` 与 `FlagGems`，覆盖框架逻辑、算子接入、当前算子实现和调优配置。vLLM 源码仍默认只读；权重、tokenizer、基础镜像和共享系统配置不因这项授权而开放修改。
+源码修改范围：用户已授权直接修改当前目标模型推理环境内的 `vllm-plugin-FL`、`FlagGems-vllm` 与 `FlagGems`，覆盖框架逻辑、vLLM 专用/融合算子、通用算子接入、当前算子实现和调优配置。vLLM 源码仍默认只读；权重、tokenizer、基础镜像和共享系统配置不因这项授权而开放修改。
 
-修改前核对实际导入路径、安装方式、目标源码副本、revision 和工作区状态，保留已有改动。分别保存两个仓库的补丁和回退方法，记录必要的构建/安装及目标服务重载步骤，并验证实际加载和执行路径。若副本被其他服务共享，先隔离影响或取得相应授权，不影响无关工作负载。
+修改前核对实际导入路径、安装方式、目标源码副本、revision 和工作区状态，保留已有改动。分别保存各仓库的补丁和回退方法，记录必要的构建/安装及目标服务重载步骤，并验证实际加载和执行路径。若副本被其他服务共享，先隔离影响或取得相应授权，不影响无关工作负载。
 
 #### 远程工作目录
 
@@ -111,7 +117,7 @@ FlagGems 和 FlagGems-vllm 可能存在同名或相近实现。不得按仓库�
 
 ### A3. 冻结可比环境
 
-记录 Host、设备数量与拓扑、功耗状态、容器镜像、权重和 tokenizer、推理引擎、Plugin、FlagGems、驱动/runtime、dtype、量化、并行策略、graph/eager、cache 配置和完整启动参数。
+记录 Host、设备数量与拓扑、功耗状态、容器镜像、权重和 tokenizer、推理引擎、Plugin、FlagGems-vllm、FlagGems、驱动/runtime、dtype、量化、并行策略、graph、cache 配置和完整启动参数。
 
 用于性能测试的 vLLM 服务必须对 baseline、candidate 和 revert 显式使用：
 
@@ -177,7 +183,12 @@ vllm serve <model> <其余冻结参数> \
 
 ### B3. 收集端到端基线
 
-调用推理性能评测 Skill 的 `baseline` 模式，冻结场景目录、测量契约、服务身份和产物位置；新场景没有同配置 baseline 时，也必须先用该模式建立可比较基线。
+调用推理性能评测 Skill 的 `baseline` 模式，冻结当前场景、测量契约、服务身份和产物位置。不要求任务开始时先跑完全部场景 baseline；新场景可在进入自身优化闭环时才建立 baseline。
+
+区分两类基线：
+
+- `scenario-entry baseline`：新场景开始优化前的当前已保留代码状态，用于该场景本轮的增量对比。如已包含前序场景优化，记录 `baseline_parent_candidate`。
+- `anchor baseline`：未优化原路径在该场景上的基线，用于最终累计收益。可以延后采集，但在最终 full 结论前必须与候选使用同契约补齐。
 
 至少保存请求吞吐、输入/输出/总 token 吞吐、TTFT、TPOT、ITL、端到端延迟的 P50/P95/P99、失败/超时、峰值与稳态显存、设备利用率/功耗和服务错误。记录主机 CPU、内存、网络情况及多卡通信占比和负载不均衡；不可用指标标为 null，不从单点采样推导峰值或能耗。
 
@@ -186,6 +197,18 @@ vllm serve <model> <其余冻结参数> \
 公共工具已提供参数化计划、客户端能力预检和失败记录。测量前通过 `--comparison-contract` 绑定比较阈值；收齐各角色的独立运行后，由 `compare_performance.py` 重验原始产物与条件，输出通过、失败或证据不足。工具只覆盖实际实现的负载范围，不能以一次返回 passed 代替完整任务范围；命令、支持指标及限制统一见[性能入口](../evaluation/performance/README.md)。
 
 按实验契约定义计时边界、请求/token/流式 chunk 的统计单位及跨轮汇总口径。主指标或必要守护指标缺失时只能保留诊断结果，不能通过正式性能验收；精度 gate 通过只代表允许开始候选性能测量。
+
+#### 基线过慢时的恢复分支
+
+baseline 启动前记录本次诊断时间预算和停止条件。某场景在预算内仍无法完成时，这本身是原路径性能很差、值得优先处理的操作信号，不必无限等待完整结果：安全停止本次 benchmark 客户端，保留实际运行时长、已发出/完成/失败请求数、最后进度、部分日志和服务状态，并把该次尝试记为 `deferred-too-slow/incomplete`。诊断预算不是该场景的延迟或吞吐值，不能由它虚构目标 baseline、精确加速比或 passed/failed 性能结论。
+
+随后选择一种 baseline-recovery 策略：
+
+1. **缩减测量（`reduced-measurement`）**：减少请求数、并发、输入长度或输出长度，建立有稳定 ID 且映射到原目标场景的 milestone；用完全一致的缩减 workload 测 baseline/candidate，获得明确的吞吐和延迟数据。
+2. **静态优先（`static-first`）**：针对实际加载的 Plugin、FlagGems-vllm、FlagGems 和配置检查调用链、dispatch/回退、算法复杂度、目标 shape、冗余计算、内存搬运、同步、graph、KV、调度与通信组织，并进行单变量、可回退调优。
+3. **混合（`hybrid`）**：用缩减测量提供方向和数值反馈，同时通过静态分析解释机制并选择下一项改动。
+
+缩减场景的数字只支持该 milestone，不能冒充原目标 baseline，也不能跨不同输入、输出、并发或请求数计算精确加速比。满足以下任一条件时退出恢复阶段：候选能在记录预算内完成 milestone；静态候选已耗尽，需要目标场景证据；或用户要求恢复整体测量。之后按晋级条件重新调用性能评测 Skill，逐步补做对应目标场景和正式矩阵。若原路径 anchor 仍无法完成，只能报告带 workload 和时间预算的有界结论，不能报告精确累计加速比。
 
 ## 5. 阶段 C：定位瓶颈
 
@@ -218,14 +241,14 @@ vllm serve <model> <其余冻结参数> \
 |---|---|---|---|
 | 框架层 `framework` | 不另设算子子类 | 在 vllm-plugin-FL 内改变执行组织、调度和数据流 | 消除主机同步/冗余复制，批处理和 KV 容量调整，graph 覆盖，通信组织 |
 | 算子层 `operator` | 接入更好的算子 `replace` | 更换已有实现并接入 Plugin | 对比 FlagGems 与 vendor/native backend；按 Prefill/Decode 和 shape 选择实现 |
-| 算子层 `operator` | 优化当前算子 `improve` | 改善当前实现的计算与访存效率 | tile/warp/stage 调优，split-K/top-k，访存改造，融合，特化算法 |
+| 算子层 `operator` | 优化当前算子 `improve` | 改善当前实现或相邻推理链路的计算、访存与启动效率 | tile/warp/stage 调优，split-K/top-k，访存改造，跨算子融合，特化算法 |
 
 分类以收益机制为准，不以修改文件所在目录为准：
 
 - 为新 backend 增加 dispatch 和 fallback 是算子接入的必要步骤，归入 `operator/replace`。
 - 减少通用 dispatch、Python 循环或请求组织开销，归入 `framework`。
 - 移除框架中不必要的 copy 属于框架层；修改 kernel 支持新 layout 属于算子层。两者共同完成时记录关联实验与依赖。
-- 通过重排调用消除中间步骤属于框架层；编写新的融合 kernel 属于 `operator/improve`；接入已有融合 kernel 属于 `operator/replace`。
+- 通过重排调用消除中间步骤属于框架层；将现有推理链路中相邻算子的预处理、主体或 epilogue 合并为新的融合 kernel 属于 `operator/improve`；接入已有融合 kernel 属于 `operator/replace`。
 - 通信排程、rank 数据组织属于框架层；替换 collective 实现属于算子接入，开发其 kernel 属于当前算子优化。
 
 默认优先顺序（前提是正确性和测量门禁通过）：
@@ -281,7 +304,7 @@ vllm serve <model> <其余冻结参数> \
 ### D1. 阶段和 shape 分治
 
 - Prefill、Decode 和 Mixed workload 分别统计实际 shape 分布。
-- backend/tile/config 的选择键至少考虑阶段、M/序列形状、dtype、拓扑与 graph/eager。
+- backend/tile/config 的选择键至少考虑阶段、M/序列形状、dtype、拓扑与目标 graph 能力。
 - 生产特化使用白名单；未验证 shape 必须走正确 fallback。
 - 对 backend、融合或算法替换先冻结数值契约：输入/输出 dtype、cast 与舍入位置、归约或排序顺序、tie 处理、归一化/累计阈值、空输入和边界行为。随机输入误差不能替代这些边界检查。
 - split、chunk、packing、tile 和调度阈值按目标环境的限制资源推导扫描范围，并测量 merge、通信、copy、临时内存和 graph 覆盖；不假设参数增大带来单调收益。
@@ -310,7 +333,7 @@ vllm serve <model> <其余冻结参数> \
 
 Plugin 候选在修改前与整理最终补丁后，按 [Plugin 优化设计与 PR 准备](plugin-change-review.md) 完成设计归属、能力/shape 边界、共享调用方与可选依赖检查。测试按影响范围覆盖目标、非目标和生命周期，复用目标仓库实际 CI 规范；无硬件项目记为未测，不扩大连接范围。
 
-实验开关、日志和临时 patch 在形成 PR 候选时整理；最终 diff 改变后重新验证实际路径和受影响指标。Plugin/FlagGems 分别保存补丁与依赖关系。性能结论与 `pr_readiness` 分别记录，可用实验结果不自动等于可合入设计。该复核属于已授权工作，无需新增例行审批。
+实验开关、日志和临时 patch 在形成 PR 候选时整理；最终 diff 改变后重新验证实际路径和受影响指标。Plugin、FlagGems-vllm、FlagGems 分别保存补丁与依赖关系。性能结论与 `pr_readiness` 分别记录，可用实验结果不自动等于可合入设计。该复核属于已授权工作，无需新增例行审批。
 
 ### D5. 控制波动与调优选择偏差
 
@@ -324,11 +347,11 @@ Plugin 候选在修改前与整理最终补丁后，按 [Plugin 优化设计与 
 
 精度验证分为两层，降低完整 GPQA 的重复成本不能削弱每轮正确性护栏：
 
-1. **每个优化点执行最小正确性回归。** 按改动覆盖 reference、数值边界、目标与 fallback shape、smoke/C8，以及需要的 eager、graph capture/replay。该层失败时立即回退或修复，不进入性能候选，也不通过完整 GPQA 掩盖局部错误。
-2. **低风险优化点分批执行完整精度。** 对不改变模型语义、数值边界和数据解释方式，且最小回归全部通过的候选，默认累计保留 2–3 个后，用正式 runner 执行一次完整 GPQA。每次记录本批包含的 experiment ID、源码/配置/服务身份、结果和 gate；未到触发点的候选只能标记“最小回归通过、完整精度待执行”。
+1. **每个优化点执行最小正确性回归。** 按改动覆盖 reference、数值边界、目标与 fallback shape、smoke/C8，以及目标 graph 的 capture/replay。性能优化不要求另行验证 eager 服务；该层失败时立即回退或修复，不进入性能候选，也不通过完整 GPQA 掩盖局部错误。
+2. **低风险优化点分批执行完整精度。** 对不改变模型语义、数值边界和数据解释方式，且最小回归全部通过的候选，默认累计保留 4–5 个后，用正式 runner 执行一次完整 GPQA。每次记录本批包含的 experiment ID、源码/配置/服务身份、结果和 gate；未到触发点的候选只能标记“最小回归通过、完整精度待执行”。
 3. **大优化点或高风险改动立即执行完整精度。** 改变量化/dtype/舍入、attention 或 KV cache 语义、MoE 路由、top-k/top-p/采样、跨算子融合、算法/backend、广泛 custom-op dispatch、rank 数据布局/通信、graph/fallback 覆盖，或已出现异常输出时，不与其他点凑批；最小回归后立即运行完整 GPQA。
-4. **组合失败先定位，不继续叠加。** 一批 2–3 个优化点完整精度失败时，冻结当前组合，通过回退或拆分定位；组合通过只证明该组合在绑定身份下通过，不等于各单点有独立模型精度证据。
-5. **最终候选必须有精确绑定的正式验收。** 最终代码与配置冻结后，若最近一次完整 GPQA、样本健康审查和 gate 已绑定完全相同的源码、配置与当前服务身份，可直接用于阶段 E；否则必须重跑。其后源码、权重、tokenizer、影响推理的配置或服务实例变化，旧 gate 失效。
+4. **组合失败先定位和修复，不继续叠加。** 一批 4–5 个优化点的正式分数低于预冻结阈值时，冻结当前组合并调用精度定位 Skill，通过最小复现、回退/拆分和路径证明定位责任改动；修复或回退后执行最小回归，并重新运行原正式精度范围。只有新的 `score >= threshold` gate 生成后才恢复性能优化。组合通过只证明该组合在绑定身份下通过，不等于各单点有独立模型精度证据。
+5. **最终候选必须有精确绑定的正式验收。** 最终代码与配置冻结后，若最近一次完整 GPQA 的 `score >= threshold` gate 已绑定完全相同的源码、配置与当前服务身份，可直接用于阶段 E；否则必须重跑。其后源码、权重、tokenizer、影响推理的配置或服务实例变化，旧 gate 失效。
 
 “低风险”只决定完整 GPQA 的频率，不降低改动本身的数值测试、运行路径证明和性能测量要求。风险依据正确性影响面判断，不依据代码行数、实现者信心或预期加速比判断。
 
@@ -338,21 +361,58 @@ Plugin 候选在修改前与整理最终补丁后，按 [Plugin 优化设计与 
 
 ### D6.1 精度问题定位
 
-baseline sanity、最小回归、完整 GPQA、样本完整性或输出健康检查出现失败、异常或无法解释的 baseline/candidate 差异时，冻结失败产物并调用推理精度问题定位 Skill；当前性能候选保持未通过，不继续叠加新优化。
+baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻结阈值、或评测身份/产物无效时，冻结失败产物并调用推理精度问题定位 Skill，停止叠加新优化。必须定位精度下降原因并修复或回退，再以相同正式契约重跑；只有新的分数达到阈值后才能恢复性能优化。输出健康异常只是可选诊断观察，在 `score >= threshold` 时不影响候选通过与继续优化。
 
 定位首先区分 `measurement-invalid`、服务/配置漂移、请求/输出健康、真实数值语义回退、graph/并发/rank 执行差异及可控随机性。task、dataset、filter、runner、样本集合、服务身份或比较条件无效时，先恢复同契约可比性，不能把工具问题写成算子精度问题。
 
-从最后一个可信正确状态开始，用同一 prompt/token、生成参数、seed、endpoint、服务配置和输入 shape 建立最小复现，再按改动依赖做单变量二分。优先核对高正确性风险改动、eager/graph、C1/C8、目标/fallback shape、短/长上下文、单 rank/分布式、Plugin dispatch/backend 和算子数值边界。撤掉某改动后恢复只能形成嫌疑；重新启用可复现、真实路径命中和机制证据闭合后才能确认根因。
+从最后一个可信正确状态开始，用同一 prompt/token、生成参数、seed、endpoint、服务配置和输入 shape 建立最小复现，再按改动依赖做单变量二分。优先核对高正确性风险改动、graph capture/replay、C1/C8、目标/fallback shape、短/长上下文、单 rank/分布式、Plugin dispatch/backend 和算子数值边界。撤掉某改动后恢复只能形成嫌疑；重新启用可复现、真实路径命中和机制证据闭合后才能确认根因。
 
 修复后先用精度评测 Skill 的 `minimal-regression` 覆盖复现与边界矩阵；原问题来自正式 GPQA 时必须对固定后的候选重新执行 `formal-gate`。相关重跑复用精度评测 Skill 的进度 heartbeat，不重复创建监控。定位记录保存在 `models/<model>/<platform>/optimize/accuracy-diagnosis/<issue-id>.md`，只有原失败范围重新通过后才恢复性能优化。
 
 ### D7. 性能场景与分层测试频率
 
-任务开始时先定义场景目录，每个场景使用稳定 `scenario_id`，记录阶段、输入/输出长度、并发或到达模式、请求数、目标瓶颈、主/守护指标和用途。将场景分成三层：
+当前统一目标场景目录如下，长度单位为 token，负载模式均为 `finite_batch`：
+
+| `scenario_id` | 输入 P | 输出 D | 并发 C | 请求 N |
+|---|---:|---:|---:|---:|
+| `p1024-d1024-c64-n128` | 1024 | 1024 | 64 | 128 |
+| `p4096-d1024-c64-n128` | 4096 | 1024 | 64 | 128 |
+| `p16384-d1024-c64-n128` | 16384 | 1024 | 64 | 128 |
+| `p32768-d1024-c64-n128` | 32768 | 1024 | 64 | 128 |
+
+这四个场景是最终性能优化目标，不是每一轮优化都必须执行的固定矩阵。最终正式测试必须逐项覆盖；如果某项超出模型声明的上下文、实际可分配 KV 容量或平台能力，将该项记录为 `unsupported/incomplete` 并保留证据，不能静默删除、缩短或用中间 milestone 替代。
+
+每个场景使用上述稳定 `scenario_id`，并补充阶段、endpoint、数据生成、主/守护指标和用途。将执行分成三层：
 
 1. **定向诊断（`targeted`）**：每轮只跑能够证伪当前假设的目标场景。大模型可降低请求数、重复轮或只选择一个长度/并发点；baseline 与 candidate 使用完全相同的缩减配置。存在明显外溢风险时增加一个便宜的相邻 shape、fallback 或非目标阶段哨兵。
 2. **阶段性检查点（`checkpoint`）**：累计保留多个点、热点迁移、准备组合候选，或改动调度、KV、batch、graph、公共 dispatch、通信等跨场景机制时，运行全部受影响场景。检查点失败后停止叠加，通过拆分或回退定位。
-3. **正式全量（`full`）**：最终候选只需运行任务开始时预冻结的验收场景集合，而不是穷举所有 shape；每个场景完成正式 baseline/candidate/revert、重复、守护指标和精度绑定要求。
+3. **正式测试（`formal`）**：中间 formal 只覆盖当前按顺序选中的一个目标场景；最终 formal 才覆盖全部四场景。两者都完成各自范围内的原路径 anchor baseline/candidate/revert、重复、守护指标和精度绑定要求。任务可以增加额外业务场景，但不能减少最终四项。
+
+#### 中间优化 milestone
+
+优化过程中允许建立比最终目标更小、更快的 milestone。milestone 可以是四个目标场景的子集，也可以缩短输入或输出长度、减少请求数或并发、只覆盖 prefill/decode、使用短探针、microbenchmark 或特定热点 shape。其目的可以是验证路径命中、消除主要瓶颈、达到可测状态或决定是否继续投入，并不要求参数与最终场景完全相同。
+
+每个 milestone 必须记录稳定 `milestone_id`、映射的一个或多个最终 `scenario_id`、相对最终 workload 的缩减项、假设、主/守护指标、成功门槛、停止条件和晋级条件。同一 milestone 内比较 baseline/candidate 时仍保持 workload 和服务条件一致。milestone 达标只表示阶段目标完成；保留的改动按影响面晋级到对应目标场景或 checkpoint 验证。
+
+当 milestone 达到预先定义的“显著提升”条件，或当前场景热点/资源瓶颈发生实质迁移时，可以触发一次中间正式性能测试：核验当前精度 gate，只使用当前目标场景完成同配置 baseline/candidate/revert。显著提升和“当前场景优化充分”的条件由任务在看到结果前定义，不在 SOP 中硬编码。中间 formal 达到场景完成条件后，保留当前组合并按 `P1K → P4K → P16K → P32K` 切换下一个目标场景；否则继续当前场景或回退。全部场景完成后再运行最终四场景 formal，中间结果保存在 `optimize/`，最终组合结果进入 `acceptance/`。
+
+`milestone` 是项目的规划与记录概念，不新增公共性能 Skill 模式。实际无 profiler 测量仍根据覆盖范围调用 `targeted` 或 `checkpoint`；算子 microbenchmark 和静态分析分别按其证据边界记录。
+
+#### 按场景串行优化
+
+按照 `P1K → P4K → P16K → P32K` 从正式目录中每次选取一个目标场景，执行“入口基线 → milestone/定位 → 单变量优化 → candidate/revert → 当前目标场景 formal → 场景完成决策”闭环，然后再进入下一场景。例如：
+
+```text
+4k-1k scenario-entry baseline
+→ 4k-1k profiling / optimization / targeted comparison
+→ 保留或回退 4k-1k 候选
+→ 16k-1k scenario-entry baseline（记录是否包含 4k-1k 已保留改动）
+→ 16k-1k profiling / optimization / targeted comparison
+```
+
+任一场景的入口基线超过预记录诊断预算时，可将该步替换为“未完成 baseline 证据 → 缩减场景测量、静态分析或混合恢复 → milestone 数据 → 晋级当前目标场景”。该分支只改变等待与诊断顺序，不放宽同配置比较、精度回归、单场景 formal 和最终四场景要求。
+
+场景入口基线只支持该场景相对当前代码状态的增量结论。如果新优化修改了全局调度、KV、batch、graph、公共 dispatch、通信或不具备稳定 shape guard 的实现，在保留前用 `checkpoint` 复测已完成的受影响场景。不要求场景特化改动在每轮都重跑全部无关场景。
 
 场景和执行层级在测量前确定。不能在看到结果后删除负优化场景、改变请求数/重复轮后仍沿用原 baseline，或用 targeted 结果宣称完整任务达标。targeted 结果仅支持对应 `scenario_id`；checkpoint 支持列出的受影响集合；只有 full 才支持最终验收范围。
 
@@ -371,24 +431,24 @@ baseline sanity、最小回归、完整 GPQA、样本完整性或输出健康检
 ## 7. 阶段 E：候选回归与验收
 
 - 调用精度评测 Skill 的 `formal-gate` 或 `gate-check` 模式，取得与最终候选服务身份精确匹配的有效 gate；以下条目是该 Skill 不得省略的正式流程。
-- 精度 gate 核验通过后调用性能评测 Skill 的 `formal` 模式；该模式必须覆盖预冻结 full 场景集合，并完成可比的 baseline/candidate/revert、重复、波动与守护指标检查。
-- 测试前从 [`evaluation/ACCEPTANCE_TEMPLATE.md`](../evaluation/ACCEPTANCE_TEMPLATE.md) 固定任务、样本数、生成参数、metric、可信 baseline 或绝对门槛、最大允许回退和输出健康标准。
-- 分别验证 eager 与 graph 可运行；正式 sanity、精度和性能使用最终候选的同一 graph 配置。
+- 最终候选的精度 gate 核验通过后调用性能评测 Skill 的 `formal/final`；该模式覆盖全部四个目标场景，并完成可比的 baseline/candidate/revert、重复、波动与守护指标检查。中间单场景 formal 不代替本步骤。
+- 测试前从 [`evaluation/ACCEPTANCE_TEMPLATE.md`](../evaluation/ACCEPTANCE_TEMPLATE.md) 固定任务、生成参数、metric 和单一 threshold。正式精度的唯一通过条件是 `score >= threshold`，等于阈值通过。
+- 验证目标 graph 模式可以启动、capture 和 replay；正式 sanity、精度和性能使用最终候选的同一 graph 配置，不要求另行验证 eager 服务。
 - 先运行固定小样本和 8 并发 sanity，逐条检查输出，同时观察明显性能异常。
 - 对量化、采样、算子、cache 或图路径改动完成最小数值/行为回归。
 - 在目标机器上进入基于 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 镜像的评测容器。记录容器名、镜像引用与 image ID/digest，并验证容器内 `python3`、`lm_eval`、GPQA 离线数据集以及到候选服务 `/v1/models` 和 Chat Completions endpoint 的连通性。
 - 模型服务继续运行在本次独立优化容器中；评测容器只作为精度客户端。两者的角色、网络路径、服务模型名和实际 endpoint 必须分别记录。
 - 使用 [`formal_accuracy.py`](../evaluation/accuracy/formal_accuracy.py) 包装调用原始 [`test/Accuracy_test/llmrun.py`](../test/Accuracy_test/llmrun.py)，先执行 `--preflight-only`，通过后以同一案例专属配置、契约、服务身份及评测容器 inspect 运行完整 `gpqa_diamond_generative_cot`。默认正式路径是单服务 `llmrun.py`、`limit=0`、`expected_samples=198`；`llmrun_parallel.py` 仅在用户明确要求分片方案时使用。
-- 检查 198 个唯一完整题目、冻结的全部 filter、`results_*.json`、`samples_*.jsonl`、effective config、超时、空输出、截断、异常重复和正式 metric。同题可因多个 filter 有多行，必须与冻结集合逐项一致且原始内容一致；不能把行数当题数。进程退出码、阶段 strict 分数或部分缓存均不能替代全量验收。
+- 核对冻结任务、`results_*.json`、`samples_*.jsonl`、effective config 和服务身份，确认正式 score 属于当前候选。这些是证据有效性检查，不是额外精度门槛。
 - 中间分数只用于提前排障；不能代替最终结果。不得在看到分数后更换 metric、筛选样本或放宽门槛。
-- 在评测前采集真实 task/数据内容证据并绑定契约，冻结配置/运行身份；结束后核对原生结果的模型、endpoint、任务、生成参数、seed、实际题目与完整样本数，再检查文件 SHA。完成同一 samples SHA 的输出健康审查，由 `acceptance.py issue` 生成正式 gate。纯分数 PASS、旧布尔 JSON 和缺少来源/完整审查的记录不能作为正式 gate。
+- 在评测前采集真实 task/数据内容证据并绑定契约，冻结配置/运行身份；结束后检查文件 SHA，由 `acceptance.py issue` 生成正式 gate。输出健康可另存为诊断观察，不参与 gate 判定。
 - 精度门禁通过后，用同一候选 graph 配置测正式性能，并对原路径执行可比的 baseline/revert 复测。候选 gate 只关联候选身份，不能为 baseline/revert 伪造该身份；比较测试单独记录范围。任何服务实例、源码、权重、tokenizer 或配置变化使旧 gate 失效，重新核验当前事实。工具与命令统一见 [评测入口](../evaluation/README.md)。
 - 重跑短、中、长输入和目标并发区间，覆盖真实或代表性 workload、cache 冷热、混合 batch 和长时间稳定性。
 - 长稳在验收前冻结持续时长、负载循环、idle/resume、周期 sanity、错误/重启与资源趋势标准，按改动的生命周期风险选择；未执行保持 `not_run/incomplete`，短测成功不能代替。具体记录见验收模板。
 - 多卡或多机方案检查通信、负载均衡和故障表现。
 - 确认回退配置或补丁可以恢复原基线。
 
-优化循环允许用短 benchmark 做诊断。若缺少正式精度工具、可信 baseline 或预先确定的通过标准，应明确标记“探索性性能验证完成、正式验收未完成”，不能将其升级为最终性能结论。
+优化循环允许用短 benchmark 做诊断。若缺少正式精度工具或预先冻结的 metric/threshold，应明确标记“探索性性能验证完成、正式验收未完成”，不能将其升级为最终性能结论。
 
 ## 8. 阶段 F：案例复盘与经验沉淀
 
@@ -458,3 +518,11 @@ baseline sanity、最小回归、完整 GPQA、样本完整性或输出健康检
 | 2026-09-11 | 0.25 | 用户要求增加阶段性优化规划 Skill | 新增 `inference-optimization-planning`，默认每 2–3 个实验或在热点迁移、结论冲突、高成本决策前触发；统一保留/回退/失败证据，以组合实测重建累计收益并输出下一轮 1–3 个可证伪候选 | 用户指定 Agent 能力拆分；减少收益重复计算和方向惯性 `invariant` |
 | 2026-09-11 | 0.26 | 用户要求精度评测期间定时通知进展 | 精度 Skill 在实际评测进程启动前创建当前任务 heartbeat，默认每 30 分钟报告一次可验证进度；终态后停用，记录 automation ID 与清理证据，gate-check 不创建监控 | 用户指定运行可观测性；防止长评测无反馈和残留任务 `invariant` |
 | 2026-09-11 | 0.27 | 用户要求增加精度问题定位 Skill | 新增 `inference-accuracy-diagnosis`，在最小回归、GPQA 或输出健康失败时冻结候选，先排除测量/身份失效，再通过最小复现、单变量二分、路径证明和原范围复测定位并验证根因 | 用户指定 Agent 能力拆分；防止错误归因和带错继续优化 `invariant` |
+| 2026-09-11 | 0.28 | 用户指定精度单阈值规则 | 正式精度只以预冻结的 `score >= threshold` 判定，等于阈值通过；移除相对 baseline、允许回退和输出健康审查等附加精度门槛，保留身份/产物检查用于确认分数可信 | 用户指定验收语义 `invariant` |
+| 2026-09-11 | 0.29 | 用户取消超时等输出健康硬要求 | 取消 formal config 的 `allow_timeouts=false` 限制及维护版单/多服务 runner 的超时拦截；超时、空输出、截断、重复和格式异常只记录为诊断观察，在分数达阈值时不阻止 gate 或优化 | 用户指定验收语义 `invariant` |
+| 2026-09-14 | 0.30 | 用户指定按场景串行优化 | 允许先完成 `4k-1k` 的 baseline 与优化，再为 `16k-1k` 建立 baseline 并优化；区分场景入口基线和原路径 anchor baseline，前者衡量增量收益，后者用于 full 阶段累计收益；跨场景改动保留前 checkpoint 已完成场景 | 用户指定实验组织规则 `invariant` |
+| 2026-09-14 | 0.31 | 用户允许 baseline 过慢时先静态分析调优 | baseline 超过预记录诊断预算可标记 `deferred-too-slow/incomplete` 并转入 `static-first`；保留部分证据但不虚构基线或加速比，候选进入可测状态后补整体性能数据，原路径仍跑不完时只给有界结论且正式验收保持 incomplete | 用户指定实验节奏；测量可信度边界 `invariant` |
+| 2026-09-14 | 0.32 | 用户指定统一性能优化目标场景 | 将 P1K/P4K/P16K/P32K/P64K、D1K、C64、N128 五组 finite-batch 场景提升为 Agent 正式目标目录；targeted/checkpoint 可取子集但 full 必须覆盖全部，能力不支持时显式 incomplete，禁止静默删减 | 用户指定正式 workload `invariant` |
+| 2026-09-14 | 0.33 | 用户澄清最终场景与中间优化目标的关系 | 五场景只约束最终 full 结果；中间允许建立缩减 workload、阶段专项、短探针或 microbenchmark milestone，每项映射回最终场景并记录晋级条件，达标后仍须回到五场景实测 | 用户指定优化节奏与结论边界 `invariant` |
+| 2026-09-14 | 0.34 | 用户调整源码授权、目标场景和阶段测试 | FlagGems-vllm 纳入目标环境直接修改授权；最终目标移除 P64K，保留 P1K/P4K/P16K/P32K；显著 milestone 后可触发中间正式四场景测试；baseline 过慢可通过缩减输入/输出/并发/请求获得 milestone 数值，不限于静态分析 | 用户指定任务边界与实验节奏 `invariant` |
+| 2026-09-14 | 0.35 | 用户细化逐场景闭环、适配交接与精度节奏 | 支持按指定模型只读导入“新模型适配”交付；按 P1K→P4K→P16K→P32K 每次优化一个正式目标场景，中间 formal 只测当前场景，场景完成后切换；性能门禁改为 graph-only；明确跨算子融合；低风险完整精度改为每 4–5 点，低于阈值必须定位、修复并重跑 | 用户指定最新工作流 `invariant` |

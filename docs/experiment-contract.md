@@ -15,7 +15,7 @@
 - 数据集、随机种子、prompt 模板和 endpoint
 - EOS 策略、采样参数和最大生成长度
 - 模型、tokenizer、dtype、量化和权重 revision
-- eager/graph、TP/PP/EP/DP、KV cache 和 prefix cache 配置
+- graph、TP/PP/EP/DP、KV cache 和 prefix cache 配置
 - Host、设备数量与拓扑、容器镜像和软件 revision
 - 预热轮数、正式轮数、失败和超时处理方式
 
@@ -29,7 +29,7 @@
 - `ignore_eos` 开启与关闭
 - 随机 token workload 与真实对话 workload
 - profiler 开启与关闭
-- eager 与 graph
+- graph 请求模式、实际 capture/replay 与 backend
 - 精度、量化、采样或 cache 配置不同
 - 一方包含失败请求而另一方不包含
 
@@ -37,9 +37,23 @@
 
 ### 性能场景和执行层级
 
-大模型或单轮较慢时，不要求每个优化点重复完整矩阵。任务开始时先冻结场景目录和最终验收集合，每个场景使用稳定 `scenario_id`。单轮记录 `test_scope`：`targeted` 只支持目标场景结论，`checkpoint` 支持列出的受影响场景，`full` 才支持最终验收集合。
+本项目的正式目标场景目录固定为 `p1024-d1024-c64-n128`、`p4096-d1024-c64-n128`、`p16384-d1024-c64-n128` 和 `p32768-d1024-c64-n128`。四项均为 finite batch，P/D/C/N 分别是输入 token、输出 token、并发上限和请求数。它们约束正式测试结果，不要求每轮原样执行；模型或平台不支持时保留该项并记录 `unsupported/incomplete`，不能静默省略。任务可增加额外业务场景，但不能覆盖或替换这组目录。
+
+目标场景默认按 `p1024 → p4096 → p16384 → p32768` 顺序每次选取一个。每个目标场景独立经历入口 baseline、milestone、优化、当前场景 formal 和完成决策；达到预冻结的场景完成条件后才切换下一项。中间 formal 的 `scenario_ids` 只需包含当前目标场景，最终 formal 才必须包含全部 `required_acceptance_scenario_ids`。
+
+大模型或单轮较慢时，不要求每个优化点重复完整矩阵，也不要求先跑完全部场景基线。可以按场景串行闭环：先冻结一个稳定 `scenario_id` 及其 workload，建立当前代码状态的入口基线，完成该场景的定位和优化，再进入下一场景。例如：`4k-1k baseline → 4k-1k optimize → 16k-1k baseline → 16k-1k optimize`。
+
+场景入口基线（`scenario-entry`）反映进入该场景时已保留的优化组合，用于判定该场景闭环的增量收益。原始未优化状态的基线（`anchor`）用于判定最终累计收益。如果某场景进入时已包含前序优化，必须记录 `baseline_parent_candidate`，不能把该入口基线冒充原始 anchor。在声明相对原路径的整体收益前，需要在最终 full 场景集合上补齐可比的 anchor baseline 和最终 candidate。
+
+场景目录可以在任务开始时一次冻结，也可以在每个新场景首次 baseline 之前逐步追加；修改时保留版本和理由。最终要声明的验收场景集合必须在最终 full 测量前冻结，不能根据已看到的候选结果删除负优化场景。单轮记录 `test_scope`：`targeted` 只支持目标场景结论，`checkpoint` 支持列出的受影响场景，`full` 才支持最终验收集合。
 
 targeted 可以减少请求数、重复轮和场景数，但同一实验的 baseline/candidate/revert 必须使用相同缩减配置，并记录相对正式场景省略了什么。选择依据在测量前固定；不能根据结果挑选通过的场景。调度、KV、batch、graph、公共 dispatch 或通信改动按影响面升级到 checkpoint。最终 full 的范围是预冻结的代表性场景，不要求穷举所有 shape。
+
+中间 `milestone` 可以改变输入长度、输出长度、并发、请求数或测试层次，也可以采用阶段专项和 microbenchmark。它必须通过 `parent_target_scenario_ids` 映射回最终目标，记录 `workload_delta`、成功/停止条件及 `promotion_validation`。milestone 内部的 A/B 必须可比，但其结果不能与不同 workload 的目标 baseline 直接计算加速比。
+
+每次 baseline 尝试可以预先设置诊断时间预算。到达预算仍未完成时，保留部分证据并标记 `deferred-too-slow/incomplete`，随后选择 `reduced-measurement`、`static-first` 或 `hybrid`。缩减测量可减少输入/输出长度、请求数或并发，建立自身可比 baseline/candidate 并输出明确的 milestone 性能数据；该数据不能冒充原目标 baseline。候选达到预记录的晋级条件后，再补目标场景数据。原路径在相同契约下仍未完成时，只能记录带 workload、计时边界和预算的有界结论。
+
+当 milestone 达到任务预冻结的显著提升阈值，或当前场景主要瓶颈发生迁移时，可以触发只覆盖当前目标场景的中间 `formal`。该场景达到完成条件后切换下一目标。最终 formal 才覆盖全部四场景。中间和最终 formal 使用相同的可比性与证据要求，但归档位置和结论生命周期不同：中间结果进入 `optimize/`，最终组合结果进入 `acceptance/`。
 
 若以上维度本身就是预先声明的主要变量，例如 cache 开关、graph 模式或服务并行配置，可以进行受控 A/B；其余条件固定，明确新增资源、语义及 SLO 取舍。不同卡数/硬件的容量或成本研究单列，不称为同硬件的软件加速比。该规则不扩大权重、量化、共享环境等修改授权。
 
@@ -100,9 +114,21 @@ performance_status: incomplete
 experiment_id: YYYYMMDD-HHMM-short-name
 objective: ""
 status: planned
+adaptation_handoff:
+  source_project: null  # 用户指定时可为 /Users/baai/Documents/ChatGPT/新模型适配
+  source_model_or_case: ""
+  source_paths: []
+  read_at: null
+  source_revision_or_sha: ""
+  imported_facts: ""  # 容器、模型路径、平台、启动参数、revision、挂载、评测状态、已知问题
+  runtime_reverification: ""
 accuracy_evaluation:
   skill: inference-accuracy-evaluation
   mode: minimal-regression  # baseline-sanity | minimal-regression | formal-gate | gate-check
+  metric: ""
+  score: null
+  threshold: null
+  criterion: score_greater_than_or_equal_to_threshold
   covered_experiment_ids: []
   result: incomplete  # passed | failed | incomplete
   evidence: ""
@@ -133,7 +159,44 @@ accuracy_diagnosis:
 performance_evaluation:
   skill: inference-performance-evaluation
   mode: targeted  # baseline | targeted | checkpoint | formal
+  target_catalog_version: e2e-four-scenarios-v1
+  required_acceptance_scenario_ids:
+    - p1024-d1024-c64-n128
+    - p4096-d1024-c64-n128
+    - p16384-d1024-c64-n128
+    - p32768-d1024-c64-n128
   scenario_ids: []
+  target_scenario_order:  # 每次从中顺序选取一个
+    - p1024-d1024-c64-n128
+    - p4096-d1024-c64-n128
+    - p16384-d1024-c64-n128
+    - p32768-d1024-c64-n128
+  current_target_scenario_id: null
+  target_scenario_completion_criteria: ""
+  target_scenario_status: null  # pending | optimizing | formally-checked | complete | incomplete
+  milestone_id: null
+  parent_target_scenario_ids: []
+  milestone_workload_delta: ""
+  milestone_success_criteria: ""
+  milestone_stop_condition: ""
+  promotion_validation: ""
+  formal_trigger: null  # major-milestone | hotspot-migration | final-acceptance
+  major_improvement_threshold: ""  # 结果出现前冻结；指标和幅度由任务定义
+  formal_run_lifecycle: null  # intermediate-single-target | final-all-targets
+  scenario_sequence_index: null
+  baseline_kind: null  # anchor | scenario-entry
+  baseline_parent_candidate: ""  # scenario-entry 时填写已保留组合身份
+  baseline_status: null  # planned | running | complete | deferred-too-slow | failed | incomplete
+  diagnostic_time_budget_seconds: null  # baseline 启动前冻结
+  baseline_attempt_elapsed_seconds: null
+  baseline_partial_evidence: ""  # 完成/失败请求数、最后进度、日志和服务状态
+  baseline_recovery_strategy: null  # reduced-measurement | static-first | hybrid
+  reduced_measurement_plan: ""
+  static_analysis_evidence: ""
+  measurement_resume_condition: ""  # 如：代表性探针在记录预算内完成
+  incremental_comparison: ""  # scenario-entry baseline -> scenario candidate
+  anchor_comparison: ""  # anchor baseline -> final candidate，通常在 full 阶段填写
+  numeric_speedup_claim_allowed: false
   result: incomplete  # passed | failed | incomplete
   evidence: ""
   conclusion_boundary: ""
@@ -205,6 +268,7 @@ runtime:
     - --no-enable-prefix-caching
 workload:
   scenario_id: ""
+  scenario_sequence_index: null
   stage: null  # prefill | decode | mixed
   test_scope: targeted  # targeted | checkpoint | full
   scenario_purpose: ""  # 目标瓶颈、哨兵或最终验收

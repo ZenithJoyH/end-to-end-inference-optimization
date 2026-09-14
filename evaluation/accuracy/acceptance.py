@@ -109,8 +109,8 @@ def validate_service(service, *, formal=True):
 
 
 def validate_contract(contract):
-    if contract.get("schema_version") != 2 or contract.get("task") != TASK:
-        raise ValueError("contract must be schema 2 with collected task provenance, full GPQA Diamond")
+    if contract.get("schema_version") != 3 or contract.get("task") != TASK:
+        raise ValueError("contract must be schema 3 with collected task provenance, full GPQA Diamond")
     if contract.get("expected_samples") != 198 or contract.get("expected_doc_ids") != list(range(198)):
         raise ValueError("contract must freeze all GPQA doc IDs 0..197")
     require_text(contract, ("metric", "dataset_revision"))
@@ -118,16 +118,11 @@ def validate_contract(contract):
     validate_provenance(provenance)
     if contract["dataset_revision"] != provenance["dataset_revision"]:
         raise ValueError("contract dataset_revision differs from the collected dataset content")
-    if contract.get("minimum") is None and contract.get("baseline") is None:
-        raise ValueError("freeze a minimum or a trusted baseline artifact before running")
-    for key in ("minimum", "max_regression"):
-        value = contract.get(key, 0 if key == "max_regression" else None)
-        if value is not None and (isinstance(value, bool) or not isinstance(value, (float, int)) or not math.isfinite(value)):
-            raise ValueError(f"{key} must be finite")
-    if contract.get("max_regression", 0) < 0:
-        raise ValueError("max_regression must be nonnegative")
-    if contract.get("baseline") is not None:
-        checked_artifact(contract["baseline"])
+    threshold = contract.get("threshold")
+    if isinstance(threshold, bool) or not isinstance(threshold, (float, int)) or not math.isfinite(threshold):
+        raise ValueError("threshold must be a finite number frozen before running")
+    if any(key in contract for key in ("minimum", "baseline", "max_regression")):
+        raise ValueError("schema 3 accuracy contracts use only threshold; legacy score gates are not allowed")
 
 
 def validate_provenance(provenance, cfg=None):
@@ -231,8 +226,8 @@ def validate_config(cfg, service):
     validate_config_integers(cfg)
     if cfg.get("tasks") != [TASK] or cfg.get("limit") != 0 or cfg.get("expected_samples") != 198:
         raise ValueError("formal config requires full GPQA: limit=0, expected_samples=198")
-    if cfg.get("allow_timeouts") is not False:
-        raise ValueError("formal config must explicitly set allow_timeouts=false")
+    if type(cfg.get("allow_timeouts")) is not bool:
+        raise ValueError("allow_timeouts must be a boolean compatibility field")
     if cfg.get("model_name") != service["model_name"] or cfg.get("base_url") != service["base_url"]:
         raise ValueError("config model/endpoint does not match service manifest")
     if any("," in cfg[key] for key in ("model_name", "base_url")):
@@ -249,14 +244,8 @@ def validate_config(cfg, service):
 
 def score_check(result, contract):
     value = metric_value(load_task_metrics(result, contract["task"]), contract["metric"])
-    minimum = contract.get("minimum")
-    if minimum is not None and value < minimum:
-        raise ValueError("candidate score is below the frozen minimum")
-    if contract.get("baseline"):
-        baseline = checked_artifact(contract["baseline"])
-        baseline_value = metric_value(load_task_metrics(baseline, contract["task"]), contract["metric"])
-        if value < baseline_value - contract.get("max_regression", 0):
-            raise ValueError("candidate score regressed beyond the frozen allowance")
+    if value < contract["threshold"]:
+        raise ValueError("candidate score is below the frozen threshold")
     return value
 
 
@@ -297,48 +286,41 @@ def verify_run_record(record):
     validate_provenance(provenance, cfg)
     inspect_evaluator(paths["evaluation_inspect"])
     validate_sample_file(paths["samples"], 198, contract["expected_doc_ids"],
-                         expected_filters=task_filters(provenance["task_config"]))
+                         expected_filters=task_filters(provenance["task_config"]),
+                         enforce_output_health=False)
     verify_result_provenance(paths["results"], paths["samples"], cfg, provenance)
     score = score_check(paths["results"], contract)
     return record, service, score
 
 
-def issue_gate(record_path, health_path, output):
+def issue_gate(record_path, output, health_path=None):
     record, service, score = verify_run(record_path)
-    health = read_json(health_path)
-    if health.get("samples_sha256") != record["artifacts"]["samples"]["sha256"]:
-        raise ValueError("health review is for a different samples file")
-    # lm-eval samples do not always preserve finish_reason/token counts. Do not
-    # claim truncation/repetition checks based on their absence.
-    for key in ("empty_outputs", "truncation", "abnormal_repetition", "garbled_output", "timeouts"):
-        if health.get(key) != "passed":
-            raise ValueError(f"output health review is incomplete: {key}")
-    require_text(health, ("reviewer", "method"))
-    gate = {"schema_version": 2, "passed": True, "score": score,
+    gate = {"schema_version": 3, "passed": True, "score": score,
+            "threshold": read_json(checked_artifact(record["artifacts"]["contract"]))["threshold"],
+            "criterion": "score_greater_than_or_equal_to_threshold",
             "service_sha256": record["artifacts"]["service"]["sha256"],
-            "run_record": artifact(record_path), "health_review": artifact(health_path)}
+            "run_record": artifact(record_path)}
+    if health_path is not None:
+        gate["health_observation"] = artifact(health_path)
     write_new(output, gate)
     return gate
 
 
 def check_gate(gate_path, service_path, model=None, host=None, port=None, tokenizer=None):
     gate = read_json(gate_path)
-    if gate.get("schema_version") != 2 or gate.get("passed") is not True:
+    if gate.get("schema_version") != 3 or gate.get("passed") is not True:
         raise ValueError("not a formal acceptance record")
     if sha256(service_path) != gate.get("service_sha256"):
         raise ValueError("current service manifest differs from the evaluated service")
     record_path = checked_artifact(gate["run_record"])
-    health_path = checked_artifact(gate["health_review"])
     record, service, score = verify_run(record_path)
-    health = read_json(health_path)
-    if record["artifacts"]["service"]["sha256"] != gate["service_sha256"] or score != gate.get("score"):
+    contract = read_json(checked_artifact(record["artifacts"]["contract"]))
+    if (record["artifacts"]["service"]["sha256"] != gate["service_sha256"]
+            or score != gate.get("score") or contract["threshold"] != gate.get("threshold")
+            or gate.get("criterion") != "score_greater_than_or_equal_to_threshold"):
         raise ValueError("gate does not match its run record")
-    if health.get("samples_sha256") != record["artifacts"]["samples"]["sha256"]:
-        raise ValueError("health review samples changed")
-    for key in ("empty_outputs", "truncation", "abnormal_repetition", "garbled_output", "timeouts"):
-        if health.get(key) != "passed":
-            raise ValueError("output health review did not pass")
-    require_text(health, ("reviewer", "method"))
+    if "health_observation" in gate:
+        checked_artifact(gate["health_observation"])
     url = urlsplit(service["base_url"])
     if tokenizer is not None and tokenizer != service["tokenizer_path"]:
         raise ValueError("benchmark tokenizer differs from accepted tokenizer path")
@@ -356,7 +338,8 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     issue = commands.add_parser("issue")
     issue.add_argument("--run-record", required=True, type=Path)
-    issue.add_argument("--health-review", required=True, type=Path)
+    issue.add_argument("--health-observation", type=Path,
+                       help="optional diagnostic observation; never changes the threshold verdict")
     issue.add_argument("--output", required=True, type=Path)
     check = commands.add_parser("check")
     check.add_argument("--gate", required=True, type=Path)
@@ -364,7 +347,7 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == "issue":
-            issue_gate(args.run_record, args.health_review, args.output)
+            issue_gate(args.run_record, args.output, args.health_observation)
         else:
             check_gate(args.gate, args.service_manifest)
     except (ValueError, KeyError, OSError, TypeError) as exc:

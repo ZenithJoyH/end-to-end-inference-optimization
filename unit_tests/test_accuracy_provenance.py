@@ -118,8 +118,8 @@ class ProvenanceTest(unittest.TestCase):
     def test_contract_cannot_freeze_an_unmeasured_revision_or_legacy_schema(self):
         path = self.root / "provenance.json"
         path.write_text(json.dumps(self.provenance))
-        contract = dict(schema_version=2, task=gate.TASK, expected_samples=198,
-                        expected_doc_ids=list(range(198)), minimum=0.5, metric="score",
+        contract = dict(schema_version=3, task=gate.TASK, expected_samples=198,
+                        expected_doc_ids=list(range(198)), threshold=0.5, metric="score",
                         dataset_revision=self.provenance["dataset_revision"], task_provenance=gate.artifact(path))
         gate.validate_contract(contract)
         for changes in ({"dataset_revision": "unverified-revision"}, {"task_provenance": None}, {"schema_version": 1}):

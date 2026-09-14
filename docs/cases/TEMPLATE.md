@@ -16,6 +16,7 @@
 ## 2. 任务与验收契约
 
 - 模型、权重和 tokenizer：
+- “新模型适配”交付来源模型/案例、只读路径、读取时间、revision/SHA、导入事实及运行时复核：
 - 平台、Host、设备与拓扑：
 - 用户提供的远程工作目录、规范化路径与本案例子目录：
 - 远程目录 owner/权限、可用空间、符号链接和既有内容检查：
@@ -25,7 +26,7 @@
 - 源/优化容器规范化挂载清单路径：
 - 挂载 diff 与 `mount_parity`（`unverified|passed|failed`）：
 - 容器运行配置差异、资源隔离与共享挂载影响：
-- 引擎、Plugin、FlagGems 和 runtime revision：
+- 引擎、Plugin、FlagGems-vllm、FlagGems 和 runtime revision：
 - 主指标：
 - 守护指标：
 - 通过门槛：
@@ -33,7 +34,17 @@
 
 ## 3. Workload
 
-- 场景目录：`scenario_id`、Prefill/Decode/Mixed、长度、并发/到达模式、用途：
+- 固定目标场景完成状态：`p1024-d1024-c64-n128`、`p4096-d1024-c64-n128`、`p16384-d1024-c64-n128`、`p32768-d1024-c64-n128`
+- 当前目标场景、顺序位置、完成条件与下一场景：
+- milestone ID、映射的最终场景、workload 差异、成功/停止条件及晋级验证：
+- 当前目标场景的中间正式性能触发条件、结果、结论与 `optimize/` 证据：
+- 额外场景目录：`scenario_id`、Prefill/Decode/Mixed、长度、并发/到达模式、用途：
+- 场景串行顺序与当前场景序号：
+- 当前场景 `scenario-entry baseline`、`baseline_parent_candidate` 和增量对比：
+- 原路径 `anchor baseline` 及最终累计对比状态：
+- baseline 诊断时间预算、实际运行时长、状态与部分证据：
+- baseline-recovery 策略、缩减测量/静态分析证据与晋级条件：
+- 未完成 anchor 时的有界结论和数值加速比限制：
 - 预冻结的最终验收场景集合：
 - 本轮 `test_scope`：`targeted|checkpoint|full`
 - 性能评测 Skill 模式、场景 ID、结果、结论边界及证据：
@@ -53,11 +64,11 @@
 - baseline 结果：
 - candidate 结果：
 - 每个优化点的最小正确性回归：
-- 尚未经过完整精度的已保留 experiment ID（最多累计 3 个低风险点）：
-- 完整精度触发原因：`2-3-point-batch|high-risk-change|final-candidate|manual`
+- 尚未经过完整精度的已保留 experiment ID（最多累计 5 个低风险点）：
+- 完整精度触发原因：`4-5-point-batch|high-risk-change|final-candidate|manual`
 - 最近一次完整精度绑定的源码、配置和服务身份：
-- 正式精度工具、样本数、阈值和结果：
-- 超时、空回复、截断、重复或格式异常：
+- 正式精度工具、metric、score、threshold 和 `score >= threshold` 结果：
+- 输出健康观察（可选诊断，不作为附加精度门槛）：
 
 ### 精度问题定位（触发时填写）
 
@@ -113,7 +124,7 @@
 - 共享调用方与非目标模型/平台影响：
 - 代表性正例、反例、边界、graph/worker 测试及未测项：
 - 实验补丁到最终代码的整理与重新验证：
-- Plugin/FlagGems 的独立补丁、依赖及目标 CI：
+- Plugin、FlagGems-vllm、FlagGems 的独立补丁、依赖及目标 CI：
 - `pr_readiness`：`experimental|needs_revision|ready_for_review`；设计问题与下一步：
 
 ### 已执行实验

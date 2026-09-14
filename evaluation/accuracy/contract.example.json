@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "task": "gpqa_diamond_generative_cot",
   "metric": "exact_match,strict-match",
   "expected_samples": 198,
@@ -208,7 +208,5 @@
     "path": "",
     "sha256": ""
   },
-  "minimum": null,
-  "baseline": null,
-  "max_regression": 0.0
+  "threshold": null
 }

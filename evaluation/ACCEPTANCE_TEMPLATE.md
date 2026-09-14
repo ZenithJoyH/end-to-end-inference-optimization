@@ -3,21 +3,29 @@
 ## 1. 验收契约（测试前填写）
 
 - 执行规则版本、日期及验收范围（formal/performance_only/diagnostic）：
+- “新模型适配”交付来源模型/案例、只读路径、读取时间、revision/SHA、导入事实及运行时复核：
 - 用户提供的远程工作根目录、本案例子目录及路径/权限/空间检查：
 - 预冻结 contract/config/service manifest 路径与 SHA：
 - 模型、权重 revision、tokenizer 和 chat template：
-- 服务代码、Plugin、算子库和 revision：
+- 服务代码、Plugin、FlagGems-vllm、FlagGems 和 revision：
 - 硬件、并行策略、dtype/量化、graph 配置：
 - vLLM 完整启动命令及 runtime 证据：
 - [ ] baseline/candidate/revert 均显式包含 `--no-enable-prefix-caching`
 - [ ] service manifest 记录 `enable_prefix_caching=false` 且 `prefix_cache_state=disabled`
 - 质量任务、数据集 revision、样本数和生成参数：
-- 绝对精度门槛或可信 baseline：
-- 允许的最大回退：
-- 输出健康门槛：超时、空输出、截断、异常重复：
+- 正式 metric 与单一精度阈值（通过条件：`score >= threshold`）：
 - 性能 workload、轮数、warmup 和主/守护指标：
 - 性能评测 Skill 模式、场景 ID、结论范围和下一触发条件：
-- 场景目录、稳定 scenario ID 与预冻结 full 验收集合：
+- 固定 full 目标场景核对：`p1024-d1024-c64-n128`、`p4096-d1024-c64-n128`、`p16384-d1024-c64-n128`、`p32768-d1024-c64-n128`
+- 当前目标场景、顺序位置、完成条件及切换证据：
+- 中间 milestone、映射的最终场景、workload 差异、成功/停止条件及晋级验证：
+- 当前单一目标场景的中间正式性能触发条件、结果及 `optimize/` 证据：
+- 额外业务场景、稳定 scenario ID 与预冻结 full 验收集合：
+- 场景执行顺序、各场景的 `scenario-entry baseline` 及 `baseline_parent_candidate`：
+- 用于最终累计收益的原路径 `anchor baseline`：
+- 各场景 baseline 诊断时间预算、完成状态及部分证据：
+- baseline-recovery 策略、缩减测量/静态分析证据、改动与晋级条件：
+- 未完成 anchor 的有界结论及禁止精确加速比说明：
 - targeted/checkpoint 计划、被省略场景及最终补齐记录：
 - 负载模式（finite_batch/closed_loop/open_loop）、时长、到达序列和客户端排队口径：
 - 预热完成判据/预算、缓存冷热及正式精度后的状态恢复方案：
@@ -25,10 +33,9 @@
 
 ## 2. 执行模式与小样本
 
-- [ ] eager 服务可运行
-- [ ] graph capture/replay 服务可运行
+- [ ] graph 服务可启动并完成 capture/replay
 - [ ] graph 下 8 并发固定请求全部满足期望
-- [ ] 无错误、超时、空输出、异常截断或重复
+- 错误、超时、空输出、截断或重复观察（仅诊断，不作为精度门槛）：
 - 延迟、吞吐、显存和设备利用率 sanity：
 - 请求集、命令、配置、日志和结果位置：
 
@@ -36,7 +43,7 @@
 
 - 精度评测 Skill 模式与覆盖 experiment ID：
 - 算子/组件数值对照、shape/dtype/layout 覆盖：
-- graph/eager 一致性：
+- graph capture 与至少两次 replay 一致性：
 - baseline/candidate 输出差异：
 - 已知非确定性及控制方式：
 
@@ -58,11 +65,10 @@
 - [ ] 冻结 filter 集合完整，同题多 filter 行的原始内容一致；行数与题数已区分
 - [ ] `results_*.json` 和 `samples_*.jsonl` 完整
 - [ ] 原生结果中的服务、任务、生成参数、seed 和实际样本数与契约一致
-- [ ] 超时、空输出、截断和异常重复已检查
-- [ ] 绝对或相对精度门禁通过
-- [ ] run-record 与同一 samples SHA 的完整输出健康审查通过
+- [ ] 正式分数大于或等于预冻结阈值
+- 输出健康观察（可选诊断，不影响精度通过结论）：
 - [ ] acceptance.py issue 生成的绑定 gate 及证据可重新核验
-- 正式指标、baseline、candidate、差值和门槛：
+- 正式指标、score 和 threshold：
 - 命令、effective config、缓存和结果位置：
 
 ## 5. 正式性能

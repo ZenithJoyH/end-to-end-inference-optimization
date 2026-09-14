@@ -1,0 +1,6 @@
+interface:
+  display_name: "推理优化规划复盘"
+  short_description: "归纳多轮优化证据并重排下一阶段框架与算子优化优先级"
+  default_prompt: "Use $inference-optimization-planning to consolidate the completed inference optimization experiments and produce an evidence-ranked plan for the next cycle."
+policy:
+  allow_implicit_invocation: true

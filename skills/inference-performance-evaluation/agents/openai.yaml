@@ -1,0 +1,6 @@
+interface:
+  display_name: "推理性能评测"
+  short_description: "编排端到端推理优化中的缩减测量、里程碑与正式性能测试"
+  default_prompt: "Use $inference-performance-evaluation to select and run the appropriate performance measurement for the current inference optimization candidate."
+policy:
+  allow_implicit_invocation: true

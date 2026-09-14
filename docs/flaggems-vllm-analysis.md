@@ -129,7 +129,7 @@ Plugin shim / backend
 3. 仓库自带 focused test；先 `--collect-only`，再运行目标测试。
 4. 目标生产 shape 的 microbenchmark，保留原实现作为 A/B。
 5. Plugin 集成 smoke，记录实际实现文件或等价命中证据。
-6. eager 及 graph capture + 至少两次 replay。
+6. 目标 graph capture + 至少两次 replay；eager 仅作为可选诊断对照。
 7. 服务阶段指标和同契约端到端 benchmark。
 8. 本项目正式精度、正式性能及 revert 验收。
 
@@ -137,7 +137,7 @@ Plugin shim / backend
 
 ## 9. 修改授权与交付边界
 
-当前项目的常规源码修改授权明确包含 `vllm-plugin-FL` 和 `FlagGems`，**不自动把独立的 `FlagGems-vllm` 仓库纳入可修改范围**。本文件可用于只读分析；若实际优化需要修改目标环境中的 `FlagGems-vllm`，应先确认本次任务的修改边界，再按独立仓库记录 revision、工作区状态、补丁、构建/安装、生效证明和回退方式。
+当前项目的常规源码修改授权明确包含目标推理环境实际使用的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码副本。可以直接修改 FlagGems-vllm 中的 vLLM 专用/融合算子，无需仅因仓库身份再次申请授权；仍须按独立仓库记录 revision、工作区状态、真实导入路径、补丁、构建/安装、生效证明和回退方式，并保护共享使用者和非目标环境。
 
 不要把对 `FlagGems-vllm` 的实验 patch 伪装成 FlagGems 或 Plugin 改动。跨三个仓库的方案要分别保存补丁和依赖关系，并分别验证贡献。
 

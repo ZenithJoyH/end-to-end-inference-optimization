@@ -43,14 +43,28 @@ class SamplesTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     validate_sample_file(self.path, 1, [0])
 
+    def test_output_health_is_nonblocking_when_used_as_an_observation(self):
+        self.write([{'doc_id': 0, 'resps': [['answer']], 'finish_reason': 'length'}])
+        summary = validate_sample_file(
+            self.path, 1, [0], enforce_output_health=False)
+        self.assertEqual(summary['truncations'], 1)
+
     def test_score_cli_rejects_nonfinite_thresholds(self):
         result = self.path.with_suffix('.json')
         result.write_text(json.dumps({'results': {'task': {'score': 0.1}}}))
-        for args in (['--minimum', 'nan'], ['--minimum', 'inf'], ['--minimum', '0', '--max-regression', 'nan']):
+        for args in (['--threshold', 'nan'], ['--threshold', 'inf']):
             with self.subTest(args=args):
                 proc = subprocess.run([sys.executable, str(ROOT / 'evaluation/accuracy/verify_accuracy.py'),
                                        str(result), '--task', 'task', '--metric', 'score', *args], capture_output=True)
                 self.assertNotEqual(proc.returncode, 0)
+
+    def test_score_cli_accepts_equal_threshold(self):
+        result = self.path.with_suffix('.json')
+        result.write_text(json.dumps({'results': {'task': {'score': 0.5}}}))
+        command = [sys.executable, str(ROOT / 'evaluation/accuracy/verify_accuracy.py'),
+                   str(result), '--task', 'task', '--metric', 'score', '--threshold']
+        self.assertEqual(subprocess.run([*command, '0.5'], capture_output=True).returncode, 0)
+        self.assertNotEqual(subprocess.run([*command, '0.5001'], capture_output=True).returncode, 0)
 
 
 class GateTest(unittest.TestCase):
@@ -62,9 +76,9 @@ class GateTest(unittest.TestCase):
                             model_name='model-a', base_url='http://127.0.0.1:8000/v1/chat/completions',
                             tokenizer_path='/tokenizer', mode='graph', launch_config={'tp': 4}, image_lineage='verified', mount_parity='passed')
         self.service.update({key: 'a' * 64 for key in ('model_sha256', 'tokenizer_sha256', 'engine_sha256', 'plugin_sha256', 'flaggems_sha256', 'runtime_evidence_sha256')})
-        self.contract = dict(schema_version=2, task=gate.TASK, metric='score', minimum=0.5,
+        self.contract = dict(schema_version=3, task=gate.TASK, metric='score', threshold=0.5,
                              expected_samples=198, expected_doc_ids=list(range(198)))
-        self.cfg = dict(tasks=[gate.TASK], limit=0, expected_samples=198, allow_timeouts=False,
+        self.cfg = dict(tasks=[gate.TASK], limit=0, expected_samples=198, allow_timeouts=True,
                         model_name='model-a', base_url=self.service['base_url'], seed=42,
                         dataset_path='Idavidrein/gpqa', dataset_name='gpqa_diamond', dataset_split='train',
                         model_type='openai-chat-completions', apply_chat_template=True, gen_kwargs='temperature=0',
@@ -97,7 +111,7 @@ class GateTest(unittest.TestCase):
         self.refs[name] = gate.artifact(path)
 
     def test_issue_check_and_changed_service_rejected(self):
-        gate.issue_gate(self.record, self.health, self.output)
+        gate.issue_gate(self.record, self.output)
         gate.check_gate(self.output, self.root / 'service.json', 'model-a', '127.0.0.1', 8000)
         self.service['service_instance_id'] = 'boot-2'
         self.save('service', self.service)
@@ -105,25 +119,53 @@ class GateTest(unittest.TestCase):
             gate.check_gate(self.output, self.root / 'service.json')
 
     def test_changed_result_or_different_endpoint_rejected(self):
-        gate.issue_gate(self.record, self.health, self.output)
+        gate.issue_gate(self.record, self.output)
         with self.assertRaises(ValueError):
             gate.check_gate(self.output, self.root / 'service.json', port=9000)
         self.save('results', {'results': {gate.TASK: {'score': 1.0}}})
         with self.assertRaises(ValueError):
             gate.check_gate(self.output, self.root / 'service.json')
 
-    def test_boolean_gate_and_incomplete_health_rejected(self):
+    def test_gate_accepts_score_equal_to_threshold(self):
+        self.contract['threshold'] = 0.6
+        self.save('contract', self.contract)
+        record = gate.read_json(self.record)
+        record['artifacts']['contract'] = self.refs['contract']
+        self.record.write_text(json.dumps(record))
+        issued = gate.issue_gate(self.record, self.output)
+        self.assertEqual(issued['score'], issued['threshold'])
+        gate.check_gate(self.output, self.root / 'service.json')
+
+    def test_gate_accepts_timeout_when_score_meets_threshold(self):
+        samples = self.root / 'samples.jsonl'
+        rows = [json.loads(line) for line in samples.read_text().splitlines()]
+        rows[0]['resps'] = [['<TIMEOUT>']]
+        rows[0]['timeout'] = True
+        samples.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+        self.refs['samples'] = gate.artifact(samples)
+        self.record.write_text(json.dumps({
+            'schema_version': 2, 'status': 'evaluated',
+            'process_succeeded': True, 'artifacts': self.refs,
+        }))
+        issued = gate.issue_gate(self.record, self.output)
+        self.assertTrue(issued['passed'])
+        gate.check_gate(self.output, self.root / 'service.json')
+
+    def test_boolean_gate_rejected_and_health_observation_nonblocking(self):
         gate.write_new(self.output, {'passed': True})
         with self.assertRaises(ValueError):
             gate.check_gate(self.output, self.root / 'service.json')
         health = gate.read_json(self.health)
         health['truncation'] = 'pending'
         self.health.write_text(json.dumps(health))
-        with self.assertRaises(ValueError):
-            gate.issue_gate(self.record, self.health, self.root / 'new.json')
+        diagnostic_gate = self.root / 'new.json'
+        issued = gate.issue_gate(self.record, diagnostic_gate, self.health)
+        self.assertIn('health_observation', issued)
+        gate.check_gate(diagnostic_gate, self.root / 'service.json')
 
-    def test_formal_config_rejects_wrong_target_timeout_and_subset(self):
-        for changes in ({'model_name': 'different'}, {'allow_timeouts': True}, {'limit': 1}, {'seed': None}):
+    def test_formal_config_accepts_timeouts_but_rejects_invalid_config(self):
+        gate.validate_config(self.cfg, self.service)
+        for changes in ({'model_name': 'different'}, {'allow_timeouts': 'yes'}, {'limit': 1}, {'seed': None}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 gate.validate_config(dict(self.cfg, **changes), self.service)
 
@@ -143,10 +185,7 @@ class GateTest(unittest.TestCase):
         self.refs['samples'] = gate.artifact(samples)
         self.record.write_text(json.dumps({'schema_version': 2, 'status': 'evaluated', 'process_succeeded': True,
                                           'artifacts': self.refs}))
-        health = gate.read_json(self.health)
-        health['samples_sha256'] = self.refs['samples']['sha256']
-        self.health.write_text(json.dumps(health))
-        gate.issue_gate(self.record, self.health, self.output)
+        gate.issue_gate(self.record, self.output)
         gate.check_gate(self.output, self.root / 'service.json')
 
     def test_wrapper_runs_original_and_records_evidence(self):

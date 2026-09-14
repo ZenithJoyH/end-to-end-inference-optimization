@@ -44,3 +44,34 @@ GLM-5.2 的 Indexer、Sparse MLA、MoE、采样与调度经验只作为候选机
   正式 workload 的吞吐、TTFT、TPOT 尚未测量，不能把 sanity 改善写成最终性能收益。
 
 完整证据：[单算子黑名单实验](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260911-index-op-blacklist/README.md)。
+
+## 最新阶段状态
+
+当前保留组合为 index 黑名单、MQA 固定配置、native sparse MLA、
+shape-gated native causal-conv、shape-gated vendor KDA 和
+`max_num_batched_tokens=16384`，以及 shape-gated FlagGems MoE 分阶段配置。
+`32768` 在长输出哨兵场景吞吐回退
+1.523%，已拒绝并恢复 16384。最新证据排序和下一实验见
+[20260913-05-post-mbt32768](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/planning/20260913-05-post-mbt32768.md)。
+
+MoE 候选先将 trace 分解为时间几乎各半的 GEMM1/GEMM2，再对
+M=4096/12401/16384 分阶段调参。保留配置在两场景正式 A/B/R 中
+使输出吞吐分别改善 2.609%/0.344%，P99 TTFT 分别降低
+3.714%/4.163%，比较器判定 `passed`。详见
+[MoE 分阶段分析](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-moe-stage-analysis/README.md)。
+
+保留 MoE 后的 16-rank trace 显示稳定热点迁移到 sparse MLA，fused MoE
+累计设备时间约下降 14.8%。native sparse MLA 来自不暴露 tile 参数的预编译
+扩展；其外围索引转换使用 BN1024 后，三个主 shape 微基准虽提升
+3.55x–4.54x，但两场景端到端吞吐分别为 -0.041%/-0.005%，正式比较器
+判 `failed`。该实验补丁已回退，当前服务继续使用上述 MoE 保留组合、16384
+和关闭的前缀缓存。证据见
+[sparse index convert](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-sparse-index-convert/README.md)，
+下一阶段排序见
+[20260913-06-post-moe](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/planning/20260913-06-post-moe.md)。
+
+随后按 trace 前七个 shape 比较 general mm：thead 默认配置已经把 `mm`
+列入 FlagGems 黑名单，当前服务使用 native 路径。direct FlagGems 在六个
+shape 上慢 17.6%–45.1%，仅 N=24 shape 持平，未达到 5% 门槛，因此未进入
+服务 A/B，也没有新增代码改动。详见
+[general mm analysis](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-general-mm-analysis/README.md)。

@@ -80,4 +80,4 @@ Produce the smallest useful artifact for the task. It should normally include:
 - candidate optimization, applicability, costs, risks, fallback, and graph constraints;
 - fair baseline/candidate results, error metrics, regressions, and scope of the conclusion.
 
-When implementing an optimization, preserve a reference path, validate boundary and non-aligned shapes, and cover eager plus graph capture/replay when the serving path uses graph execution.
+When implementing an optimization, preserve a reference path, validate boundary and non-aligned shapes, and require the target graph path to capture and replay correctly. A separate eager service is optional diagnostic evidence, not a performance-optimization gate.

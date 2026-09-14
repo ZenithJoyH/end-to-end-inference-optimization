@@ -91,7 +91,7 @@ class AccuracyFailureTest(unittest.TestCase):
                 (self.root / "samples.jsonl").read_text())
             return True
 
-        with self.external_work(task), self.assertRaisesRegex(ValueError, "below the frozen minimum"):
+        with self.external_work(task), self.assertRaisesRegex(ValueError, "below the frozen threshold"):
             formal_accuracy.run(self.args)
         self.assertEqual(list((self.root / "outputs").rglob("run-record.json")), [])
         self.assertEqual(len(list((self.root / "outputs").rglob("results_low_score.json"))), 1)
@@ -137,7 +137,7 @@ class AccuracyFailureTest(unittest.TestCase):
                 record["artifacts"]["service"] = self.fixture.refs["service"]
                 self.fixture.record.write_text(json.dumps(record))
                 with self.assertRaisesRegex(ValueError, message):
-                    gate.issue_gate(self.fixture.record, self.fixture.health, self.fixture.output)
+                    gate.issue_gate(self.fixture.record, self.fixture.output)
                 self.assertFalse(self.fixture.output.exists())
 
     def test_research_service_still_requires_valid_identity_and_supported_endpoint(self):

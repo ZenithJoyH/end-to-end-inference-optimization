@@ -29,9 +29,13 @@ vllm serve <model> <其余冻结参数> \
 
 ## 配置执行与比较
 
-新任务从 [plan.example.json](plan.example.json) 和 [comparison.example.json](comparison.example.json) 准备外部配置。示例中的长度、速率、预热和阈值均用于展示字段，必须按任务改好再冻结。若比较要求 SLO 达标率，必须在计划的 `measurement.slo` 填写对应的 `ttft/tpot/e2el` 毫秒阈值；空 SLO 不能产生 goodput 验收。
+新任务从 [plan.example.json](plan.example.json) 和 [comparison.example.json](comparison.example.json) 准备外部配置。`plan.example.json` 已包含当前 Agent 固定的四个正式目标场景：P1K/P4K/P16K/P32K、D1K、C64、N128，均为 finite batch；正式 full 计划不得删减。目标服务、tokenizer、预热、重复、超时、指标与阈值仍须按任务修改并冻结。若比较要求 SLO 达标率，必须在计划的 `measurement.slo` 填写对应的 `ttft/tpot/e2el` 毫秒阈值；空 SLO 不能产生 goodput 验收。
 
-大模型不要求每轮执行同一份完整计划。可以从预冻结场景目录分别生成 targeted、checkpoint 和 full 计划：targeted 只保留当前瓶颈 case 及必要的低成本哨兵，checkpoint 包含本轮改动影响的全部 case，full 包含最终验收集合。三类计划使用稳定且可追溯的 case ID，各自保存配置和 SHA；缩减请求数或轮数时建立同配置 baseline，不能复用完整计划的汇总值。比较器返回 passed 只覆盖本次计划中的 case，不自动扩大为完整矩阵结论。
+大模型不要求每轮执行同一份完整计划，也不要求先跑完所有场景基线。默认按 P1K→P4K→P16K→P32K 每次选取一个正式目标场景，完成该场景的 baseline、milestone、优化和 formal 后再切换下一项。milestone 可以使用更短输入/输出、更少请求/并发或更窄阶段；记录它映射的当前目标场景和 workload 差异，并使用自身同配置 baseline/candidate。milestone 达到预冻结的显著提升或出现热点迁移时，中间 formal 只运行当前目标场景，不运行其余三个。
+
+如果 baseline 在实验前记录的诊断时间预算内仍未完成，可以停止该次客户端运行，将 run 及部分证据保留为 `incomplete/deferred-too-slow`。随后可以减少输入/输出长度、请求数或并发建立 milestone，并用本入口取得缩减 workload 的明确 baseline/candidate 数据；也可以选择静态分析或二者结合。缩减结果只支持该 milestone，候选达到晋级条件后仍须回到目标场景测量。没有完成的同配置 anchor 时，不输出精确加速比。
+
+可以从场景目录分别生成 targeted、checkpoint 和 formal 计划：targeted 承载 milestone 和低成本哨兵，checkpoint 包含当前改动影响的场景，中间 formal 只包含当前一个正式目标场景，最终 formal 才包含固定四场景及额外业务场景。各计划使用稳定且可追溯的 case ID，保存配置和 SHA；任何缩减 workload 都建立自身同配置 baseline，不能复用其他计划汇总值。中间 formal 结果留在 `optimize/`，最终组合结果进入 `acceptance/`。
 
 每次运行都提供当前 [service manifest](../accuracy/service-manifest.example.json)。自动比较额外核对其中的 `performance_context`：平台、设备身份、驱动/runtime、镜像与缓存准备。字段来自运行时取证，不靠把 unknown 改成字符串补造事实；scope 为诊断时执行器允许不完整身份，但比较器会将不足证据判为 incomplete。
 

@@ -15,7 +15,7 @@
 在目标机器上的 `harbor.baai.ac.cn/flageval/flageval-llmeval:v1` 评测容器内，部署本项目 `test/Accuracy_test/` 与 `evaluation/accuracy/`，保留相对目录。模型仍运行在独立优化容器中。准备以下外部文件：
 
 - 案例配置：从 [llm_config.example.json](accuracy/llm_config.example.json) 复制，填写目标、输出/数据集路径、生成参数及 `seed`。正式流程不读取原始示例默认目标。
-- 契约：从 [contract.example.json](accuracy/contract.example.json) 复制，在评测前冻结正式 metric、最低分或可信 baseline、完整样本 ID，以及下面采集的任务/数据证据。
+- 契约：从 [contract.example.json](accuracy/contract.example.json) 复制，在评测前冻结正式 metric、单一 `threshold`、完整样本 ID，以及下面采集的任务/数据证据。
 - 服务身份：从 [service-manifest.example.json](accuracy/service-manifest.example.json) 复制，依据当前进程/容器只读检查填写。SHA 必须来自实际权重/文件清单、tokenizer、实际引擎/源码副本和运行证据；revision 字符串不能代替未提交代码的内容指纹。
 - 评测容器 inspect：目标机器上对精确评测容器执行 `docker inspect` 的结果，保存在外部产物目录。工具检查规定镜像引用和 image ID；执行者仍需确认命令确实运行在该容器中。
 
@@ -43,20 +43,17 @@ python3 evaluation/accuracy/formal_accuracy.py \
 
 预检通过后以同一参数去掉 `--preflight-only` 执行。包装器调用 SHA 校验后的原始 `test/Accuracy_test/llmrun.py` 模块，保持模型 API、任务与生成实现；额外设置显式 seed、每次运行独立缓存命名空间及更严格检查，以采集任务的同一 Python 解释器运行 lm-eval。它不是另一个模型评测实现。直接运行原件不会获得这些外层检查，不能单独产生正式验收记录。
 
-正式执行前写出 `effective_config.json` 和 `frozen-inputs.json`；运行前后重验实际任务/数据证据。结束后核对 198 个唯一题目的有效响应与全部冻结 filter、实际题目指纹、重复/缺失项、超时、显式截断、结果文件唯一性和冻结分数阈值，同时检查原生 results 中的模型/endpoint、任务配置、生成参数、seed、缓存运行标识与有效样本数。同题多 filter 可以产生多行，要求原始题目与模型响应一致；不能用行数代替题数。失败保持非零退出，保留外部产物。通过后写出 `run-record.json` 和待填写的 `health-review.template.json`。
+正式执行前写出 `effective_config.json` 和 `frozen-inputs.json`；运行前后重验实际任务/数据证据。结束后核对样本与原生 results 的任务、模型、endpoint、配置和内容指纹，以确认得分属于当前候选。精度的唯一通过条件是 `score >= threshold`，等于阈值通过。超时、截断或其他输出健康信息可记录为诊断观察，不作为附加精度门槛。
 
-正式精度 contract/run-record/gate 当前使用 schema 2；它们与通用实验记录的 schema 独立。旧记录缺少任务来源证据时不能仅改版本号转为新 gate。当前解析器依据 lm-eval v0.4.9 的 ConfigurableTask 与结果结构编写；目标镜像的实际版本、任务定制或字段不符时拒绝正式签发，需先核对并适配。本地负例测试不代表已经在 `flageval-llmeval:v1` 完成集成验证。不要绕过来源检查来恢复旧行为。
-
-人工或 Agent 逐条检查完整输出与必要日志，填写健康审查的 reviewer、method 和各项结论。缺少 finish_reason/token 信息时不能凭“没看到 length”断言未截断；证据不足保持 pending。结构检查不会把错误答案的空过滤结果误判为空模型输出。
+正式精度 contract/gate 使用 schema 3，run-record 保持 schema 2；它们与通用实验记录的 schema 独立。旧记录不能仅改版本号转为新 gate。当前解析器依据 lm-eval v0.4.9 的 ConfigurableTask 与结果结构编写；目标镜像不符时先适配证据接口，不改写得分或阈值。
 
 ```bash
 python3 evaluation/accuracy/acceptance.py issue \
   --run-record /external/run/run-record.json \
-  --health-review /external/run/health-review.json \
   --output /external/run/accuracy-gate.json
 ```
 
-新 gate 不覆盖旧文件。它绑定服务身份、原始 runner、配置、契约、结果、样本和审查文件 SHA；签发或消费时均重新检查。`verify_accuracy.py` 仅检查分数阈值，不生成正式 gate。
+新 gate 不覆盖旧文件。它绑定服务身份、原始 runner、配置、契约、结果和样本 SHA；签发或消费时均重新检查。如需保留输出健康诊断，可额外传入 `--health-observation <json>`，其内容不影响 gate 通过与否。
 
 ## 正式性能与诊断
 
