@@ -33,6 +33,8 @@ vllm serve <model> <其余冻结参数> \
 
 大模型不要求每轮执行同一份完整计划，也不要求先跑完所有场景基线。默认按 P1K→P4K→P16K→P32K 每次选取一个正式目标场景，完成该场景的 baseline、milestone、优化和 formal 后再切换下一项。milestone 可以使用更短输入/输出、更少请求/并发或更窄阶段；记录它映射的当前目标场景和 workload 差异，并使用自身同配置 baseline/candidate。milestone 达到预冻结的显著提升或出现热点迁移时，中间 formal 只运行当前目标场景，不运行其余三个。
 
+当前目标场景在选择优化方向前分别维护 Prefill、Decode 和 Mixed 证据。计划中每个 case 可用可选 `stage` 标记诊断角色，缺省为 `mixed`；正式目标 case 必须为 `mixed`。单 token/短输出可作为 Prefill 侧探针，但不能要求 TPOT/ITL；长输出可突出 Decode，但仍要记录 Prefill 和调度残余成本。TTFT、TPOT、ITL 是客户端代理，不等于纯设备阶段时间。阶段专项必须有自己的同配置 baseline，并在保留候选前回到父目标 Mixed workload 检查另一阶段守护指标和端到端净收益。
+
 如果 baseline 在实验前记录的诊断时间预算内仍未完成，可以停止该次客户端运行，将 run 及部分证据保留为 `incomplete/deferred-too-slow`。随后可以减少输入/输出长度、请求数或并发建立 milestone，并用本入口取得缩减 workload 的明确 baseline/candidate 数据；也可以选择静态分析或二者结合。缩减结果只支持该 milestone，候选达到晋级条件后仍须回到目标场景测量。没有完成的同配置 anchor 时，不输出精确加速比。
 
 可以从场景目录分别生成 targeted、checkpoint 和 formal 计划：targeted 承载 milestone 和低成本哨兵，checkpoint 包含当前改动影响的场景，中间 formal 只包含当前一个正式目标场景，最终 formal 才包含固定四场景及额外业务场景。各计划使用稳定且可追溯的 case ID，保存配置和 SHA；任何缩减 workload 都建立自身同配置 baseline，不能复用其他计划汇总值。中间 formal 结果留在 `optimize/`，最终组合结果进入 `acceptance/`。
@@ -86,7 +88,7 @@ python3 evaluation/performance/compare_performance.py \
 
 ## 计划支持的测量范围
 
-- case 可分别指定输入/输出长度、请求数、并发、有限批次或有限请求的 open-loop 到达率与 burstiness；多个 case 可构成有限速率扫描。
+- case 可分别指定输入/输出长度、请求数、并发、有限批次或有限请求的 open-loop 到达率与 burstiness，并用 `stage=prefill|decode|mixed` 保存分析角色；该字段是证据标签，不会让 runner 自动隔离设备阶段。多个 case 可构成有限速率扫描。
 - 优化循环可以为不同场景使用独立计划。targeted/checkpoint/full 是实验契约中的结论层级，当前执行器通过实际计划中的 case 集合体现，不会自行判断遗漏场景；最终验收必须由执行者提供预冻结 full 计划并核对场景完整性。
 - `warmup_rounds` 是固定预算。可选 `warmup_stability` 检查末尾窗口的 `(max-min)/median`；预算内未通过就停止。默认固定轮数不证明稳态，也不自动建立业务缓存冷热条件。
 - `required_metrics` 明确本任务不可缺失的原生指标；支持 P50/P95/P99 等已列出的指标。单 token 输出不能要求 TPOT/ITL。`ignore_eos=false` 按每请求实际输出核对，不强行套固定输出总数。

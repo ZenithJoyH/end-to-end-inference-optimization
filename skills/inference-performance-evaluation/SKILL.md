@@ -1,6 +1,6 @@
 ---
 name: inference-performance-evaluation
-description: Orchestrate baseline, targeted, checkpoint, and formal no-profiler performance measurements during end-to-end LLM inference optimization. Use when establishing or simplifying a slow baseline, testing a milestone for the current ordered target scenario, formally closing that scenario, or validating the final all-target combination; use the separate inference-profiling skill for trace capture and bottleneck attribution.
+description: Orchestrate baseline, phase-aware targeted/checkpoint, and formal no-profiler performance measurements during end-to-end LLM inference optimization. Use when establishing or simplifying a slow baseline, separating prefill and decode evidence for the current target, testing a milestone, formally closing one ordered scenario, or validating the final all-target combination; use the separate inference-profiling skill for trace attribution.
 ---
 
 # Inference Performance Evaluation
@@ -37,11 +37,22 @@ Before measuring, record:
 - Skill mode, experiment ID, `scenario_id` list, `test_scope`, target/sentinel roles, and omitted acceptance scenarios.
 - Model, tokenizer, Host, optimization container, service instance, engine, Plugin/FlagGems-vllm/FlagGems revisions, hardware/topology, graph mode, launch configuration, and client identity.
 - Input/output lengths, endpoint, EOS/sampling, load mode, concurrency or arrival pattern, requests, seed, timeout, warmup, repetitions, main metrics, guard metrics, SLO, thresholds, and stop rules.
+- For each case, its `stage=prefill|decode|mixed`, parent target scenario, phase-isolation method, residual cross-phase/scheduler cost, and cross-phase guard. Formal target cases are `mixed`.
 - External or remote output directory. Use the user-provided remote work root only through its case-specific subdirectory.
 
 For reduced input/output lengths, requests, concurrency, repetitions, or scenarios, create a matching reduced baseline. Map the milestone to its target scenario(s), record every workload difference and its promotion condition, and never compare a reduced candidate with a target/full-plan historical summary.
 
 If a target baseline exceeds its pre-recorded diagnostic time budget, preserve the partial evidence as `deferred-too-slow/incomplete` and stop waiting. Select the project-recorded recovery strategy: run a smaller comparable `targeted` milestone, perform static analysis outside this Skill, or combine both. A reduced milestone may provide explicit numeric feedback for its own workload, but it is not the target baseline and cannot support a cross-workload speedup claim.
+
+## Separate prefill and decode evidence
+
+Before choosing an optimization direction for the current target scenario, maintain three explicit views:
+
+- `prefill`: prompt processing, TTFT/input-token throughput, prefill shapes, and any service-internal prefill evidence;
+- `decode`: autoregressive iterations, TPOT/ITL/output-token throughput, KV behavior, and decode batch shapes;
+- `mixed`: phase interference, scheduling/queuing, resource contention, and the complete target workload.
+
+TTFT and TPOT/ITL are client-visible proxies and may include queuing, scheduler, sampling, network, or streaming costs. Do not relabel them as pure device phase time. A phase-focused targeted plan may use a single-token/short-output prefill probe or a sufficiently long-output decode probe, but it must record the isolation method and residual costs, use its own comparable baseline, and map to a parent target scenario. Guard a prefill candidate with decode and mixed metrics; guard a decode candidate with prefill and mixed metrics. A phase-focused pass is an optimization signal only: verify every retained candidate on the parent `mixed` workload before treating the target scenario as improved or complete.
 
 ## Enforce the service gate
 
@@ -62,7 +73,7 @@ If prefix caching is the explicit optimization variable, require a separate cont
    - `evaluation/performance/compare_performance.py` for frozen baseline/candidate/revert comparisons.
    - Other maintained entries only within the limits stated in `evaluation/performance/README.md`.
 3. Use unique run IDs and refuse to overwrite an existing run directory.
-4. Validate request counts, successes, token counts, native result schema, required finite metrics, warmup status, repetitions, output SHA, and current service/client identity.
+4. Validate request counts, successes, token counts, native result schema, required finite metrics, warmup status, repetitions, output SHA, current service/client identity, and the declared phase role. Preserve phase results separately rather than averaging prefill and decode into one attribution.
 5. For comparable runs, evaluate the pre-frozen main metrics, guards, SLO, variability, and baseline/revert drift. Preserve the three-state result: `passed`, `failed`, or `incomplete`.
 
 Stop and keep `incomplete` when the client is the bottleneck, the service identity or prefix-cache state is unproven, workloads differ, results are partial, warmup is unstable, repetitions are insufficient, or revert drift prevents attribution. Do not cherry-pick successful rounds or scenarios.
@@ -74,10 +85,11 @@ When performance evidence cannot localize the bottleneck, invoke `$inference-pro
 In `formal` mode:
 
 1. Use `$inference-accuracy-evaluation` `gate-check` against the frozen candidate and current service facts. If it does not pass, do not run or claim formal performance; trigger `formal-gate` when a new accuracy gate is required.
-2. Select scope from the lifecycle: `intermediate-single-target` runs only `current_target_scenario_id`; `final-all-targets` runs the complete pre-frozen acceptance set. Use the same candidate graph configuration.
-3. Collect comparable independent baseline, candidate, and revert runs with the contracted warmup and repetitions.
-4. Use `compare_performance.py` with the comparison contract that was already bound during measurement.
-5. Limit the conclusion to the contracted model, platform, Host/topology, service configuration, and scenario set. Long-term capacity requires a separate sustained-load contract when the current client does not implement it.
+2. Verify that each target in scope has separate Prefill, Decode, and Mixed evidence plus cross-phase guards. Trace-level phase timing is not mandatory when low-overhead evidence is sufficient; unresolved attribution must remain explicit rather than being silently merged.
+3. Select scope from the lifecycle: `intermediate-single-target` runs only `current_target_scenario_id`; `final-all-targets` runs the complete pre-frozen acceptance set. Use the same candidate graph configuration.
+4. Collect comparable independent baseline, candidate, and revert runs with the contracted warmup and repetitions.
+5. Use `compare_performance.py` with the comparison contract that was already bound during measurement.
+6. Limit the conclusion to the contracted model, platform, Host/topology, service configuration, and scenario set. Long-term capacity requires a separate sustained-load contract when the current client does not implement it.
 
 Before starting, record `formal_run_lifecycle=intermediate-single-target|final-all-targets`. Use `intermediate-single-target` when the current ordered target's milestone met a significant-improvement threshold, its bottleneck materially migrated, or it is ready for a close decision; require exactly that target scenario and store the result in `optimize/`. If it meets the pre-frozen scene-completion criteria, advance to the next target scenario. Use `final-all-targets` only after every target is complete; require the complete acceptance set and store the accepted result in `acceptance/`. Both lifecycles use the same accuracy-gate, identity, repetition, and baseline/candidate/revert requirements within their declared scope.
 
@@ -90,4 +102,4 @@ Write the Skill mode, scenarios, plan/contract SHA, service manifests, run-recor
 - Only the accepted combination's latest qualifying `formal_run_lifecycle=final-all-targets` result and rollback entry belong in `models/<model>/<platform>/acceptance/`.
 - Large JSON, logs, responses, traces, and profiler outputs remain in the external or remote case directory; store absolute paths and required checksums locally.
 
-Return a compact result containing: mode, scenario IDs, service identity, plan/contract evidence, result state, primary/guard metric changes, invalid or omitted evidence, conclusion boundary, artifact paths, and the next performance-test trigger.
+Return a compact result containing: mode, scenario IDs, stage/parent-target mapping, prefill/decode/mixed evidence and cross-phase guards, service identity, plan/contract evidence, result state, primary/guard metric changes, invalid or omitted evidence, conclusion boundary, artifact paths, and the next performance-test trigger.

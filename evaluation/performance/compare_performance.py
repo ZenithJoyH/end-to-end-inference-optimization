@@ -160,6 +160,16 @@ def diff_paths(left, right, prefix=""):
             path = prefix + "/" + key
             result.extend([path] if key not in left or key not in right else diff_paths(left[key], right[key], path))
         return result
+    if isinstance(left, list) and isinstance(right, list):
+        result = []
+        for index in range(max(len(left), len(right))):
+            path = prefix + "/" + str(index)
+            result.extend(
+                [path]
+                if index >= len(left) or index >= len(right)
+                else diff_paths(left[index], right[index], path)
+            )
+        return result
     return [] if left == right and type(left) is type(right) else [prefix]
 
 

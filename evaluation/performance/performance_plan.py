@@ -141,8 +141,8 @@ def normalize_plan(data):
     cases, ids = [], set()
     for index, value in enumerate(data["cases"]):
         keys = ("id", "input_tokens", "output_tokens", "concurrency", "requests", "load_mode")
-        _object(value, (*keys, "request_rate", "burstiness"), keys, f"cases[{index}]")
-        case = {"request_rate": None, "burstiness": 1, **value}
+        _object(value, (*keys, "request_rate", "burstiness", "stage"), keys, f"cases[{index}]")
+        case = {"request_rate": None, "burstiness": 1, "stage": "mixed", **value}
         _identifier(case["id"], "case.id")
         if case["id"] in ids:
             raise ValueError(f"duplicate case id: {case['id']}")
@@ -153,6 +153,8 @@ def normalize_plan(data):
             raise ValueError("closed_loop is unsupported: N finite requests at inf rate with a concurrency cap are a finite batch, not sustained closed-loop traffic")
         if case["load_mode"] not in ("finite_batch", "open_loop"):
             raise ValueError("case.load_mode must be finite_batch or open_loop")
+        if case["stage"] not in ("prefill", "decode", "mixed"):
+            raise ValueError("case.stage must be prefill, decode, or mixed")
         if case["load_mode"] == "finite_batch" and case["request_rate"] is not None:
             raise ValueError("finite_batch requires request_rate=null")
         if case["load_mode"] == "open_loop":

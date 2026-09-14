@@ -37,6 +37,7 @@ class PlanValidationTest(unittest.TestCase):
         result = PLAN.normalize_plan(raw)
         self.assertEqual(result["generation"], {"seed": 42, "temperature": 0, "ignore_eos": True, "random_range_ratio": 0})
         self.assertIsNone(result["measurement"]["warmup_stability"])
+        self.assertEqual(result["cases"][0]["stage"], "mixed")
         self.assertEqual(PLAN.normalize_plan(result), result)
         self.assertNotIn("generation", raw)
 
@@ -62,6 +63,7 @@ class PlanValidationTest(unittest.TestCase):
             lambda p: p["cases"][0].update(request_rate=2),
             lambda p: p["cases"][0].update(load_mode="closed_loop"),
             lambda p: p["cases"][0].update(burstiness=0),
+            lambda p: p["cases"][0].update(stage="prefill-and-decode"),
             lambda p: p["cases"][0].update(output_tokens=1),
             lambda p: p["measurement"].update(slo={"itl": 20}),
             lambda p: p["measurement"].update(slo={"ttft": -1}),
@@ -98,6 +100,11 @@ class PlanValidationTest(unittest.TestCase):
         raw["cases"][0]["output_tokens"] = 1
         raw["measurement"]["required_metrics"] = ["p99_ttft_ms", "output_throughput"]
         self.assertEqual(PLAN.normalize_plan(raw)["cases"][0]["output_tokens"], 1)
+
+    def test_phase_role_is_preserved_as_plan_evidence(self):
+        raw = config()
+        raw["cases"][0]["stage"] = "decode"
+        self.assertEqual(PLAN.normalize_plan(raw)["cases"][0]["stage"], "decode")
 
     def test_overflowed_warmup_median_cannot_establish_stability(self):
         check = PLAN._warmup_check([1e308, 1e308], {"metric": "p99_ttft_ms", "window": 2, "max_relative_spread": 0.05})

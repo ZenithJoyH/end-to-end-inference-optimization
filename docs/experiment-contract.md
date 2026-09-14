@@ -51,6 +51,12 @@ targeted 可以减少请求数、重复轮和场景数，但同一实验的 base
 
 中间 `milestone` 可以改变输入长度、输出长度、并发、请求数或测试层次，也可以采用阶段专项和 microbenchmark。它必须通过 `parent_target_scenario_ids` 映射回最终目标，记录 `workload_delta`、成功/停止条件及 `promotion_validation`。milestone 内部的 A/B 必须可比，但其结果不能与不同 workload 的目标 baseline 直接计算加速比。
 
+### Prefill、Decode 与 Mixed 阶段契约
+
+每个当前目标场景在选择优化方向前分别记录 `prefill`、`decode`、`mixed` 三个视图。Prefill 关注 prompt 处理、TTFT/input-token 吞吐和实际 shape；Decode 关注自回归循环、TPOT/ITL/output-token 吞吐、KV 访问和实际 batch；Mixed 关注两个阶段并存时的调度干扰、排队、资源竞争及完整端到端结果。每个视图记录证据方法、主/守护指标、热点、置信度和状态；证据不足使用 `unknown/incomplete`，不强行归因。
+
+TTFT 和 TPOT/ITL 是客户端可见代理指标，不自动等于纯 Prefill 或 Decode 设备时间。使用阶段专项 workload 时，记录 `phase_isolation_method`、相对父目标场景的 workload 差异和不可避免的残余阶段/调度成本，并为该专项建立同配置 baseline/candidate。Prefill 改动守护 Decode 与 Mixed，Decode 改动守护 Prefill 与 Mixed；任何阶段专项收益必须回到父目标场景的 Mixed workload 验证后才能成为场景完成证据。
+
 每次 baseline 尝试可以预先设置诊断时间预算。到达预算仍未完成时，保留部分证据并标记 `deferred-too-slow/incomplete`，随后选择 `reduced-measurement`、`static-first` 或 `hybrid`。缩减测量可减少输入/输出长度、请求数或并发，建立自身可比 baseline/candidate 并输出明确的 milestone 性能数据；该数据不能冒充原目标 baseline。候选达到预记录的晋级条件后，再补目标场景数据。原路径在相同契约下仍未完成时，只能记录带 workload、计时边界和预算的有界结论。
 
 当 milestone 达到任务预冻结的显著提升阈值，或当前场景主要瓶颈发生迁移时，可以触发只覆盖当前目标场景的中间 `formal`。该场景达到完成条件后切换下一目标。最终 formal 才覆盖全部四场景。中间和最终 formal 使用相同的可比性与证据要求，但归档位置和结论生命周期不同：中间结果进入 `optimize/`，最终组合结果进入 `acceptance/`。
@@ -194,6 +200,27 @@ performance_evaluation:
   reduced_measurement_plan: ""
   static_analysis_evidence: ""
   measurement_resume_condition: ""  # 如：代表性探针在记录预算内完成
+  phase_analysis:
+    prefill:
+      status: unknown  # unknown | measured | profiled | optimized | incomplete
+      evidence_method: ""  # client-proxy | service-internal | trace | phase-focused-workload
+      phase_isolation_method: ""
+      residual_costs: ""
+      main_and_guard_metrics: {}
+      shape_and_hotspot_summary: ""
+    decode:
+      status: unknown
+      evidence_method: ""
+      phase_isolation_method: ""
+      residual_costs: ""
+      main_and_guard_metrics: {}
+      shape_and_hotspot_summary: ""
+    mixed:
+      status: unknown
+      evidence_method: ""
+      main_and_guard_metrics: {}
+      interference_summary: ""
+    cross_phase_guard_result: incomplete  # passed | failed | incomplete
   incremental_comparison: ""  # scenario-entry baseline -> scenario candidate
   anchor_comparison: ""  # anchor baseline -> final candidate，通常在 full 阶段填写
   numeric_speedup_claim_allowed: false
@@ -208,6 +235,8 @@ profiling:
   result: not_run  # not_run | passed | failed | incomplete
   trace_evidence: ""
   worker_rank_coverage: ""
+  phase_coverage: []  # prefill | decode | mixed
+  phase_boundary_evidence: ""
   hotspot_summary: ""
   next_action: ""
 planning_review:
@@ -269,7 +298,7 @@ runtime:
 workload:
   scenario_id: ""
   scenario_sequence_index: null
-  stage: null  # prefill | decode | mixed
+  stage: null  # prefill | decode | mixed；正式目标场景为 mixed，阶段专项需记录隔离方法与残余成本
   test_scope: targeted  # targeted | checkpoint | full
   scenario_purpose: ""  # 目标瓶颈、哨兵或最终验收
   acceptance_scenario: false

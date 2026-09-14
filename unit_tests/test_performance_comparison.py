@@ -289,6 +289,14 @@ class ComparisonTest(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 compare.validate_contract(dict(self.contract, **change))
 
+    def test_diff_paths_reports_concrete_list_indices(self):
+        baseline = {"launch_config": {"launch_args": ["--max-num-batched-tokens", "2048"]}}
+        candidate = {"launch_config": {"launch_args": ["--max-num-batched-tokens", "4096"]}}
+        self.assertEqual(
+            compare.diff_paths(baseline, candidate),
+            ["/launch_config/launch_args/1"],
+        )
+
     def test_formal_comparison_cannot_consume_performance_only_runs(self):
         self.contract["scope"] = "formal"
         self.save(self.contract_path, self.contract)

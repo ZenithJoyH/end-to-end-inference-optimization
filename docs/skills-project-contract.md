@@ -57,6 +57,10 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
   默认按 P1K→P4K→P16K→P32K 顺序从正式目录中每次选择一个，不要求先跑完其他场景的 baseline。
   场景入口基线必须记录它包含的已保留候选作为
   `baseline_parent_candidate`，同一轮的 baseline/candidate/revert 使用相同缩减范围和唯一 run ID。
+- `phase-decomposition`：为当前目标场景分别维护 `prefill`、`decode`、`mixed` 证据。可用客户端
+  TTFT/TPOT/ITL 与 token 吞吐建立低开销代理，也可在归因不足时调用 Profiling Skill；不得把代理指标
+  当作纯设备阶段时间。阶段专项以 `stage` 标识并建立自身同配置 baseline，单阶段候选必须回到父目标
+  场景的 `mixed` 测量，并把另一阶段指标作为守护项。
 - `milestone`：这是项目规划概念，不是公共 Skill 的新模式。可使用目标场景子集、缩短输出、减少
   请求/并发、阶段专项或其他低成本 workload；记录 `milestone_id`、`parent_target_scenario_ids`、
   与最终场景的差异、成功/停止条件和晋级验证。实际端到端测量根据范围调用公共 `targeted` 或

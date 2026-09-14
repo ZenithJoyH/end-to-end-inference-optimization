@@ -8,7 +8,7 @@ Agent 的职责是：
 
 1. 根据用户指定的模型、平台、机器和服务确认当前运行事实。
 2. 建立可复现且正确的端到端性能基线。
-3. 从请求接入到输出返回分层定位瓶颈。
+3. 从请求接入到输出返回分层定位瓶颈，并把当前目标场景的 Prefill 与 Decode 分开分析，再检查 Mixed workload 中的阶段干扰。
 4. 用单变量实验优化延迟、吞吐、显存、稳定性或成本。
 5. 完成正确性回归、性能复测、结果归档和回退准备。
 
@@ -55,9 +55,9 @@ Agent 的职责是：
 - **算子知识**：[关键算子技能](skills/key-operator-analysis/SKILL.md) 包含 MLA Attention、mHC、固定版本 vLLM 源码快照及通用分析方法。仅在端到端测量或 profiler 已收敛到具体算子、dispatch、layout 或相邻融合路径时按需读取；不提前加载整套知识库，不直接套用历史硬件、shape、revision 和性能判断。
 - **精度评测**：公共 `$inference-accuracy-evaluation` Skill 负责选择并执行精度操作，完整测试方法、参数、进度监控、证据校验和三态判定都由 Skill 包维护；本项目只在 `docs/skills-project-contract.md` 映射 `evaluation/accuracy/` 与原始 runner。
 - **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
-- **性能评测**：公共 `$inference-performance-evaluation` Skill 负责选择并执行无 profiler 性能测量；场景、预热、重复、指标计算、比较和正式判定都由 Skill 包维护，本项目只映射 `evaluation/performance/` 的 benchmark、比较和回执工具。
-- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
-- **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
+- **性能评测**：公共 `$inference-performance-evaluation` Skill 负责选择并执行无 profiler 性能测量，并为当前目标场景分别建立 Prefill、Decode 与 Mixed 证据；场景、预热、重复、指标计算、比较和正式判定都由 Skill 包维护，本项目只映射 `evaluation/performance/` 的 benchmark、比较和回执工具。
+- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、Prefill/Decode 阶段切分、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
+- **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断 Prefill/Decode/Mixed 热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
 - **模型实验产物**：`models/<model>/<platform>/` 保存该目标的 `baseline/`、`optimize/` 和 `acceptance/`。案例目录保留可读摘要并链接到具体产物；归档与知识沉淀要求见第 11 节。
 
@@ -247,6 +247,12 @@ Agent 的职责是：
   `scenario-entry baseline`，再围绕它进行 milestone、定位、优化和候选复测。当前场景达到预记录的
   完成条件后，运行该场景的中间正式测试并切换到下一个目标场景；无需在此时运行其余三个正式场景。
   全部目标场景完成后，才使用未优化原路径 `anchor baseline` 和最终组合候选运行四场景最终验收。
+- 在为当前目标场景选择优化方向前，必须分别形成 Prefill、Decode 和 Mixed 三个阶段视图。Prefill 重点记录
+  prompt 处理、TTFT/input-token 吞吐及其 shape；Decode 重点记录逐 token 循环、TPOT/ITL/output-token
+  吞吐、KV 访问及 batch shape；Mixed 重点记录调度干扰、排队、资源竞争和端到端结果。TTFT/TPOT
+  只能作为阶段代理指标，不能在包含网络、排队或调度开销时冒充纯设备阶段时间。阶段专项可以使用缩减
+  milestone，但必须建立同配置 baseline；任何单阶段收益都要用当前目标的 Mixed workload 验证，并把另一
+  阶段指标列为守护项，不能以 Prefill 或 Decode 的孤立提升宣称端到端完成。
 - 某场景的 baseline 在测量前记录的诊断时间预算内仍未完成时，可以安全停止本次 benchmark 客户端，
   保存已运行时长、完成请求数、部分日志和服务状态，并标记为 `deferred-too-slow/incomplete`，随后进入
   baseline-recovery。恢复方式可选：减少请求数/并发、输入或输出长度建立可完成的 milestone 基线；基于

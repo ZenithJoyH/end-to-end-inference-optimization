@@ -4,9 +4,9 @@
 
 - 执行规则：SOP `0.29` / 2026-09-11
 - 验收范围：`diagnostic`
-- 精度/性能状态：`incomplete` / `incomplete`
+- 正确性/性能状态：`passed (minimal regression)` / `failed (first candidate)`
 - 状态：`running`
-- 结论：已完成适配事实导入和 PPU-07 现场只读预检；独立优化容器、正确性护栏与新基线尚未建立。
+- 结论：独立优化容器、P4K scout 基线和候选正确性护栏已建立。`max_num_batched_tokens=4096` 仅带来 `+0.195%` 输出吞吐，未达 5% 门槛且 P99 ITL 约翻倍，已拒绝并回退到 2048。
 - 模型/平台产物：`models/Hy4-preview/ppu/{baseline,optimize,acceptance}/`
 
 ## 2. 任务与验收契约
@@ -36,13 +36,19 @@
 - `/mnt/nfs/users/jinghao/hy4-preview/04-runs/perf-full-default5-plugin2fa5f18-indexoff-20260911/`
 - `/mnt/nfs/users/jinghao/hy4-preview/04-runs/service-plugin-2fa5f18-fgbca-indexoff-perf-noprefix-20260911/service.log`
 
-## 4. 门禁与下一步
+## 4. 已完成门禁与实验
 
-1. 确认当前优化任务可使用的远程工作根，在其下创建唯一 case 子目录。
-2. 只读保存源容器 inspect、源码状态与实际导入路径；适配改动位于 `/workspace` writable layer，因此先形成并核验不可变适配状态镜像。
-3. 创建新优化容器，保持 `/mnt:/mnt`、IPC、网络、设备、ulimit 等目录映射和运行条件一致；完成机器可读 mount diff。
-4. 在优化容器上执行 baseline-sanity；随后由性能评测 Skill 的 `baseline` 模式建立新基线。
-5. 首个低风险框架实验：保持其余条件不变，扫描 `max-num-batched-tokens` 2048→4096，证据支持时再到 8192；观察 Prefill 吞吐、TTFT、队列、KV 和输出吞吐。
-6. 第二候选：从已存在且 digest 匹配 provenance 的本地镜像提取完整 T-Head bundle；bundle provision 与单个 op 的 vendor-first dispatch 分开验证。任何收益均回到无 profiler 端到端 A/B。
+- 远程任务目录：`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/`
+- 源适配状态镜像：`hy4-preview-adapted:20260914-e2e-source`，优化容器：`hy4-opt-20260914`。
+- `image_lineage=verified`、`mount_parity=passed`、`runtime_parity=passed`；唯一目录挂载仍为 `/mnt:/mnt` RW/rprivate。
+- baseline 固定 chat smoke+C8 9/9 通过。P4096/D32/C8/N8 scout 基线两次 measured 输出吞吐为 0.331100/0.331106 tok/s，轮间稳定。
+- 4096 候选固定 chat smoke+C8 9/9 通过。三方性能比较回执 `failed`：输出吞吐改善 `+0.195%`，未达 `+5%`。
+- 候选已回退；revert 稳定身份与 baseline 匹配，输出吞吐中位数 0.334935 tok/s。
+
+## 5. 下一步
+
+1. 使用最小 P4K profiling 采集区分 prefill 算子、dispatch、通信与 host 等待，profiler-on 数据不用于性能收益声明。
+2. 若 trace 确认具体算子，再对 T-Head bundle 中对应的单 op 做 vendor-first 数值、graph、命中和端到端 A/B；provision 与 dispatch 仍分开留证。
+3. 只有 profiling 证明 prefill batch 组织仍是主瓶颈时，才评估 8192；4096 的负结果不支持盲目扩大参数扫描。
 
 用户于 2026-09-14 指定当前阶段不建立 P16K/P32K/P64K 基线，先基于 P4K 优化。迭代场景冻结为 `P4096/D256/C64/N64`，保留候选后用 `P4096/D1024/C64/N128` 做 checkpoint；结论不外推到其他长度。

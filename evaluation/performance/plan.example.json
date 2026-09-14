@@ -18,9 +18,9 @@
     "warmup_stability": {"metric": "output_throughput", "window": 3, "max_relative_spread": 0.05}
   },
   "cases": [
-    {"id": "p1024-d1024-c64-n128", "input_tokens": 1024, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "request_rate": null, "burstiness": 1},
-    {"id": "p4096-d1024-c64-n128", "input_tokens": 4096, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "request_rate": null, "burstiness": 1},
-    {"id": "p16384-d1024-c64-n128", "input_tokens": 16384, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "request_rate": null, "burstiness": 1},
-    {"id": "p32768-d1024-c64-n128", "input_tokens": 32768, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "request_rate": null, "burstiness": 1}
+    {"id": "p1024-d1024-c64-n128", "input_tokens": 1024, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "stage": "mixed", "request_rate": null, "burstiness": 1},
+    {"id": "p4096-d1024-c64-n128", "input_tokens": 4096, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "stage": "mixed", "request_rate": null, "burstiness": 1},
+    {"id": "p16384-d1024-c64-n128", "input_tokens": 16384, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "stage": "mixed", "request_rate": null, "burstiness": 1},
+    {"id": "p32768-d1024-c64-n128", "input_tokens": 32768, "output_tokens": 1024, "concurrency": 64, "requests": 128, "load_mode": "finite_batch", "stage": "mixed", "request_rate": null, "burstiness": 1}
   ]
 }

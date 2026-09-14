@@ -2,7 +2,7 @@
 
 ## 文档状态
 
-- 版本：`0.35`
+- 版本：`0.36`
 - 状态：已包含本项目实际案例与导入案例；导入案例的性能数字尚未在本项目复测
 - 最后更新：2026-09-14
 - 维护方式：由已完成或明确失败的实际优化案例持续修订
@@ -221,6 +221,14 @@ baseline 启动前记录本次诊断时间预算和停止条件。某场景在�
 5. 并行与通信：TP/PP/EP/DP、collective、跨机网络和负载均衡。
 6. 算子与 Kernel：dispatch、fallback、launch、访存、occupancy、融合和精度。
 
+对每个当前目标场景，先建立三个相互关联但不可混算的阶段视图：
+
+- **Prefill**：prompt 排队与准入、chunked prefill、输入 token 处理、Prefill batch/shape、首 token 前的通信与 kernel；主要观察 TTFT、input-token 吞吐和服务内部 Prefill 事件。
+- **Decode**：首 token 后的自回归循环、KV 读写、Decode batch/shape、采样与逐 token 通信；主要观察 TPOT、ITL、output-token 吞吐和服务内部 Decode 事件。
+- **Mixed**：Prefill 与 Decode 共存时的调度、抢占、KV 压力、batch 变化、阶段干扰、排队和完整请求表现。
+
+TTFT 包含排队、调度、网络等开销，TPOT/ITL 也可能包含调度、采样、流式传输或 chunk 口径，因此它们是低开销阶段代理而不是纯设备时间。低开销证据足以确定方向时不强制采 trace；不能区分阶段贡献时调用 Profiling Skill，按事件、iteration/token 边界或服务内标记切分。无法可靠切分时将阶段归因标记为 `unknown/incomplete`，不能把整段时间任意分摊。
+
 只有低开销指标无法继续归因时才调用推理 Profiling Skill：没有当前有效 trace 时先用 `capture`，随后用 `analyze`；保留改动后需要确认热点迁移时使用 `reprofile`。Profiler 运行单独记录，不与无 profiler 的正式性能结果直接比较，所得假设必须回到性能评测 Skill 的 `targeted` 或 `checkpoint` 模式验证。
 
 候选优化按预期端到端可兑现收益排序：
@@ -303,7 +311,8 @@ baseline 启动前记录本次诊断时间预算和停止条件。某场景在�
 
 ### D1. 阶段和 shape 分治
 
-- Prefill、Decode 和 Mixed workload 分别统计实际 shape 分布。
+- Prefill、Decode 和 Mixed workload 分别统计实际 shape 分布、累计时间/调用次数、主指标、守护指标和热点；每个当前目标场景在确定优化优先级前都要给出三者的证据状态，允许某项为 `unknown/incomplete`，但不能将 Prefill 与 Decode 合并后直接归因。
+- 阶段专项 milestone 可以通过单 token/短输出突出 Prefill，或用足够长的输出观察稳态 Decode；它们仍包含未完全消失的其他阶段和调度成本，必须记录 `phase_isolation_method`、残余开销与相对目标场景的 workload 差异，并建立自身同配置 baseline。
 - backend/tile/config 的选择键至少考虑阶段、M/序列形状、dtype、拓扑与目标 graph 能力。
 - 生产特化使用白名单；未验证 shape 必须走正确 fallback。
 - 对 backend、融合或算法替换先冻结数值契约：输入/输出 dtype、cast 与舍入位置、归约或排序顺序、tie 处理、归一化/累计阈值、空输入和边界行为。随机输入误差不能替代这些边界检查。
@@ -320,6 +329,8 @@ baseline 启动前记录本次诊断时间预算和停止条件。某场景在�
 4. 端到端 benchmark：证明 TTFT、TPOT、吞吐、显存和稳定性总体可接受。
 
 任一层未命中或新增开销吞噬收益时，不得用上一层数字宣称端到端提升。
+
+Prefill 候选至少以 Decode 指标和 Mixed 端到端结果为守护，Decode 候选至少以 Prefill/TTFT 和 Mixed 端到端结果为守护。调度、KV、通信、graph 或融合改动可能同时影响两个阶段，必须分别报告方向与幅度；单阶段专项通过只允许晋级，不等于当前目标场景完成。
 
 对带 split、packing、融合或 layout 转换的候选，microbenchmark 与 kernel profile 均以完整调用为测量单元；主 kernel 变快但 merge、通信、copy 或隐式 materialization 使服务变慢时，候选不得晋级。
 
@@ -390,7 +401,7 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 
 #### 中间优化 milestone
 
-优化过程中允许建立比最终目标更小、更快的 milestone。milestone 可以是四个目标场景的子集，也可以缩短输入或输出长度、减少请求数或并发、只覆盖 prefill/decode、使用短探针、microbenchmark 或特定热点 shape。其目的可以是验证路径命中、消除主要瓶颈、达到可测状态或决定是否继续投入，并不要求参数与最终场景完全相同。
+优化过程中允许建立比最终目标更小、更快的 milestone。milestone 可以是四个目标场景的子集，也可以缩短输入或输出长度、减少请求数或并发、使用 Prefill/Decode 阶段专项、短探针、microbenchmark 或特定热点 shape。阶段专项 milestone 必须明确它突出的是 Prefill 还是 Decode、如何隔离、仍混入哪些成本以及另一个阶段的守护指标。其目的可以是验证路径命中、消除主要瓶颈、达到可测状态或决定是否继续投入，并不要求参数与最终场景完全相同。
 
 每个 milestone 必须记录稳定 `milestone_id`、映射的一个或多个最终 `scenario_id`、相对最终 workload 的缩减项、假设、主/守护指标、成功门槛、停止条件和晋级条件。同一 milestone 内比较 baseline/candidate 时仍保持 workload 和服务条件一致。milestone 达标只表示阶段目标完成；保留的改动按影响面晋级到对应目标场景或 checkpoint 验证。
 
@@ -400,7 +411,7 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 
 #### 按场景串行优化
 
-按照 `P1K → P4K → P16K → P32K` 从正式目录中每次选取一个目标场景，执行“入口基线 → milestone/定位 → 单变量优化 → candidate/revert → 当前目标场景 formal → 场景完成决策”闭环，然后再进入下一场景。例如：
+按照 `P1K → P4K → P16K → P32K` 从正式目录中每次选取一个目标场景，执行“入口基线 → Prefill/Decode/Mixed 分阶段定位 → 阶段 milestone 与单变量优化 → candidate/revert → Mixed 目标场景验证 → 当前目标场景 formal → 场景完成决策”闭环，然后再进入下一场景。例如：
 
 ```text
 4k-1k scenario-entry baseline
@@ -526,3 +537,4 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 | 2026-09-14 | 0.33 | 用户澄清最终场景与中间优化目标的关系 | 五场景只约束最终 full 结果；中间允许建立缩减 workload、阶段专项、短探针或 microbenchmark milestone，每项映射回最终场景并记录晋级条件，达标后仍须回到五场景实测 | 用户指定优化节奏与结论边界 `invariant` |
 | 2026-09-14 | 0.34 | 用户调整源码授权、目标场景和阶段测试 | FlagGems-vllm 纳入目标环境直接修改授权；最终目标移除 P64K，保留 P1K/P4K/P16K/P32K；显著 milestone 后可触发中间正式四场景测试；baseline 过慢可通过缩减输入/输出/并发/请求获得 milestone 数值，不限于静态分析 | 用户指定任务边界与实验节奏 `invariant` |
 | 2026-09-14 | 0.35 | 用户细化逐场景闭环、适配交接与精度节奏 | 支持按指定模型只读导入“新模型适配”交付；按 P1K→P4K→P16K→P32K 每次优化一个正式目标场景，中间 formal 只测当前场景，场景完成后切换；性能门禁改为 graph-only；明确跨算子融合；低风险完整精度改为每 4–5 点，低于阈值必须定位、修复并重跑 | 用户指定最新工作流 `invariant` |
+| 2026-09-14 | 0.36 | 用户要求 Prefill/Decode 分开定位 | 每个当前目标场景先分别分析 Prefill、Decode 和 Mixed 阶段；阶段专项建立自身同配置 baseline，记录隔离方法与残余成本，单阶段收益必须回到 Mixed 端到端验证并守护另一阶段 | 用户指定诊断与晋级规则 `invariant` |

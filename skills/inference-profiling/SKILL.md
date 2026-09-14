@@ -1,6 +1,6 @@
 ---
 name: inference-profiling
-description: Capture, validate, analyze, and repeat profiler traces for end-to-end LLM inference bottleneck attribution. Use when low-overhead measurements cannot localize a framework, communication, memory, dispatch, or operator bottleneck, or when a retained optimization may have moved the hotspot; do not use profiler-on timings as formal performance evidence.
+description: Capture, validate, analyze, and repeat profiler traces with explicit prefill/decode/mixed phase separation for end-to-end LLM inference bottleneck attribution. Use when low-overhead measurements cannot localize a phase, framework, communication, memory, dispatch, or operator bottleneck, or when a retained optimization may have moved the hotspot; do not use profiler-on timings as formal performance evidence.
 ---
 
 # Inference Profiling
@@ -28,7 +28,7 @@ When a request includes both collection and analysis, run `capture` followed by 
 
 Before capture, record:
 
-- Profiling mode, experiment ID, representative `scenario_id`, the question the trace must answer, and why lower-overhead evidence is insufficient.
+- Profiling mode, experiment ID, representative `scenario_id`, required phase coverage (`prefill`, `decode`, `mixed`), the phase-boundary method, the question the trace must answer, and why lower-overhead evidence is insufficient.
 - Model, Host, optimization container, service instance, engine, Plugin/FlagGems-vllm/FlagGems revisions, hardware/topology, graph mode, profiler mechanism, and expected worker/rank coverage.
 - Input/output lengths, endpoint, EOS/sampling, concurrency, requests, warmup, profiled rounds, timeout, trace directory, output directory, and stop rules.
 - The nearest no-profiler baseline or targeted performance run. It provides context only; do not mix its timings with profiler-on timings.
@@ -50,11 +50,12 @@ On timeout or non-zero exit, retain evidence and inspect profiler/service state.
 
 Build an evidence chain from end-to-end behavior to the narrowest supported layer:
 
-1. Separate request/network, scheduler/batching, prefill/decode/sampling, memory/graph, communication, dispatch, and kernel activity.
-2. Distinguish host runtime/driver activity, device kernels, communication, memory copies, synchronization, graph gaps, and unclassified events.
-3. Identify cumulative time, call counts, representative shapes, rank imbalance, serialization, gaps, fallback, and implementation-hit evidence.
-4. Compare the leading explanation against at least one plausible alternative, such as client limitation, warmup, cache state, graph break, load imbalance, or an adjacent copy/merge cost.
-5. Convert the result into one falsifiable next experiment with an expected end-to-end effect and a stop condition.
+1. First split the trace into Prefill, Decode, and Mixed/interference evidence using reliable service markers, iteration/token boundaries, shapes, or execution semantics. If a reliable boundary cannot be established, mark phase attribution `unknown/incomplete`; never divide total time by assumption.
+2. Within each phase, separate request/network, scheduler/batching, sampling, memory/graph, communication, dispatch, and kernel activity. Do not combine the same kernel's Prefill and Decode calls when ranking hotspots because their shapes, counts, and optimization choices may differ.
+3. Distinguish host runtime/driver activity, device kernels, communication, memory copies, synchronization, graph gaps, and unclassified events.
+4. Identify per-phase cumulative time, call counts, representative shapes, rank imbalance, serialization, gaps, fallback, and implementation-hit evidence, then describe Prefill/Decode interference in the mixed timeline.
+5. Compare each leading explanation against at least one plausible alternative, such as client limitation, warmup, cache state, graph break, load imbalance, phase interference, or an adjacent copy/merge cost.
+6. Convert the result into one falsifiable phase-scoped experiment with an expected cross-phase and mixed end-to-end effect plus a stop condition.
 
 Use `trace_to_summary.py` only as a category summary. Its possibly overlapping activity-duration sums are not critical-path time, device utilization, CPU self time, or proof of end-to-end impact. Inspect the timeline and relevant events before attributing a root cause.
 
@@ -66,10 +67,10 @@ For `reprofile`, keep the scenario, profiler settings, warmup, rounds, and trace
 
 ## Record and route artifacts
 
-Write the mode, scenario, service identity, profiler configuration, trace inventory/checksums, worker/rank coverage, hotspot summary, competing explanations, confidence, next experiment, result state, and artifact paths into the current experiment record.
+Write the mode, scenario, service identity, profiler configuration, trace inventory/checksums, worker/rank coverage, phase coverage and boundary evidence, separate Prefill/Decode/Mixed hotspot summaries, interference, competing explanations, confidence, next experiment, result state, and artifact paths into the current experiment record.
 
 - Profiling summaries and links belong in `models/<model>/<platform>/optimize/`.
 - Large traces, raw logs, and tool outputs remain in the external or remote case directory.
 - Profiling artifacts do not enter `acceptance/` as formal performance evidence.
 
-Return a compact result containing: mode, scenario ID, service identity, trace validity and coverage, top bottleneck evidence, rejected or unresolved alternatives, conclusion boundary, artifact paths, and the next Skill to invoke.
+Return a compact result containing: mode, scenario ID, service identity, trace validity and worker/rank coverage, phase-boundary evidence, separate Prefill/Decode/Mixed hotspots and interference, rejected or unresolved alternatives, conclusion boundary, artifact paths, and the next Skill to invoke.

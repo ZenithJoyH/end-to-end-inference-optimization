@@ -90,6 +90,7 @@
 - 冷启动、预热和稳态边界：
 - TTFT/TPOT/ITL/E2E：
 - 请求与 token 吞吐：
+- Prefill/Decode/Mixed 初始阶段证据与归因方法：
 - 显存、利用率、功耗和通信：
 - 失败、超时和服务日志：
 - 原始产物路径与校验：
@@ -100,6 +101,10 @@
 - 首次判断：
 - Profiling Skill 模式、scenario ID、trace 有效性、rank/worker 覆盖及产物路径：
 - 请求/阶段/框架/通信/算子分解：
+- Prefill：代理/trace/服务内部证据、shape、热点、主指标和 Decode/Mixed 守护：
+- Decode：代理/trace/服务内部证据、shape、热点、主指标和 Prefill/Mixed 守护：
+- Mixed：调度干扰、排队、资源竞争、端到端结果及跨阶段取舍：
+- 阶段切分或专项 workload 的隔离方法、残余成本与结论边界：
 - profiler 配置与扰动说明：
 - 热点结论、竞争解释、置信度和下一可证伪实验：
 - 最终根因：
