@@ -1,0 +1,176 @@
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -41,6 +41,38 @@ def test_hy4_prefill_host_metadata_is_copied_once_per_chunk():
+     assert (cu_seq_lens.calls, starts.calls, ends.calls) == (1, 1, 1)
+ 
+ 
++def test_hy4_prefill_host_metadata_is_derived_from_cpu_builder_inputs():
++    chunk = SimpleNamespace(
++        token_start=0,
++        token_end=5,
++        num_reqs=2,
++    )
++    common_attn_metadata = SimpleNamespace(
++        query_start_loc_cpu=torch.tensor([0, 2, 5], dtype=torch.int32),
++        seq_lens_cpu_upper_bound=torch.tensor([6, 9], dtype=torch.int32),
++    )
++
++    hy_v4._attach_hyv4_prefill_host_metadata(
++        chunk,
++        common_attn_metadata,
++        compress_ratio=2,
++    )
++
++    assert hy_v4._get_hyv4_prefill_host_metadata(chunk) == (
++        [0, 3, 7],
++        [0, 0, 3, 3, 3],
++        [2, 3, 6, 6, 7],
++        [0, 3],
++        [0, 0, 1, 1, 1],
++    )
++
++
++def test_hy4_prefill_host_metadata_honors_query_slice():
++    chunk = SimpleNamespace(token_start=1, token_end=2, num_reqs=1)
++    common_attn_metadata = SimpleNamespace(
++        query_start_loc_cpu=torch.tensor([0, 2], dtype=torch.int32),
++        seq_lens_cpu_upper_bound=torch.tensor([6], dtype=torch.int32),
++    )
++
++    hy_v4._attach_hyv4_prefill_host_metadata(chunk, common_attn_metadata, 2)
++
++    assert hy_v4._get_hyv4_prefill_host_metadata(chunk) == (
++        [0, 3], [0], [3], [0], [0]
++    )
++
++
+ def test_hy4_prefill_topk_uses_shared_capability(monkeypatch):
+     captured = {}
+ 
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -62,7 +62,10 @@ from vllm.utils.torch_utils import (
+     direct_register_custom_op,
+ )
+ from vllm.v1.attention.backend import AttentionBackend
+-from vllm.v1.attention.backends.mla.indexer import DeepseekV32IndexerMetadata
++from vllm.v1.attention.backends.mla.indexer import (
++    DeepseekV32IndexerMetadata,
++    DeepseekV32IndexerMetadataBuilder,
++)
+ from vllm.v1.attention.ops.common import pack_seq_triton, unpack_seq_triton
+ from vllm.v1.attention.selector import get_attn_backend
+ 
+@@ -89,6 +92,84 @@ _top_k_per_row_prefill = CachedOp("top_k_per_row_prefill")
+ _HYV4_PREFILL_INDEXER_BLOCK_ROWS = 128
+ _HYV4_PREFILL_HOST_METADATA_ATTR = "_hyv4_prefill_host_metadata"
+ 
+ 
++
++def _attach_hyv4_prefill_host_metadata(
++    chunk: typing.Any,
++    common_attn_metadata: typing.Any,
++    compress_ratio: int,
++) -> None:
++    """Derive Indexer row ranges from CPU metadata already owned by vLLM.
++
++    The generic metadata builder has exact CPU sequence lengths for prefill,
++    but exposes only their device-derived row ranges on each chunk. Recreate
++    the same integer formulas while those CPU inputs are available so the
++    first Indexer layer does not synchronize the device for three ``tolist``
++    calls. The private chunk attribute is consumed only by the Hy4 model.
++    """
++    query_start_loc_cpu = common_attn_metadata.query_start_loc_cpu
++    seq_lens_cpu = common_attn_metadata.seq_lens_cpu_upper_bound
++    if seq_lens_cpu is None:
++        return
++
++    token_start = int(chunk.token_start)
++    token_end = int(chunk.token_end)
++    query_boundaries = query_start_loc_cpu.tolist()
++    start_idx = bisect_right(query_boundaries, token_start) - 1
++    end_idx = start_idx + int(chunk.num_reqs)
++    if start_idx < 0 or end_idx >= len(query_boundaries):
++        return
++
++    request_origin = query_boundaries[start_idx]
++    query_slice_start = token_start - request_origin
++    query_slice_stop = token_end - request_origin
++    compressed_lengths = [
++        int(seq_lens_cpu[index].item()) // compress_ratio
++        for index in range(start_idx, end_idx)
++    ]
++    cu_seq_lens = [0]
++    for length in compressed_lengths:
++        cu_seq_lens.append(cu_seq_lens[-1] + length)
++
++    starts: list[int] = []
++    ends: list[int] = []
++    sequence_ids: list[int] = []
++    for local_request, request_id in enumerate(range(start_idx, end_idx)):
++        query_start = query_boundaries[request_id] - request_origin
++        query_end = query_boundaries[request_id + 1] - request_origin
++        query_len = query_end - query_start
++        sequence_start = cu_seq_lens[local_request]
++        sequence_len = int(seq_lens_cpu[request_id].item())
++        start_pos = sequence_len - query_len
++        clipped_start = max(query_start, query_slice_start)
++        clipped_end = min(query_end, query_slice_stop)
++        for absolute_position in range(clipped_start, clipped_end):
++            offset = absolute_position - query_start
++            starts.append(sequence_start)
++            ends.append(
++                sequence_start + (start_pos + 1 + offset) // compress_ratio
++            )
++            sequence_ids.append(local_request)
++
++    if len(starts) != token_end - token_start:
++        return
++    cached = (
++        cu_seq_lens,
++        starts,
++        ends,
++        cu_seq_lens[:-1],
++        sequence_ids,
++    )
++    setattr(chunk, _HYV4_PREFILL_HOST_METADATA_ATTR, cached)
++
++
++def _install_hyv4_indexer_metadata_builder_shim() -> None:
++    """Attach host metadata at build time without changing vLLM sources."""
++    marker = "_hyv4_prefill_host_metadata_shim"
++    if getattr(DeepseekV32IndexerMetadataBuilder, marker, False):
++        return
++    original_build = DeepseekV32IndexerMetadataBuilder.build
++
++    def build_with_hyv4_host_metadata(self, *args, **kwargs):
++        metadata = original_build(self, *args, **kwargs)
++        common_attn_metadata = kwargs.get("common_attn_metadata")
++        if common_attn_metadata is None and len(args) >= 2:
++            common_attn_metadata = args[1]
++        if metadata.prefill is not None and common_attn_metadata is not None:
++            for chunk in metadata.prefill.chunks:
++                _attach_hyv4_prefill_host_metadata(
++                    chunk, common_attn_metadata, self.compress_ratio
++                )
++        return metadata
++
++    DeepseekV32IndexerMetadataBuilder.build = build_with_hyv4_host_metadata
++    setattr(DeepseekV32IndexerMetadataBuilder, marker, True)
++
++
+ def _get_hyv4_prefill_host_metadata(
+     chunk: typing.Any,
+ ) -> tuple[list[int], list[int], list[int], list[int], list[int]]:
+@@ -114,6 +195,9 @@ def _get_hyv4_prefill_host_metadata(
+     return cached
+ 
+ 
++_install_hyv4_indexer_metadata_builder_shim()
++
++
+ def _paged_sequence(
+     kv_cache: torch.Tensor,
+     block_table: torch.Tensor,

@@ -31,7 +31,7 @@
 
 - [公共性能计划](../evaluation/performance/performance_plan.py)支持配置校验、无请求 dry-run、客户端能力预检、超时、预热稳定性和逐轮失败证据；每次运行冻结服务/配置/比较契约及原始产物 SHA。
 - [性能比较器](../evaluation/performance/compare_performance.py)重验原生结果、控制台输出和命令；检查单一假设允许的字段变化、独立进程、缺轮、波动、回退漂移、主指标、守护指标及联合 SLO。禁止同一物理测量产物充当多个角色，返回 passed/failed/incomplete。
-- [模型 wrapper](../models/XingChen4-29B-A4B/ppu/optimize/tools/standard_perf.py)先验原 runner SHA，再用 AST 读取矩阵，实际运行交给公共入口。历史默认轮数和 workload 不被静默替换。
+- XingChen 历史模型 wrapper 已退出模型目录；历史 workload 与结果保留在模型状态和案例中，新运行统一使用公共性能入口，历史默认轮数和 workload 不被静默替换。
 - 精度采集已按真实 CLI 注入任务 metadata；正式 samples 按冻结 filter 集合检查 198 个唯一题目，兼容同题多 filter 多行并拒绝内容冲突。通过固定官方 wheel 的未修改源码方法检查发现并修复，不称为完整镜像集成。详见[精度接口说明](../evaluation/accuracy/README.md#真实接口与镜像集成边界)。
 - [Plugin 工程文档](plugin-change-review.md)新增可填写的版本/模型/平台/shape/执行模式证据矩阵，区分 hardware、mock、static 和未测项，不新增审批或虚构跨平台通过。
 
@@ -51,7 +51,7 @@
 
 本次最终 `scripts/validate-local` 验证为 **141 项测试全部通过**，包含固定官方 wheel 的 3 项源码接口检查及真实本地虚拟环境的客户端探针检查；Python/Shell/Playbook、CLI 帮助入口和 11 份原始资产 SHA 检查通过。另检查 22 份文档中的 141 个本地文件链接，均可解析。首次综合验证暴露 macOS `/var` 与 `/private/var` 入口别名差异，修复探针入口记录后重新执行完整检查通过；没有把失败的一轮计作成功。
 
-代码入口与命令见[性能工具说明](../evaluation/performance/README.md)、[精度入口](../evaluation/accuracy/README.md)和[模型复现入口](../models/XingChen4-29B-A4B/ppu/optimize/reproduction.md)。本轮未连接远端；服务闲置退出根因、目标镜像集成、长稳和最终 PR 硬件证据继续保留为未完成项。
+代码入口与命令见[性能工具说明](../evaluation/performance/README.md)、[精度入口](../evaluation/accuracy/README.md)和[模型复现入口](../models/XingChen4-29B-A4B/ppu/optimize/history/reproduction.md)。本轮未连接远端；服务闲置退出根因、目标镜像集成、长稳和最终 PR 硬件证据继续保留为未完成项。
 
 ## 外部资料如何进入流程
 

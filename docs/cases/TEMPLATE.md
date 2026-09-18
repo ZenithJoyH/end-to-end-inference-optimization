@@ -79,7 +79,7 @@
 - 改动二分、执行路径/命中证据和竞争解释：
 - 根因：`suspected|confirmed|not-reproduced|measurement-invalid`
 - 修复或回退、最小回归、原失败范围复测及新 gate：
-- 定位记录：`models/<model>/<platform>/optimize/accuracy-diagnosis/<issue-id>.md`
+- 定位记录：当前状态和带稳定 issue ID 的历史摘要写入 `optimize/state.yml`，人可读结论同步到 `optimize/README.md`
 - 是否允许恢复性能优化及剩余风险：
 
 ## 5. Baseline
@@ -139,7 +139,7 @@
 
 每个实验在正文中补充命令、配置、改动、日志位置和回退方法。组合诊断实验需说明为什么不能直接作为最终结论。
 
-多轮实验、profiling、补丁和逐轮性能摘要归档到模型/平台的 `optimize/`；本节链接相应文件。正式验收前不得把中间最好结果移动到 `acceptance/` 冒充最终结论。
+多轮实验、profiling、补丁和逐轮性能摘要以紧凑账本写入模型/平台的 `optimize/state.yml`，人可读进展写入 `optimize/README.md`，原始材料留在远程 case 目录；不得为逐轮材料创建模型内子目录。正式验收前不得把中间最好结果移动到 `acceptance/` 冒充最终结论。
 
 ### 阶段性优化规划复盘
 
@@ -149,7 +149,7 @@
 - 已消除、减弱、迁移、暴露及仍不明确的瓶颈：
 - 下一轮 1–3 个候选的排名、支持/反对证据与暂缓理由：
 - 立即执行的首个证伪实验、scenario ID、所需 Skill、门槛和停止条件：
-- 规划记录：`models/<model>/<platform>/optimize/planning/<review-id>.md`
+- 规划记录：当前规划和带稳定 review ID 的旧决策摘要写入 `optimize/state.yml`，同步更新 `optimize/README.md`
 - 下次规划触发条件：
 
 ## 8. 最终候选与回归

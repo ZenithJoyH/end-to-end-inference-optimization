@@ -1,0 +1,29 @@
+{
+  "experiment": "hy4_w8a8_moe_stage2_block_n_256",
+  "shape": {
+    "M": 2048,
+    "E": 256,
+    "K": 6144,
+    "local_intermediate": 128,
+    "topk": 8,
+    "w1": [256, 256, 6144],
+    "w2": [256, 6144, 128]
+  },
+  "baseline": {
+    "mean_ms": 1.9456145237199962,
+    "median_ms": 1.9406659994274378
+  },
+  "candidate": {
+    "mean_ms": 1.952970027923584,
+    "median_ms": 1.9532141741365194
+  },
+  "speedup_mean": 0.996233683006693,
+  "speedup_median": 0.9935756278675231,
+  "correctness": {
+    "exact": true,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0
+  },
+  "samples_per_variant": 40,
+  "decision": "rejected_full_operator_regression"
+}

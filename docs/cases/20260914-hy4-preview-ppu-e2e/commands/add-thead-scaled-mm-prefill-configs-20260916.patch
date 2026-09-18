@@ -1,0 +1,53 @@
+diff --git a/src/flag_gems/runtime/backend/_thead/tune_configs.yaml b/src/flag_gems/runtime/backend/_thead/tune_configs.yaml
+index 7153917..c0a5152 100644
+--- a/src/flag_gems/runtime/backend/_thead/tune_configs.yaml
++++ b/src/flag_gems/runtime/backend/_thead/tune_configs.yaml
+@@ -154,5 +154,48 @@ log_softmax:
+       BLOCK_N: 512
+     num_warps: 8
++scaled_mm:
++  - META:
++      BLOCK_M: 64
++      BLOCK_N: 64
++      BLOCK_K: 64
++    num_stages: 4
++    num_warps: 4
++  - META:
++      BLOCK_M: 64
++      BLOCK_N: 128
++      BLOCK_K: 64
++    num_stages: 3
++    num_warps: 4
++  - META:
++      BLOCK_M: 64
++      BLOCK_N: 64
++      BLOCK_K: 128
++    num_stages: 3
++    num_warps: 4
++  - META:
++      BLOCK_M: 32
++      BLOCK_N: 64
++      BLOCK_K: 128
++    num_stages: 4
++    num_warps: 4
++  - META:
++      BLOCK_M: 128
++      BLOCK_N: 64
++      BLOCK_K: 64
++    num_stages: 3
++    num_warps: 4
++  - META:
++      BLOCK_M: 128
++      BLOCK_N: 128
++      BLOCK_K: 64
++    num_stages: 3
++    num_warps: 4
++  - META:
++      BLOCK_M: 64
++      BLOCK_N: 256
++      BLOCK_K: 64
++    num_stages: 3
++    num_warps: 4
+ mm:
+   - META:
+       BLOCK_M: 64

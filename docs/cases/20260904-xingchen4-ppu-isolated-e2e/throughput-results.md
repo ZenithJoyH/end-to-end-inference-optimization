@@ -4,7 +4,11 @@
 
 ## Baseline P1K/D1K/C64/N128
 
-原脚本 `test/perf_test/vllm_perf.py`，案例 wrapper 现归档在 `models/XingChen4-29B-A4B/ppu/optimize/tools/standard_perf.py`。固定长度、ignore_eos、temperature=0、completions流式接口；每轮seed为74283/74284/74285。模型TP4/BF16、最大上下文100000、graph、prefix cache开启；新容器物理PPU4–7、内部端口8000，宿主机127.0.0.1:18000。
+历史测量使用原脚本 `test/perf_test/vllm_perf.py` 和当时的案例 wrapper；wrapper 已从模型目录移出，
+新的测量统一使用公共 `evaluation/performance/`。历史口径为固定长度、`ignore_eos`、
+`temperature=0`、Completions 流式接口，每轮 seed 为 74283/74284/74285。模型 TP4/BF16、
+最大上下文 100000、graph、prefix cache 开启；新容器物理 PPU4–7、内部端口 8000，
+宿主机 `127.0.0.1:18000`。
 
 | 轮次 | 成功/失败 | 时长s | 输出 tok/s | 总 tok/s | TTFT P99 ms | TPOT P99 ms |
 |---|---|---:|---:|---:|---:|---:|
@@ -50,7 +54,8 @@
 
 ## 完整已核验轮次（最终归档）
 
-高精度原生JSON经 `models/XingChen4-29B-A4B/ppu/optimize/tools/collect_perf_summary.py` 核验，请求数、失败数和input/output token数量均满足配置。首轮为预热。
+高精度原生 JSON 在历史执行时完成了请求数、失败数和 input/output token 数核验，首轮为预热。
+旧的一次性汇总脚本不再保存在模型目录；结构化结果索引和原生证据路径保留在模型状态与本案例中。
 
 ### baseline-throughput-p1024-d1024-c64
 

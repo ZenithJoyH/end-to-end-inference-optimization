@@ -1,0 +1,237 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+index 5a98d77..49ecb77 100644
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -75,6 +75,7 @@ from vllm.v1.attention.selector import get_attn_backend
+ 
+ from vllm_fl.configs.hy_v4 import HYV4Config
+ from vllm_fl.dispatch import CachedOp
++from vllm_fl.dispatch.config import get_flagos_blacklist
+ 
+ logger = init_logger(__name__)
+ 
+@@ -88,6 +89,9 @@ _HYV4_PREFILL_INDEXER_BLOCK_ROWS = 128
+ _HYV4_PREFILL_INDEXER_RANGE_BLOCK = 256
+ _HYV4_PREFILL_HOST_METADATA_ATTR = "_hyv4_prefill_host_metadata"
+ _HYV4_SPARSE_INDEX_BLOCK_N = 2048
++_HYV4_ROUTER_HIDDEN_SIZE = 6144
++_HYV4_ROUTER_NUM_EXPERTS = 256
++_HYV4_ROUTER_INPUT_DTYPES = (torch.bfloat16, torch.float32)
+ 
+ 
+ def _select_hyv4_sparse_index_block_n(
+@@ -1511,6 +1515,87 @@ class HYV4DenseMLP(nn.Module):
+         return hidden_states
+ 
+ 
++def _can_use_hyv4_native_router_mm(
++    input_size: int,
++    output_size: int,
++    bias: bool,
++    params_dtype: torch.dtype | None,
++    out_dtype: torch.dtype | None,
++) -> bool:
++    """Return whether HY4 can bypass FlagGems linear for native FP32 MM.
++
++    T-Head's native full-FP32 GEMM is substantially faster for the HY4 router
++    shape.  Requiring ``mm`` in the FlagGems blacklist makes the dispatch
++    contract explicit: ``torch.mm`` must reach the platform implementation
++    instead of being intercepted by FlagGems again.  Reduced-precision matmul
++    modes are excluded because they can change the selected Top-8 expert set.
++    """
++    try:
++        allow_tf32 = bool(torch.backends.cuda.matmul.allow_tf32)
++    except (AttributeError, RuntimeError):
++        return False
++    flagos_blacklist = get_flagos_blacklist() or []
++    return (
++        current_platform.vendor_name == "thead"
++        and input_size == _HYV4_ROUTER_HIDDEN_SIZE
++        and output_size == _HYV4_ROUTER_NUM_EXPERTS
++        and not bias
++        and params_dtype == torch.float32
++        and out_dtype == torch.float32
++        and torch.get_float32_matmul_precision() == "highest"
++        and not allow_tf32
++        and "mm" in flagos_blacklist
++    )
++
++
++class HYV4RouterLinear(GateLinear):
++    """HY4 router gate with a T-Head native full-FP32 GEMM fast path."""
++
++    def __init__(
++        self,
++        input_size: int,
++        output_size: int,
++        bias: bool = False,
++        out_dtype: torch.dtype | None = None,
++        params_dtype: torch.dtype | None = None,
++        force_fp32_compute: bool = False,
++        prefix: str = "",
++    ) -> None:
++        super().__init__(
++            input_size=input_size,
++            output_size=output_size,
++            bias=bias,
++            out_dtype=out_dtype,
++            params_dtype=params_dtype,
++            force_fp32_compute=force_fp32_compute,
++            prefix=prefix,
++        )
++        self._use_thead_native_router_mm = _can_use_hyv4_native_router_mm(
++            input_size,
++            output_size,
++            bias,
++            params_dtype,
++            out_dtype,
++        )
++
++    def forward(
++        self, x: torch.Tensor
++    ) -> torch.Tensor | tuple[torch.Tensor, nn.Parameter | None]:
++        if (
++            self._use_thead_native_router_mm
++            and x.ndim == 2
++            and x.shape[-1] == _HYV4_ROUTER_HIDDEN_SIZE
++            and self.weight.shape
++            == (_HYV4_ROUTER_NUM_EXPERTS, _HYV4_ROUTER_HIDDEN_SIZE)
++            and x.dtype in _HYV4_ROUTER_INPUT_DTYPES
++            and self.weight.dtype == torch.float32
++        ):
++            if x.dtype != self.weight.dtype:
++                x = x.to(self.weight.dtype)
++            return torch.mm(x, self.weight.T), None
++        return super().forward(x)
++
++
+ class HYV4MoE(nn.Module):
+     """HY4 no-aux sigmoid routed experts plus one shared expert."""
+ 
+@@ -1530,7 +1615,7 @@ class HYV4MoE(nn.Module):
+         if config.hidden_act != "silu":
+             raise ValueError("HY4 currently supports only the silu activation")
+ 
+-        self.gate = GateLinear(
++        self.gate = HYV4RouterLinear(
+             config.hidden_size,
+             config.n_routed_experts,
+             out_dtype=torch.float32,
+@@ -1538,8 +1623,9 @@ class HYV4MoE(nn.Module):
+             prefix=f"{prefix}.gate",
+         )
+         # The SM90 DSV3 router kernel selected by vLLM for H=6144/E=256
+-        # requires BF16 weights. HY4 stores and evaluates the router in FP32,
+-        # so keep this model on GateLinear's FP32 F.linear fallback instead.
++        # requires BF16 weights. HY4 stores and evaluates the router in FP32;
++        # the model-specific gate above uses native full-FP32 MM on T-Head and
++        # otherwise preserves GateLinear's fallback.
+         self.gate.allow_dsv3_router_gemm = False
+         self.gate.e_score_correction_bias = nn.Parameter(
+             torch.empty(config.n_routed_experts, dtype=torch.float32)
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+index e549de3..87bff9e 100644
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -280,6 +280,92 @@ class _FakeMoERunner(nn.Module):
+         self.routed_experts = _FakeRoutedExperts()
+ 
+ 
++def test_hyv4_native_router_mm_is_shape_precision_and_backend_gated(monkeypatch):
++    monkeypatch.setattr(hy_v4.current_platform, "vendor_name", "thead")
++    monkeypatch.setattr(
++        torch, "get_float32_matmul_precision", lambda: "highest"
++    )
++    monkeypatch.setattr(hy_v4, "get_flagos_blacklist", lambda: ["mm"])
++    monkeypatch.setattr(torch.backends.cuda.matmul, "allow_tf32", False)
++
++    args = {
++        "input_size": 6144,
++        "output_size": 256,
++        "bias": False,
++        "params_dtype": torch.float32,
++        "out_dtype": torch.float32,
++    }
++    assert hy_v4._can_use_hyv4_native_router_mm(**args)
++
++    for key, value in (
++        ("input_size", 4096),
++        ("output_size", 128),
++        ("bias", True),
++        ("params_dtype", torch.bfloat16),
++        ("out_dtype", torch.bfloat16),
++    ):
++        changed = dict(args)
++        changed[key] = value
++        assert not hy_v4._can_use_hyv4_native_router_mm(**changed)
++
++    monkeypatch.setattr(torch.backends.cuda.matmul, "allow_tf32", True)
++    assert not hy_v4._can_use_hyv4_native_router_mm(**args)
++    monkeypatch.setattr(torch.backends.cuda.matmul, "allow_tf32", False)
++    monkeypatch.setattr(
++        torch, "get_float32_matmul_precision", lambda: "high"
++    )
++    assert not hy_v4._can_use_hyv4_native_router_mm(**args)
++    monkeypatch.setattr(
++        torch, "get_float32_matmul_precision", lambda: "highest"
++    )
++    monkeypatch.setattr(hy_v4, "get_flagos_blacklist", lambda: [])
++    assert not hy_v4._can_use_hyv4_native_router_mm(**args)
++    monkeypatch.setattr(hy_v4, "get_flagos_blacklist", lambda: ["mm"])
++    monkeypatch.setattr(hy_v4.current_platform, "vendor_name", "nvidia")
++    assert not hy_v4._can_use_hyv4_native_router_mm(**args)
++
++
++def test_hyv4_router_linear_native_path_calls_mm(monkeypatch):
++    layer = object.__new__(hy_v4.HYV4RouterLinear)
++    nn.Module.__init__(layer)
++    layer.weight = nn.Parameter(torch.randn(256, 6144, dtype=torch.float32))
++    layer._use_thead_native_router_mm = True
++    x = torch.randn(2, 6144, dtype=torch.bfloat16)
++    expected = torch.mm(x.float(), layer.weight.T)
++    original_mm = torch.mm
++    calls = []
++
++    def counted_mm(a, b):
++        calls.append((a, b))
++        return original_mm(a, b)
++
++    monkeypatch.setattr(torch, "mm", counted_mm)
++    output, output_bias = layer(x)
++
++    assert output_bias is None
++    assert len(calls) == 1
++    assert calls[0][0].dtype == torch.float32
++    torch.testing.assert_close(output, expected, rtol=0, atol=0)
++
++
++def test_hyv4_router_linear_non_target_dtype_falls_back(monkeypatch):
++    layer = object.__new__(hy_v4.HYV4RouterLinear)
++    nn.Module.__init__(layer)
++    layer.weight = nn.Parameter(torch.randn(256, 6144, dtype=torch.float32))
++    layer._use_thead_native_router_mm = True
++    sentinel = torch.empty(1)
++    monkeypatch.setattr(
++        hy_v4.GateLinear,
++        "forward",
++        lambda self, x: (sentinel, None),
++    )
++
++    output, output_bias = layer(torch.empty(2, 6144, dtype=torch.float16))
++
++    assert output is sentinel
++    assert output_bias is None
++
++
+ def test_hy4_moe_resolves_patched_factory_at_construction(monkeypatch):
+     calls = []
+ 
+@@ -290,7 +376,7 @@ def test_hy4_moe_resolves_patched_factory_at_construction(monkeypatch):
+         calls.append((runner, args, kwargs))
+         return runner
+ 
+-    monkeypatch.setattr(hy_v4, "GateLinear", _FakeGate)
++    monkeypatch.setattr(hy_v4, "HYV4RouterLinear", _FakeGate)
+     monkeypatch.setattr(hy_v4, "HYV4DenseMLP", _FakeSharedExperts)
+     monkeypatch.setattr(hy_v4.fused_moe, "FusedMoE", patched_factory)
+ 

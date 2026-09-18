@@ -115,7 +115,7 @@ python3 evaluation/performance/vllm_perf.py \
 
 ShareGPT 原始文件没有迁入。需要真实数据时在目标环境显式配置，记录来源、revision 和 checksum。
 
-XingChen 的 [standard_perf.py](../../models/XingChen4-29B-A4B/ppu/optimize/tools/standard_perf.py) 已迁移为公共计划入口：校验原 runner SHA，仅解析原矩阵，保留过滤/长度覆盖、seed42、1轮预热+2轮测量与 trust-remote-code 行为；实际执行和校验由公共工具承担。性能研究和 dry-run 也必须提供 service manifest；独立部署用 `--performance-tools` 指定维护版目录，并保留 sibling accuracy 目录。新产物格式与旧汇总分开，原始 runner 和历史结果保持其测量语义。历史1轮预热不能自动满足正式比较；新正式任务直接编辑公共计划设置预热与重复条件。
+XingChen 的历史模型 wrapper 已退出模型目录；其历史矩阵和结果语义保留在模型 `state.yml`、README 与案例文档中。新测试直接使用本目录公共计划入口并显式配置 workload、预热和重复，不能让历史 1 轮预热自动满足正式比较。性能研究和 dry-run 仍须提供 service manifest。
 
 ## Profiling 与 SGLang 诊断
 

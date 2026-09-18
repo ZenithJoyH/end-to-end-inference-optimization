@@ -29,7 +29,7 @@ Low-risk batching changes only the frequency of `formal-gate`; it never removes 
 
 Bind every result to the target Host, optimization container, service instance, model/weights, tokenizer, engine, Plugin, FlagGems-vllm, FlagGems, launch configuration, graph mode, and covered experiment IDs. Resolve these from the current runtime; do not reuse a historical manifest because paths or version strings look similar.
 
-When the user supplied a remote work directory, place remote configs, inspect evidence, logs, samples, results, health review, and gate under its unique case directory. Keep intermediate accuracy records under the model/platform `optimize/` record; only the final candidate summary and accepted status belong in `acceptance/`. Large or sensitive artifacts remain remote, with paths and necessary checksums recorded locally.
+When the user supplied a remote work directory, place configs, inspect evidence, logs, samples, results, health review, and gate under its unique case directory. Intermediate accuracy results update the model/platform `optimize/state.yml` and `optimize/README.md`; only the final candidate status updates `acceptance/state.yml` and `acceptance/README.md`. Large or sensitive artifacts, runner configs, service manifests, and gate files remain remote, with paths and necessary checksums recorded in structured state instead of copied into `models/`.
 
 ## Schedule progress notifications
 

@@ -1,0 +1,74 @@
+diff --git a/src/flag_gems/fused/fused_moe.py b/src/flag_gems/fused/fused_moe.py
+index 197d398e..e4293bdc 100644
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -34,6 +34,7 @@ MOE_DIRECT_SUM_MIN_TOKENS = 4096
+ _HALF_GEMM_TILE_M = 128
+ _HALF_GEMM_TILE_K = 64
+ _HALF_GEMM2_TILE_N = 256
++_THEAD_PPU_W8A8_FOUR_WARP_MIN_TOKENS = 256
+ _PLAIN_HALF_CONFIG_DTYPES = ("fp16", "bf16")
+ 
+ 
+@@ -483,7 +484,12 @@ def get_default_config(
+             group_m = 1
+ 
+         # Prefer 4 warps for small tiles; only use 8 for large M
+-        num_warps = 4 if M <= 128 else 8
++        use_thead_ppu_w8a8_four_warps = (
++            dtype == "int8_w8a8"
++            and _get_device_name() == "PPU-ZW810E"
++            and M >= _THEAD_PPU_W8A8_FOUR_WARP_MIN_TOKENS
++        )
++        num_warps = 4 if M <= 128 or use_thead_ppu_w8a8_four_warps else 8
+         num_stages = 3
+ 
+         smem_per_stage = (block_m * block_k + block_k * block_n) * 2
+diff --git a/tests/test_fused_moe.py b/tests/test_fused_moe.py
+index 967e9e79..e82ba7de 100644
+--- a/tests/test_fused_moe.py
++++ b/tests/test_fused_moe.py
+@@ -94,6 +94,43 @@ def test_w8a8_excludes_plain_half_gemm_config(num_tokens, gemm_stage):
+     )
+ 
+ 
++@pytest.mark.parametrize(
++    "device_name,num_tokens,expected_warps",
++    [
++        ("PPU-ZW810E", 255, 8),
++        ("PPU-ZW810E", 256, 4),
++        ("PPU-ZW810E", 2048, 4),
++        ("another_device", 256, 8),
++    ],
++)
++def test_thead_ppu_w8a8_uses_four_warps_from_256_tokens(
++    monkeypatch, device_name, num_tokens, expected_warps
++):
++    monkeypatch.setattr(moe, "_get_device_name", lambda: device_name)
++    config = moe.get_default_config(
++        num_tokens,
++        256,
++        256,
++        6144,
++        8,
++        "int8_w8a8",
++    )
++    assert config["num_warps"] == expected_warps
++
++
++def test_thead_ppu_w8a8_small_tokens_keep_existing_four_warps(monkeypatch):
++    monkeypatch.setattr(moe, "_get_device_name", lambda: "PPU-ZW810E")
++    config = moe.get_default_config(
++        128,
++        256,
++        256,
++        6144,
++        8,
++        "int8_w8a8",
++    )
++    assert config["num_warps"] == 4
++
++
+ @pytest.mark.parametrize("dtype", ["fp16", "bf16"])
+ def test_plain_half_gemm_optimization_remains_enabled(dtype):
+     config = moe.get_default_config(

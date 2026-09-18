@@ -1,0 +1,12 @@
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -66,7 +66,7 @@ def test_hy4_prefill_host_metadata_is_derived_from_cpu_builder_inputs():
+     assert hy_v4._get_hyv4_prefill_host_metadata(chunk) == (
+         [0, 3, 7],
+         [0, 0, 3, 3, 3],
+-        [2, 3, 6, 6, 7],
++        [2, 3, 6, 7, 7],
+         [0, 3],
+         [0, 0, 1, 1, 1],
+     )

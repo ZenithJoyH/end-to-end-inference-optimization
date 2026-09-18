@@ -37,6 +37,19 @@
 
 一般分析先读论文摘要；只有摘要不足以支持结论时再读取 PDF 原文。
 
+## Fused MoE
+
+- [operators/fused_moe/optimization-map.md](operators/fused_moe/optimization-map.md)：按
+  stage、有效 M、expert 数、dtype 和 graph 模式匹配的候选与停止条件。
+- [operators/fused_moe/case-index.md](operators/fused_moe/case-index.md)：Fused MoE 端到端
+  实测证据卡；当前包含 GLM-5.3-Flash/PPU 的小 M Decode 特化边界。
+
+当前只有“Decode 热点与现有大 M gate 不覆盖”的限域证据，小 M
+config 尚未实施。不得把开放假设当作已验证性能结论。
+
+适用关键词：`fused MoE`、`invoke_fused_moe_triton_kernel`、GEMM1/GEMM2、
+small-M Decode、stage config、expert routing。
+
 ## 快速使用顺序
 
 1. 用 profiler 和运行时 dispatch 证据确定具体算子与实现。

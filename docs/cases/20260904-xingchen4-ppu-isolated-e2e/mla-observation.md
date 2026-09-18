@@ -42,6 +42,9 @@
 
 当前首个实验归类operator/improve：只改变head tile 64→16，保持BLOCK_N=64、num_warps=8以及同一选定stage。保留FP32 reference、混合长度和非对齐分页、eager、graph capture及replay检查。微基准运行时暂停新服务，避免设备竞争；原服务仍运行。
 
-原始trace目录：新容器 `/workspace/e2e-artifacts/profiles-profile-decode-v2/`，4个rank的pt.trace.json.gz及profiler_out文本。驱动与结果目录 `/workspace/e2e-artifacts/profile-decode-p1024-v2/`。微基准工具保存在模型/平台的 `optimize/tools/mla_tile_bench.py`，完整输出留在目标环境，不提交trace。
+原始 trace 目录：新容器 `/workspace/e2e-artifacts/profiles-profile-decode-v2/`，包含 4 个 rank 的
+`pt.trace.json.gz` 与 profiler 输出；驱动与结果目录为
+`/workspace/e2e-artifacts/profile-decode-p1024-v2/`。历史微基准工具和完整输出只保留在目标环境，
+模型目录仅保存结论与外部路径；需要复用时应将工具参数化后提升到公共 `test/` 或 `benchmarks/`。
 
 参考技能：本项目 key-operator-analysis 的 operator-analysis-method.md、knowledge-index.md、MLA README。历史文档仅用于方法，当前实现事实以上述 revision 为准。

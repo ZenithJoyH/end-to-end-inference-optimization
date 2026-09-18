@@ -1,0 +1,61 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+index 5554ce9..f27c4de 100644
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -529,6 +529,21 @@ def _select_topk_block(
+     selected.masked_fill_(~valid, -1)
+ 
+ 
++def _translate_hyv4_selected_prefix(
++    indices: torch.Tensor,
++    count: int,
++    request_offset: int,
++) -> None:
++    """Translate a fully populated Top-K prefix to request coordinates.
++
++    The single-row scoring path is entered only when the valid key range is
++    larger than ``count``.  Its provider therefore fills every element in
++    ``indices[:count]``; translating that fixed prefix avoids boolean indexing
++    and the implicit ``aten::nonzero`` host synchronization it introduces.
++    """
++    indices[:count].add_(request_offset)
++
++
+ def _hyv4_bf16_sparse_attn_indexer_impl(
+     hidden_states: torch.Tensor,
+     k_cache_prefix: LayerNameType,
+@@ -636,9 +651,10 @@ def _hyv4_bf16_sparse_attn_indexer_impl(
+                             topk_tokens,
+                             topk_indices_buffer[token_start],
+                         )
+-                        valid = topk_indices_buffer[token_start] >= 0
+-                        topk_indices_buffer[token_start, valid] += (
+-                            start - request_start
++                        _translate_hyv4_selected_prefix(
++                            topk_indices_buffer[token_start],
++                            selection_limit,
++                            start - request_start,
+                         )
+                         continue
+                     key_start = min(starts[block_start:block_end])
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+index 99e4217..26513a6 100644
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -137,4 +137,16 @@ def test_hy4_prefill_topk_uses_shared_capability(monkeypatch):
+     assert output.tolist() == [2, 0, -1, -1]
+ 
+ 
++def test_hy4_selected_prefix_translation_preserves_invalid_tail():
++    indices = torch.tensor([3, 0, 7, -1, -1], dtype=torch.int32)
++
++    hy_v4._translate_hyv4_selected_prefix(
++        indices,
++        count=3,
++        request_offset=11,
++    )
++
++    assert indices.tolist() == [14, 11, 18, -1, -1]
++
++
+ def test_hy4_blocked_prefill_topk_matches_row_reference():

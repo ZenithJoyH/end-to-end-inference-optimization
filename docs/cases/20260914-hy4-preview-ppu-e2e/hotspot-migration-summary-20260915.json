@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "profiling_hotspot_migration",
+  "model": "Hy4-preview",
+  "platform": "ppu",
+  "host": "PPU-07",
+  "parent_scenario_id": "p4096-d1024-c64-n64",
+  "milestone_scenario_id": "p4096-d128-c8-n8",
+  "baseline_profile_id": "p4k-d128-c8-n8-reprofile-20260915-01",
+  "candidate_profile_id": "p4k-d128-c8-n8-post-commit-reprofile-20260915-03",
+  "trace_coverage": {
+    "expected_ranks": 16,
+    "observed_ranks": 16,
+    "integrity": "passed"
+  },
+  "indexer_rank0_disjoint_ms": {
+    "prefill": {"total_before": 1414.041, "total_after": 743.904, "cuda_memcpy_async_wait_before": 652.255, "cuda_memcpy_async_wait_after": 6.930},
+    "mixed": {"total_before": 10195.819, "total_after": 5752.353, "cuda_memcpy_async_wait_before": 4418.831, "cuda_memcpy_async_wait_after": 4.253},
+    "decode": {"total_before": 14193.560, "total_after": 6339.257, "cuda_memcpy_async_wait_before": 7825.059, "cuda_memcpy_async_wait_after": 25.130}
+  },
+  "dispatch_and_operator_hits": {
+    "mm_kernel_general": {"before_calls": 111633, "before_decode_ms": 35455.906, "before_decode_fraction": 0.3340, "after_calls": 0},
+    "sparse_mla_splitk_decode": {"stage1_calls": 28885, "stage1_ms": 1391.394, "stage2_calls": 28885, "stage2_ms": 83.717},
+    "remaining_generic_sparse_mla": {"decode_calls": 1835, "decode_ms": 11768.033, "decode_fraction": 0.2003, "attributed_shape": "SQ2048/HQ4/DQK576/TOPK2048/DV512"}
+  },
+  "candidate_sampled_phase_hotspots": {
+    "prefill": {"generic_sparse_mla": 0.2264, "ring_all_reduce": 0.2228, "fused_moe": 0.1335, "scaled_mm": 0.1057, "linear": 0.0558},
+    "mixed": {"ring_all_reduce": 0.2330, "generic_sparse_mla": 0.2191, "fused_moe": 0.1264, "scaled_mm": 0.1003, "linear": 0.0529},
+    "decode": {"generic_sparse_mla": 0.2003, "linear": 0.1427, "fused_moe": 0.1353, "scaled_mm": 0.0993, "one_shot_all_reduce": 0.0466, "ring_all_reduce": 0.0380}
+  },
+  "rank0_decode_cpu_inclusive_ms": {
+    "cuda_event_synchronize_before": 20896.043,
+    "cuda_event_synchronize_after": 9143.000,
+    "cuda_graph_launch_before": 15249.230,
+    "cuda_graph_launch_after": 6916.000
+  },
+  "limitations": [
+    "Profiler timings are diagnostic and are not formal performance measurements.",
+    "Summed device activity can overlap across streams.",
+    "Inclusive CPU intervals can overlap and are not critical-path shares."
+  ]
+}

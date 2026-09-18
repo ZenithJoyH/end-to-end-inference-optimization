@@ -1,0 +1,97 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -302,36 +302,28 @@ def _fill_hyv4_full_range_indices(
+ 
+ 
+ @triton.jit
+-def _hyv4_weighted_relu_reduce_kernel(
++def _hyv4_fused_relu_weight_kernel(
+     scores,
+     weights,
+-    logits,
+-    num_positions,
+-    keys_per_row: tl.constexpr,
++    products,
++    numel,
++    row_width: tl.constexpr,
+     heads: tl.constexpr,
+-    BLOCK_M: tl.constexpr,
++    BLOCK: tl.constexpr,
+ ):
+-    """Fuse the Indexer ReLU, BF16 head weighting, and head reduction."""
+-    pid = tl.program_id(0)
+-    positions = pid * BLOCK_M + tl.arange(0, BLOCK_M)
+-    head_offsets = tl.arange(0, heads)
+-    valid = positions < num_positions
+-    row = positions // keys_per_row
+-    score_values = tl.load(
+-        scores + positions[:, None] * heads + head_offsets[None, :],
+-        mask=valid[:, None],
+-        other=0.0,
+-    )
+-    weight_values = tl.load(
+-        weights + row[:, None] * heads + head_offsets[None, :],
+-        mask=valid[:, None],
+-        other=0.0,
++    """Fuse ReLU and BF16 weighting while retaining the native sum."""
++    offsets = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
++    valid = offsets < numel
++    head = offsets % heads
++    row = offsets // row_width
++    score = tl.load(scores + offsets, mask=valid, other=0.0)
++    weight = tl.load(
++        weights + row * heads + head,
++        mask=valid,
++        other=0.0,
+     ).to(tl.bfloat16)
+-    products = (
+-        tl.maximum(score_values, 0.0) * weight_values
+-    ).to(tl.bfloat16)
+-    reduced = tl.sum(products, axis=1).to(tl.bfloat16)
+-    tl.store(logits + positions, reduced.to(tl.float32), mask=valid)
++    product = (tl.maximum(score, 0.0) * weight).to(tl.bfloat16)
++    tl.store(products + offsets, product, mask=valid)
+ 
+ 
+ def _hyv4_weighted_relu_reduce(
+@@ -356,25 +348,26 @@ def _hyv4_weighted_relu_reduce(
+         ).sum(dim=-1).float()
+ 
+     rows, keys_per_row, heads = scores.shape
+-    logits = torch.empty(
+-        (rows, keys_per_row), device=scores.device, dtype=torch.float32
+-    )
+-    num_positions = rows * keys_per_row
+-    block_m = 128
+-    _hyv4_weighted_relu_reduce_kernel[
+-        (triton.cdiv(num_positions, block_m),)
++    products = torch.empty_like(scores)
++    numel = scores.numel()
++    block = 256
++    _hyv4_fused_relu_weight_kernel[
++        (triton.cdiv(numel, block),)
+     ](
+         scores,
+         weights,
+-        logits,
+-        num_positions,
+-        keys_per_row,
++        products,
++        numel,
++        keys_per_row * heads,
+         heads,
+-        BLOCK_M=block_m,
+-        num_warps=8,
++        BLOCK=block,
++        num_warps=4,
+         num_stages=1,
+     )
+-    return logits
++    # Preserve the existing native BF16 reduction order exactly. A fully
++    # fused Triton reduction is faster but changes threshold-adjacent TopK
++    # selections because its accumulation order differs.
++    return products.sum(dim=-1).float()
+ 
+ 
+ def _select_topk_block(

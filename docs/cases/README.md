@@ -6,7 +6,7 @@
 
 | 案例 ID | 模型 | 平台/硬件 | 引擎 | Workload | 瓶颈 | 主要改动 | 结果 | 证据等级 |
 |---|---|---|---|---|---|---|---|---|
-| [20260914-hy4-preview-ppu-e2e](20260914-hy4-preview-ppu-e2e/README.md) | Hy4-preview W8A8 linear/MoE | TP16 PPU-ZW810E / PPU-07 | vLLM 0.24.0 + Plugin + FlagGems | 验收矩阵待冻结；旧 P1K/P4K 成功、长上下文超时 | vendor bundle 未命中；KV/排队过载；具体热点待新基线 | 独立容器基线 → vendor 接入 A/B → 框架工作点 → 必要时算子优化 | 运行中；容器门禁待建立 | `observation` |
+| [20260914-hy4-preview-ppu-e2e](20260914-hy4-preview-ppu-e2e/README.md) | Hy4-preview W8A8 linear/MoE | TP16 PPU-ZW810E / PPU-07 | vLLM 0.24.0 + Plugin + FlagGems | P4096/D1024/C64/N128；缩减 profiling | sparse MLA、fused MoE、scaled MM、Indexer 同步与冷启动 | Plugin/FlagGems 算子与数据流特化，native router MM | 最新稳态 278.14 output tok/s；较前 checkpoint +22.10%；正式 A/B/revert 待补 | `reproduced` |
 | [20260911-glm53-flash-ppu-e2e](20260911-glm53-flash-ppu-e2e/README.md) | GLM-5.3-Flash-BF16 | TP16 PPU-ZW810E / PPU-13 | vLLM 0.24.0 + Plugin + FlagGems | 诊断矩阵待冻结 | 待基线与 profiler 定位 | 框架工作点 → 算子 A/B → 必要时深度优化 | 运行中；资源排他待处理 | `observation` |
 | [20260904-xingchen4-ppu-isolated-e2e](20260904-xingchen4-ppu-isolated-e2e/README.md) | XingChen4-29B-A4B BF16 | TP4 PPU-ZW810E / PPU-01 | vLLM 0.24.0 + Plugin + FlagGems | P1K/D1K/C64；P4K/D256/C64；P16K/D256/C32，各三轮 | MLA decode约60.6% GPU kernel时间 | operator/improve：H8的head tile64→16，限shape、可回退 | 保留：输出/总吞吐约+95.5%/+73.2%/+31.9%；GPQA按用户指示暂缓 | `reproduced` |
 | [20260903-imported-deepseek-v4-flash-w8a8](20260903-imported-deepseek-v4-flash-w8a8/README.md) | DeepSeek-V4-Flash W8A8 | 8× MetaX C550 | vLLM 0.20.2 + Plugin-FL + FlagGems | P1K/P4K, D1K, C64 | Indexer、Sparse MLA、cache copy、调度 | graph-safe/fusion/shape specialization | 原文最终组合显著提升；本项目未复测 | `observation` |

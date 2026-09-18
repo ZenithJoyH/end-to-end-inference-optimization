@@ -1,0 +1,35 @@
+diff --git a/src/flag_gems/fused/fused_moe.py b/src/flag_gems/fused/fused_moe.py
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -49,6 +49,7 @@ _HALF_GEMM_TILE_M = 128
+ _HALF_GEMM_TILE_K = 64
+ _HALF_GEMM2_TILE_N = 256
+ _THEAD_PPU_W8A8_FOUR_WARP_MIN_TOKENS = 256
++_THEAD_PPU_W8A8_DIRECT_SUM_MIN_TOKENS = 256
+ _PLAIN_HALF_CONFIG_DTYPES = ("fp16", "bf16")
+ 
+ 
+@@ -2072,7 +2073,13 @@ def fused_experts_impl(
+         use_int8_w8a16 = False
+         use_int4_w4a16 = False
+ 
+-    direct_sum_supported = is_plain_half_config or is_fp8_blockwise
++    use_thead_w8a8_direct_sum = (
++        use_int8_w8a8 and _get_device_name() == "PPU-ZW810E"
++    )
++    direct_sum_supported = (
++        is_plain_half_config or is_fp8_blockwise or use_thead_w8a8_direct_sum
++    )
++    direct_sum_min_tokens = _THEAD_PPU_W8A8_DIRECT_SUM_MIN_TOKENS if use_thead_w8a8_direct_sum else MOE_DIRECT_SUM_MIN_TOKENS
+ 
+     # Check if we can safely fuse the activation with the first GEMM pass
+     can_use_fused_silu = (
+@@ -2203,7 +2209,7 @@ def fused_experts_impl(
+         use_direct_sum = (
+             not is_embedded_config
+             and direct_sum_supported
+-            and tokens_in_chunk >= MOE_DIRECT_SUM_MIN_TOKENS
++            and tokens_in_chunk >= direct_sum_min_tokens
+             and expert_map is None
+             and not apply_router_weight_on_input
+         )

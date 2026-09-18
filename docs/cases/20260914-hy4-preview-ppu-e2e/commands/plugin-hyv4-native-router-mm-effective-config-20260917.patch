@@ -1,0 +1,52 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -75,7 +75,7 @@ from vllm.v1.attention.selector import get_attn_backend
+ 
+ from vllm_fl.configs.hy_v4 import HYV4Config
+ from vllm_fl.dispatch import CachedOp
+-from vllm_fl.dispatch.config import get_flagos_blacklist
++from vllm_fl.utils import use_flaggems_op
+ 
+ logger = init_logger(__name__)
+ 
+@@ -1533,8 +1533,7 @@ def _can_use_hyv4_native_router_mm(
+     try:
+         allow_tf32 = bool(torch.backends.cuda.matmul.allow_tf32)
+     except (AttributeError, RuntimeError):
+         return False
+-    flagos_blacklist = get_flagos_blacklist() or []
+     return (
+         current_platform.vendor_name == "thead"
+         and input_size == _HYV4_ROUTER_HIDDEN_SIZE
+@@ -1545,7 +1543,7 @@ def _can_use_hyv4_native_router_mm(
+         and out_dtype == torch.float32
+         and torch.get_float32_matmul_precision() == "highest"
+         and not allow_tf32
+-        and "mm" in flagos_blacklist
++        and not use_flaggems_op("mm")
+     )
+ 
+ 
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -285,7 +285,7 @@ def test_hyv4_native_router_mm_is_shape_precision_and_backend_gated(monkeypatch):
+     monkeypatch.setattr(
+         torch, "get_float32_matmul_precision", lambda: "highest"
+     )
+-    monkeypatch.setattr(hy_v4, "get_flagos_blacklist", lambda: ["mm"])
++    monkeypatch.setattr(hy_v4, "use_flaggems_op", lambda name: False)
+     monkeypatch.setattr(torch.backends.cuda.matmul, "allow_tf32", False)
+ 
+     args = {
+@@ -310,8 +310,7 @@ def test_hyv4_native_router_mm_is_shape_precision_and_backend_gated(monkeypatch):
+     monkeypatch.setattr(
+         torch, "get_float32_matmul_precision", lambda: "highest"
+     )
+-    monkeypatch.setattr(hy_v4, "get_flagos_blacklist", lambda: [])
++    monkeypatch.setattr(hy_v4, "use_flaggems_op", lambda name: True)
+     assert not hy_v4._can_use_hyv4_native_router_mm(**args)
+-    monkeypatch.setattr(hy_v4, "get_flagos_blacklist", lambda: ["mm"])
+     monkeypatch.setattr(hy_v4.current_platform, "vendor_name", "nvidia")
+     assert not hy_v4._can_use_hyv4_native_router_mm(**args)

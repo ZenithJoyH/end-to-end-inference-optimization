@@ -84,12 +84,8 @@ Otherwise use `suspected`, `not-reproduced`, or `measurement-invalid`. A formal 
 
 ## Record the incident
 
-Save the diagnosis without overwriting earlier attempts at:
+Update `models/<model>/<platform>/optimize/state.yml` with the stable issue ID, trigger, classification, failing evidence, last known-good and candidate identities, minimized reproducer, bisection result, root-cause confidence, fix/rollback, revalidation, remaining gaps, remote artifact links, and any superseded-decision summary; synchronize the human summary in `optimize/README.md`. Do not create an `optimize/history/` or per-incident directory.
 
-```text
-models/<model>/<platform>/optimize/accuracy-diagnosis/<issue-id>.md
-```
-
-Record the trigger, classification, failing evidence, last known-good and candidate identities, minimized reproducer, bisection matrix, root-cause confidence, fix/rollback, revalidation results, remaining gaps, and linked remote artifacts. Link the incident from the case summary and relevant experiment. Only a final accuracy pass/gate summary belongs in `acceptance/`; diagnosis process files remain in `optimize/`.
+Raw samples, configs, scripts, logs, bisection outputs, and service manifests remain in the external case directory. Only a final accuracy pass/gate status updates `acceptance/state.yml` and `acceptance/README.md`.
 
 Return a compact result containing: issue ID, classification, whether the issue is gate-blocking, reproduction status, isolated boundary/change, root-cause confidence, supporting and opposing evidence, fix or rollback status, required revalidation, artifact path, and whether performance optimization may continue.

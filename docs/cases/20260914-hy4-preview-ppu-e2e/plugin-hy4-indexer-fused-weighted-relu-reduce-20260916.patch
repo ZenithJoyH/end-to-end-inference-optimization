@@ -1,0 +1,96 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -298,6 +298,81 @@ def _fill_hyv4_full_range_indices(
+     )
+ 
+ 
++@triton.jit
++def _hyv4_weighted_relu_reduce_kernel(
++    scores,
++    weights,
++    logits,
++    num_positions,
++    keys_per_row: tl.constexpr,
++    heads: tl.constexpr,
++    BLOCK_M: tl.constexpr,
++):
++    """Fuse the Indexer ReLU, BF16 head weighting, and head reduction."""
++    pid = tl.program_id(0)
++    positions = pid * BLOCK_M + tl.arange(0, BLOCK_M)
++    head_offsets = tl.arange(0, heads)
++    valid = positions < num_positions
++    row = positions // keys_per_row
++    score_values = tl.load(
++        scores + positions[:, None] * heads + head_offsets[None, :],
++        mask=valid[:, None],
++        other=0.0,
++    )
++    weight_values = tl.load(
++        weights + row[:, None] * heads + head_offsets[None, :],
++        mask=valid[:, None],
++        other=0.0,
++    ).to(tl.bfloat16)
++    products = (
++        tl.maximum(score_values, 0.0) * weight_values
++    ).to(tl.bfloat16)
++    reduced = tl.sum(products, axis=1).to(tl.bfloat16)
++    tl.store(logits + positions, reduced.to(tl.float32), mask=valid)
++
++
++def _hyv4_weighted_relu_reduce(
++    scores: torch.Tensor,
++    weights: torch.Tensor,
++) -> torch.Tensor:
++    """Return FP32 Indexer logits with the checkpoint's BF16 semantics."""
++    if (
++        scores.device.type != "cuda"
++        or scores.ndim != 3
++        or weights.ndim != 2
++        or scores.shape[0] != weights.shape[0]
++        or scores.shape[2] != weights.shape[1]
++        or scores.shape[2] != 32
++        or not scores.is_contiguous()
++        or not weights.is_contiguous()
++    ):
++        return (
++            torch.relu(scores)
++            * weights.to(scores.dtype).unsqueeze(1)
++        ).sum(dim=-1).float()
++
++    rows, keys_per_row, heads = scores.shape
++    logits = torch.empty(
++        (rows, keys_per_row), device=scores.device, dtype=torch.float32
++    )
++    num_positions = rows * keys_per_row
++    block_m = 128
++    _hyv4_weighted_relu_reduce_kernel[
++        (triton.cdiv(num_positions, block_m),)
++    ](
++        scores,
++        weights,
++        logits,
++        num_positions,
++        keys_per_row,
++        heads,
++        BLOCK_M=block_m,
++        num_warps=8,
++        num_stages=1,
++    )
++    return logits
++
++
+ def _select_topk_block(
+     q: torch.Tensor,
+     weights: torch.Tensor,
+@@ -326,9 +401,7 @@ def _select_topk_block(
+ 
+     block_keys = keys[key_start:key_end]
+     scores = torch.matmul(block_keys.unsqueeze(0), q.transpose(1, 2))
+-    logits = (
+-        torch.relu(scores) * weights.to(scores.dtype).unsqueeze(1)
+-    ).sum(dim=-1).float()
++    logits = _hyv4_weighted_relu_reduce(scores, weights)
+ 
+     local_starts = row_starts - key_start
+     local_ends = row_ends - key_start

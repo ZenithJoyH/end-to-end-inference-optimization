@@ -94,12 +94,8 @@ Do not expand the authorized modification scope. If the best direction requires 
 
 ## Record the checkpoint
 
-Save each review without overwriting earlier ones at:
+Update `models/<model>/<platform>/optimize/state.yml` with the stable review ID, current candidate, experiment ledger, phase bottlenecks, ranked next directions, immediate experiment, evidence cutoff, next review trigger, and compact summaries of superseded decisions. Synchronize the human-readable current view in `optimize/README.md`. Do not create an `optimize/history/`, planning work directory, or per-review file.
 
-```text
-models/<model>/<platform>/optimize/planning/<review-id>.md
-```
+Keep raw benchmark, trace, accuracy artifacts, commands, and process scripts at their existing external locations; the structured state links evidence rather than copying it. Only the final frozen result updates `acceptance/state.yml` and `acceptance/README.md`.
 
-Link it from the case summary and the model/platform `optimize/README.md` when present. Keep raw benchmark, trace, and accuracy artifacts at their existing external locations; the review links evidence rather than copying it. Only the final frozen result belongs in `acceptance/`.
-
-Return a compact summary containing: review ID, evidence cutoff, current cumulative state, retained/reverted/incomplete experiments, current bottleneck, top next directions, immediate next experiment, required Skill calls, blockers, artifact path, and next review trigger.
+Return a compact summary containing: review ID, evidence cutoff, current cumulative state, retained/reverted/incomplete experiments, current bottleneck, top next directions, immediate next experiment, required Skill calls, blockers, updated state/README paths, and next review trigger.

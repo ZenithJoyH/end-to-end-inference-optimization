@@ -27,9 +27,14 @@
 
 仅修改新容器的`/workspace/FlagGems/src/flag_gems/fused/flash_mla_with_kvcache.py`。revision 5941cd2225798bdfa611626f34e459c42cdf2904；修改前目标文件git clean。原文件SHA256 b56bb7f1ff1a8ee27717b64f866433eb9ce81bfb34b546384cdcfe0a36d9b85e，候选 c702e786ca98dbd53737466c3882e53fe04611346653736968cc450935a0f773。
 
-本节记录最初的实验接入：当时用`XINGCHEN4_MLA_TILE16`在H8/DQK576/DV512/SQ1/BF16/page16或64/最后一维连续时做A/B，并用一次性worker日志确认命中。不移除graph所需output/lse clone。最终PR候选已删除该环境变量和日志，扩大为有数值验证的H8/H16能力条件自动分派，详见[PR重构实验](../../../models/XingChen4-29B-A4B/ppu/optimize/experiments/20260907-mla-pr-refactor/README.md)。
+本节记录最初的实验接入：当时用`XINGCHEN4_MLA_TILE16`在H8/DQK576/DV512/SQ1/BF16/page16或64/最后一维连续时做A/B，并用一次性worker日志确认命中。不移除graph所需output/lse clone。最终PR候选已删除该环境变量和日志，扩大为有数值验证的H8/H16能力条件自动分派，详见[PR重构实验](../../../models/XingChen4-29B-A4B/ppu/optimize/history/20260907-mla-pr-refactor.md)。
 
-复现入口统一收敛到 `models/XingChen4-29B-A4B/ppu/optimize/reproduction.md`。历史实验回退通过关闭开关；最终候选回退为反向应用补丁后按相同配置重启隔离服务。完整原文件、manifest和实验patch保存在目标环境`/workspace/e2e-artifacts/patches/mla-tile16/`，本地历史补丁为`models/XingChen4-29B-A4B/ppu/optimize/patches/mla-tile16-experimental.patch`，最终PR补丁为`models/XingChen4-29B-A4B/ppu/optimize/patches/mla-tile16.patch`。
+复现条件归档在
+`models/XingChen4-29B-A4B/ppu/optimize/history/reproduction.md`。历史实验回退通过关闭开关；
+最终候选回退为反向应用补丁后按相同配置重启隔离服务。完整原文件、manifest 和实验 patch 保存在
+目标环境 `/workspace/e2e-artifacts/patches/mla-tile16/`；模型目录只保留
+`models/XingChen4-29B-A4B/ppu/optimize/history/patch-mla-tile16-pr.md` 的可读 PR 摘要，
+实际实现以源码 revision 和 SHA 为准。
 
 ## 当前决定
 

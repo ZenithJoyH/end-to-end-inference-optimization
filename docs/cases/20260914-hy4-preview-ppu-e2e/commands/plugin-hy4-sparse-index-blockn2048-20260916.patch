@@ -1,0 +1,131 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -94,6 +94,82 @@ _top_k_per_row_prefill = CachedOp("top_k_per_row_prefill")
+ _HYV4_PREFILL_INDEXER_BLOCK_ROWS = 128
+ _HYV4_PREFILL_INDEXER_RANGE_BLOCK = 256
+ _HYV4_PREFILL_HOST_METADATA_ATTR = "_hyv4_prefill_host_metadata"
++_HYV4_SPARSE_INDEX_BLOCK_N = 2048
++
++
++def _select_hyv4_sparse_index_block_n(
++    token_indices: torch.Tensor,
++    num_topk_tokens: int,
++    block_n: int,
++    has_prefill_workspace: bool,
++    return_valid_counts: bool,
++) -> int:
++    """Use one program per HY4 sparse-index row on T-Head.
++
++    The vLLM default uses 16 programs for a 2048-wide row and therefore 16
++    atomic additions for its valid count.  The PPU handles the full row more
++    efficiently in one program.  Keep every other platform, shape and
++    workspace mode on the upstream default.
++    """
++    if (
++        current_platform.vendor_name == "thead"
++        and token_indices.device.type == "cuda"
++        and token_indices.ndim == 2
++        and token_indices.shape[1] == _HYV4_SPARSE_INDEX_BLOCK_N
++        and num_topk_tokens == _HYV4_SPARSE_INDEX_BLOCK_N
++        and not has_prefill_workspace
++        and return_valid_counts
++    ):
++        return _HYV4_SPARSE_INDEX_BLOCK_N
++    return block_n
++
++
++def _install_hyv4_sparse_index_conversion_shim() -> None:
++    """Tune the FlashMLA sparse index conversion without changing vLLM."""
++    from vllm.v1.attention.backends.mla import flashmla_sparse
++
++    marker = "_hyv4_sparse_index_block_n_shim"
++    current = flashmla_sparse.triton_convert_req_index_to_global_index
++    if getattr(current, marker, False):
++        return
++
++    def convert_with_hyv4_block_n(
++        req_id,
++        block_table,
++        token_indices,
++        BLOCK_SIZE=64,
++        NUM_TOPK_TOKENS=2048,
++        BLOCK_N=128,
++        HAS_PREFILL_WORKSPACE=False,
++        prefill_workspace_request_ids=None,
++        prefill_workspace_starts=None,
++        return_valid_counts=False,
++    ):
++        selected_block_n = _select_hyv4_sparse_index_block_n(
++            token_indices,
++            NUM_TOPK_TOKENS,
++            BLOCK_N,
++            HAS_PREFILL_WORKSPACE,
++            return_valid_counts,
++        )
++        return current(
++            req_id,
++            block_table,
++            token_indices,
++            BLOCK_SIZE=BLOCK_SIZE,
++            NUM_TOPK_TOKENS=NUM_TOPK_TOKENS,
++            BLOCK_N=selected_block_n,
++            HAS_PREFILL_WORKSPACE=HAS_PREFILL_WORKSPACE,
++            prefill_workspace_request_ids=prefill_workspace_request_ids,
++            prefill_workspace_starts=prefill_workspace_starts,
++            return_valid_counts=return_valid_counts,
++        )
++
++    setattr(convert_with_hyv4_block_n, marker, True)
++    convert_with_hyv4_block_n._vllm_fl_original = current
++    flashmla_sparse.triton_convert_req_index_to_global_index = (
++        convert_with_hyv4_block_n
++    )
+ 
+ 
+ 
+@@ -216,6 +300,7 @@ def _get_hyv4_prefill_host_metadata(
+ 
+ 
+ _install_hyv4_indexer_metadata_builder_shim()
++_install_hyv4_sparse_index_conversion_shim()
+ 
+ 
+ def _paged_sequence(
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -85,6 +85,33 @@ def test_hy4_prefill_host_metadata_honors_query_slice():
+     )
+ 
+ 
++def test_hy4_sparse_index_block_n_is_thead_shape_gated(monkeypatch):
++    token_indices = SimpleNamespace(
++        device=SimpleNamespace(type="cuda"), ndim=2, shape=(64, 2048)
++    )
++    monkeypatch.setattr(hy_v4.current_platform, "vendor_name", "thead")
++
++    assert hy_v4._select_hyv4_sparse_index_block_n(
++        token_indices, 2048, 128, False, True
++    ) == 2048
++    assert hy_v4._select_hyv4_sparse_index_block_n(
++        token_indices, 2048, 128, True, True
++    ) == 128
++    assert hy_v4._select_hyv4_sparse_index_block_n(
++        token_indices, 2048, 128, False, False
++    ) == 128
++
++    token_indices.shape = (64, 1024)
++    assert hy_v4._select_hyv4_sparse_index_block_n(
++        token_indices, 1024, 128, False, True
++    ) == 128
++    monkeypatch.setattr(hy_v4.current_platform, "vendor_name", "nvidia")
++    token_indices.shape = (64, 2048)
++    assert hy_v4._select_hyv4_sparse_index_block_n(
++        token_indices, 2048, 128, False, True
++    ) == 128
++
++
+ def test_hy4_prefill_topk_uses_shared_capability(monkeypatch):
+     captured = {}
+ 

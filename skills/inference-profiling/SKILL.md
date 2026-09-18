@@ -69,8 +69,9 @@ For `reprofile`, keep the scenario, profiler settings, warmup, rounds, and trace
 
 Write the mode, scenario, service identity, profiler configuration, trace inventory/checksums, worker/rank coverage, phase coverage and boundary evidence, separate Prefill/Decode/Mixed hotspot summaries, interference, competing explanations, confidence, next experiment, result state, and artifact paths into the current experiment record.
 
-- Profiling summaries and links belong in `models/<model>/<platform>/optimize/`.
+- Profiling conclusions, stable profile IDs, decision boundaries, and external links update `models/<model>/<platform>/optimize/state.yml` and its `README.md`; do not create an `optimize/history/` or profiling subdirectory.
 - Large traces, raw logs, and tool outputs remain in the external or remote case directory.
+- Capture/analyze scripts, service manifests, trace summaries, source excerpts, and generated commands remain external; do not copy the profiling work directory under `models/`.
 - Profiling artifacts do not enter `acceptance/` as formal performance evidence.
 
 Return a compact result containing: mode, scenario ID, service identity, trace validity and worker/rank coverage, phase-boundary evidence, separate Prefill/Decode/Mixed hotspots and interference, rejected or unresolved alternatives, conclusion boundary, artifact paths, and the next Skill to invoke.

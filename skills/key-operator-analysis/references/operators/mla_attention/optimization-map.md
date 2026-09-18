@@ -4,6 +4,23 @@
 
 ## 已验证的限域路径
 
+### Sparse Prefill：SQ grid 已充足时不要默认增加 Split-K
+
+- 证据等级：`reproduced`，限 Hy4-preview/PPU/BF16/TP16/H4/DQK576/
+  DV512/topk2048/SQ2048。
+- 触发信号：目标 sparse MLA 已沿 SQ 产生大量 program，继续优化时考虑额外
+  sequence split。
+- 第一检查：先计算当前单 kernel grid 与设备并行规模，并确认精确 head tile 和
+  K tile 已经单变量扫描；不要只因 H4 较小就推断整体 low-grid。
+- 首个实验：从 2-way split 开始，计入 stage1、merge、partial output/LSE
+  workspace 分配和同步，比较完整调用而不是只比较 stage1 kernel。
+- 停止条件：2-way 完整调用不快于原路径，或 workspace/merge 已形成明显固定成本；
+  此时不继续增加 split 数。
+- 已知反例：Hy4-preview 的最佳 SQ2048 Split-K 原型只有原路径的 0.901x，且使用
+  约 32.125 MiB workspace；4-way 更差。保留的仍是非 Split-K 的精确
+  `BK32/BH4/4 warps/1 stage` 路径。
+- 来源：[Hy4-preview/PPU case card](case-index.md#case20260914-hy4-preview-ppu-e2e)。
+
 ### Sparse Prefill：辅助索引转换局部提速但端到端无收益
 
 - 证据等级：`reproduced`，限 GLM5.3-Flash/PPU/BF16/TP16/H4/DQK512/

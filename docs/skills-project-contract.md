@@ -70,8 +70,9 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
 - `deferred-baseline/recovery`：这是项目控制分支，不是公共性能 Skill 的新增通过模式。baseline 运行前
   冻结诊断时间预算；超预算仍未完成时，安全停止 benchmark 客户端并把公共 Skill 回执记录为
   `incomplete`，同时保存部分进度和服务证据。之后可以通过 `reduced-measurement` 减少输入/输出、请求或
-  并发并调用 targeted 获取该 milestone 的可比数字，也可以选择 `static-first` 或 `hybrid`。恢复材料归入
-  `optimize/scenarios/<scenario-id>/`；缩减 workload 的数据不构成原目标 baseline。候选满足晋级条件后，
+  并发并调用 targeted 获取该 milestone 的可比数字，也可以选择 `static-first` 或 `hybrid`。当前恢复状态、
+  结论、旧决策摘要和外部证据索引写入 `optimize/state.yml`，面向人的摘要写入
+  `optimize/README.md`，不得创建逐轮或历史子目录。缩减 workload 的数据不构成原目标 baseline。候选满足晋级条件后，
   重新调用公共 Skill 执行目标场景或 formal；没有完成的可比 anchor 时不得计算精确加速比。
 - `formal-after-major-milestone`：当前目标场景的 milestone 达到预冻结的显著提升阈值或热点发生迁移时，
   可调用公共 `formal`，只测当前一个目标场景。达到场景完成条件后切换顺序中的下一项。中间 formal 结果

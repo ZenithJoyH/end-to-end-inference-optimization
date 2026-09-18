@@ -6,10 +6,62 @@
 
 | Case | 状态 | 匹配键 | 主要知识差量 | 证据等级 |
 |---|---|---|---|---|
+| [20260914-hy4-preview-ppu-e2e](../../../../../docs/cases/20260914-hy4-preview-ppu-e2e/README.md) | SQ2048 精确 tile kept；后续 tile/Split-K rejected；Indexer row-range candidate 待端到端复测 | sparse MLA；SQ2048/H4；DQK576/DV512；topk2048；BF16；PPU；TP16；blocked prefill Indexer | 单 kernel grid 已充足时 Split-K 的 merge/workspace 会反噬；Indexer 可直接用 row-range TopK 去掉 dense causal mask | `reproduced`（MLA），Indexer 仅 `microbenchmark` |
 | [20260911-glm53-flash-ppu-e2e](../../../../../docs/cases/20260911-glm53-flash-ppu-e2e/README.md) | sparse-index candidate rejected；原 native MLA kept | sparse prefill；H4；DQK512/DV512；topk2048；BF16；PPU；TP16 | 辅助索引 kernel 的 3.55x–4.54x 不足以预测端到端收益；必须测完整服务关键路径 | `reproduced`，限当前模型/平台/shape |
 | [20260904-xingchen4-ppu-isolated-e2e](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md) | kept；正式模型精度暂缓 | dense decode；per-rank H8；DQK576/DV512；BF16；page16/64；PPU；graph | tile 判断必须使用 TP 后每 rank 有效 head 数；先检查 head padding ratio | `reproduced`，限当前模型/平台/shape |
 | [20260903-imported-deepseek-v4-flash-w8a8](../../../../../docs/cases/20260903-imported-deepseek-v4-flash-w8a8/README.md) | 原案例 kept；本项目未复测 | sparse prefill HKV1；sparse decode low-grid；KV FP8；MetaX；TP8 | Prefill 的 KV 重读与 Decode 的 grid 不足是不同机制；split 数必须包含 merge 和服务成本 | `observation` |
 | [20260903-imported-glm-5-2-w8a8](../../../../../docs/cases/20260903-imported-glm-5-2-w8a8/README.md) | 原案例 kept；本项目未复测 | mixed prefill；per-rank H4；TP16；节点内 8 rank packing；MetaX | low-grid 时通信换计算粒度可能有净收益，但阈值由拓扑、M 和完整通信成本共同决定 | `observation` |
+
+## Case：20260914-hy4-preview-ppu-e2e
+
+### 环境与路径
+
+- 模型/平台：Hy4-preview，PPU-ZW810E，TP16/BF16，FULL_DECODE_ONLY。
+- revision：vLLM 0.24.0+empty；Plugin 基线 `38f350b`，当前 Indexer
+  candidate 为未提交工作区；FlagGems 基线 `5c2b9a`，当前 sparse MLA wrapper
+  candidate 为未提交工作区。
+- 阶段和实现：P4K Mixed workload；Plugin Indexer 生成 top-k 索引，实际进入
+  FlagGems T-Head `triton_flash_mla_sparse_fwd`。
+- 核心 shape：SQ2048、per-rank HQ4、DQK576、DV512、topk2048、BF16。
+- 完整证据：[案例摘要](../../../../../docs/cases/20260914-hy4-preview-ppu-e2e/README.md)、
+  [优化状态与实验台账](../../../../../models/Hy4-preview/ppu/optimize/state.yml)。
+
+### 瓶颈、改动和结果摘要
+
+- 初始 profile 中 generic sparse MLA 约占设备 kernel 时间 20%–22%。对上述精确
+  shape 保留 `BK32/BH4/4 warps/1 stage` 后，两个缩减 P4K 场景的无 profiler
+  baseline/candidate/revert 输出吞吐分别提高 1.218% 和 1.291%。
+- 继续扫描 `BK16`、`BH1/BH2`、8 warps 和 2 stages 均慢于保留实现。SQ2048
+  Split-K 的完整调用把 stage1、merge 和 workspace 分配全部计入；最佳 all-2048
+  组合仍只有原路径的 0.901x，并需要约 32.125 MiB workspace，因此回退。
+- Indexer block TopK 原路径先创建 `[rows,key_width]` dense boolean causal mask，
+  再调用通用 `torch.topk`。candidate 改为已有 row-range provider，并把 provider
+  返回的行内相对索引转换为 request-relative 索引；代表 shape 微基准提高
+  1.093x–1.543x，单元测试 6/6 通过。该变化尚未完成服务端到端复测，不能计入
+  当前累计收益。
+
+### 知识差量
+
+- `prior_belief`：SQ2048、H4 的 Sparse MLA 可能仍可通过 sequence Split-K 增加
+  并行度；Indexer 的 dense mask 可能只是次要 host/device 辅助成本。
+- `outcome`：`refined`。
+- `revised_belief`：决定 Split-K 前应先计算现有单 kernel grid；当 SQ 维已经提供
+  足够并行块时，额外 split 的 merge 和 partial workspace 可能主导净损失。
+  Indexer 若已有支持逐行有效区间的设备 TopK provider，应优先直接表达 row range，
+  避免物化 dense causal mask。
+- `future_first_check`：记录原 kernel grid、设备并行规模以及完整
+  `stage1 + merge + workspace` 时间；Split-K 从 2-way 开始。Indexer 先检查 provider
+  的索引坐标系、tie 语义和 graph 兼容性，再做无 profiler Mixed workload A/B/R。
+- `contradicted_or_unproven`：SQ2048 Split-K 并非自动受益；微基准中的 Indexer
+  1.093x–1.543x 尚不能外推为端到端收益。
+- `new_frontier`：先完成 Indexer candidate 的 P4096/D1024/C64/N64 无 profiler
+  复测，再按相同配置重新 profile；若热点迁移，再重新排序，不继续盲扫 sparse MLA tile。
+
+### 适用限制
+
+MLA 结论仅覆盖上述 PPU、BF16、TP16 和精确 shape；父场景 P4K/C64 的正式
+baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和单元测试证据，
+服务 graph、模型级正确性及端到端收益均待用户复测。
 
 ## Case：20260904-xingchen4-ppu-isolated-e2e
 
@@ -19,7 +71,7 @@
 - revision：vLLM 0.24.0+empty；Plugin `f91f4ed08e1cfef0e0efe1380a7721928eccc033`；FlagGems `5941cd2225798bdfa611626f34e459c42cdf2904`。
 - 阶段和实现：单 token dense decode；Plugin `forward_mqa` 实际进入 FlagGems `_dense_decode_kernel`。
 - 有效 shape：每 rank H8、DQK576、DV512、SQ1、page16/64、最后一维连续。
-- 完整证据：[案例摘要](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md)、[瓶颈观测](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-observation.md)、[单变量实验](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-tile-experiment.md)、[补丁](../../../../../models/XingChen4-29B-A4B/ppu/optimize/patches/mla-tile16.patch)。
+- 完整证据：[案例摘要](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md)、[瓶颈观测](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-observation.md)、[单变量实验](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-tile-experiment.md)、[补丁](../../../../../models/XingChen4-29B-A4B/ppu/optimize/history/patch-mla-tile16-pr.md)。
 
 ### 瓶颈、改动和结果摘要
 
@@ -53,8 +105,7 @@
 - 实现：Plugin thead backend 调用预编译 `flash_mla` sparse kernel；其前置
   vLLM Triton 索引转换默认 `BLOCK_N=128`。
 - 完整证据：[案例摘要](../../../../../docs/cases/20260911-glm53-flash-ppu-e2e/README.md)、
-  [实验记录](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-sparse-index-convert/README.md)、
-  [post-MoE trace](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/experiments/20260913-post-moe-profile/README.md)。
+  [优化事实与实验台账](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/state.yml)。
 
 ### 瓶颈、改动和结果摘要
 
