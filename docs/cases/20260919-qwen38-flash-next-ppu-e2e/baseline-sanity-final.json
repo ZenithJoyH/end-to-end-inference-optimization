@@ -1,0 +1,33 @@
+{
+  "eval_model": "qwen38-flash-next-e2e-baseline-sanity",
+  "model_name": "Qwen3.8-Flash-Next",
+  "model_type": "openai-chat-completions",
+  "base_url": "http://127.0.0.1:8020/v1/chat/completions",
+  "tasks": [
+    "gpqa_diamond_generative_cot"
+  ],
+  "limit": 10,
+  "gen_kwargs": "temperature=1,top_p=0.95,top_k=20,max_gen_toks=30000",
+  "num_concurrent": 8,
+  "timeout": 7200,
+  "api_max_retries": 1,
+  "eval_max_retries": 0,
+  "retry_delay": 30,
+  "apply_chat_template": true,
+  "include_path": "",
+  "output_root": "/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/accuracy/baseline-sanity",
+  "cache_root": "/tmp/qwen38-e2e-lm-eval-cache",
+  "run_id": "baseline-sanity-p1k-entry-standard-gen",
+  "offline": true,
+  "hf_datasets_cache": "/root/.cache/huggingface/datasets",
+  "dataset_path": "Idavidrein/gpqa",
+  "dataset_name": "gpqa_diamond",
+  "dataset_split": "train",
+  "expected_samples": 198,
+  "allow_timeouts": false,
+  "wait_for_service": false,
+  "service_poll_interval": 30,
+  "service_wait_timeout": 0,
+  "progress_score_interval": 0,
+  "progress_score_poll_seconds": 5
+}

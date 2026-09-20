@@ -147,6 +147,35 @@ def collect_provenance(cfg):
         raise ValueError(f"unsupported evaluation environment/task provenance API: {exc}") from exc
 
 
+def finalize_existing_run(run_dir):
+    """Validate and publish a record for an already completed native run.
+
+    This recovery path performs no model requests. It exists for wrapper-side
+    validation defects discovered only after the native evaluator has emitted a
+    complete, uniquely identifiable result/sample pair.
+    """
+    run_dir = Path(run_dir).resolve()
+    frozen = read_json(run_dir / "frozen-inputs.json")
+    expected = {"contract", "service", "runner", "evaluation_inspect",
+                "task_provenance", "config"}
+    if set(frozen) != expected:
+        raise ValueError("frozen inputs are missing or contain unexpected artifacts")
+    for ref in frozen.values():
+        checked_artifact(ref)
+    task_dir = run_dir / TASK
+    results = list(task_dir.rglob("results_*.json"))
+    samples = list(task_dir.rglob(f"samples_{TASK}_*.jsonl"))
+    if len(results) != 1 or len(samples) != 1:
+        raise ValueError("ambiguous output pair; cannot finalize the existing run")
+    frozen.update(results=artifact(results[0]), samples=artifact(samples[0]))
+    record = {"schema_version": 2, "status": "evaluated",
+              "process_succeeded": True, "artifacts": frozen}
+    verify_run_record(record)
+    record_path = run_dir / "run-record.json"
+    write_new(record_path, record)
+    return record_path
+
+
 def run(args):
     runner = load_runner()
     # The baseline loader uses int(), which silently turns a fractional limit
@@ -243,21 +272,34 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--config", type=Path)
     parser.add_argument("--contract", type=Path)
     parser.add_argument("--service-manifest", type=Path)
-    parser.add_argument("--evaluation-inspect", type=Path, required=True)
+    parser.add_argument("--evaluation-inspect", type=Path)
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--capture-provenance", type=Path,
                         help="Collect actual evaluator/task/data evidence only; no model requests. Freeze this artifact in the contract.")
+    parser.add_argument("--finalize-run", type=Path,
+                        help="Validate and publish a run record from an existing completed native run; makes no model requests.")
     args = parser.parse_args()
-    if args.capture_provenance:
+    if args.finalize_run:
+        if any((args.config, args.contract, args.service_manifest, args.evaluation_inspect,
+                args.preflight_only, args.capture_provenance)):
+            parser.error("--finalize-run is a standalone recovery operation")
+    elif not args.config or not args.evaluation_inspect:
+        parser.error("evaluation/provenance requires --config and --evaluation-inspect")
+    elif args.capture_provenance:
         if args.preflight_only or args.contract or args.service_manifest:
             parser.error("--capture-provenance is separate from service preflight/evaluation")
     elif not args.contract or not args.service_manifest:
         parser.error("evaluation/preflight requires --contract and --service-manifest")
     try:
-        run(args)
+        if args.finalize_run:
+            record_path = finalize_existing_run(args.finalize_run)
+            print(f"Existing native run validated without model requests: {record_path}")
+            print("Use acceptance.py issue to bind the passing result to this service identity.")
+        else:
+            run(args)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         parser.exit(1, f"FAIL: {exc}\n")
 

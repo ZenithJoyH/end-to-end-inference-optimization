@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "experiment_id": "acc-004-m64-nontruncating-semantic-regression",
+  "mode": "minimal-regression",
+  "parent_failed_experiment_id": "acc-003-m64-semantic-score-minimal-regression",
+  "services": {
+    "candidate": "candidate-maxseq64-bt4096-moe-bm16-service-comparison-10.json",
+    "revert": "baseline-maxseq64-bt4096-m64-minreg-revert-service-11.json"
+  },
+  "workload": {
+    "warmup_waves": 1,
+    "measured_waves": 2,
+    "requests_per_service_per_wave": 64,
+    "max_tokens": 512,
+    "temperature": 0,
+    "top_p": 1,
+    "ignore_eos": false,
+    "seed_rule": "1234 + case_index",
+    "prompt_rule": "same 64 unique integer additions as acc-003; require FINAL=<integer>"
+  },
+  "metric": "parsed_final_integer_accuracy",
+  "parser": "last case-insensitive regex match FINAL\\s*[:=]\\s*(-?\\d+)",
+  "threshold": 1.0,
+  "criterion": {
+    "each_measured_wave_each_service_score_gte_threshold": true,
+    "candidate_total_score_gte_revert_total_score": true,
+    "zero_request_failures": true,
+    "observed_running_requests_per_service_gte": 64
+  },
+  "controlled_change_from_acc003": "Only ignore_eos true to false and max_tokens 128 to 512, to remove observed length truncation from the semantic metric.",
+  "evidence_boundary": "This scoped semantic regression exercises the exact M64 service path. It does not issue a formal GPQA gate or resolve the inherited 170/198 versus 88% blocker."
+}

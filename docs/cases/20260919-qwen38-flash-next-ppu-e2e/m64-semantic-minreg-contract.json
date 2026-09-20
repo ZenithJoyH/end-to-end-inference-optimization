@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "experiment_id": "acc-003-m64-semantic-score-minimal-regression",
+  "mode": "minimal-regression",
+  "parent_failed_experiment_id": "acc-002-m64-candidate-revert-minimal-regression",
+  "services": {
+    "candidate": "candidate-maxseq64-bt4096-moe-bm16-service-comparison-10.json",
+    "revert": "baseline-maxseq64-bt4096-m64-minreg-revert-service-11.json"
+  },
+  "workload": {
+    "warmup_waves": 1,
+    "measured_waves": 2,
+    "requests_per_service_per_wave": 64,
+    "max_tokens": 128,
+    "temperature": 0,
+    "top_p": 1,
+    "ignore_eos": true,
+    "seed_rule": "1234 + case_index",
+    "prompt_rule": "unique integer addition; require FINAL=<integer>"
+  },
+  "metric": "parsed_final_integer_accuracy",
+  "parser": "last case-insensitive regex match FINAL\\s*[:=]\\s*(-?\\d+)",
+  "threshold": 1.0,
+  "criterion": {
+    "each_measured_wave_each_service_score_gte_threshold": true,
+    "candidate_total_score_gte_revert_total_score": true,
+    "zero_request_failures": true,
+    "observed_running_requests_per_service_gte": 64
+  },
+  "evidence_boundary": "This scoped semantic regression exercises the exact M64 service path. It does not issue a formal GPQA gate or resolve the inherited 170/198 versus 88% blocker."
+}

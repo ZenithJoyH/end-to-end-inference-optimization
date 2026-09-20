@@ -94,7 +94,7 @@ Do not expand the authorized modification scope. If the best direction requires 
 
 ## Record the checkpoint
 
-Update `models/<model>/<platform>/optimize/state.yml` with the stable review ID, current candidate, experiment ledger, phase bottlenecks, ranked next directions, immediate experiment, evidence cutoff, next review trigger, and compact summaries of superseded decisions. Synchronize the human-readable current view in `optimize/README.md`. Do not create an `optimize/history/`, planning work directory, or per-review file.
+Update `models/<model>/<platform>/optimize/state.yml` with the stable review ID, current candidate, experiment ledger, phase bottlenecks, ranked next directions, immediate experiment, evidence cutoff, next review trigger, and compact summaries of superseded decisions. Verify that every optimization-point ledger entry has a matching `optimize/<experiment-id>.md` covering its direction, content, effect, correctness, decision, and evidence, including reverted, failed, incomplete, and superseded points. Synchronize `optimize/README.md` as the human-readable multi-round overview and link index. Do not create an `optimize/history/`, planning work directory, or per-review file.
 
 Keep raw benchmark, trace, accuracy artifacts, commands, and process scripts at their existing external locations; the structured state links evidence rather than copying it. Only the final frozen result updates `acceptance/state.yml` and `acceptance/README.md`.
 

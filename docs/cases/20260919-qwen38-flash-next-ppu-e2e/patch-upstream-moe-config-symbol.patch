@@ -1,0 +1,50 @@
+diff --git a/vllm_fl/ops/custom_ops.py b/vllm_fl/ops/custom_ops.py
+--- a/vllm_fl/ops/custom_ops.py
++++ b/vllm_fl/ops/custom_ops.py
+@@ -46,7 +46,45 @@ def _patch_unquantized_moe_oracle() -> None:
+     import vllm.model_executor.layers.fused_moe.oracle.unquantized as _oracle_mod
+-    from vllm_fl.ops.fused_moe.fused_moe_utils import select_unquantized_moe_backend_oot
++    import vllm.model_executor.layers.fused_moe.experts.triton_moe as _triton_moe
++    from vllm_fl.ops.fused_moe.fused_moe_utils import (
++        _maybe_tune_qwen38_flash_block_m,
++        select_unquantized_moe_backend_oot,
++    )
++
+     _oracle_mod.select_unquantized_moe_backend = select_unquantized_moe_backend_oot
+     # Also patch the import in unquantized_fused_moe_method module
+     import vllm.model_executor.layers.fused_moe.unquantized_fused_moe_method as _method_mod
+     _method_mod.select_unquantized_moe_backend = select_unquantized_moe_backend_oot
++
++    current_config_selector = _triton_moe.try_get_optimal_moe_config
++    if not getattr(current_config_selector, "_qwen38_flash_decode_tuned", False):
++        original_config_selector = current_config_selector
++
++        def _tuned_config_selector(
++            w1_shape,
++            w2_shape,
++            top_k,
++            config_dtype,
++            num_tokens,
++            block_shape=None,
++        ):
++            config = original_config_selector(
++                w1_shape,
++                w2_shape,
++                top_k,
++                config_dtype,
++                num_tokens,
++                block_shape=block_shape,
++            )
++            return _maybe_tune_qwen38_flash_block_m(
++                config,
++                w1_shape,
++                w2_shape,
++                top_k,
++                config_dtype,
++                num_tokens,
++            )
++
++        _tuned_config_selector._qwen38_flash_decode_tuned = True
++        _triton_moe.try_get_optimal_moe_config = _tuned_config_selector
++
+     logger.info("Patched select_unquantized_moe_backend to bypass OOT short-circuit")

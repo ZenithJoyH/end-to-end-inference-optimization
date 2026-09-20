@@ -1,0 +1,49 @@
+{
+  "host": "PPU-07",
+  "optimization_container_name": "hy4-opt-20260914",
+  "service_instance_id": "848575b2b0a829f9c52cdb820733394f6d085a984779e3905c52c20c1b546965:4052895:246653762",
+  "model_name": "hy4",
+  "base_url": "http://127.0.0.1:8010/v1/chat/completions",
+  "mode": "graph",
+  "model_sha256": "954076b8d76cd96b15f3d0a6e01d87eb5289bcbd9c220a16776a9e668b12772b",
+  "tokenizer_sha256": "f08b039bc9e2c484b98128d8f39bd0a1d2839c60d2480f24b8524f40d2e695e1",
+  "engine_sha256": "18d9aeb0be09cac809bcce548762577b06941c8476d0663b9579cc37d75b29c1",
+  "plugin_sha256": "eece35d4bcab376413b03be03b59143523e824014bee2d9b1da7ca3f86220ff7",
+  "flaggems_sha256": "607bd145493375d2ec3209434a0c03436c433850d93b06d7d2ff7527de7df60e",
+  "runtime_evidence_sha256": "64a6adb5ae9b7245fc98ac59addb023e37ebd341f52254331c0ebd84f08dfaf1",
+  "launch_config": {
+    "enable_prefix_caching": false,
+    "tensor_parallel_size": 16,
+    "max_model_len": 100000,
+    "max_num_batched_tokens": 2048,
+    "cudagraph_mode": "FULL_DECODE_ONLY",
+    "plugin_commit": "f7d1aaa9935dd8d613376601504a793b11ee34e0",
+    "flaggems_commit": "0e02755770011d517c8de591bf91998bbcf30ad1",
+    "flaggems_vllm_commit": "a26a90258de8bcad0a5d831f38b52f755c6a73b0",
+    "flaggems_vllm_workspace_sha256": "4dab2e51fceb01fa8f6f9def1cee2faa65c7cb838bc617337583fb57661ca75c",
+    "launch_args": [
+      "--served-model-name=hy4",
+      "--port=8010",
+      "--trust-remote-code",
+      "--reasoning-parser=hy_v4",
+      "--tensor-parallel-size=16",
+      "--max-model-len=100000",
+      "--max-num-batched-tokens=2048",
+      "--no-enable-prefix-caching",
+      "--compilation-config={\"cudagraph_mode\":\"FULL_DECODE_ONLY\"}"
+    ]
+  },
+  "image_lineage": "verified",
+  "mount_parity": "passed",
+  "tokenizer_path": "/mnt/cpfs/models/Hy4-preview-W8A8-linear-moe/",
+  "performance_context": {
+    "platform": "ppu",
+    "device_model": "PPU-ZW810E",
+    "device_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "driver_version": "2.1.1-rbd225",
+    "device_runtime_version": "container-image-bound",
+    "image_id": "sha256:ea47a837c46571801b826af06a374e12a5c4daa443c9a64065cea6758d9d939b",
+    "prefix_cache_state": "disabled",
+    "cache_preparation": "Verified from the exact process arguments and runtime engine config; CUDA graph capture completed 51/51 and two smoke replays returned stop/OK."
+  }
+}

@@ -1,0 +1,37 @@
+diff --git a/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py b/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
+index b13a5f4..b0dd64f 100644
+--- a/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
++++ b/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
+@@ -35,6 +35,6 @@ _SPLITK_BK = 64
+ _SPLITK_BDP = 256
+ _SPLITK_MAX_SQ = 64
+-_HQ4_PREFILL_MIN_SQ = 128
++_HQ4_PREFILL_MIN_SQ = _SPLITK_MAX_SQ + 1
+ _HQ4_PREFILL_MAX_SQ = 2048
+ 
+ 
+diff --git a/tests/test_thead_hy4_ops.py b/tests/test_thead_hy4_ops.py
+index eec5149..df56ff2 100644
+--- a/tests/test_thead_hy4_ops.py
++++ b/tests/test_thead_hy4_ops.py
+@@ -106,7 +106,7 @@ def test_hy4_moe_sum_specialization(m):
+     utils.gems_assert_close(output, reference, inp.dtype)
+ 
+ 
+-@pytest.mark.parametrize("sq", [1, 64, 128, 2048])
++@pytest.mark.parametrize("sq", [1, 64, 65, 72, 127, 128, 2048])
+ def test_hy4_sparse_mla_specialization(sq):
+     q, kv, indices, lengths, sinks = _sparse_inputs(sq)
+     if sq <= 64:
+@@ -126,8 +126,9 @@ def test_hy4_sparse_mla_specialization(sq):
+         )
+ 
+ 
+-def test_hy4_sparse_mla_graph_replay():
++@pytest.mark.parametrize("sq", [72, 128])
++def test_hy4_sparse_mla_graph_replay(sq):
+-    q, kv, indices, lengths, sinks = _sparse_inputs(128)
++    q, kv, indices, lengths, sinks = _sparse_inputs(sq)
+     scale = 576**-0.5
+     flaggems_vllm.flash_mla_sparse_fwd(
+         q, kv, indices, scale, attn_sink=sinks, topk_length=lengths

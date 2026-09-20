@@ -1,0 +1,129 @@
+diff --git a/vllm_fl/worker/scheduler_fl.py b/vllm_fl/worker/scheduler_fl.py
+index 5ef2644..d7d4f34 100644
+--- a/vllm_fl/worker/scheduler_fl.py
++++ b/vllm_fl/worker/scheduler_fl.py
+@@ -2,6 +2,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM-FL project
+ 
++import os
+ from typing import Any
+ 
+ from vllm.logger import init_logger
+@@ -153,3 +154,49 @@ class AsyncSchedulerFL(_AsyncScheduler):
+                 "(max_threads=8)."
+             )
+         super().__init__(*args, **kwargs)
++
++        cap_raw = os.getenv("VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS", "0")
++        try:
++            cap = int(cap_raw)
++        except ValueError as exc:
++            raise ValueError(
++                "VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS must be an integer"
++            ) from exc
++        if cap < 0:
++            raise ValueError(
++                "VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS must be non-negative"
++            )
++        if cap >= self.max_num_scheduled_tokens:
++            cap = 0
++        self._mixed_token_budget_cap = cap
++        if cap:
++            logger.warning(
++                "Enabled mixed-workload token budget cap: %d (configured maximum: %d).",
++                cap,
++                self.max_num_scheduled_tokens,
++            )
++
++    def schedule(self, throttle_prefills: bool = False):
++        """Limit mixed prefill/decode steps without shrinking pure prefill batches.
++
++        This is opt-in and restores the configured budget before returning, so
++        scheduler state and the default path are unchanged when the environment
++        variable is absent.
++        """
++        cap = self._mixed_token_budget_cap
++        if not cap:
++            return super().schedule(throttle_prefills)
++
++        has_decode = any(not request.is_prefill_chunk for request in self.running)
++        has_prefill = bool(self.waiting) or any(
++            request.is_prefill_chunk for request in self.running
++        )
++        if not (has_decode and has_prefill):
++            return super().schedule(throttle_prefills)
++
++        configured_budget = self.max_num_scheduled_tokens
++        self.max_num_scheduled_tokens = min(configured_budget, cap)
++        try:
++            return super().schedule(throttle_prefills)
++        finally:
++            self.max_num_scheduled_tokens = configured_budget
+diff --git a/tests/unit_tests/worker/test_scheduler_fl.py b/tests/unit_tests/worker/test_scheduler_fl.py
+new file mode 100644
+index 0000000..037a96f
+--- /dev/null
++++ b/tests/unit_tests/worker/test_scheduler_fl.py
+@@ -0,0 +1,61 @@
++# Copyright (c) 2025 BAAI. All rights reserved.
++# SPDX-License-Identifier: Apache-2.0
++# SPDX-FileCopyrightText: Copyright contributors to the vLLM-FL project
++
++from types import SimpleNamespace
++from unittest.mock import patch
++
++from vllm.v1.core.sched.async_scheduler import AsyncScheduler as _AsyncScheduler
++
++from vllm_fl.worker.scheduler_fl import AsyncSchedulerFL
++
++
++def _scheduler(*, cap: int, running_prefill: bool, running_decode: bool, waiting: bool):
++    scheduler = AsyncSchedulerFL.__new__(AsyncSchedulerFL)
++    scheduler.max_num_scheduled_tokens = 2304
++    scheduler._mixed_token_budget_cap = cap
++    scheduler.running = []
++    if running_prefill:
++        scheduler.running.append(SimpleNamespace(is_prefill_chunk=True))
++    if running_decode:
++        scheduler.running.append(SimpleNamespace(is_prefill_chunk=False))
++    scheduler.waiting = [object()] if waiting else []
++    return scheduler
++
++
++def _observed_budget(self, throttle_prefills=False):
++    return self.max_num_scheduled_tokens, throttle_prefills
++
++
++def test_mixed_budget_cap_is_temporary():
++    scheduler = _scheduler(
++        cap=2048, running_prefill=False, running_decode=True, waiting=True
++    )
++    with patch.object(_AsyncScheduler, "schedule", _observed_budget):
++        assert scheduler.schedule(True) == (2048, True)
++    assert scheduler.max_num_scheduled_tokens == 2304
++
++
++def test_mixed_budget_cap_applies_to_running_partial_prefill():
++    scheduler = _scheduler(
++        cap=2048, running_prefill=True, running_decode=True, waiting=False
++    )
++    with patch.object(_AsyncScheduler, "schedule", _observed_budget):
++        assert scheduler.schedule() == (2048, False)
++    assert scheduler.max_num_scheduled_tokens == 2304
++
++
++def test_mixed_budget_cap_does_not_shrink_pure_prefill_or_decode():
++    pure_prefill = _scheduler(
++        cap=2048, running_prefill=True, running_decode=False, waiting=True
++    )
++    pure_decode = _scheduler(
++        cap=2048, running_prefill=False, running_decode=True, waiting=False
++    )
++    disabled = _scheduler(
++        cap=0, running_prefill=True, running_decode=True, waiting=True
++    )
++    with patch.object(_AsyncScheduler, "schedule", _observed_budget):
++        assert pure_prefill.schedule() == (2304, False)
++        assert pure_decode.schedule() == (2304, False)
++        assert disabled.schedule() == (2304, False)

@@ -10,8 +10,11 @@
 ## mHC
 
 - [operators/mhc/README.md](operators/mhc/README.md)：mHC 数学语义、Prefill/Decode 特征、带宽与 launch 瓶颈、post+pre fusion、graph-friendly 调度和验证矩阵。
+- [operators/mhc/optimization-map.md](operators/mhc/optimization-map.md)：mHC Decode backend 替换的首个实验、端到端晋级证据和停止条件。
+- [operators/mhc/case-index.md](operators/mhc/case-index.md)：GLM-5.3-Flash/PPU 上单算子 5.528× 但 P1K 吞吐下降的反例证据卡。
 
-当前没有完成的 mHC 实测案例卡。不要把理论候选当作目标平台已验证知识；首个实际案例完成后再创建 case index 和 optimization map。
+当前实测知识只覆盖 GLM-5.3-Flash、PPU、TP16、`hc_mult=4`、`hidden=4096`
+和 P1K/D1K graph workload。不要把该负优化外推到其他平台、shape 或 post+pre fusion。
 
 适用关键词：`mHC`、`MHCPreOp`、`MHCPostOp`、`MHCFusedPostPreOp`、`HCHeadOp`、`Sinkhorn-Knopp`、multi-stream residual。
 
@@ -44,11 +47,24 @@
 - [operators/fused_moe/case-index.md](operators/fused_moe/case-index.md)：Fused MoE 端到端
   实测证据卡；当前包含 GLM-5.3-Flash/PPU 的小 M Decode 特化边界。
 
-当前只有“Decode 热点与现有大 M gate 不覆盖”的限域证据，小 M
-config 尚未实施。不得把开放假设当作已验证性能结论。
+当前限域证据覆盖 GLM-5.3-Flash/PPU/TP16/BF16 的 cached32 与 cached64
+Decode。M<=32 和 exact-M64 GEMM2 已分别获得同 workload 服务收益；exact-M64
+GEMM1 的最佳中位加速仅 1.0485×，未过 1.05× 算子门槛。不得把这些配置外推到
+其他模型、平台、dtype、专家数、量化路径或 Prefill shape。
 
 适用关键词：`fused MoE`、`invoke_fused_moe_triton_kernel`、GEMM1/GEMM2、
 small-M Decode、stage config、expert routing。
+
+## FP8/FP4 MQA logits
+
+- [operators/fp8_fp4_mqa_logits/optimization-map.md](operators/fp8_fp4_mqa_logits/optimization-map.md)：
+  跨仓库迁移后的 runtime/tune-config 来源核验、冷 shape、graph 与数据库判读规则。
+- [operators/fp8_fp4_mqa_logits/case-index.md](operators/fp8_fp4_mqa_logits/case-index.md)：
+  GLM-5.3-Flash/PPU 上 144 候选在线调优导致 RPC timeout，以及切换到
+  FlagGems-vllm 单配置后的修复证据。
+
+适用关键词：`fp8_fp4_mqa_logits`、sparse-indexer MQA、`libtuner`、
+online autotune、tune-config runtime、cold shape、worker RPC timeout。
 
 ## 快速使用顺序
 

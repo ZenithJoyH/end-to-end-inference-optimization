@@ -1,0 +1,81 @@
+diff --git a/src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py b/src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py
+--- a/src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py
++++ b/src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py
+@@ -205,7 +205,13 @@ def get_default_config(
+     """
+     if dtype == "int8_w8a8":
+         tokens_per_expert = M // max(E, 1)
+-        if tokens_per_expert <= 2:
++        routed_tokens_per_expert = M * topk // max(E, 1)
++        if M >= 1024 and 48 <= routed_tokens_per_expert <= 96:
++            # At this routing density BM64 pads most experts to two blocks.
++            # BM32 reduces wasted expert rows enough to offset the extra
++            # programs on PPU (Hy4 M2048: about 20% full-MoE speedup).
++            block_m = 32
++        elif tokens_per_expert <= 2:
+             block_m = 16
+         elif tokens_per_expert <= 4:
+             block_m = 32
+@@ -218,8 +224,18 @@ def get_default_config(
+-        if N >= 4096:
++        if M >= 1024 and 48 <= routed_tokens_per_expert <= 96:
++            # The same target density prefers BN128 in both stages; BN256
++            # loses parallelism in the wide down projection.
++            block_n = 128
++        elif N >= 4096:
+             block_n = 128 if M <= 128 else 256
+         else:
+             block_n = 64 if M <= 64 else 128
+-        block_k = 128 if M <= 64 else 64
++        block_k = (
++            128
++            if M >= 2048 and gemm_stage == "gemm1" and K % 128 == 0
++            else 128
++            if M <= 64
++            else 64
++        )
+         if tokens_per_expert > 128:
+             group_m = 16
+         elif tokens_per_expert > 32:
+@@ -1997,6 +2008,11 @@ def fused_experts_impl(
+                 gemm_stage="gemm2",
+                 enable_gemm_fast_path=True,
+             )
++        elif config_dtype == "int8_w8a8":
++            gemm2_config, _ = get_moe_config(
++                tokens_in_chunk,
++                gemm_stage="gemm2",
++            )
+         use_direct_sum = (
+             not is_embedded_config
+             and direct_sum_supported
+diff --git a/tests/test_thead_hy4_ops.py b/tests/test_thead_hy4_ops.py
+--- a/tests/test_thead_hy4_ops.py
++++ b/tests/test_thead_hy4_ops.py
+@@ -59,12 +59,24 @@ def test_hy4_w8a8_config_is_not_plain_bf16():
+     config = thead_fused_moe.get_default_config(
+         2048, 256, 256, 6144, 8, dtype
+     )
+     assert config == {
+-        "BLOCK_SIZE_M": 64,
++        "BLOCK_SIZE_M": 32,
+         "BLOCK_SIZE_N": 128,
+-        "BLOCK_SIZE_K": 64,
++        "BLOCK_SIZE_K": 128,
+         "GROUP_SIZE_M": 1,
+         "num_warps": 4,
+         "num_stages": 3,
+         "USE_INT32_OFFSETS": False,
+     }
++    gemm2_config = thead_fused_moe.get_default_config(
++        2048, 256, 6144, 128, 8, dtype, gemm_stage="gemm2"
++    )
++    assert gemm2_config == {
++        "BLOCK_SIZE_M": 32,
++        "BLOCK_SIZE_N": 128,
++        "BLOCK_SIZE_K": 64,
++        "GROUP_SIZE_M": 1,
++        "num_warps": 4,
++        "num_stages": 3,
++        "USE_INT32_OFFSETS": False,
++    }

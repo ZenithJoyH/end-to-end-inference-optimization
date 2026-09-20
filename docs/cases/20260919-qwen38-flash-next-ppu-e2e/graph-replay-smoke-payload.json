@@ -1,0 +1,7 @@
+{
+  "model": "Qwen3.8-Flash-Next",
+  "prompt": "Complete this exact short pattern with only the next token: 40 41",
+  "max_tokens": 8,
+  "temperature": 0,
+  "seed": 42
+}

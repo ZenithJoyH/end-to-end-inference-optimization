@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from sample_validation import task_filters, validate_sample_file
+from sample_validation import iter_sample_records, task_filters, validate_sample_file
 from verify_accuracy import load_task_metrics, metric_value
 
 TASK = "gpqa_diamond_generative_cot"
@@ -197,10 +197,7 @@ def verify_result_provenance(result_path, samples_path, cfg, provenance):
         raise ValueError("results do not report 198 original and effective samples")
     # lm-eval logs the actual processed doc per sample. Bind each ID to content,
     # not just to 0..197, which could name 198 entirely different questions.
-    for line in Path(samples_path).read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        sample = json.loads(line)
+    for _, sample in iter_sample_records(samples_path):
         doc_id = int(sample["doc_id"])
         if "doc" not in sample or content_sha256(sample["doc"]) != provenance["eval_doc_sha256"][doc_id]:
             raise ValueError(f"sample {doc_id} differs from the frozen processed evaluation document")

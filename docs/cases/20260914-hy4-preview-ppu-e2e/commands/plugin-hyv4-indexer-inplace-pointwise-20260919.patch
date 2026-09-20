@@ -1,0 +1,18 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -458,6 +458,13 @@ def _hyv4_weighted_relu_reduce(
+ 
+     rows, keys_per_row, heads = scores.shape
+-    products = torch.empty_like(scores)
++    # T-Head can safely reuse the just-created QK scores: the pointwise
++    # kernel reads and writes each element independently, and scores are not
++    # consumed after this reduction. Keep other platforms on the established
++    # allocation path until they are measured independently.
++    if current_platform.vendor_name == "thead":
++        products = scores
++    else:
++        products = torch.empty_like(scores)
+     numel = scores.numel()
+     block = 256
+     _hyv4_fused_relu_weight_kernel[

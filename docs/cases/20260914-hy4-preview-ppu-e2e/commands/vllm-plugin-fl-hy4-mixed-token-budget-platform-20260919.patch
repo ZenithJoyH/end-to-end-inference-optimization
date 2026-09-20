@@ -1,0 +1,43 @@
+diff --git a/vllm_fl/platform.py b/vllm_fl/platform.py
+index 24ce3ab..fd7d98b 100644
+--- a/vllm_fl/platform.py
++++ b/vllm_fl/platform.py
+@@ -180,6 +180,19 @@ class PlatformFL(Platform):
+         from vllm_fl.attention.mla_prefill import configure_mla_prefill
+ 
+         configure_mla_prefill(vllm_config)
++
++        mixed_token_budget = os.getenv(
++            "VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS", "0"
++        )
++        if mixed_token_budget != "0":
++            if not vllm_config.scheduler_config.async_scheduling:
++                raise ValueError(
++                    "VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS requires async scheduling"
++                )
++            vllm_config.scheduler_config.scheduler_cls = (
++                "vllm_fl.worker.scheduler_fl.AsyncSchedulerFL"
++            )
++            logger.warning("Enabled Plugin mixed-workload scheduler before EngineCore.")
+ 
+         parallel_config.worker_cls = "vllm_fl.worker.worker.WorkerFL"
+ 
+diff --git a/vllm_fl/worker/worker.py b/vllm_fl/worker/worker.py
+index 7751d36..41d267f 100644
+--- a/vllm_fl/worker/worker.py
++++ b/vllm_fl/worker/worker.py
+@@ -202,12 +202,9 @@ class WorkerFL(WorkerBase):
+         is_driver_worker: bool = False,
+     ):
+ 
+-        mixed_token_budget_enabled = (
+-            os.getenv("VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS", "0") != "0"
+-        )
+         if (
+-            vllm_config.scheduler_config.async_scheduling
+-            and (vllm_config.num_speculative_tokens == 1 or mixed_token_budget_enabled)
++            vllm_config.num_speculative_tokens == 1
++            and vllm_config.scheduler_config.async_scheduling
+         ):
+             vllm_config.scheduler_config.scheduler_cls = (
+                 "vllm_fl.worker.scheduler_fl.AsyncSchedulerFL"

@@ -1,0 +1,134 @@
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+index 2467810..caa7000 100644
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -81,6 +81,7 @@ _HYV4_PREFILL_INDEXER_BLOCK_ROWS = 128
+ _HYV4_PREFILL_INDEXER_RANGE_BLOCK = 256
+ _HYV4_PREFILL_HOST_METADATA_ATTR = "_hyv4_prefill_host_metadata"
+ _HYV4_SPARSE_INDEX_BLOCK_N = 2048
++_HYV4_TOPK_TRANSLATE_BLOCK = 256
+ _HYV4_ROUTER_HIDDEN_SIZE = 6144
+ _HYV4_ROUTER_NUM_EXPERTS = 256
+ _HYV4_ROUTER_INPUT_DTYPES = (torch.bfloat16, torch.float32)
+@@ -483,6 +484,81 @@ def _hyv4_weighted_relu_reduce(
+     return products.sum(dim=-1).float()
+ 
+ 
++@triton.jit
++def _translate_hyv4_selected_block_kernel(
++    selected,
++    row_starts,
++    request_start,
++    stride_selected_row,
++    count: tl.constexpr,
++    BLOCK: tl.constexpr,
++):
++    """Translate valid block Top-K positions in one in-place pass."""
++    row = tl.program_id(0)
++    columns = tl.program_id(1) * BLOCK + tl.arange(0, BLOCK)
++    mask = columns < count
++    values = tl.load(
++        selected + row * stride_selected_row + columns,
++        mask=mask,
++    )
++    row_start = tl.load(row_starts + row)
++    translated = tl.where(
++        values >= 0,
++        values + row_start - request_start,
++        -1,
++    )
++    tl.store(
++        selected + row * stride_selected_row + columns,
++        translated,
++        mask=mask,
++    )
++
++
++def _translate_hyv4_selected_block(
++    selected: torch.Tensor,
++    row_starts: torch.Tensor,
++    request_start: int,
++) -> None:
++    """Translate block Top-K positions without boolean temporaries.
++
++    The T-Head path replaces ``ge``, ``sub``, ``add_``, ``bitwise_not`` and
++    ``masked_fill_`` with one graph-safe kernel. Other platforms and unusual
++    layouts retain the original PyTorch sequence.
++    """
++    if selected.numel() == 0:
++        return
++    if (
++        current_platform.vendor_name != "thead"
++        or selected.device.type != "cuda"
++        or selected.dtype != torch.int32
++        or selected.ndim != 2
++        or selected.stride(1) != 1
++        or row_starts.device != selected.device
++        or row_starts.dtype != torch.int32
++        or row_starts.ndim != 1
++        or row_starts.shape[0] != selected.shape[0]
++        or not row_starts.is_contiguous()
++    ):
++        valid = selected >= 0
++        selected.add_((row_starts - request_start).unsqueeze(1))
++        selected.masked_fill_(~valid, -1)
++        return
++
++    rows, count = selected.shape
++    _translate_hyv4_selected_block_kernel[
++        (rows, triton.cdiv(count, _HYV4_TOPK_TRANSLATE_BLOCK))
++    ](
++        selected,
++        row_starts,
++        request_start,
++        selected.stride(0),
++        count=count,
++        BLOCK=_HYV4_TOPK_TRANSLATE_BLOCK,
++        num_warps=4,
++        num_stages=1,
++    )
++
++
+ def _select_topk_block(
+     q: torch.Tensor,
+     weights: torch.Tensor,
+@@ -526,9 +602,7 @@ def _select_topk_block(
+         local_ends.contiguous(),
+         selected,
+     )
+-    valid = selected >= 0
+-    selected.add_((row_starts - request_start).unsqueeze(1))
+-    selected.masked_fill_(~valid, -1)
++    _translate_hyv4_selected_block(selected, row_starts, request_start)
+ 
+ 
+ def _translate_hyv4_selected_prefix(
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+index c619033..35f13db 100644
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -150,6 +150,24 @@ def test_hy4_selected_prefix_translation_preserves_invalid_tail():
+     assert indices.tolist() == [14, 11, 18, -1, -1]
+ 
+ 
++def test_hy4_selected_block_translation_preserves_invalid_entries():
++    selected = torch.tensor(
++        [[3, -1, 0, -1], [-1, 7, 2, 1]], dtype=torch.int32
++    )
++    row_starts = torch.tensor([11, 17], dtype=torch.int32)
++
++    hy_v4._translate_hyv4_selected_block(
++        selected,
++        row_starts,
++        request_start=5,
++    )
++
++    assert selected.tolist() == [
++        [9, -1, 6, -1],
++        [-1, 19, 14, 13],
++    ]
++
++
+ def test_hy4_blocked_prefill_topk_matches_row_reference():
+     torch.manual_seed(20260914)
+     q = torch.randn((5, 2, 4), dtype=torch.float32)

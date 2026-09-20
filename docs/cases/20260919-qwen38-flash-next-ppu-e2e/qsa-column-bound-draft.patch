@@ -1,0 +1,50 @@
+diff --git a/src/flag_gems/fused/qsa.py b/src/flag_gems/fused/qsa.py
+index 8133c61..6a54a8f 100644
+--- a/src/flag_gems/fused/qsa.py
++++ b/src/flag_gems/fused/qsa.py
+@@ -642,8 +642,16 @@ def qsa_select_paged_tokens(
+     token_topk: int,
+     compress_ratio: int,
+     out: torch.Tensor | None = None,
++    static_score_columns: int | None = None,
+ ) -> torch.Tensor:
+-    """Score, select, and expand QSA indices without host synchronization."""
++    """Score, select, and expand QSA indices without host synchronization.
++
++    ``static_score_columns`` is a graph-capture-time host integer.  It must be
++    at least ``token_topk // compress_ratio`` and at least the maximum visible
++    compressed-block count for every row in the captured bucket.  The caller
++    owns that semantic upper-bound proof; this function deliberately performs
++    no device-to-host synchronization to derive it.
++    """
+ 
+     rows = q.shape[0]
+     output_width = token_topk + compress_ratio - 1
+@@ -651,11 +659,17 @@ def qsa_select_paged_tokens(
+         out = torch.empty((rows, output_width), dtype=torch.int32, device=q.device)
+     if out.shape != (rows, output_width):
+         raise ValueError("QSA selection output has an invalid shape")
++    capacity = page_table.shape[1] * k_cache.shape[1]
++    block_topk = token_topk // compress_ratio
++    columns = capacity if static_score_columns is None else int(static_score_columns)
++    if columns < block_topk or columns > capacity:
++        raise ValueError(
++            "QSA static score width must be within "
++            "[token_topk / compress_ratio, cache capacity]"
++        )
+     if not rows:
+         return out
+ 
+-    columns = page_table.shape[1] * k_cache.shape[1]
+-    block_topk = token_topk // compress_ratio
+     rows_per_chunk = max(1, _LOGITS_WORKSPACE_BYTES // max(columns * 4, 1))
+     for row_start in range(0, rows, rows_per_chunk):
+         row_end = min(row_start + rows_per_chunk, rows)
+@@ -668,6 +682,7 @@ def qsa_select_paged_tokens(
+             query_positions[row_slice],
+             sequence_lengths,
+             compress_ratio,
++            num_columns=columns,
+         )
+         # Sorting keeps visible blocks before -inf padding. Primitive TopK
+         # follows the existing FlagGems/PyTorch operator registration.

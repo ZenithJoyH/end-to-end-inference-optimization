@@ -1,0 +1,161 @@
+diff --git a/vllm_fl/dispatch/backends/vendor/thead/impl/hyv4_indexer.py b/vllm_fl/dispatch/backends/vendor/thead/impl/hyv4_indexer.py
+new file mode 100644
+--- /dev/null
++++ b/vllm_fl/dispatch/backends/vendor/thead/impl/hyv4_indexer.py
+@@ -0,0 +1,92 @@
++# Copyright (c) 2026 BAAI. All rights reserved.
++
++"""T-Head kernels for HY4 Indexer data movement."""
++
++from __future__ import annotations
++
++import torch
++import triton
++import triton.language as tl
++
++
++_BLOCK_TOKENS = 2
++_BLOCK_SIZE = 64
++_HEAD_DIM = 128
++
++
++@triton.jit
++def _gather_hyv4_paged_sequence_kernel(
++    kv_cache,
++    block_table,
++    output,
++    seq_len,
++    stride_cache_block,
++    stride_cache_token,
++    stride_cache_dim,
++    stride_output_token,
++    BLOCK_SIZE: tl.constexpr,
++    HEAD_DIM: tl.constexpr,
++    BLOCK_TOKENS: tl.constexpr,
++):
++    token_offsets = (
++        tl.program_id(0) * BLOCK_TOKENS + tl.arange(0, BLOCK_TOKENS)
++    )[:, None]
++    dim_offsets = tl.arange(0, HEAD_DIM)[None, :]
++    token_mask = token_offsets < seq_len
++    logical_blocks = token_offsets // BLOCK_SIZE
++    token_in_block = token_offsets % BLOCK_SIZE
++    physical_blocks = tl.load(
++        block_table + logical_blocks,
++        mask=token_mask,
++        other=0,
++    )
++    values = tl.load(
++        kv_cache
++        + physical_blocks * stride_cache_block
++        + token_in_block * stride_cache_token
++        + dim_offsets * stride_cache_dim,
++        mask=token_mask,
++        other=0.0,
++    )
++    tl.store(
++        output + token_offsets * stride_output_token + dim_offsets,
++        values,
++        mask=token_mask,
++    )
++
++
++def gather_hyv4_paged_sequence(
++    kv_cache: torch.Tensor,
++    block_table: torch.Tensor,
++    seq_len: int,
++) -> torch.Tensor:
++    """Gather request-ordered keys without materializing the full cache.
++
++    The generic ``index_select`` implementation transposes and makes the
++    complete flattened cache contiguous before selecting a few thousand rows
++    on T-Head. This kernel follows the paged strides directly and writes only
++    the requested sequence.
++    """
++    output = torch.empty(
++        (seq_len, _HEAD_DIM),
++        device=kv_cache.device,
++        dtype=kv_cache.dtype,
++    )
++    _gather_hyv4_paged_sequence_kernel[
++        (triton.cdiv(seq_len, _BLOCK_TOKENS),)
++    ](
++        kv_cache,
++        block_table,
++        output,
++        seq_len,
++        kv_cache.stride(0),
++        kv_cache.stride(1),
++        kv_cache.stride(2),
++        output.stride(0),
++        BLOCK_SIZE=_BLOCK_SIZE,
++        HEAD_DIM=_HEAD_DIM,
++        BLOCK_TOKENS=_BLOCK_TOKENS,
++        num_warps=4,
++        num_stages=1,
++    )
++    return output
+diff --git a/vllm_fl/models/hy_v4.py b/vllm_fl/models/hy_v4.py
+--- a/vllm_fl/models/hy_v4.py
++++ b/vllm_fl/models/hy_v4.py
+@@ -307,7 +307,29 @@ def _paged_sequence(
+ ) -> torch.Tensor:
+     """Gather one request's BF16 indexer keys in request-token order."""
+     if seq_len <= 0:
+         return kv_cache.new_empty((0, kv_cache.shape[-1]))
++    if (
++        current_platform.vendor_name == "thead"
++        and kv_cache.device.type == "cuda"
++        and kv_cache.dtype == torch.bfloat16
++        and kv_cache.ndim == 3
++        and kv_cache.shape[1] == 64
++        and kv_cache.shape[2] == 128
++        and kv_cache.stride(2) == 1
++        and block_table.device == kv_cache.device
++        and block_table.dtype in (torch.int32, torch.int64)
++        and block_table.ndim == 1
++        and block_table.stride(0) == 1
++    ):
++        from vllm_fl.dispatch.backends.vendor.thead.impl.hyv4_indexer import (
++            gather_hyv4_paged_sequence,
++        )
++
++        return gather_hyv4_paged_sequence(
++            kv_cache,
++            block_table,
++            seq_len,
++        )
+     block_size = kv_cache.shape[1]
+     num_blocks = (seq_len + block_size - 1) // block_size
+     blocks = block_table[:num_blocks].to(torch.long)
+diff --git a/tests/unit_tests/models/test_hy_v4.py b/tests/unit_tests/models/test_hy_v4.py
+--- a/tests/unit_tests/models/test_hy_v4.py
++++ b/tests/unit_tests/models/test_hy_v4.py
+@@ -113,6 +113,27 @@ def test_hy4_sparse_index_block_n_is_thead_shape_gated(monkeypatch):
+     ) == 128
+ 
+ 
++def test_hy4_paged_sequence_preserves_request_token_order():
++    kv_cache = torch.arange(4 * 2 * 3, dtype=torch.bfloat16).reshape(
++        4, 2, 3
++    )
++    block_table = torch.tensor([2, 0], dtype=torch.int32)
++
++    actual = hy_v4._paged_sequence(kv_cache, block_table, seq_len=3)
++
++    expected = torch.stack(
++        (
++            kv_cache[2, 0],
++            kv_cache[2, 1],
++            kv_cache[0, 0],
++        )
++    )
++    assert torch.equal(actual, expected)
++
++    empty = hy_v4._paged_sequence(kv_cache, block_table, seq_len=0)
++    assert empty.shape == (0, 3)
++
++
+ def test_hy4_prefill_topk_uses_shared_capability(monkeypatch):
+     captured = {}
+ 

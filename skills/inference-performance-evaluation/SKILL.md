@@ -95,10 +95,10 @@ Before starting, record `formal_run_lifecycle=intermediate-single-target|final-a
 
 ## Record and route artifacts
 
-Write the Skill mode, scenarios, plan/contract SHA, service-manifest and run-record paths, comparison result, result state, conclusion boundary, and next trigger into the applicable `state.yml`. Then update the same directory's `README.md` with a human-readable result table. Completed measurements must show actual metrics and units; an absent result must say `not_run`, `incomplete`, or `deferred-too-slow` with the reason and next trigger.
+Write the Skill mode, scenarios, plan/contract SHA, service-manifest and run-record paths, comparison result, result state, conclusion boundary, and next trigger into the applicable `state.yml`. For an optimization experiment, update `optimize/<experiment-id>.md` with the direction, implemented change, exact workload, comparable baseline/candidate/revert metrics, percentage changes, variability, guards, correctness status, decision, and external evidence. Then update the same directory's `README.md` as the multi-round human-readable summary and index. Completed measurements must show actual metrics and units; an absent result must say `not_run`, `incomplete`, or `deferred-too-slow` with the reason and next trigger.
 
 - Initial baseline facts and tables update `baseline/state.yml` and `baseline/README.md`.
-- Targeted, checkpoint, failed, reverted, and intermediate formal rounds update the stable experiment ledger in `optimize/state.yml` and the human table in `optimize/README.md`; do not create an `optimize/history/` or per-run directory.
+- Targeted, checkpoint, failed, reverted, and intermediate formal rounds update the stable experiment ledger in `optimize/state.yml`, the matching `optimize/<experiment-id>.md`, and the linked summary row in `optimize/README.md`. Keep one Markdown per optimization point rather than one per run; do not create an `optimize/history/` or per-run directory.
 - Only the accepted final combination updates `acceptance/state.yml` and `acceptance/README.md`.
 - Plans, service manifests, run records, large JSON, logs, responses, traces, commands, and generated scripts remain in the external or remote case directory; store their absolute paths and required checksums in `state.yml` instead of copying them under `models/`.
 

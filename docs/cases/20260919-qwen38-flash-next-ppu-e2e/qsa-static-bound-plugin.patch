@@ -1,0 +1,42 @@
+diff --git a/vllm_fl/models/qwen3_8_flash_next.py b/vllm_fl/models/qwen3_8_flash_next.py
+--- a/vllm_fl/models/qwen3_8_flash_next.py
++++ b/vllm_fl/models/qwen3_8_flash_next.py
+@@ -6,6 +6,7 @@ from __future__ import annotations
+ 
+ import inspect
+ import math
++import os
+ from collections.abc import Iterable, Sequence
+ from dataclasses import dataclass, replace
+ from itertools import islice
+@@ -1767,6 +1768,22 @@ class QSAIndexer(nn.Module):
+         self.index_head_dim = int(config.indexer_head_dim)
+         self.token_topk = int(config.indexer_budget)
+         self.compress_ratio = int(config.indexer_compress_ratio)
++        score_columns = os.environ.get("VLLM_FL_QSA_STATIC_SCORE_COLUMNS")
++        self.static_score_columns = int(score_columns) if score_columns else None
++        if self.static_score_columns is not None:
++            block_topk = self.token_topk // self.compress_ratio
++            if (
++                self.static_score_columns < block_topk
++                or self.static_score_columns % 32
++            ):
++                raise ValueError(
++                    "VLLM_FL_QSA_STATIC_SCORE_COLUMNS must be a multiple of 32 "
++                    "and at least indexer_budget / indexer_compress_ratio"
++                )
++            if self.static_score_columns > math.ceil(
++                vllm_config.model_config.max_model_len / self.compress_ratio
++            ):
++                raise ValueError("QSA static score width exceeds model capacity")
+         self.rotary_emb = rotary_emb
+         self.prefix = prefix
+ 
+@@ -1958,6 +1974,7 @@ class QSAIndexer(nn.Module):
+             self.token_topk,
+             self.compress_ratio,
+             out,
++            static_score_columns=self.static_score_columns,
+         )
+ 
+     def forward(

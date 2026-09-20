@@ -20,7 +20,13 @@ import vllm_perf
 
 ROLES = ("baseline", "candidate", "revert")
 VOLATILE_SERVICE_FIELDS = {"service_instance_id", "runtime_evidence_sha256", "base_url"}
-VARIABLE_ROOTS = {"plugin_sha256", "flaggems_sha256", "launch_config", "mode"}
+VARIABLE_ROOTS = {
+    "plugin_sha256",
+    "flaggems_sha256",
+    "flaggems_vllm_sha256",
+    "launch_config",
+    "mode",
+}
 CACHE_VARIABLE_PATHS = {"/performance_context/prefix_cache_state", "/performance_context/cache_preparation"}
 
 

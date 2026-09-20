@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "A P4K optimization selected from the entry phase evidence improves Mixed output throughput by at least 3% without regressing total-token throughput or P99 TTFT, TPOT, ITL, or E2E by more than 5%.",
+  "variable_paths": [
+    "/plugin_sha256",
+    "/flaggems_vllm_sha256",
+    "/flaggems_sha256",
+    "/launch_config/max_num_batched_tokens"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.03
+  },
+  "guardrails": [
+    {"metric": "total_token_throughput", "direction": "higher", "max_regression": 0.02},
+    {"metric": "p99_ttft_ms", "direction": "lower", "max_regression": 0.05},
+    {"metric": "p99_tpot_ms", "direction": "lower", "max_regression": 0.05},
+    {"metric": "p99_itl_ms", "direction": "lower", "max_regression": 0.05},
+    {"metric": "p99_e2el_ms", "direction": "lower", "max_regression": 0.05}
+  ],
+  "repeats": {
+    "min_processes": 2,
+    "min_measured_rounds": 3,
+    "max_relative_spread": 0.08,
+    "max_baseline_drift": 0.05
+  }
+}

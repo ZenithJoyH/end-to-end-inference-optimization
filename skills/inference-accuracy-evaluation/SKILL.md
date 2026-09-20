@@ -29,7 +29,7 @@ Low-risk batching changes only the frequency of `formal-gate`; it never removes 
 
 Bind every result to the target Host, optimization container, service instance, model/weights, tokenizer, engine, Plugin, FlagGems-vllm, FlagGems, launch configuration, graph mode, and covered experiment IDs. Resolve these from the current runtime; do not reuse a historical manifest because paths or version strings look similar.
 
-When the user supplied a remote work directory, place configs, inspect evidence, logs, samples, results, health review, and gate under its unique case directory. Intermediate accuracy results update the model/platform `optimize/state.yml` and `optimize/README.md`; only the final candidate status updates `acceptance/state.yml` and `acceptance/README.md`. Large or sensitive artifacts, runner configs, service manifests, and gate files remain remote, with paths and necessary checksums recorded in structured state instead of copied into `models/`.
+When the user supplied a remote work directory, place configs, inspect evidence, logs, samples, results, health review, and gate under its unique case directory. Intermediate accuracy results update the model/platform `optimize/state.yml`, the correctness section of every covered `optimize/<experiment-id>.md`, and the multi-round summary in `optimize/README.md`; only the final candidate status updates `acceptance/state.yml` and `acceptance/README.md`. Large or sensitive artifacts, runner configs, service manifests, and gate files remain remote, with paths and necessary checksums recorded in structured state instead of copied into `models/`.
 
 ## Schedule progress notifications
 
@@ -52,7 +52,7 @@ The monitor must not alter, restart, or duplicate the evaluator or model service
 1. Identify the changed semantic surface and a trustworthy reference or prior path.
 2. Test representative, boundary, non-aligned, fallback, empty/zero-token, dtype and layout cases that the change can affect. Require the target graph service to start, capture, and complete at least two replays. Eager service validation is not required for performance optimization.
 3. Run fixed smoke and C8 service checks when the change can affect request-level behavior. Inspect timeouts, empty or truncated output, malformed text, abnormal repetition, errors, and target-path/fallback evidence.
-4. Record `passed`, `failed`, or `incomplete` with the exact experiment ID. A minimal pass is not a formal model-accuracy pass.
+4. Record `passed`, `failed`, or `incomplete` with the exact experiment ID in structured state and the matching optimization-point Markdown. A minimal pass is not a formal model-accuracy pass.
 5. On a required minimal-regression failure or invalid evidence, stop candidate promotion and invoke `$inference-accuracy-diagnosis`. Fix or revert before adding another optimization point. Timeout, empty/truncated output, repetition, or formatting symptoms may trigger diagnosis, but do not independently fail accuracy when a valid formal score meets the frozen threshold.
 
 ## Formal gate

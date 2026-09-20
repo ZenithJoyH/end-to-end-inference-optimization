@@ -1,0 +1,88 @@
+diff --git a/vllm_fl/ops/fused_moe/fused_moe.py b/vllm_fl/ops/fused_moe/fused_moe.py
+index 6a7ce11..78f55f4 100644
+--- a/vllm_fl/ops/fused_moe/fused_moe.py
++++ b/vllm_fl/ops/fused_moe/fused_moe.py
+@@ -19,6 +19,7 @@ from vllm.model_executor.layers.fused_moe.fused_moe import (
+ )
+ from vllm.model_executor.layers.fused_moe.utils import moe_kernel_quantize_input
+ from vllm.triton_utils import tl
++from vllm.logger import init_logger
+ from vllm_fl.dispatch import CachedOp
+ 
+ _moe_align_block_size = CachedOp("moe_align_block_size")
+@@ -27,6 +28,41 @@ _gelu_and_mul = CachedOp("gelu_and_mul")
+ _moe_sum = CachedOp("moe_sum")
+ 
+ 
++logger = init_logger(__name__)
++
++
++_QWEN38_FLASH_BF16_DECODE_CONFIG = {
++    "BLOCK_SIZE_M": 32,
++    "BLOCK_SIZE_N": 64,
++    "BLOCK_SIZE_K": 128,
++    "GROUP_SIZE_M": 1,
++    "SPLIT_K": 1,
++    "num_warps": 4,
++    "num_stages": 3,
++}
++def _maybe_tune_qwen38_flash_block_m(
++    config: dict[str, int],
++    w1_shape: torch.Size,
++    w2_shape: torch.Size,
++    top_k: int,
++    config_dtype: str,
++    num_tokens: int,
++) -> dict[str, int]:
++    """Experimental, shape-gated BLOCK_SIZE_M-only override."""
++    if (
++        tuple(w1_shape) != (512, 160, 2560)
++        or tuple(w2_shape) != (512, 2560, 80)
++        or top_k != 10
++        or config_dtype != "bf16"
++    ):
++        return config
++    if num_tokens == 64 and config == _QWEN38_FLASH_BF16_DECODE_CONFIG:
++        tuned = config.copy()
++        tuned["BLOCK_SIZE_M"] = 16
++        logger.info_once(
++            "Using the Qwen3.8-Flash BF16 decode MoE BLOCK_SIZE_M=16 override"
++        )
++        return tuned
++    return config
++
++
+ def fused_experts_impl(
+     hidden_states: torch.Tensor,
+     w1: torch.Tensor,
+@@ -104,7 +140,14 @@ def fused_experts_impl(
+         block_shape=block_shape,
+     )
+ 
+-    config = get_config_func(M)
++    config = _maybe_tune_qwen38_flash_block_m(
++        get_config_func(M),
++        w1.size(),
++        w2.size(),
++        top_k_num,
++        config_dtype,
++        M,
++    )
+ 
+     # We can reuse the memory between these because by the time we need
+     # cache3, we're done with cache1
+@@ -156,6 +199,13 @@ def fused_experts_impl(
+             ]
+             intermediate_cache3 = intermediate_cache3[:tokens_in_chunk]
+-            config = get_config_func(tokens_in_chunk)
++            config = _maybe_tune_qwen38_flash_block_m(
++                get_config_func(tokens_in_chunk),
++                w1.size(),
++                w2.size(),
++                top_k_num,
++                config_dtype,
++                tokens_in_chunk,
++            )
+ 
+         curr_topk_ids = topk_ids[begin_chunk_idx:end_chunk_idx]
+         curr_topk_weights = topk_weights[begin_chunk_idx:end_chunk_idx]

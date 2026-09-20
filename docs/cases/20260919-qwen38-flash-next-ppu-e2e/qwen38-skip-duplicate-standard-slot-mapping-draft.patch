@@ -1,0 +1,95 @@
+diff --git a/vllm_fl/worker/model_runner.py b/vllm_fl/worker/model_runner.py
+--- a/vllm_fl/worker/model_runner.py
++++ b/vllm_fl/worker/model_runner.py
+@@ -2229,11 +2229,11 @@ class ModelRunnerFL(
+         )
+         self.seq_lens[num_reqs:].fill_(0)
+ 
+-        self.input_batch.block_table.compute_slot_mapping(
++        self._compute_standard_slot_mapping_if_needed(
+             num_reqs,
+             self.query_start_loc.gpu[: num_reqs + 1],
+             self.positions[:total_num_scheduled_tokens],
+         )
+ 
+         # Copy the tensors to the GPU.
+         self._prepare_input_ids(
+@@ -4179,5 +4179,27 @@ class ModelRunnerFL(
+                 self.layerwise_nvtx_hooks_registered = True
+ 
++    def _compute_standard_slot_mapping_if_needed(
++        self,
++        num_reqs: int,
++        query_start_loc: torch.Tensor,
++        positions: torch.Tensor,
++    ) -> bool:
++        """Run the generic slot producer only when no model producer owns it."""
++        # Qwen3.8's common-slot producer is authoritative for every cache group.
++        # It runs later in execute_model in both eager and graph modes, and also
++        # refreshes padded block-table rows and num_computed_tokens. Running the
++        # generic producer here writes the same slot mappings only to overwrite
++        # them again in _run_common_slot_mapping.
++        if self.common_slot_mapping_graph is not None:
++            return False
++
++        self.input_batch.block_table.compute_slot_mapping(
++            num_reqs,
++            query_start_loc,
++            positions,
++        )
++        return True
++
+     def _run_common_slot_mapping(
+         self,
+         num_reqs: int,
+diff --git a/tests/qwen3_8_flash_next/test_runner_ngram.py b/tests/qwen3_8_flash_next/test_runner_ngram.py
+--- a/tests/qwen3_8_flash_next/test_runner_ngram.py
++++ b/tests/qwen3_8_flash_next/test_runner_ngram.py
+@@ -3,6 +3,7 @@
+ import ast
+ from pathlib import Path
+ from types import SimpleNamespace
++from unittest.mock import Mock
+ 
+ import numpy as np
+ import pytest
+@@ -99,3 +100,39 @@ def test_non_ple_runner_never_enters_new_metadata_path():
+     runner = SimpleNamespace(common_slot_mapping_graph=None)
+     # No input batch, device, graph runtime or dispatch is needed by this path.
+     assert _method("_run_common_slot_mapping")(runner, 4, object()) is False
++
++
++@pytest.mark.parametrize(
++    ("common_slot_mapping_graph", "expected_standard_call"),
++    [(None, True), (object(), False)],
++)
++def test_common_slot_owner_controls_standard_slot_mapping(
++    common_slot_mapping_graph,
++    expected_standard_call,
++):
++    compute_slot_mapping = Mock()
++    runner = SimpleNamespace(
++        common_slot_mapping_graph=common_slot_mapping_graph,
++        input_batch=SimpleNamespace(
++            block_table=SimpleNamespace(compute_slot_mapping=compute_slot_mapping)
++        ),
++    )
++    query_start_loc = torch.tensor([0, 2, 3], dtype=torch.int32)
++    positions = torch.tensor([5, 6, 7], dtype=torch.int64)
++
++    used_standard = _method("_compute_standard_slot_mapping_if_needed")(
++        runner,
++        2,
++        query_start_loc,
++        positions,
++    )
++
++    assert used_standard is expected_standard_call
++    if expected_standard_call:
++        compute_slot_mapping.assert_called_once_with(
++            2,
++            query_start_loc,
++            positions,
++        )
++    else:
++        compute_slot_mapping.assert_not_called()

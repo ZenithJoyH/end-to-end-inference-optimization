@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "deferred-too-slow/incomplete",
+  "run_id": "p32k-entry-prefill-candidate-01",
+  "scenario_id": "p32768-d1024-c64-n128",
+  "phase": "prefill",
+  "workload": "P32768/D1/C32/N64",
+  "reason": "User explicitly prioritized P4K optimization because P16K/P32K end-to-end measurements are slow.",
+  "started_at": "2026-09-20T10:03:05+08:00",
+  "benchmark_started_at": "2026-09-20T10:03:32+08:00",
+  "stopped_at": "2026-09-20T10:08:49+08:00",
+  "stop_signal": "SIGINT",
+  "client_pid": 411772,
+  "progress": {
+    "round_id": 1,
+    "round_phase": "warmup",
+    "completed_requests_visible_in_progress": 63,
+    "expected_requests": 64,
+    "progress_percent": 98,
+    "elapsed_progress": "00:04:50",
+    "estimated_seconds_per_request": 4.55,
+    "native_result_complete": false
+  },
+  "service_after_stop": {
+    "healthy": true,
+    "num_requests_running": 0,
+    "num_requests_waiting": 0,
+    "container": "qwen3.8-flash-opt-candidate-20260919",
+    "service_instance_id": "9b65cc77d73c-8030-2463531-257469366"
+  },
+  "evidence": {
+    "run_record": "/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/performance/p32k-entry-prefill-candidate-01/run-record.json",
+    "output": "/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/performance/p32k-entry-prefill-candidate-01/p32768-d1-c32-n64-prefill-entry-r1.output.json",
+    "validation": "/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/performance/p32k-entry-prefill-candidate-01/p32768-d1-c32-n64-prefill-entry-r1.validation.json"
+  },
+  "boundary": "No performance metric or speedup is computed from this interrupted warmup. P32K remains in the formal scenario set and must be resumed for final acceptance."
+}

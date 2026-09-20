@@ -1,0 +1,373 @@
+diff --git a/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py b/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
+index 42d5cb4..90cf4c7 100644
+--- a/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
++++ b/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
+@@ -35,8 +35,11 @@ _SPLITK_TOPK = 2048
+ _SPLITK_BK = 64
+ _SPLITK_BDP = 256
+ _SPLITK_MAX_SQ = 64
+-_HQ4_PREFILL_MIN_SQ = 128
++_HQ4_PREFILL_MIN_SQ = _SPLITK_MAX_SQ + 1
+ _HQ4_PREFILL_MAX_SQ = 2048
++_FULL_PREFIX_GROUP_SIZE = 4
++_FULL_PREFIX_CLASSIFY_BLOCK = 256
++_FULL_PREFIX_MIN_SQ = 512
+ 
+ 
+ @triton.jit
+@@ -204,6 +207,196 @@ def _flash_mla_sparse_splitk_stage2(
+         )
+ 
+ 
++@triton.jit
++def _classify_full_prefix_groups(
++    indices,
++    topk_length,
++    group_flags,
++    legacy_lengths,
++    stride_tm,
++    sq,
++    TOPK: tl.constexpr,
++    GROUP_SIZE: tl.constexpr,
++    BLOCK: tl.constexpr,
++):
++    group_id = tl.program_id(0)
++    first_row = group_id * GROUP_SIZE
++    valid_group = first_row + GROUP_SIZE <= sq
++    length0 = tl.load(topk_length + first_row, mask=first_row < sq, other=0)
++    length1 = tl.load(topk_length + first_row + 1, mask=first_row + 1 < sq, other=0)
++    length2 = tl.load(topk_length + first_row + 2, mask=first_row + 2 < sq, other=0)
++    length3 = tl.load(topk_length + first_row + 3, mask=first_row + 3 < sq, other=0)
++    consecutive = (
++        (length0 > 0)
++        & (length1 == length0 + 1)
++        & (length2 == length1 + 1)
++        & (length3 == length2 + 1)
++        & (length3 <= TOPK)
++    )
++    mismatch = tl.zeros((), dtype=tl.int32)
++    for block_id in range(TOPK // BLOCK):
++        positions = block_id * BLOCK + tl.arange(0, BLOCK)
++        reference = tl.load(
++            indices + (first_row + GROUP_SIZE - 1) * stride_tm + positions,
++            mask=valid_group,
++            other=-1,
++        )
++        row0 = tl.load(
++            indices + first_row * stride_tm + positions,
++            mask=valid_group,
++            other=-1,
++        )
++        row1 = tl.load(
++            indices + (first_row + 1) * stride_tm + positions,
++            mask=valid_group,
++            other=-1,
++        )
++        row2 = tl.load(
++            indices + (first_row + 2) * stride_tm + positions,
++            mask=valid_group,
++            other=-1,
++        )
++        different = ((positions < length0) & (row0 != reference)) | (
++            (positions < length1) & (row1 != reference)
++        ) | ((positions < length2) & (row2 != reference))
++        mismatch += tl.sum(different.to(tl.int32))
++    grouped = valid_group & consecutive & (mismatch == 0)
++    tl.store(group_flags + group_id, grouped.to(tl.int32))
++    tl.store(legacy_lengths + first_row, tl.where(grouped, 0, length0), mask=first_row < sq)
++    tl.store(legacy_lengths + first_row + 1, tl.where(grouped, 0, length1), mask=first_row + 1 < sq)
++    tl.store(legacy_lengths + first_row + 2, tl.where(grouped, 0, length2), mask=first_row + 2 < sq)
++    tl.store(legacy_lengths + first_row + 3, tl.where(grouped, 0, length3), mask=first_row + 3 < sq)
++
++
++@triton.jit
++def _flash_mla_sparse_full_prefix_grouped(
++    q,
++    kv,
++    indices,
++    attn_sink,
++    topk_length,
++    group_flags,
++    output,
++    max_logits,
++    lse,
++    stride_qm,
++    stride_qh,
++    stride_kvn,
++    stride_tm,
++    stride_om,
++    stride_oh,
++    stride_mm,
++    stride_lm,
++    sq,
++    skv,
++    SM_SCALE: tl.constexpr,
++    HQ: tl.constexpr,
++    DV: tl.constexpr,
++    BDP: tl.constexpr,
++    BK: tl.constexpr,
++    GROUP_SIZE: tl.constexpr,
++    BH: tl.constexpr,
++):
++    group_id = tl.program_id(0)
++    if tl.load(group_flags + group_id) != 0:
++        first_row = group_id * GROUP_SIZE
++        last_row = first_row + GROUP_SIZE - 1
++        offs_bh = tl.arange(0, BH)
++        row_offset = offs_bh // HQ
++        head = offs_bh % HQ
++        row = first_row + row_offset
++        offs_d = tl.arange(0, BDP)
++        offs_t = tl.arange(0, BK)
++        offs_td = tl.arange(0, 64)
++
++        q_base = q + row[:, None] * stride_qm + head[:, None] * stride_qh
++        q0 = tl.load(q_base + offs_d[None, :])
++        q1 = tl.load(q_base + BDP + offs_d[None, :])
++        qt = tl.load(q_base + DV + offs_td[None, :])
++        row_lengths = tl.load(topk_length + row)
++        max_length = tl.load(topk_length + last_row)
++        index_base = indices + last_row * stride_tm
++
++        max_log = tl.full([BH], float("-inf"), dtype=tl.float32)
++        sum_exp = tl.zeros([BH], dtype=tl.float32)
++        acc0 = tl.zeros([BH, BDP], dtype=tl.float32)
++        acc1 = tl.zeros([BH, BDP], dtype=tl.float32)
++        num_blocks = tl.cdiv(max_length, BK)
++        for block_id in range(num_blocks):
++            positions = block_id * BK + offs_t
++            union_mask = positions < max_length
++            kv_ids = tl.load(index_base + positions, mask=union_mask, other=-1)
++            valid_ids = union_mask & (kv_ids >= 0) & (kv_ids < skv)
++            safe_ids = tl.where(valid_ids, kv_ids, 0)
++            kv0 = tl.load(
++                kv + safe_ids[None, :] * stride_kvn + offs_d[:, None],
++                cache_modifier=".cg",
++            )
++            kv1 = tl.load(
++                kv
++                + safe_ids[None, :] * stride_kvn
++                + BDP
++                + offs_d[:, None],
++                cache_modifier=".cg",
++            )
++            kvt = tl.load(
++                kv
++                + safe_ids[None, :] * stride_kvn
++                + DV
++                + offs_td[:, None],
++                cache_modifier=".cg",
++            )
++            qk = tl.dot(q0, kv0, out_dtype=tl.float32)
++            qk = tl.dot(q1, kv1, qk, out_dtype=tl.float32)
++            qk = tl.dot(qt, kvt, qk, out_dtype=tl.float32) * SM_SCALE
++            row_key_mask = valid_ids[None, :] & (
++                positions[None, :] < row_lengths[:, None]
++            )
++            qk = tl.where(row_key_mask, qk, float("-inf"))
++            new_max = tl.maximum(max_log, tl.max(qk, axis=1))
++            exp_qk = tl.where(
++                row_key_mask, tl.exp(qk - new_max[:, None]), 0.0
++            )
++            alpha = tl.where(
++                max_log != float("-inf"), tl.exp(max_log - new_max), 0.0
++            )
++            sum_exp = sum_exp * alpha + tl.sum(exp_qk, axis=1)
++            acc0 = tl.dot(
++                exp_qk.to(tl.bfloat16),
++                kv0.trans(),
++                acc0 * alpha[:, None],
++                out_dtype=tl.float32,
++            )
++            acc1 = tl.dot(
++                exp_qk.to(tl.bfloat16),
++                kv1.trans(),
++                acc1 * alpha[:, None],
++                out_dtype=tl.float32,
++            )
++            max_log = new_max
++
++        valid = max_log != float("-inf")
++        orig_lse = max_log + tl.log(sum_exp)
++        sink = tl.load(attn_sink + head)
++        denominator = tl.exp(orig_lse) + tl.exp(sink)
++        factor = tl.exp(max_log) / denominator
++        out0 = tl.where(valid[:, None], acc0 * factor[:, None], 0.0)
++        out1 = tl.where(valid[:, None], acc1 * factor[:, None], 0.0)
++        out_base = output + row[:, None] * stride_om + head[:, None] * stride_oh
++        tl.store(out_base + offs_d[None, :], out0.to(tl.bfloat16))
++        tl.store(out_base + BDP + offs_d[None, :], out1.to(tl.bfloat16))
++        stat_offset = row * stride_mm + head
++        tl.store(
++            max_logits + stat_offset,
++            tl.where(valid, max_log, float("-inf")),
++        )
++        lse_offset = row * stride_lm + head
++        tl.store(
++            lse + lse_offset,
++            tl.where(valid, orig_lse, float("inf")),
++        )
++
++
+ def _can_use_thead_splitk(
+     q: torch.Tensor,
+     kv: torch.Tensor,
+@@ -289,12 +482,64 @@ def _flash_mla_sparse_hq4_prefill(
+         (sq, _SPLITK_HQ), device=q.device, dtype=torch.float32
+     )
+     lse = torch.empty_like(max_logits)
++    if sq < _FULL_PREFIX_MIN_SQ:
++        _triton_flash_mla_sparse_fwd.fn[(sq,)](
++            q,
++            kv,
++            indices,
++            attn_sink,
++            topk_length,
++            sm_scale,
++            output,
++            max_logits,
++            lse,
++            q.stride(1),
++            q.stride(0),
++            kv.stride(1),
++            kv.stride(0),
++            indices.stride(1),
++            indices.stride(0),
++            output.stride(1),
++            output.stride(0),
++            max_logits.stride(0),
++            lse.stride(0),
++            sq,
++            _SPLITK_HQ,
++            _SPLITK_DQK,
++            skv,
++            _SPLITK_TOPK,
++            True,
++            True,
++            BK=32,
++            BH=_SPLITK_HQ,
++            num_warps=4,
++            num_stages=1,
++        )
++        return output, max_logits, lse
++    num_groups = triton.cdiv(sq, _FULL_PREFIX_GROUP_SIZE)
++    group_flags = torch.empty(
++        (num_groups,), device=q.device, dtype=torch.int32
++    )
++    legacy_lengths = torch.empty_like(topk_length)
++    _classify_full_prefix_groups[(num_groups,)](
++        indices,
++        topk_length,
++        group_flags,
++        legacy_lengths,
++        indices.stride(0),
++        sq,
++        TOPK=_SPLITK_TOPK,
++        GROUP_SIZE=_FULL_PREFIX_GROUP_SIZE,
++        BLOCK=_FULL_PREFIX_CLASSIFY_BLOCK,
++        num_warps=4,
++        num_stages=1,
++    )
+     _triton_flash_mla_sparse_fwd.fn[(sq,)](
+         q,
+         kv,
+         indices,
+         attn_sink,
+-        topk_length,
++        legacy_lengths,
+         sm_scale,
+         output,
+         max_logits,
+@@ -321,6 +566,36 @@ def _flash_mla_sparse_hq4_prefill(
+         num_warps=4,
+         num_stages=1,
+     )
++    _flash_mla_sparse_full_prefix_grouped[(num_groups,)](
++        q,
++        kv,
++        indices,
++        attn_sink,
++        topk_length,
++        group_flags,
++        output,
++        max_logits,
++        lse,
++        q.stride(0),
++        q.stride(1),
++        kv.stride(0),
++        indices.stride(0),
++        output.stride(0),
++        output.stride(1),
++        max_logits.stride(0),
++        lse.stride(0),
++        sq,
++        skv,
++        SM_SCALE=sm_scale,
++        HQ=_SPLITK_HQ,
++        DV=_SPLITK_DV,
++        BDP=_SPLITK_BDP,
++        BK=32,
++        GROUP_SIZE=_FULL_PREFIX_GROUP_SIZE,
++        BH=_FULL_PREFIX_GROUP_SIZE * _SPLITK_HQ,
++        num_warps=4,
++        num_stages=1,
++    )
+     return output, max_logits, lse
+ 
+ 
+diff --git a/tests/test_thead_hy4_ops.py b/tests/test_thead_hy4_ops.py
+index aa75a1b..8288e6e 100644
+--- a/tests/test_thead_hy4_ops.py
++++ b/tests/test_thead_hy4_ops.py
+@@ -106,7 +106,7 @@ def test_hy4_moe_sum_specialization(m):
+     utils.gems_assert_close(output, reference, inp.dtype)
+ 
+ 
+-@pytest.mark.parametrize("sq", [1, 64, 128, 2048])
++@pytest.mark.parametrize("sq", [1, 64, 65, 72, 127, 128, 2048])
+ def test_hy4_sparse_mla_specialization(sq):
+     q, kv, indices, lengths, sinks = _sparse_inputs(sq)
+     if sq <= 64:
+@@ -127,8 +127,9 @@ def test_hy4_sparse_mla_specialization(sq):
+         )
+ 
+ 
+-def test_hy4_sparse_mla_graph_replay():
+-    q, kv, indices, lengths, sinks = _sparse_inputs(128)
++@pytest.mark.parametrize("sq", [72, 128])
++def test_hy4_sparse_mla_graph_replay(sq):
++    q, kv, indices, lengths, sinks = _sparse_inputs(sq)
+     scale = 576**-0.5
+     flaggems_vllm.flash_mla_sparse_fwd(
+         q, kv, indices, scale, attn_sink=sinks, topk_length=lengths
+@@ -151,3 +152,30 @@ def test_hy4_sparse_mla_graph_replay():
+         torch.testing.assert_close(
+             actual_tensor, expected_tensor, atol=2e-2, rtol=2e-2
+         )
++
++
++def test_hy4_sparse_mla_full_prefix_group_graph_replay():
++    sq = 512
++    q, kv, indices, lengths, sinks = _sparse_inputs(sq)
++    lengths.copy_(torch.arange(1, sq + 1, device="cuda", dtype=torch.int32))
++    scale = 576**-0.5
++    flaggems_vllm.flash_mla_sparse_fwd(
++        q, kv, indices, scale, attn_sink=sinks, topk_length=lengths
++    )
++    torch.cuda.synchronize()
++    graph = torch.cuda.CUDAGraph()
++    with torch.cuda.graph(graph):
++        actual = flaggems_vllm.flash_mla_sparse_fwd(
++            q, kv, indices, scale, attn_sink=sinks, topk_length=lengths
++        )
++    graph.replay()
++    q.add_(0.01)
++    graph.replay()
++    torch.cuda.synchronize()
++    expected = generic_flash_mla_sparse_fwd(
++        q, kv, indices, scale, attn_sink=sinks, topk_length=lengths
++    )
++    for actual_tensor, expected_tensor in zip(actual, expected):
++        torch.testing.assert_close(
++            actual_tensor, expected_tensor, atol=2e-2, rtol=2e-2
++        )

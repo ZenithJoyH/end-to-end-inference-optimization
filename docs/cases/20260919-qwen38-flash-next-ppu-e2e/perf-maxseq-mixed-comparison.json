@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Raising max-num-seqs from 32 to 64 removes avoidable admission waves for the P1K C64 target without regressing mixed-workload latency.",
+  "variable_paths": [
+    "/launch_config/max_num_seqs",
+    "/launch_config/launch_args/18"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.05
+  },
+  "guardrails": [
+    {
+      "metric": "total_token_throughput",
+      "direction": "higher",
+      "max_regression": 0.02
+    },
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_tpot_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_itl_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_e2el_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    }
+  ],
+  "repeats": {
+    "min_processes": 2,
+    "min_measured_rounds": 3,
+    "max_relative_spread": 0.08,
+    "max_baseline_drift": 0.05
+  }
+}

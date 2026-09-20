@@ -265,6 +265,9 @@ Agent 的职责是：
   baseline/candidate/revert。若结果达到场景完成条件，则保留候选并切换下一个正式目标场景；否则继续
   当前场景优化或回退。中间正式结果归档到 `optimize/`；只有全部四场景完成后的最终组合验收进入
   `acceptance/`。
+- 每个优化点在实施前必须分配稳定 `experiment-id`，同时在 `optimize/state.yml` 建立结构化条目并创建
+  `optimize/<experiment-id>.md`。后续的 profiling、源码/配置改动、最小正确性、完整精度、性能测量和
+  保留/回退决定持续更新同一文档；`optimize/README.md` 只维护多轮总览、累计效果和链接索引。
 - 默认每完成 2–3 个有结果的优化实验后调用 [推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md)。组合改动、热点迁移、跨场景结论冲突、连续失败/证据不足，或准备投入高成本框架/算子方案时提前触发。复盘必须覆盖失败与回退项，以同配置 baseline→当前组合测量作为累计收益依据，并把下一轮 1–3 个候选、首个证伪实验、所需评测 Skill、停止条件和旧决策摘要写入 `optimize/state.yml`，同步更新 `optimize/README.md`；不得创建 `optimize/history/`。
 - 每个优化点仍执行最小正确性回归；低风险点默认累计 4–5 个再运行一次正式完整精度，高风险改动、当前目标场景 formal 前缺少有效 gate、以及最终组合候选仍按触发条件立即执行或补做。
 - 正式分数低于预冻结阈值或评测证据无效时调用 `$inference-accuracy-diagnosis`，冻结证据并停止叠加新优化；
@@ -307,7 +310,8 @@ models/<model>/<platform>/
 │   └── README.md
 ├── optimize/
 │   ├── state.yml
-│   └── README.md
+│   ├── README.md
+│   └── <experiment-id>.md
 └── acceptance/
     ├── state.yml
     └── README.md
@@ -329,10 +333,10 @@ skills/                  # 项目级可复用技能与按需加载的知识库
   key-operator-analysis/          # profiler 收敛后的关键算子分析
 ```
 
-每个实际 `<model>/<platform>/` 下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部可以保留一个导航 `README.md`，不得再创建与三者并列的结果目录。三个目录统一采用两类长期文档：`state.yml` 是供 Agent 读取和更新的结构化事实主记录，`README.md` 是供人查看的可读摘要。详细字段和迁移规则见 [模型产物契约](docs/model-artifact-contract.md)。
+每个实际 `<model>/<platform>/` 下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部可以保留一个导航 `README.md`，不得再创建与三者并列的结果目录。三个目录统一采用结构化记录和 Markdown 两类长期文档：`state.yml` 是供 Agent 读取和更新的结构化事实主记录；各目录的 `README.md` 是供人查看的阶段总览；`optimize/<experiment-id>.md` 是每个优化点的人类可读独立记录。详细字段和迁移规则见 [模型产物契约](docs/model-artifact-contract.md)。
 
 - `baseline/`：`state.yml` 保存优化前环境、workload、正确性状态、每场景 Prefill/Decode/Mixed 指标和原路径 `anchor baseline`；`README.md` 必须把已经执行的性能测试写成带单位的结果表。未跑出数据时明确写 `not_run/incomplete`、原因和下一触发条件，不能只写环境准备过程。
-- `optimize/`：`state.yml` 保存当前目标场景、当前组合候选、Prefill/Decode/Mixed 瓶颈、保留/回退/失败实验索引、性能与精度状态、下一步、旧决策摘要和外部证据；`README.md` 保存面向人的当前进展、关键对比、失败经验和决策。后续任务不得在模型目录创建或保留 `history/`、`experiments/` 等逐轮子目录；需要长期复用的机制经验进入 `docs/cases/` 或知识库，原始过程证据留在远程工作目录。
+- `optimize/`：`state.yml` 保存当前目标场景、当前组合候选、Prefill/Decode/Mixed 瓶颈、完整实验索引、性能与精度状态、下一步、旧决策摘要和外部证据；`README.md` 是多轮优化总览，保存当前进展、累计结果、实验索引、关键对比、失败经验和下一步。每个优化点在开始实施前创建唯一的 `optimize/<experiment-id>.md`，说明优化方向、证据与假设、具体改动、目标场景与阶段、正确性验证、baseline/candidate/revert 性能效果、结论边界、保留/回退决定及外部产物路径；失败、回退和未完成的点也必须保留记录。不得创建 `history/`、`experiments/` 等逐轮子目录，也不得为同一优化点的不同命令或测量轮创建多个 Markdown。
 - `acceptance/`：`state.yml` 保存最终候选身份、正式精度和最终性能结果、适用范围、未完成项与回退入口；`README.md` 保存最终验收报告。中间轮次或未达标实验仍属于 `optimize/`。
 
 不要为未请求的模型或平台批量生成空目录。模型目录中不长期保存 `.sh`、`.py`、`.patch`、源码副本、原始日志、CSV/JSONL、SQLite、trace、profile 或大数据集；把远程/外部绝对路径、revision 与必要 SHA 写入 `state.yml`。可复用执行代码提升到公共 `scripts/`、`evaluation/`、`test/` 或 `unit_tests/`，不能留在某个模型的 `experiments/` 中。
@@ -341,7 +345,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
 
 ### 案例摘要与知识沉淀
 
-`docs/cases/<case-id>/` 默认只保留 `README.md`；瓶颈分析、单变量实验或多轮结果无法在摘要中清晰表达时，再增加少量专题 Markdown。模型当前状态、实验账本和必要历史摘要统一归入对应的 `state.yml` 与 `README.md`，案例中只保留能形成复用经验的结论和证据链接；不得在模型目录另建 `history/`。
+`docs/cases/<case-id>/` 默认只保留 `README.md`；瓶颈分析、单变量实验或多轮结果无法在摘要中清晰表达时，再增加少量专题 Markdown。模型当前状态和实验账本归入 `state.yml`，多轮总览归入 `optimize/README.md`，每个优化点的方向、内容与效果归入对应的 `optimize/<experiment-id>.md`；案例中只保留能形成复用经验的结论和证据链接，不复制逐轮实验正文，也不得在模型目录另建 `history/`。
 
 一次性的 `install-*`、`run-*`、PID/容器状态快照、监控和硬编码远端修复脚本，在结论提取后不长期保存。确实承担复现、正确性或结果校验作用的代码，参数化后提升到 `test/`、`evaluation/`、`scripts/`、`benchmarks/` 或 `unit_tests/` 的相应公共工具目录；只适用于一次执行的文件留在远程 case 产物目录，不进入 `models/`。
 

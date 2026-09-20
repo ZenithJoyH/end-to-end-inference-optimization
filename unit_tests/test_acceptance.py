@@ -215,6 +215,24 @@ class GateTest(unittest.TestCase):
         self.assertEqual(len(records), 1)
         gate.verify_run(records[0])
 
+    def test_finalize_existing_run_reuses_frozen_outputs_without_inference(self):
+        run_dir = self.root / 'existing-run'
+        task_dir = run_dir / gate.TASK
+        task_dir.mkdir(parents=True)
+        result = task_dir / 'results_existing.json'
+        samples = task_dir / f'samples_{gate.TASK}_existing.jsonl'
+        result.write_text((self.root / 'results.json').read_text())
+        samples.write_text((self.root / 'samples.jsonl').read_text())
+        gate.write_new(run_dir / 'frozen-inputs.json', {
+            key: self.refs[key] for key in (
+                'contract', 'service', 'runner', 'evaluation_inspect',
+                'task_provenance', 'config')
+        })
+        record = formal_accuracy.finalize_existing_run(run_dir)
+        gate.verify_run(record)
+        with self.assertRaises(FileExistsError):
+            formal_accuracy.finalize_existing_run(run_dir)
+
 
 if __name__ == '__main__':
     unittest.main()

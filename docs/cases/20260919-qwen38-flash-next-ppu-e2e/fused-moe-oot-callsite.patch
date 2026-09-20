@@ -1,0 +1,23 @@
+diff --git a/vllm_fl/ops/fused_moe/fused_moe_utils.py b/vllm_fl/ops/fused_moe/fused_moe_utils.py
+--- a/vllm_fl/ops/fused_moe/fused_moe_utils.py
++++ b/vllm_fl/ops/fused_moe/fused_moe_utils.py
+@@ -395,8 +395,17 @@ class TritonExpertsFL(TritonExperts):
+-        config = try_get_optimal_moe_config(
++        config_dtype = self.quant_config.config_name(hidden_states.dtype)
++        baseline_config = try_get_optimal_moe_config(
+             w1.size(),
+             w2.size(),
+             top_k_num,
+-            self.quant_config.config_name(hidden_states.dtype),
++            config_dtype,
+             num_tokens,
+             block_shape=self.block_shape,
+         )
++        config = _maybe_tune_qwen38_flash_block_m(
++            baseline_config,
++            w1.size(),
++            w2.size(),
++            top_k_num,
++            config_dtype,
++            num_tokens,
++        )

@@ -1,10 +1,41 @@
 # 20260914-hy4-preview-ppu-e2e：Hy4-preview / PPU 端到端优化
 
+## 2026-09-19 full-prefix sparse MLA 真实命中与 SQ384 扩展
+
+- `P4096/D128/C64/N64` 重采在 stop-profile 恢复前 16 个 gzip 均未写完 footer，
+  已明确标记 `incomplete`，不用于比较。
+- 缩小到仍保留 SQ2048 chunked-prefill 的 `P4096/D16/C16/N16` 后，16/16
+  rank gzip 有效、16/16 请求成功；客户端仅卡在 stop-profile 返回，恢复后
+  trace 可用。分析器顶层 scenario 标签为历史硬编码，实际 workload 以命令与
+  validation JSON 为准。
+- 真实 Prefill 中 grouped/fallback/classify 分别为
+  `233.05/7.33/1.51 ms`；Mixed 中 grouped/fallback 为
+  `2072.78/751.45 ms`，证明 full-prefix 分组在调度中实际命中。
+- SQ65 门槛因 SQ96/128/256 明显退化而拒绝；最终仅扩展至 SQ384。
+  SQ384/416/448/480 full-prefix 为 `1.34x/1.53x/1.69x/1.77x`，随机
+  TopK fallback 最低 `0.984x`，输出误差为 0。
+- T-Head HY4 聚焦测试 `26/26`，SQ384/SQ512 graph capture/replay 通过。
+  FlagGems-vllm 当前源码 SHA256 `dd51cddf...dc0d15`，未提交、未推送。
+- Indexer 的 Mixed/Decode 互斥 `cudaMemcpyAsync` wait 已降至
+  `0.40%/0.11%`，显式同步为 0；下一轮只优化 Indexer device-compute 本体。
+
+## 2026-09-19 full-prefix sparse MLA 数据流优化
+
+- 拒绝 TLE HQ4：当前 PPU Triton 后端无法编译 `warp_specialize`。
+- 拒绝索引位置排序：不计排序时 MLA 收益不足 1%，计入后退化。
+- 保留 T-Head HQ4 full-prefix BQ4 分组复用：SQ512/SQ2048 精确旧路径对比
+  `1.76x/2.88x`，随机 Top-K fallback 为 `0.985x/1.002x`，输出逐元素一致。
+- 通过 GPU 端“长度连续 + 索引前缀完全相同”证明后才分组；初版 `SQ<512`
+  与非 full-prefix 行保持原路径。T-Head HY4 测试 `25/25` 及 grouped
+  graph replay 通过。
+- 代码位于 FlagGems-vllm `support-hy4-preview` 未提交工作区；服务未启动。
+  既有 GPQA gate 不覆盖这个新服务身份。
+
 ## 1. 摘要
 
 - 执行规则：SOP `0.29` / 2026-09-11
 - 验收范围：`performance_only targeted milestone`
-- 正确性/性能状态：`passed (operator/graph)` / `targeted A/B/revert passed; parent P4K pending`
+- 正确性/性能状态：`formal GPQA passed (92.93% >= 87%)` / `targeted A/B/revert passed; parent P4K pending`
 - 状态：`candidate_retained_service_stopped`
 - 结论：组合重采样证明 `mm_out` 路由和 Indexer metadata 缓存均命中；残留算子热点收敛到 SQ2048 sparse MLA。新增 BK32 特化后，两个 profiler-off P4K 缩减场景的 output throughput 分别提升 `1.218%` 与 `1.291%`，独立回退复现基线且所有守护项通过。结论不外推到 `P4096/D1024/C64/N64`。
 - 模型/平台产物：`models/Hy4-preview/ppu/{baseline,optimize,acceptance}/`
@@ -310,3 +341,235 @@ Plugin 聚焦回归 `17/17`。同一随机验证在 M2048 有 `1/2048` 行跨越
 - 已有 sparse MLA tile/Split-K 扫描边界保持不变；下一轮若继续攻 MLA，必须是新算法/并行或数据流机制，不再重复已证伪的 SQ2048 tile 穷举。
 - 当前 Plugin SHA256 为 `7e65f869...204ed`，未提交、未推送。服务已停止，8010 端口空闲，PPU worker 已释放。
 - 2026-09-18 用户确认当前优化环境的远程 GPQA 精度为 `91.92%`，服务精度验证通过；本项目暂未收到原生结果文件路径，不补猜 runner 参数或其他阈值。
+- 同日已推送 vllm-plugin-FL `f3769d6` 和 FlagGems `aaac34ca` 到各自 `support-hy4-preview`；远程分支头反查匹配，两个目标工作区 clean。直接从目标机 push 因 GitHub HTTPS 凭据缺失失败，改用 SHA256 匹配的 Git bundle 和本机凭据完成 fast-forward 推送。
+
+## 15. T-Head fused MoE 特化的 backend 边界修正
+
+用户指出 fused MoE 中的 PPU-ZW810E 特化不应放在公共实现。复核 FlagGems 的
+`SpecOpRegistrar` 后，采用现有 vendor override 机制：新增
+`runtime/backend/_thead/fused/fused_moe.py` 和 `moe_sum.py`，由 T-Head
+`fused/__init__.py` 导出；4-warp 门禁、精确 per-token INT8 量化和固定
+moe_sum tile 均只在 T-Head backend 内生效。相对 `5c2b9a16`，公共
+`flag_gems/fused/fused_moe.py` 与 `moe_sum.py` 的最终 diff 为空。
+
+PPU-07 运行时证明确实命中 `_thead.fused.fused_moe` 与
+`_thead.fused.moe_sum`。相关回归 `141/141` 通过；M2048/E256/TopK8/H6144
+W8A8 完整算子为 `2.47939 -> 2.20469 ms`（`1.1246x`），公共路径与 backend
+输出逐位一致，graph capture、两次 replay 及 eager/replay 均逐位一致。验证
+产物 SHA256 为 `cec0831d...ce13`，路径：
+
+- `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/fused-moe-backend-refactor-20260918/source-and-graph-validation.json`
+
+FlagGems 修正提交 `7bca7a3a`（迁移）与 `0e027557`（测试契约修正）已推送到
+`support-hy4-preview`，远端头为 `0e02755770011d517c8de591bf91998bbcf30ad1`。
+优化容器工作区 clean；全程未启动模型服务，8010 保持空闲。
+
+## 16. FlagGems-vllm 算子迁移与 Plugin 调用切换
+
+将 vLLM 专用的 Hy4 W8A8 MoE、`moe_sum` 和 sparse MLA 特化迁入
+FlagGems-vllm，并基于优化环境实际安装的 `6e7ac61` 按功能拆成五笔提交。
+远端 `support-hy4-preview` 分支头为
+`a26a90258de8bcad0a5d831f38b52f755c6a73b0`。PPU-07 验证覆盖 Hy4 聚焦
+测试 `20/20`、`moe_sum` `72/72` 及 fused-experts 有效回归
+`46 passed / 12 skipped`；20 个原生 vLLM reference 用例因 PPU 构建缺少
+CUDA `_C`/`_moe_C` 扩展而不适用。
+
+Plugin 提交 `f7d1aaa9935dd8d613376601504a793b11ee34e0` 随后将 W8A8 MoE 与
+BF16 sparse MLA 优先解析到 FlagGems-vllm；缺少可选包或旧版本不提供符号时
+保留原 FlagGems 路径。运行时分别命中 `_thead.ops.fused_moe` 与
+`_thead.fused.flashmla_sparse`，Plugin 聚焦回归 `33/33`，目标
+M2048/E256/TopK8/H6144 W8A8 graph capture 和两次 replay 均逐位一致。
+Ruff 因目标容器未安装记为 `not_run`。三个远端 `support-hy4-preview` 分支头
+已反查为 Plugin `f7d1aaa`、FlagGems `0e027557` 和 FlagGems-vllm
+`a26a902`。本轮未启动模型服务，结论限于仓库迁移、算子和 dispatch 验证，
+不新增端到端性能收益声明。
+
+## 17. 最新组合的全量 GPQA 正式评测（通过）
+
+2026-09-19 在 `hy4-opt-20260914` 启动最新三仓组合时，运行时首先证明 vLLM
+默认 `enable_prefix_caching=True`；因此启动脚本补回必要的
+`--no-enable-prefix-caching`，并以实际 engine config 的 `False` 作为证据。
+首次正确配置启动又暴露 FlagGems-vllm HQ4 sparse MLA 的 `SQ=65..127` 覆盖
+缺口：51 个默认 graph shape 捕获到第 33 个时，`SQ=72..120` 落入仅支持
+HQ64/HQ128 的通用实现并触发 `Unsupported h_q`。本轮将 HQ4 prefill 特化下界
+由 128 扩到 65，9 个聚焦正确性/graph replay 用例通过，随后服务完整完成
+`51/51` graph capture，两次 smoke replay 均返回 `stop/OK`。
+
+正式 GPQA 使用规定 FlagEval v1 镜像完成：198/198、无 timeout，strict-match
+`0.9292929292929293 >= 0.87`，flexible-extract `0.4494949494949495`；配置为
+C64、`max_gen_toks=80000`、`reasoning_effort=high`，独立 run UUID
+`004dd92608e94977b18ed9567f88338b`。原生运行完成后，wrapper 因
+`str.splitlines()` 把题库中的合法 `U+2028` 当作 JSONL 边界而未生成 record；
+逐字段复核确认原生样本与冻结文档指纹一致。修复为按物理换行读取后，35 个
+相关回归通过，并在不重跑模型的前提下终结原运行、签发和复验 gate。
+
+`accuracy-gate.json` SHA256 为
+`503516c80851a17c27620bccfae7440792fa8d444f136023e830ca2fe47ee77a`，绑定的
+run-record SHA256 为
+`55ecb5e6a69774a2c773bc010d50b875c1f8cfa5f3a20dcfb6afd2ff3d7065f4`。
+heartbeat 已在终态后删除。签发后检查时 8010 未监听、16 张 PPU 已释放；
+不可把该 immutable gate 绑定到后续重启或新代码服务。完整证据位于：
+
+- `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/accuracy/formal-gate-20260918-f7d1aaa-a26a902-01/`
+
+## 18. Indexer 本体：翻译融合、原位 pointwise 与 paged gather
+
+基于有效 `P4096/D16/C16/N16` trace 的 shape 与父链归因，Plugin 新增三项
+T-Head/HY4 Indexer 优化：融合 block Top-K 后处理；复用 QK scores 承载 exact
+BF16 pointwise 结果；在 T-Head vendor 模块中按 block table 和原 cache stride
+直接 gather 当前请求 key，避免通用 `index_select` 对 `[424960,128]` 扁平
+KV cache 的整缓存 `contiguous/clone`。
+
+算子结果：block 翻译本体 `[128,2048]` 为 `1.53x`，完整 block 为
+`1.024x–1.123x`；原位 pointwise 的完整 block 为 `1.051x–1.059x`；direct
+gather 在 seq_len 2041/3987/4096 为 `2.70x/2.65x/2.66x`。所有直接数值
+比较逐位一致，实际源码 graph capture/replay 与 Plugin `16/16` 聚焦测试通过。
+补丁 SHA256 分别为 `bae0aa06...30c260`、`f5dd43dd...8ae3a`、
+`fe04bd0f...0cab8`。
+
+当前 Plugin `support-hy4-preview` 基于 `f7d1aaa` 有两处修改和一个新增 T-Head
+vendor 文件，未提交、未推送；FlagGems-vllm 的 full-prefix 候选仍保持未提交。
+服务未启动，8010 未监听。该轮结论限于 trace-guided 算子/完整 Indexer block
+微基准；现有 `92.93%` gate 不覆盖新代码，也没有新的端到端收益声明。
+
+## 19. Indexer 运行时复验与重复 block fill
+
+`p4k-d16-c16-n16-indexer-body-reprofile-20260919-12` 完成 16/16 rank
+trace、16/16 请求、51/51 graph capture 和停服回收。与同场景
+`...full-prefix-hit-profile-20260919-11` 相比，rank0 Indexer 总 wall
+time 在 Prefill/Mixed/Decode 分别下降 `4.68%/28.54%/36.37%`，
+本体互斥桶分别下降 `4.67%/25.55%/36.75%`。`[128,2048]`
+的四段 Top-K 翻译链、`[424960,128]` 的通用 `index_select`、
+整缓存 `contiguous/clone` 均为 0 次，确认三项 Plugin 优化真实命中。
+同配置的 profiler-enabled 次轮 output throughput 为
+`8.6587 -> 9.1108 tok/s`（`+5.22%`），mean TTFT/TPOT 下降
+`4.85%/5.16%`，P99 ITL 下降 `3.10%`。这是诊断信号，不是
+profiler-off 正式收益；首轮含编译/缓存准备干扰，不纳入对比。
+
+新保留一项低风险优化：删除 `_select_topk_block` 内重复的
+`output.fill_(-1)`。哨兵值证明 provider 会覆盖整个 block，三个形状
+的完整 block 为 `1.091x/1.086x/1.009x`，实际源码 graph capture
+和两次 replay 通过，Plugin `16/16`。QK 布局替换收益最多约
+`1.5%`，row-range 减法融合在主导形状为 `0.998x`，均不保留。
+
+证据路径：
+
+- profile：`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d16-c16-n16-indexer-body-reprofile-20260919-12/`
+- 对比：上述目录的 `indexer-body-before-after-comparison.json`
+- no-fill 微基准：`results/operator/hyv4-indexer-redundant-fill-20260919-01/summary.json`
+- applied-source 验证：`results/operator/hyv4-indexer-redundant-fill-source-verify-20260919-01.json`
+- Plugin 组合补丁：`commands/plugin-hyv4-indexer-body-combined-20260919.patch`，SHA256 `dc76b36e...9b278255`
+
+当前 Plugin 基于 `f7d1aaa` 仍未提交/未推送，服务已停止。该 profile
+是诊断证据，不代替 profiler-off 父场景 A/B/revert；新代码也需要新精度 gate。
+
+## 20. W8A8 MoE padding/tile 优化
+
+`p4k-d16-c16-n16-indexer-body-reprofile-20260919-12` 的 rank0 launch 反向关联
+确认，主导 `fused_moe_kernel` 对应 `vllm::moe_forward` 的
+`M=2048/E=256/TopK=8/H=6144/localI=128`。原 BM64 在随机路由复现中把
+16,384 个有效 routed rows pad 到 23,360；BM32 降到 19,872。
+
+两轮有限 sweep 最终选择 GEMM1 `BM32/BN128/BK128`、GEMM2
+`BM32/BN128/BK64`。应用源码后完整 MoE `2.08731 -> 1.74568 ms`
+（`1.19570x`），输出逐位一致，graph capture/两次 replay 通过，聚焦测试
+`26/26`。activation+quant 融合虽有 `3.12x` 子链收益，但完整 MoE 只有
+`1.0015x` 增量，已回退。
+
+证据：
+
+- `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-flaggems-vllm-moe-padding-source-20260919-01.json`
+- `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-flaggems-vllm-moe-combined-source-20260919-02.json`
+- `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-moe-activation-quant-fusion-20260919-01.json`
+- 组合补丁：`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/flaggems-vllm-hy4-current-optimizations-20260919.patch`，SHA256 `2d694c33...0db02`
+
+当前服务停止、8010 空闲；没有新增端到端或精度声明。
+
+## 21. 最新组合的 P4K/D1K/C64/N128 profiler-off 复测
+
+`20260919-p4k-d1k-c64-n128-current-opt-01` 使用维护版性能入口完成
+`targeted / performance_only` 测量：TP16、`max-num-batched-tokens=2048`、
+`FULL_DECODE_ONLY`、prefix cache 关闭，1 轮预热加 2 轮正式。三轮均
+128/128 成功、0 失败，run-record 为 `complete` 且输入前后指纹一致。
+
+预热轮为 `191.999 output tok/s`、`682.672 s`，继续显示明显冷启动效应。
+两轮正式分别为 `316.079/316.467 output tok/s` 与
+`414.681/414.173 s`；中位数为 `316.273 output tok/s`、
+`1581.364 total tok/s`、`414.427 s`，轮间 throughput spread 仅
+`0.123%`。正式中位 mean TTFT/TPOT 为 `29828.16/171.24 ms`，
+P99 TTFT/TPOT/ITL 为 `105773.46/195.04/1045.70 ms`。
+
+相对 `20260917_132531.csv` 稳态 checkpoint，output throughput 提升约
+`13.71%`，批次时长缩短约 `12.06%`，mean TTFT/TPOT 下降约
+`17.13%/11.19%`。两者不是同计划 baseline/candidate/revert，因此只支持
+趋势判断，不能正式归因给某个算子。当前最新源码身份也没有匹配的新 GPQA
+gate，本轮不能宣称 formal pass。测试后服务已停止，8010 和 PPU 均已释放。
+
+产物根目录：
+`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260919-p4k-d1k-c64-n128-current-opt-01/`。
+`summary.json` / `run-record.json` SHA256 分别为
+`ec6a3110...e375bd` / `cbcd09d8...5a302`。
+
+## 22. C64 缩减场景重采样与 SQ4096 sparse MLA 范围扩展
+
+为排除冷启动影响，使用 `P4096/D128/C64/N64` 作为父场景
+`P4096/D1024/C64/N128` 的 steady-state milestone，并仅分析预热后的请求。
+`p4k-d128-c64-n64-latest-combined-reprofile-20260919-13` 完成 16/16 rank
+trace。客户端在 `/stop_profile` 响应处超时，但 trace 已完成 gzip/JSON 校验；
+相关进程已精确回收，服务与 8010 端口均已释放。
+
+设备热点已经迁移到 sparse MLA。Prefill 中 ring all-reduce、scaled MM、
+fused MoE、grouped sparse MLA 分别占 `20.64%/18.36%/17.84%/13.46%`；
+Mixed 中 generic sparse MLA 占 `26.74%`；Decode 中 generic sparse MLA 占
+`30.85%`，加上 grouped 与 Split-K 后 sparse MLA 合计约 `37%`。Indexer
+的 Mixed/Decode 互斥分解中，本体分别占 `95.45%/96.05%`，copy wrapper
+占 `4.26%/3.77%`，memcpy wait 仅 `0.30%/0.33%`，同步桶为 0；因此不再
+继续优化 Indexer 复制/同步链。
+
+BDP512 候选在 SQ64/128/512/2048 上仅为 `0.914x/0.952x/0.950x/0.958x`，
+已拒绝。将 full-prefix HQ4 分组路径上限从 SQ2048 扩到 SQ4096 后，
+prefix-then-capped 在 SQ2560/3072/4096 上分别为 `1.656x/1.387x/1.161x`，
+random 模式为 `1.000x/0.995x/1.021x`；输出逐位一致、graph capture 与两次
+replay、T-Head Hy4 聚焦测试 `29/29` 均通过。该改动保留为未提交候选，
+但当前 `max-num-batched-tokens=2048` 不会激活新增范围，现有精度 gate 也
+不覆盖它。
+
+证据：
+
+- profile：`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d128-c64-n64-latest-combined-reprofile-20260919-13/`
+- SQ4096 微基准：`results/operator/sparse-mla-sq4096-extension-20260919-10/summary.json`
+- 源码应用验证：`results/operator/sparse-mla-sq4096-source-apply-20260919-11.json`
+- BDP512 负结果：`results/operator/sparse-mla-bdp512-20260919-08/summary.json`
+- Decode MoE M64 sweep：`results/operator/moe-decode-m64-sweep-20260919-09/summary.json`
+
+## 23. 稳态 max-num-batched-tokens 扫描与调度方案回退
+
+在同一源码、`P4096/D128/C64/N64`、TP16、`FULL_DECODE_ONLY`、prefix cache
+关闭条件下，分别测试 `2048/2256/2304/2560/3072/4096`。每项先预热 1 轮，
+再测量 2 轮；冷启动轮不参与任何比较。所有正式轮请求数与 token 数精确，
+轮间 output throughput spread 为 `0.02%–0.18%`。
+
+| max tokens | Output tok/s | 相对 2048 | P99 TTFT | P99 TPOT | P99 ITL 变化 |
+|---:|---:|---:|---:|---:|---:|
+| 2048 | 69.484 | 基线 | 106891.83 ms | 824.44 ms | 基线 |
+| 2256 | 69.527 | +0.06% | 106858.35 ms | 835.59 ms | +7.97% |
+| 2304 | 72.028 | +3.66% | 102442.41 ms | 805.37 ms | +5.89% |
+| 2560 | 73.168 | +5.30% | 100666.84 ms | 798.38 ms | +10.56% |
+| 3072 | 73.007 | +5.07% | 100325.15 ms | 808.55 ms | +23.20% |
+| 4096 | 70.910 | +2.05% | 103236.95 ms | 841.52 ms | +47.97% |
+
+扫描显示调度/shape 对齐是非单调的：2304 是首个有意义的吞吐台阶，2560
+吞吐最高，但没有任何配置同时满足冻结的 `>=3%` output throughput 收益和
+`<=5%` P99 ITL 回退护栏。因此启动脚本继续保留 2048，不运行这些失败候选的
+完整 D1K 测试。
+
+还尝试了 opt-in Mixed token budget：AsyncSchedulerFL 单测通过，但 Hy4 当前
+`speculative_config=None`，该 Scheduler 没有被实际注入；Worker 与 Platform
+注入点也晚于 EngineCore 的 Scheduler 构造。所有相关源码补丁均已逆序回退，
+`compileall`、`git diff --check` 通过，实验测试文件已移除。该实验没有有效
+候选结果，不能作为性能数据。
+
+有效参数扫描根目录：
+`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260919-p4k-d128-c64-n64-mbt-sweep-sq4096-02/`。
+当前服务停止、8010 空闲；Plugin 调度实验无残留，FlagGems-vllm 的 SQ4096
+范围扩展仍是未提交候选。

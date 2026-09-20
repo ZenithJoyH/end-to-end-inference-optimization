@@ -1,0 +1,19 @@
+diff --git a/vllm_fl/worker/worker.py b/vllm_fl/worker/worker.py
+index 41d267f..7751d36 100644
+--- a/vllm_fl/worker/worker.py
++++ b/vllm_fl/worker/worker.py
+@@ -202,9 +202,12 @@ class WorkerFL(WorkerBase):
+         is_driver_worker: bool = False,
+     ):
+ 
++        mixed_token_budget_enabled = (
++            os.getenv("VLLM_FL_MIXED_MAX_NUM_BATCHED_TOKENS", "0") != "0"
++        )
+         if (
+-            vllm_config.num_speculative_tokens == 1
+-            and vllm_config.scheduler_config.async_scheduling
++            vllm_config.scheduler_config.async_scheduling
++            and (vllm_config.num_speculative_tokens == 1 or mixed_token_budget_enabled)
+         ):
+             vllm_config.scheduler_config.scheduler_cls = (
+                 "vllm_fl.worker.scheduler_fl.AsyncSchedulerFL"

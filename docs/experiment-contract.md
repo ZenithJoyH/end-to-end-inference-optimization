@@ -118,6 +118,7 @@ acceptance_scope: diagnostic
 accuracy_status: incomplete
 performance_status: incomplete
 experiment_id: YYYYMMDD-HHMM-short-name
+experiment_markdown: models/<model>/<platform>/optimize/<experiment-id>.md
 objective: ""
 status: planned
 adaptation_handoff:

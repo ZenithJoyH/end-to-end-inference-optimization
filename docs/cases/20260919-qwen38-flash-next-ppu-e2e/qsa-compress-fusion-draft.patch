@@ -1,0 +1,216 @@
+diff --git a/vllm_fl/dispatch/backends/flaggems/flaggems.py b/vllm_fl/dispatch/backends/flaggems/flaggems.py
+index 9cad9a7..1c676a0 100644
+--- a/vllm_fl/dispatch/backends/flaggems/flaggems.py
++++ b/vllm_fl/dispatch/backends/flaggems/flaggems.py
+@@ -25,6 +25,7 @@ class FlagGemsBackend(Backend):
+ 
+     _available: Optional[bool] = None
+     _fused_op_availability: ClassVar[dict[str, bool]] = {}
++    _qwen4_op_availability: ClassVar[dict[str, bool]] = {}
+ 
+     @property
+     def name(self) -> str:
+@@ -52,6 +53,18 @@ class FlagGemsBackend(Backend):
+             FlagGemsBackend._fused_op_availability[op_name] = available
+         return FlagGemsBackend._fused_op_availability[op_name]
+ 
++    def qwen4_op_is_available(self, op_name: str) -> bool:
++        """Check one optional FlagGems-vLLM Qwen4 operator."""
++        if op_name not in FlagGemsBackend._qwen4_op_availability:
++            try:
++                from flaggems_vllm.ops import qwen4
++
++                available = callable(getattr(qwen4, op_name, None))
++            except ImportError:
++                available = False
++            FlagGemsBackend._qwen4_op_availability[op_name] = available
++        return FlagGemsBackend._qwen4_op_availability[op_name]
++
+     # ==================== Operator Implementations ====================
+ 
+     def mla_prefill(self, **kwargs):
+@@ -121,6 +134,11 @@ class FlagGemsBackend(Backend):
+ 
+         return qsa_compress_groups_with_ratio(*args, **kwargs)
+ 
++    def qwen4_compress_norm_mrope_store_groups(self, *args, **kwargs):
++        from flaggems_vllm.ops.qwen4 import qwen4_compress_norm_mrope_store_groups
++
++        return qwen4_compress_norm_mrope_store_groups(*args, **kwargs)
++
+     def ple_state_gather(self, *args, **kwargs):
+         from flag_gems.fused import ple_state_gather
+ 
+diff --git a/vllm_fl/dispatch/backends/flaggems/register_ops.py b/vllm_fl/dispatch/backends/flaggems/register_ops.py
+index 49dd1f3..935c82a 100644
+--- a/vllm_fl/dispatch/backends/flaggems/register_ops.py
++++ b/vllm_fl/dispatch/backends/flaggems/register_ops.py
+@@ -89,6 +89,20 @@ def register_builtins(registry) -> None:
+                 "compute_common_slot_mapping",
+             )
+         ],
++        OpImpl(
++            op_name="qwen4_compress_norm_mrope_store_groups",
++            impl_id="default.flagos.qwen4",
++            kind=BackendImplKind.DEFAULT,
++            fn=_bind_is_available(
++                backend.qwen4_compress_norm_mrope_store_groups,
++                functools.partial(
++                    backend.qwen4_op_is_available,
++                    "qwen4_compress_norm_mrope_store_groups",
++                ),
++            ),
++            vendor=None,
++            priority=BackendPriority.DEFAULT,
++        ),
+         # Quantization
+         OpImpl(
+             op_name="dynamic_per_token_quant_int8",
+diff --git a/vllm_fl/models/qwen3_8_flash_next.py b/vllm_fl/models/qwen3_8_flash_next.py
+index 4b29c21..e86b2b9 100644
+--- a/vllm_fl/models/qwen3_8_flash_next.py
++++ b/vllm_fl/models/qwen3_8_flash_next.py
+@@ -6,6 +6,7 @@ from __future__ import annotations
+ 
+ import inspect
+ import math
++import os
+ from collections.abc import Iterable, Sequence
+ from dataclasses import dataclass, replace
+ from itertools import islice
+@@ -1689,6 +1690,23 @@ class Qwen3_8FlashNextGatedDeltaNet(QwenGatedDeltaNetAttention):
+ _qsa_compress_groups_with_ratio = resolve_op("qsa_compress_groups_with_ratio")
+ _qsa_select_paged_tokens = resolve_op("qsa_select_paged_tokens")
+ _qsa_store_cache_rows = resolve_op("qsa_store_cache_rows")
++_ENABLE_QWEN4_FUSED_QSA_COMPRESS = (
++    os.environ.get("VLLM_FL_QWEN4_FUSED_QSA_COMPRESS", "0") == "1"
++)
++try:
++    from flaggems_vllm.ops import qwen4 as _qwen4_ops
++except ImportError:
++    _HAS_QWEN4_FUSED_QSA_COMPRESS = False
++else:
++    _HAS_QWEN4_FUSED_QSA_COMPRESS = callable(
++        getattr(_qwen4_ops, "qwen4_compress_norm_mrope_store_groups", None)
++    )
++
++_qwen4_compress_norm_mrope_store_groups = (
++    resolve_op("qwen4_compress_norm_mrope_store_groups")
++    if _ENABLE_QWEN4_FUSED_QSA_COMPRESS and _HAS_QWEN4_FUSED_QSA_COMPRESS
++    else None
++)
+ 
+ 
+ def apply_qsa_rope(
+@@ -1842,7 +1860,72 @@ class QSAIndexer(nn.Module):
+         else:
+             positions = first_rope_positions[:, 0]
+         return apply_qsa_rope(self.rotary_emb, positions, keys)
+ 
++    def _can_use_fused_compress_transaction(
++        self,
++        raw_metadata: QSAForwardMetadata,
++        compressed_metadata: QSAForwardMetadata,
++        raw_key_cache: torch.Tensor,
++        compressed_key_cache: torch.Tensor,
++        rope_position_cache: torch.Tensor | None,
++        cos_sin_cache: torch.Tensor,
++    ) -> bool:
++        """Fail closed unless the Qwen4 fused kernel ABI matches exactly."""
++
++        if not (
++            _ENABLE_QWEN4_FUSED_QSA_COMPRESS
++            and _HAS_QWEN4_FUSED_QSA_COMPRESS
++            and _qwen4_compress_norm_mrope_store_groups is not None
++            and raw_key_cache.device.type not in ("cpu", "meta")
++            and self.index_head_dim == 128
++            and self.compress_ratio == 4
++            and int(self.rotary_emb.rotary_dim) == 64
++            and tuple(getattr(self.rotary_emb, "mrope_section", ()) or ())
++            == (11, 11, 10)
++            and bool(getattr(self.rotary_emb, "mrope_interleaved", False))
++            and raw_key_cache.ndim == 4
++            and tuple(raw_key_cache.shape[2:]) == (1, 128)
++            and raw_key_cache.dtype == torch.bfloat16
++            and compressed_key_cache.ndim == 4
++            and tuple(compressed_key_cache.shape[2:]) == (1, 128)
++            and compressed_key_cache.dtype == raw_key_cache.dtype
++            and self.k_layernorm.weight.shape == (128,)
++            and self.k_layernorm.weight.dtype == raw_key_cache.dtype
++            and self.k_layernorm.weight.is_contiguous()
++            and cos_sin_cache.ndim == 2
++            and cos_sin_cache.shape[1] == 64
++            and cos_sin_cache.shape[0] > 0
++            and cos_sin_cache.dtype == raw_key_cache.dtype
++            and raw_metadata.block_table.ndim == 2
++            and raw_metadata.block_table.dtype in (torch.int32, torch.int64)
++            and raw_metadata.token_to_req.dtype in (torch.int32, torch.int64)
++            and raw_metadata.logical_positions.dtype in (torch.int32, torch.int64)
++            and compressed_metadata.slot_mapping.dtype in (torch.int32, torch.int64)
++            and raw_metadata.logical_positions.shape
++            == raw_metadata.token_to_req.shape
++            == compressed_metadata.slot_mapping.shape
++        ):
++            return False
++        device = raw_key_cache.device
++        tensors = (
++            compressed_key_cache,
++            self.k_layernorm.weight,
++            cos_sin_cache,
++            raw_metadata.block_table,
++            raw_metadata.token_to_req,
++            raw_metadata.logical_positions,
++            compressed_metadata.slot_mapping,
++        )
++        if any(tensor.device != device for tensor in tensors):
++            return False
++        return rope_position_cache is None or (
++            rope_position_cache.ndim == 4
++            and rope_position_cache.shape[:3] == raw_key_cache.shape[:3]
++            and rope_position_cache.shape[3] == 3
++            and rope_position_cache.dtype == torch.int64
++            and rope_position_cache.device == device
++        )
++
+     def _metadata(
+         self,
+     ) -> tuple[QSAForwardMetadata, QSAForwardMetadata] | None:
+@@ -1885,6 +1968,38 @@ class QSAIndexer(nn.Module):
+                 raw_metadata.slot_mapping,
+                 position_rows,
+             )
++
++        if _ENABLE_QWEN4_FUSED_QSA_COMPRESS and _HAS_QWEN4_FUSED_QSA_COMPRESS:
++            cos_sin_cache = self.rotary_emb._match_cos_sin_cache_dtype(  # noqa: SLF001
++                raw_key_cache
++            )
++            compressed_key_cache = self.compressed_key_cache.kv_cache
++            if self._can_use_fused_compress_transaction(
++                raw_metadata,
++                compressed_metadata,
++                raw_key_cache,
++                compressed_key_cache,
++                rope_position_cache,
++                cos_sin_cache,
++            ):
++                _qwen4_compress_norm_mrope_store_groups(
++                    raw_key_cache,
++                    raw_metadata.block_table,
++                    raw_metadata.token_to_req,
++                    raw_metadata.logical_positions,
++                    compressed_metadata.slot_mapping,
++                    compressed_key_cache,
++                    self.k_layernorm.weight,
++                    cos_sin_cache,
++                    compress_ratio=self.compress_ratio,
++                    norm_eps=self.k_layernorm.variance_epsilon,
++                    rotary_dim=self.rotary_emb.rotary_dim,
++                    mrope_section=tuple(self.rotary_emb.mrope_section),
++                    mrope_interleaved=self.rotary_emb.mrope_interleaved,
++                    rope_cache=rope_position_cache,
++                )
++                return
++
+         pooled, first_positions = _qsa_compress_groups_with_ratio(
+             raw_key_cache,
+             raw_metadata.block_table,

@@ -1,0 +1,11 @@
+{
+  "model": "hy4",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Return only the word OK."
+    }
+  ],
+  "temperature": 0,
+  "max_tokens": 256
+}

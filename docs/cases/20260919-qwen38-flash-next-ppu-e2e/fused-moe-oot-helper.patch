@@ -1,0 +1,46 @@
+diff --git a/vllm_fl/ops/fused_moe/fused_moe_utils.py b/vllm_fl/ops/fused_moe/fused_moe_utils.py
+--- a/vllm_fl/ops/fused_moe/fused_moe_utils.py
++++ b/vllm_fl/ops/fused_moe/fused_moe_utils.py
+@@ -35,4 +35,42 @@ _moe_sum = CachedOp("moe_sum")
+ logger = init_logger(__name__)
+ 
+ 
++_QWEN38_FLASH_BF16_DECODE_CONFIG = {
++    "BLOCK_SIZE_M": 32,
++    "BLOCK_SIZE_N": 64,
++    "BLOCK_SIZE_K": 128,
++    "GROUP_SIZE_M": 1,
++    "SPLIT_K": 1,
++    "num_warps": 4,
++    "num_stages": 3,
++}
++
++
++def _maybe_tune_qwen38_flash_block_m(
++    config: dict[str, int],
++    w1_shape: torch.Size,
++    w2_shape: torch.Size,
++    top_k: int,
++    config_dtype: str,
++    num_tokens: int,
++) -> dict[str, int]:
++    """Apply the measured decode-only override for the exact supported shape."""
++    if (
++        tuple(w1_shape) != (512, 160, 2560)
++        or tuple(w2_shape) != (512, 2560, 80)
++        or top_k != 10
++        or config_dtype != "bf16"
++        or num_tokens != 64
++        or config != _QWEN38_FLASH_BF16_DECODE_CONFIG
++    ):
++        return config
++    tuned = config.copy()
++    tuned["BLOCK_SIZE_M"] = 16
++    logger.warning_once(
++        "Using Qwen3.8-Flash BF16 decode MoE BLOCK_SIZE_M=16: "
++        f"baseline={config}, selected={tuned}"
++    )
++    return tuned
++
++
+ def _get_priority_backends(moe_config: FusedMoEConfig) -> list[UnquantizedMoeBackend]:

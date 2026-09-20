@@ -1,0 +1,21 @@
+diff --git a/vllm_fl/ops/fused_moe/fused_moe_utils.py b/vllm_fl/ops/fused_moe/fused_moe_utils.py
+--- a/vllm_fl/ops/fused_moe/fused_moe_utils.py
++++ b/vllm_fl/ops/fused_moe/fused_moe_utils.py
+@@ -60,7 +60,7 @@ def _maybe_tune_qwen38_flash_block_m(
+         tuple(w1_shape) == (512, 160, 2560)
+         and tuple(w2_shape) == (512, 2560, 80)
+         and top_k == 10
+-        and config_dtype == "bf16"
++        and config_dtype in (None, "bf16")
+     ):
+         logger.warning_once(
+             f"Observed Qwen3.8-Flash BF16 MoE config: num_tokens={num_tokens}, config={config}"
+@@ -72,7 +72,7 @@ def _maybe_tune_qwen38_flash_block_m(
+         tuple(w1_shape) != (512, 160, 2560)
+         or tuple(w2_shape) != (512, 2560, 80)
+         or top_k != 10
+-        or config_dtype != "bf16"
++        or config_dtype not in (None, "bf16")
+         or num_tokens != 64
+         or config != _QWEN38_FLASH_BF16_DECODE_CONFIG
+     ):

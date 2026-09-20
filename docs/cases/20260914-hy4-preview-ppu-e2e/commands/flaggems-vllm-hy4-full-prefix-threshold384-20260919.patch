@@ -1,0 +1,25 @@
+diff --git a/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py b/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
+--- a/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
++++ b/src/flaggems_vllm/runtime/backend/_thead/fused/flashmla_sparse.py
+@@ -33,6 +33,6 @@ _HQ4_PREFILL_MAX_SQ = 2048
+ _FULL_PREFIX_GROUP_SIZE = 4
+ _FULL_PREFIX_CLASSIFY_BLOCK = 256
+-_FULL_PREFIX_MIN_SQ = 512
++_FULL_PREFIX_MIN_SQ = 384
+ 
+ 
+ @triton.jit
+diff --git a/tests/test_thead_hy4_ops.py b/tests/test_thead_hy4_ops.py
+--- a/tests/test_thead_hy4_ops.py
++++ b/tests/test_thead_hy4_ops.py
+@@ -154,8 +154,8 @@ def test_hy4_sparse_mla_graph_capture_replay(sq):
+         )
+ 
+ 
+-def test_hy4_sparse_mla_full_prefix_group_graph_replay():
+-    sq = 512
++@pytest.mark.parametrize("sq", [384, 512])
++def test_hy4_sparse_mla_full_prefix_group_graph_replay(sq):
+     q, kv, indices, lengths, sinks = _sparse_inputs(sq)
+     lengths.copy_(torch.arange(1, sq + 1, device="cuda", dtype=torch.int32))
+     scale = 576**-0.5

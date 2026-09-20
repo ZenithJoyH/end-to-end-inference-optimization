@@ -289,6 +289,11 @@ class ComparisonTest(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 compare.validate_contract(dict(self.contract, **change))
 
+    def test_flaggems_vllm_content_is_a_supported_optimization_variable(self):
+        compare.validate_contract(
+            dict(self.contract, variable_paths=["/flaggems_vllm_sha256"])
+        )
+
     def test_diff_paths_reports_concrete_list_indices(self):
         baseline = {"launch_config": {"launch_args": ["--max-num-batched-tokens", "2048"]}}
         candidate = {"launch_config": {"launch_args": ["--max-num-batched-tokens", "4096"]}}

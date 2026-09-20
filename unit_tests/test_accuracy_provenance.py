@@ -82,6 +82,15 @@ class ProvenanceTest(unittest.TestCase):
     def test_matching_native_metadata_and_documents(self):
         self.verify(result_payload(self.cfg, self.provenance))
 
+    def test_unicode_line_separator_inside_json_string_is_not_a_record_boundary(self):
+        docs = example_docs()
+        docs[0]["question"] = "first line\u2028second line"
+        self.provenance["eval_doc_sha256"][0] = gate.content_sha256(docs[0])
+        self.samples.write_text("".join(json.dumps(
+            {"doc_id": i, "doc": doc, "resps": [["answer"]], "filter": "none"},
+            ensure_ascii=False) + "\n" for i, doc in enumerate(docs)))
+        self.verify(result_payload(self.cfg, self.provenance))
+
     def test_result_identity_count_and_task_mismatches_fail(self):
         valid = result_payload(self.cfg, self.provenance)
         for category in ("missing_metadata", "model", "endpoint", "count", "task", "seed", "cache", "generation"):

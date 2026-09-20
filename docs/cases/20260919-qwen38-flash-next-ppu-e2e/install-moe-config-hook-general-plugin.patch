@@ -1,0 +1,14 @@
+diff --git a/vllm_fl/__init__.py b/vllm_fl/__init__.py
+--- a/vllm_fl/__init__.py
++++ b/vllm_fl/__init__.py
+@@ -220,6 +220,9 @@ def register_model():
+     _register_flagcx_connector()
+ 
+     from vllm_fl.patches.qwen3_8_flash_next import apply_qwen3_8_flash_next_patches
++    from vllm_fl.ops.custom_ops import _patch_unquantized_moe_oracle
++
+     apply_qwen3_8_flash_next_patches()
++    _patch_unquantized_moe_oracle()
+ 
+     # Register OOT quant kernels so kernel selection can find them
+     register_quant_linear()

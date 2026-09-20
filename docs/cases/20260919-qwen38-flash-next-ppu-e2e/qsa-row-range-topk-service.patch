@@ -1,0 +1,39 @@
+diff --git a/src/flag_gems/fused/qsa.py b/src/flag_gems/fused/qsa.py
+--- a/src/flag_gems/fused/qsa.py
++++ b/src/flag_gems/fused/qsa.py
+@@ -656,6 +656,8 @@ def qsa_select_paged_tokens(
+ 
+     columns = page_table.shape[1] * k_cache.shape[1]
+     block_topk = token_topk // compress_ratio
++    from flag_gems.fused.top_k_per_row_prefill import top_k_per_row_prefill
++
+     rows_per_chunk = max(1, _LOGITS_WORKSPACE_BYTES // max(columns * 4, 1))
+     for row_start in range(0, rows, rows_per_chunk):
+         row_end = min(row_start + rows_per_chunk, rows)
+@@ -669,10 +671,22 @@ def qsa_select_paged_tokens(
+             sequence_lengths,
+             compress_ratio,
+         )
+-        # Sorting keeps visible blocks before -inf padding. Primitive TopK
+-        # follows the existing FlagGems/PyTorch operator registration.
+-        _, blocks = torch.topk(logits, block_topk, dim=-1, largest=True, sorted=True)
+-        del visible_blocks
++        blocks = torch.empty(
++            (logits.shape[0], block_topk),
++            dtype=torch.int32,
++            device=logits.device,
++        )
++        range_starts = torch.zeros_like(visible_blocks)
++        top_k_per_row_prefill(
++            logits,
++            range_starts,
++            visible_blocks,
++            blocks,
++            logits.shape[0],
++            logits.stride(0),
++            logits.stride(1),
++            block_topk,
++        )
+         expand_qsa_block_indices(
+             blocks,
+             query_positions[row_slice],
