@@ -1,0 +1,29 @@
+diff --git a/src/flag_gems/fused/qsa.py b/src/flag_gems/fused/qsa.py
+--- a/src/flag_gems/fused/qsa.py
++++ b/src/flag_gems/fused/qsa.py
+@@
+ import torch
++
++from .qsa_overlap_telemetry import qsa_overlap_telemetry_begin
+@@ def qsa_select_paged_tokens(
+     block_topk = token_topk // compress_ratio
++    overlap_collector = qsa_overlap_telemetry_begin(
++        rows, query_positions, token_to_req
++    )
+@@
+         expand_qsa_block_indices(
+             blocks,
+             query_positions[row_slice],
+             sequence_lengths,
+             token_to_req[row_slice],
+             compress_ratio,
+             token_topk,
+             out[row_slice],
+         )
++    if overlap_collector is not None:
++        overlap_collector.finish(out)
+     return out
+
+# The added module is op018-qsa-overlap-telemetry-helper.py, copied as
+# src/flag_gems/fused/qsa_overlap_telemetry.py.  The guarded prepare script is
+# the executable application path because it verifies qsa.py SHA and anchors.

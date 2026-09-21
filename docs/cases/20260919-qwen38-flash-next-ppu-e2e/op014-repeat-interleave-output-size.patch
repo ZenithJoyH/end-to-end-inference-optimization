@@ -1,0 +1,18 @@
+diff --git a/vllm_fl/models/qwen3_8_flash_next.py b/vllm_fl/models/qwen3_8_flash_next.py
+--- a/vllm_fl/models/qwen3_8_flash_next.py
++++ b/vllm_fl/models/qwen3_8_flash_next.py
+@@ -1441,7 +1441,13 @@ class PleShortConvAttentionMetadataBuilder(
+             )
+             req_group[spec_req_idx] = 0
+             req_group[decode_req_idx_cpu.to(query_start_loc.device)] = 1
+-            token_group = torch.repeat_interleave(req_group, query_lens)
++            token_group = torch.repeat_interleave(
++                req_group,
++                query_lens,
++                output_size=(
++                    num_spec_decode_tokens + num_decode_tokens + num_prefill_tokens
++                ),
++            )
+             token_perm = torch.argsort(token_group, stable=True)
+             spec_token_indx = token_perm[:num_spec_decode_tokens]
+             non_spec_token_indx = token_perm[num_spec_decode_tokens:]

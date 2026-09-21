@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Use native score-selected sparse MLA for cached P16K prefill rows, while preserving the grouped kernel for full-prefix groups and split-K for decode.",
+  "variable_paths": [
+    "/launch_config/environment/VLLM_FL_THEAD_CACHED_PREFILL_SPARSE_MLA_HYBRID"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.02
+  },
+  "guardrails": [
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_tpot_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_itl_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "total_token_throughput",
+      "direction": "higher",
+      "max_regression": 0.02
+    }
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 2,
+    "max_relative_spread": 0.15,
+    "max_baseline_drift": 0.10
+  }
+}

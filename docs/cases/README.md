@@ -6,9 +6,10 @@
 
 | 案例 ID | 模型 | 平台/硬件 | 引擎 | Workload | 瓶颈 | 主要改动 | 结果 | 证据等级 |
 |---|---|---|---|---|---|---|---|---|
-| [20260919-qwen38-flash-next-ppu-e2e](20260919-qwen38-flash-next-ppu-e2e/README.md) | Qwen3.8-Flash-Next | PPU-ZW810E / PPU-01 | 待运行核验 | P1K→P4K→P16K→P32K，D1K/C64/N128 | 待 Prefill/Decode/Mixed 分阶段定位 | 独立优化容器→框架工作点→算子 A/B | 运行中；正在做镜像谱系与挂载门禁 | `observation` |
+| [20260921-minimax-m3-ppu-e2e](20260921-minimax-m3-ppu-e2e/README.md) | MiniMax-M3 BF16 MoE | TP16 PPU-ZW810E / PPU-07 | vLLM 0.24.0 + Plugin + FlagGems | P1K→P4K→P16K→P32K，D1K/C64/N128 | 待 Prefill/Decode/Mixed 定位 | 独立优化容器→框架工作点→算子 A/B | 环境门禁已过；待授权释放源服务的 16 张 PPU | `observation` |
+| [20260919-qwen38-flash-next-ppu-e2e](20260919-qwen38-flash-next-ppu-e2e/README.md) | Qwen3.8-Flash-Next | PPU-ZW810E / PPU-01 | 版本见模型运行记录 | P1K→P4K→P16K→P32K，D1K/C64/N128 | QSA、MoE、GEMM、阶段干扰 | 调度、score 上界、算子 provider | 活跃；[当前状态与单点结果](../../models/Qwen3.8-Flash-Next/ppu/optimize/README.md)，正式精度阻塞不等于性能验收 | 见各实验 |
 | [20260914-hy4-preview-ppu-e2e](20260914-hy4-preview-ppu-e2e/README.md) | Hy4-preview W8A8 linear/MoE | TP16 PPU-ZW810E / PPU-07 | vLLM 0.24.0 + Plugin + FlagGems | P4096/D1024/C64/N128；缩减 profiling | sparse MLA、fused MoE、scaled MM、Indexer 同步与冷启动 | Plugin/FlagGems 算子与数据流特化，native router MM | 最新稳态 278.14 output tok/s；较前 checkpoint +22.10%；正式 A/B/revert 待补 | `reproduced` |
-| [20260911-glm53-flash-ppu-e2e](20260911-glm53-flash-ppu-e2e/README.md) | GLM-5.3-Flash-BF16 | TP16 PPU-ZW810E / PPU-13 | vLLM 0.24.0 + Plugin + FlagGems | 诊断矩阵待冻结 | 待基线与 profiler 定位 | 框架工作点 → 算子 A/B → 必要时深度优化 | 运行中；资源排他待处理 | `observation` |
+| [20260911-glm53-flash-ppu-e2e](20260911-glm53-flash-ppu-e2e/README.md) | GLM-5.3-Flash-BF16 | TP16 PPU-ZW810E / PPU-13 | vLLM 0.24.0 + Plugin + FlagGems | 正式矩阵与缩减探针见模型记录 | MoE、MLA、mHC、调度 | 框架与算子多轮优化 | 活跃；[当前状态与单点结果](../../models/GLM-5.3-Flash-BF16/ppu/optimize/README.md) | 见各实验 |
 | [20260904-xingchen4-ppu-isolated-e2e](20260904-xingchen4-ppu-isolated-e2e/README.md) | XingChen4-29B-A4B BF16 | TP4 PPU-ZW810E / PPU-01 | vLLM 0.24.0 + Plugin + FlagGems | P1K/D1K/C64；P4K/D256/C64；P16K/D256/C32，各三轮 | MLA decode约60.6% GPU kernel时间 | operator/improve：H8的head tile64→16，限shape、可回退 | 保留：输出/总吞吐约+95.5%/+73.2%/+31.9%；GPQA按用户指示暂缓 | `reproduced` |
 | [20260903-imported-deepseek-v4-flash-w8a8](20260903-imported-deepseek-v4-flash-w8a8/README.md) | DeepSeek-V4-Flash W8A8 | 8× MetaX C550 | vLLM 0.20.2 + Plugin-FL + FlagGems | P1K/P4K, D1K, C64 | Indexer、Sparse MLA、cache copy、调度 | graph-safe/fusion/shape specialization | 原文最终组合显著提升；本项目未复测 | `observation` |
 | [20260903-imported-glm-5-2-w8a8](20260903-imported-glm-5-2-w8a8/README.md) | GLM-5.2 W8A8 | TP16 MetaX | vLLM + Plugin-FL + FlagGems/MCTlass | P1K/P4K | Indexer、MoE、Sparse MLA、采样、KV 抢占 | 分阶段 backend、精确算法、head packing、调度 | 原文持续演进；本项目未复测 | `observation` |
@@ -24,7 +25,11 @@
 YYYYMMDD-<model>-<platform>-<short-objective>
 ```
 
-目录中的 `README.md` 从 [TEMPLATE.md](TEMPLATE.md) 初始化。配置、可复用命令、补丁和逐轮结果保存在模型/平台的 `optimize/`，案例目录只保留少量 Markdown 摘要与链接；大体积原始结果只记录外部路径和校验信息。
+目录中的 `README.md` 从 [TEMPLATE.md](TEMPLATE.md) 初始化。模型/平台 `optimize/` 只保存
+`state.yml`、多轮 README 和单点 Markdown；案例目录只保留少量可复用结论与链接。
+执行配置、命令、补丁和逐轮原始结果保存在外部 case 目录，记录绝对路径与 SHA。
+活跃案例的过程文件必须先核验外部副本及引用再移除，不能因精简而丢失唯一证据。
+索引不复制活跃案例的瞬时进度，以模型 `state.yml` 和 README 为当前事实入口。
 
 ## 检索标签
 

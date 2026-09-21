@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "A 4096-token scheduler budget with a single prefill capped at 2048 tokens preserves the existing prefill chunk while leaving same-iteration budget for decode tokens.",
+  "variable_paths": [
+    "/launch_config/max_num_batched_tokens",
+    "/launch_config/long_prefill_token_threshold"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.02
+  },
+  "guardrails": [
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_tpot_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_itl_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "total_token_throughput",
+      "direction": "higher",
+      "max_regression": 0.02
+    }
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 2,
+    "max_relative_spread": 0.15,
+    "max_baseline_drift": 0.10
+  }
+}

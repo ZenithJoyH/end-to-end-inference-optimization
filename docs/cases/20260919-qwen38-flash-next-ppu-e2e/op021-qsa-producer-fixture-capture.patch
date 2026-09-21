@@ -1,0 +1,21 @@
+diff --git a/src/flag_gems/fused/qsa.py b/src/flag_gems/fused/qsa.py
+--- a/src/flag_gems/fused/qsa.py
++++ b/src/flag_gems/fused/qsa.py
+@@
+ import torch
++from .qsa_producer_fixture_capture import qsa_producer_fixture_capture_begin
+@@ def qsa_select_paged_tokens(
++    fixture_collector = qsa_producer_fixture_capture_begin(
++        q, k_cache, page_table, token_to_req, query_positions,
++        sequence_lengths, token_topk, compress_ratio, static_score_columns,
++    )
+     if not rows:
+         return out
+@@
++    if fixture_collector is not None:
++        fixture_collector.finish(out)
+     return out
+
+# The executable application path is prepare-op021-qsa-producer-fixture.py.
+# It requires the exact pre-patch qsa.py SHA, unique anchors, a fresh helper
+# path and a fresh artifact directory.  This file documents the minimal hook.

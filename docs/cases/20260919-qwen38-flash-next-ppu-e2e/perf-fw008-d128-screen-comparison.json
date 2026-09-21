@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Skipping the T-Head common-slot host synchronization preserves graph correctness and improves P4096/D128/C64/N64 Mixed output throughput by at least 1% by allowing CPU metadata preparation to overlap queued device work.",
+  "variable_paths": [
+    "/plugin_sha256",
+    "/launch_config/selected_environment/VLLM_FL_SKIP_COMMON_SLOT_HOST_SYNC"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.01
+  },
+  "guardrails": [
+    {"metric": "total_token_throughput", "direction": "higher", "max_regression": 0.02},
+    {"metric": "p99_ttft_ms", "direction": "lower", "max_regression": 0.03},
+    {"metric": "p99_tpot_ms", "direction": "lower", "max_regression": 0.03},
+    {"metric": "p99_itl_ms", "direction": "lower", "max_regression": 0.03},
+    {"metric": "p99_e2el_ms", "direction": "lower", "max_regression": 0.03}
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 3,
+    "max_relative_spread": 0.10,
+    "max_baseline_drift": 0.05
+  }
+}

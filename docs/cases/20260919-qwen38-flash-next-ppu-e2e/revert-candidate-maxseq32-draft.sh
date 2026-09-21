@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# DRAFT ONLY. Run on PPU-01 from the host after review.
-# Defaults to the 64 -> 32 revert. Candidate wrappers reuse this transition
-# engine so every 32/48/64 screen has identical safety checks.
+# Generic audited service transition engine.  prof005 installs a hashed copy
+# under commands/performance/transition-prof005-preserve-op010.sh.
 
 case_dir=/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e
 container=qwen3.8-flash-opt-candidate-20260919
@@ -16,6 +15,8 @@ target_max_num_batched_tokens=${TARGET_MAX_NUM_BATCHED_TOKENS:-4096}
 source_profiler_config=${SOURCE_PROFILER_CONFIG:-}
 target_profiler_config=${TARGET_PROFILER_CONFIG:-}
 tuned_config_folder=${TUNED_CONFIG_FOLDER:-${case_dir}/configs/moe-bm16-decode-only-01}
+target_blacklist=${TARGET_BLACKLIST:-_conv_depthwise2d,index,normal_}
+target_qsa_static_score_columns=${TARGET_QSA_STATIC_SCORE_COLUMNS:-8448}
 transition_role=${TRANSITION_ROLE:-revert-maxseq32}
 default_source_manifest=${case_dir}/manifests/candidate-maxseq64-service.json
 source_manifest=${2:-${SOURCE_MANIFEST_DEFAULT:-${default_source_manifest}}}
@@ -61,12 +62,19 @@ mkdir "${run_dir}"
 # current descendant tree. The source manifest must name this same live service.
 docker exec -i "${container}" python3 - \
   "${source_manifest}" "${expected_container_id}" \
-  "${source_max_num_seqs}" <<'PY' > "${before_process}"
+  "${source_max_num_seqs}" "${target_blacklist}" \
+  "${target_qsa_static_score_columns}" <<'PY' > "${before_process}"
 import json
 import os
 import sys
 
-source_manifest_path, container_id, source_max_num_seqs_raw = sys.argv[1:]
+(
+    source_manifest_path,
+    container_id,
+    source_max_num_seqs_raw,
+    target_blacklist,
+    target_qsa_static_score_columns,
+) = sys.argv[1:]
 source_max_num_seqs = int(source_max_num_seqs_raw)
 model = "/mnt/cpfs/models/Qwen3.8-Flash-Next"
 port = "8030"
@@ -82,6 +90,7 @@ env_keys = (
     "NCCL_SOCKET_FAMILY",
     "VLLM_FL_FLAGOS_BLACKLIST_APPEND",
     "VLLM_TUNED_CONFIG_FOLDER",
+    "VLLM_FL_QSA_STATIC_SCORE_COLUMNS",
     "PATH",
     "LD_LIBRARY_PATH",
 )
@@ -170,6 +179,13 @@ if (
     )
 if source_manifest.get("launch_config", {}).get("launch_args") != vllm_args:
     raise SystemExit("source manifest launch args do not match the live service")
+source_environment = source_manifest.get("launch_config", {}).get(
+    "selected_environment", {}
+)
+if source_environment.get("VLLM_FL_FLAGOS_BLACKLIST_APPEND") != target_blacklist:
+    raise SystemExit("requested target blacklist differs from source manifest")
+if source_environment.get("VLLM_FL_QSA_STATIC_SCORE_COLUMNS") != target_qsa_static_score_columns:
+    raise SystemExit("requested QSA bound differs from source manifest")
 
 tree = {service["pid"]}
 changed = True
@@ -182,6 +198,10 @@ while changed:
 
 service["vllm_args"] = vllm_args
 service["selected_environment"] = proc_env(service["pid"])
+if service["selected_environment"].get("VLLM_FL_FLAGOS_BLACKLIST_APPEND") != target_blacklist:
+    raise SystemExit("live source blacklist differs from requested target")
+if service["selected_environment"].get("VLLM_FL_QSA_STATIC_SCORE_COLUMNS") != target_qsa_static_score_columns:
+    raise SystemExit("live source QSA bound differs from requested target")
 service["tree"] = [dict(processes[pid]) for pid in sorted(tree)]
 print(json.dumps(service, indent=2, sort_keys=True))
 PY
@@ -260,8 +280,9 @@ docker exec -d \
   -e NCCL_IB_ADDR_FAMILY=6 \
   -e NCCL_SOCKET_IFNAME=bond \
   -e NCCL_SOCKET_FAMILY=AF_INET6 \
-  -e VLLM_FL_FLAGOS_BLACKLIST_APPEND=_conv_depthwise2d,index,normal_ \
+  -e VLLM_FL_FLAGOS_BLACKLIST_APPEND="${target_blacklist}" \
   -e VLLM_TUNED_CONFIG_FOLDER="${tuned_config_folder}" \
+  -e VLLM_FL_QSA_STATIC_SCORE_COLUMNS="${target_qsa_static_score_columns}" \
   -w "${case_dir}" \
   "${container}" bash -lc "
 set -e
@@ -578,6 +599,7 @@ manifest = {
         "enable_prefix_caching": False,
         "max_num_seqs": target_max_num_seqs,
         "max_num_batched_tokens": target_max_num_batched_tokens,
+        "qsa_static_score_columns": 8448,
         "launch_args": after_args,
         "selected_environment": after["selected_environment"],
     },

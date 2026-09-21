@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Establish the current retained Hy4 stack's P16384/D1024/C64/N128 scenario-entry baseline; this diagnostic one-process run is not a formal candidate comparison.",
+  "variable_paths": [
+    "/plugin_sha256",
+    "/flaggems_vllm_sha256",
+    "/flaggems_sha256"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.02
+  },
+  "guardrails": [
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_tpot_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_itl_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "total_token_throughput",
+      "direction": "higher",
+      "max_regression": 0.02
+    }
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 1,
+    "max_relative_spread": 0.15,
+    "max_baseline_drift": 0.15
+  }
+}

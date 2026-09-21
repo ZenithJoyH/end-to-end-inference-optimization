@@ -2,6 +2,11 @@
 
 ## 1. 摘要
 
+当前进度以 [模型优化总览](../../../models/Qwen3.8-Flash-Next/ppu/optimize/README.md) 和
+[结构化状态](../../../models/Qwen3.8-Flash-Next/ppu/optimize/state.yml) 为准。
+以下摘要是 P1K 早期快照，不表示当前仍处于环境准备；其中截断只是输出健康观察，不是独立精度失败条件。
+正式精度阻塞及后续准入以模型记录中的规则审查为准。
+
 - 执行规则：SOP `0.38` / 2026-09-14
 - 验收范围：`diagnostic`（用户未指定绝对 SLO 或相对改善门槛）
 - 精度/性能状态：`failed_baseline_sanity_output_health` / `p1k_screening`

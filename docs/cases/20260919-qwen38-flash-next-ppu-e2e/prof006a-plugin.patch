@@ -1,0 +1,83 @@
+diff --git a/vllm_fl/__init__.py b/vllm_fl/__init__.py
+--- a/vllm_fl/__init__.py
++++ b/vllm_fl/__init__.py
+@@ -278,3 +278,7 @@ def register_model():
+     registered_loaders = model_loader._LOAD_FORMAT_TO_MODEL_LOADER
+     if registered_loaders.get(load_format) is not HYV4SafetensorsLoader:
+         model_loader.register_model_loader(load_format)(HYV4SafetensorsLoader)
++
++    from vllm_fl.prof006a import install_scheduler_probe
++
++    install_scheduler_probe()
+diff --git a/vllm_fl/worker/worker.py b/vllm_fl/worker/worker.py
+--- a/vllm_fl/worker/worker.py
++++ b/vllm_fl/worker/worker.py
+@@ -70,6 +70,7 @@ import vllm_fl.envs as fl_envs
+ from vllm_fl.ops.custom_ops import register_oot_ops
+ from vllm_fl.dispatch.io_common import managed_inference_mode
+ from vllm_fl.utils import get_flag_gems_whitelist_blacklist
++from vllm_fl.prof006a import create_worker_probe
+ 
+ logger = init_logger(__name__)
+ 
+@@ -471,11 +472,22 @@ class WorkerFL(WorkerBase):
+ 
+         # Construct the model runner
+         self.model_runner = ModelRunnerFL(self.vllm_config, self.device)
++        self._prof006a_probe = create_worker_probe(
++            self.rank, current_platform.torch_device_fn
++        )
++        self.model_runner._prof006a_probe = self._prof006a_probe
+ 
+         if self.rank == 0:
+             # If usage stat is enabled, collect relevant info.
+             report_usage_stats(self.vllm_config)
+ 
++    def prof006a_flush(self):
++        probe = getattr(self, "_prof006a_probe", None)
++        if probe is None:
++            raise RuntimeError("prof006a worker probe is not installed")
++        probe.flush_now()
++        return {"role": probe.role, "count": probe.count, "dropped": probe.dropped}
++
+     # FIXME(youkaichao & ywang96): Use TorchDispatchMode instead of memory pool
+     # to hijack tensor allocation.
+     def load_model(self, *, load_dummy_weights: bool = False) -> None:
+diff --git a/vllm_fl/worker/model_runner.py b/vllm_fl/worker/model_runner.py
+--- a/vllm_fl/worker/model_runner.py
++++ b/vllm_fl/worker/model_runner.py
+@@ -4290,10 +4290,16 @@ class ModelRunnerFL(
+         intermediate_tensors: IntermediateTensors | None = None,
+     ) -> ModelRunnerOutput | AsyncModelRunnerOutput | IntermediateTensors | None:
+         if self.execute_model_state is not None:
+             raise RuntimeError(
+                 "State error: sample_tokens() must be called "
+                 "after execute_model() returns None."
+             )
++        prof006a_probe = getattr(self, "_prof006a_probe", None)
++        if (
++            prof006a_probe is not None
++            and scheduler_output.total_num_scheduled_tokens > 0
++        ):
++            prof006a_probe.begin_step(scheduler_output)
+ 
+         if self.routed_experts_initialized:
+             self.routed_experts_capturer.clear_buffer()
+@@ -4550,5 +4555,7 @@ class ModelRunnerFL(
+         # (wait_for_save + clear metadata) until after draft model runs.
+         defer_kv_connector_finalize = self.speculative_config is not None
++        if prof006a_probe is not None:
++            prof006a_probe.begin_graph()
+         with (
+             set_forward_context(
+                 attn_metadata,
+@@ -4574,6 +4581,9 @@ class ModelRunnerFL(
+                 inputs_embeds=inputs_embeds,
+                 **model_kwargs,
+             )
++        if prof006a_probe is not None:
++            prof006a_probe.end_graph()
++            prof006a_probe.end_step()
+ 
+         with record_function_or_nullcontext("gpu_model_runner: postprocess"):
+             if self.use_aux_hidden_state_outputs:

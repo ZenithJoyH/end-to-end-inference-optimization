@@ -12,6 +12,11 @@
 此外，`optimize/` 中每个优化点必须有一个 `optimize/<experiment-id>.md`。它是该优化点的人类可读说明，
 与 `state.yml` 中同 ID 的结构化条目对应；`optimize/README.md` 只做多轮总览和索引，不替代单点文档。
 
+新增条目同时填写 `document: <experiment-id>.md`。既有短文件名允许通过 `document` 显式映射，
+保留原始实验 ID 和外部证据；同一优化点的历史子实验可指向同一文档，不复制正文。README 必须有可点击链接。
+`scripts/check-project-records.py` 检查 YAML 重复键、实验 ID、文档存在性、README 索引、Skill 入口引用及新增过程材料；
+已接入 `scripts/validate-local`。此检查不假装验证远端证据或 Markdown 中所有数值的真实性。
+
 更新时先写 `state.yml`，再更新当前优化点 Markdown，最后同步 `README.md` 总览。Agent 进入模型任务时
 先读平台导航、三个 `state.yml` 和 `optimize/README.md`，只在需要了解具体改动时读取相应
 `<experiment-id>.md`。后续模型优化不创建 `history/` 或其他逐轮子目录。
@@ -87,3 +92,14 @@
 4. README 和优化点 Markdown 中的表格可以舍入，`state.yml` 保留原始精度；三者必须可追溯到同一证据。
 5. 大型或过程产物缺少稳定外部位置时，先补外部归档再从模型目录移除；不得为精简目录而丢掉唯一证据。
 6. 本规则面向后续新增和更新；已有 `history/` 目录不由 Agent 自动迁移、删除或改写，除非用户明确要求。
+
+## 活跃任务过程材料的迁移
+
+`docs/process-artifact-inventory.json` 是 2026-09-21 审查时的既有路径清单，不是新增文件的白名单生成器。
+这些文件仅获准暂留以保护活跃任务和唯一证据，每次验证均报告待迁移数量；不得自动追加清单掩盖新材料。
+新任务的命令、脚本、配置和原始结果直接进入用户指定的远端 case 目录。
+
+迁移既有材料前，先确认使用该路径的任务已空闲，逐项核对本地当前 SHA、外部副本 SHA、
+原始运行路径与仍有效引用。更新本地导航到可访问的外部位置后再移除源文件，保留恢复路径与清单；
+不得因为远程记录提到同名文件就假定已有相同副本。未完成这些核验时保持 `pending-active-task-review`，
+不宣称目录清理完成。此过程不触及用户保留的已有 `history/`。

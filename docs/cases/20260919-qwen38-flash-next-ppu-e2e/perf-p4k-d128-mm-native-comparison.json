@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Routing aten::mm and aten::mm.out to the T-Head platform-native provider improves P4096/D128 output throughput by at least 1% without regressing total-token throughput or P99 TTFT, TPOT, ITL, or E2E by more than 3%.",
+  "variable_paths": [
+    "/launch_config/selected_environment/VLLM_FL_FLAGOS_BLACKLIST_APPEND"
+  ],
+  "primary": {
+    "metric": "output_throughput",
+    "direction": "higher",
+    "min_improvement": 0.01
+  },
+  "guardrails": [
+    {"metric": "total_token_throughput", "direction": "higher", "max_regression": 0.02},
+    {"metric": "p99_ttft_ms", "direction": "lower", "max_regression": 0.03},
+    {"metric": "p99_tpot_ms", "direction": "lower", "max_regression": 0.03},
+    {"metric": "p99_itl_ms", "direction": "lower", "max_regression": 0.03},
+    {"metric": "p99_e2el_ms", "direction": "lower", "max_regression": 0.03}
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 3,
+    "max_relative_spread": 0.08,
+    "max_baseline_drift": 0.05
+  }
+}

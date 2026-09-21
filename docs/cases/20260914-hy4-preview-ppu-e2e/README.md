@@ -573,3 +573,65 @@ replay、T-Head Hy4 聚焦测试 `29/29` 均通过。该改动保留为未提交
 `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260919-p4k-d128-c64-n64-mbt-sweep-sq4096-02/`。
 当前服务停止、8010 空闲；Plugin 调度实验无残留，FlagGems-vllm 的 SQ4096
 范围扩展仍是未提交候选。
+
+## 24. 2026-09-20 最新 checkpoint 、Decode 原生 MLA A/B 与 scaled-MM 证伪
+
+- 新 CSV：`hy4_4096in_1024out_c64_n128_20260920_092514.csv`，SHA256
+  `a8cc96b8...556bf`。排除 R1 后，output throughput 中位数
+  `311.87 tok/s`、duration `420.27 s`、轮间 spread `0.148%`。
+- sink 代数简化和 exp2/log2 online-softmax 分别在主 shape 上约
+  `0.93x` / `0.96x`，均拒绝。原生 PPU MLA 仅在 score-selected 上
+  `1.056x–1.089x`，full-prefix 低至 `0.356x`。
+- Plugin T-Head opt-in pure-Decode 候选已实际命中；但
+  `P4096/D128/C64/N64` 的 profiler-off R2/R3 中位收益只有
+  output throughput `+0.196%`、duration `-0.196%`、mean TPOT
+  `-0.300%`，低于 `+2%` 门槛，已完整回退。
+- 原始 A/B 与诊断汇总：
+  `/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260920-p4k-d128-c64-n64-native-decode-03/`。
+  标准回执因历史 manifest 的非唯一 device IDs 为 `incomplete`，未伪造
+  formal pass。回退补丁 SHA256 为 `9bfac1d9...f445`。
+- scaled-MM int32 offset 微基准的六形态几何均值仅
+  `1.028x`，其中 M2029/K6144/N2048 为 `0.931x`；不改源码、不保留。
+  证据：`results/operator/scaled-mm-int32-offsets-20260920-01/summary.json`。
+- 服务已停止、8010 端口空闲。下一高信息实验是从有效 rank0 trace
+  量化 ring all-reduce 的非重叠关键路径占比，再决定是否做 Plugin 通信组织优化。
+- rank0 v2 区间并集结果显示 all-reduce 约 `96%` 未被其他 kernel
+  重叠，暴露时间占 Prefill/Mixed/Decode marker 的
+  `19.82%/10.14%/8.19%`；通信是真实关键路径。
+- TP16 PCCl 微基准中 Simple 协议使 25 MB 形态快约 `8%–10%`，但
+  8 MB 回退约 `47%`，4 MB 回退 `12%–13%`；Tree 更慢，协议列表不能
+  按大小择优。全局环境变量候选拒绝，启动脚本不变。
+
+## 25. 2026-09-20/21 P16K 场景入口与 cached-prefill sparse MLA
+
+当前保留组合的 `P16384/D1024/C64/N128` scenario-entry 单轮完成
+128/128 请求，output/total throughput 为 `78.98/1342.67 tok/s`；该单轮
+只作为诊断入口，不是正式重复 baseline。随后使用
+`P16384/D128/C16/N16` 采集 16/16 rank trace。rank0 归因确认原分析器标成
+Decode 的 generic sparse MLA 主体实际是
+`execute_new_0_cached_1` 中的 `SQ=2048` cached chunked-prefill
+continuation，而不是单 token Decode。
+
+调度方向先后拒绝了当前 vLLM 不支持的 dual partial-prefill，以及吞吐仅
+`+0.817%`、P99 ITL 回退约 `91%` 的 4096 总预算单 partial 候选。Indexer
+互斥拆分中本体占 `94%–100%`，copy/memcpy/sync 已非主导，因此转向上述
+cached-prefill sparse MLA。
+
+最终候选在 Plugin T-Head 边界保留 full-prefix grouped 与小 SQ split-K，
+只将 cached-prefill score-selected rows 交给 FlagGems-vllm 的 PPU native
+主 kernel。交错算子确认总中位数 `1.0844x`，最大绝对误差 `3.05e-5`，
+graph replay 与聚焦测试通过。
+
+profiler-off `P16384/D128/C16/N16` baseline/candidate/revert 的 output
+throughput 中位数为 `12.9728/13.5640/12.9755 tok/s`，候选提升
+`4.558%`；P99 TTFT/TPOT/ITL 分别改善 `4.514%/4.579%/4.358%`，
+baseline→revert 漂移 `0.0208%`，命中日志 `0/1/0`。标准比较回执为
+`passed`，SHA256 `b300e3ae...25f2f`。原始 run-record 未覆盖；仅对 manifest
+中整数形式的设备编号生成了带来源 SHA 的字符串元数据派生记录，以满足维护版
+比较器契约。
+
+结果根目录：
+`/mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260921-p16k-d128-c16-n16-cached-prefill-hybrid-01/`。
+候选源码未提交、未推送；服务停止、8010 空闲。当前结论仅覆盖缩减 milestone，
+新源码身份尚无正式精度 gate，也尚未完成父场景 P16K/D1K/C64/N128 的
+baseline/candidate/revert。

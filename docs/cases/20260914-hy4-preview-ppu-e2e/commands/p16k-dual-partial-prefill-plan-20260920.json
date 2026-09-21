@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "target": {
+    "model": "hy4",
+    "tokenizer": "/mnt/cpfs/models/Hy4-preview-W8A8-linear-moe/",
+    "host": "127.0.0.1",
+    "port": 8010,
+    "endpoint": "/v1/completions",
+    "trust_remote_code": true
+  },
+  "generation": {
+    "seed": 42,
+    "temperature": 0,
+    "ignore_eos": true,
+    "random_range_ratio": 0
+  },
+  "measurement": {
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "timeout_s": 3600,
+    "required_metrics": [
+      "request_throughput",
+      "output_throughput",
+      "total_token_throughput",
+      "p99_ttft_ms",
+      "p99_tpot_ms",
+      "p99_itl_ms",
+      "p99_e2el_ms"
+    ],
+    "slo": {},
+    "warmup_stability": null
+  },
+  "cases": [
+    {
+      "id": "p16384-d128-c16-n16-dual-partial-prefill",
+      "input_tokens": 16384,
+      "output_tokens": 128,
+      "concurrency": 16,
+      "requests": 16,
+      "load_mode": "finite_batch",
+      "stage": "mixed",
+      "request_rate": null,
+      "burstiness": 1
+    }
+  ]
+}
