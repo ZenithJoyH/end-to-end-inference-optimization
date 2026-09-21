@@ -418,6 +418,9 @@ def execute_plan(args):
         scope = "formal_candidate"
     if args.comparison_contract:
         source_refs["comparison_contract"] = artifact(args.comparison_contract)
+    from compare_performance import validate_cache_policy, validate_contract
+    comparison = validate_contract(read_json(args.comparison_contract)) if args.comparison_contract else None
+    validate_cache_policy(read_json(args.service_manifest), comparison)
     _check_refs(source_refs.values())
 
     directory = Path(args.output_dir).resolve() / args.run_id

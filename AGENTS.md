@@ -54,9 +54,9 @@ Agent 的职责是：
 
 - **推理栈架构资料**：[vllm-plugin-FL-analysis.md](docs/vllm-plugin-FL-analysis.md) 用于理解 Plugin 调用链与扩展点；[FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) 用于理解 vLLM 专用算子、vendor backend 和测试/benchmark；[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于理解通用算子、ATen 注册和多后端特化。三者都是特定 revision 的静态分析，分阶段使用要求见第 6 节。
 - **算子知识**：[关键算子技能](skills/key-operator-analysis/SKILL.md) 包含 MLA Attention、mHC、固定版本 vLLM 源码快照及通用分析方法。仅在端到端测量或 profiler 已收敛到具体算子、dispatch、layout 或相邻融合路径时按需读取；不提前加载整套知识库，不直接套用历史硬件、shape、revision 和性能判断。
-- **精度评测**：公共 `$inference-accuracy-evaluation` Skill 负责选择并执行精度操作，完整测试方法、参数、进度监控、证据校验和三态判定都由 Skill 包维护；本项目只在 `docs/skills-project-contract.md` 映射 `evaluation/accuracy/` 与原始 runner。
+- **精度评测**：本地 [inference-accuracy-evaluation](skills/inference-accuracy-evaluation/SKILL.md) 负责精度操作；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。自动发现不可用时直接完整读取该入口，不依赖全局同名 Skill。
 - **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
-- **性能评测**：公共 `$inference-performance-evaluation` Skill 负责选择并执行无 profiler 性能测量，并为当前目标场景分别建立 Prefill、Decode 与 Mixed 证据；场景、预热、重复、指标计算、比较和正式判定都由 Skill 包维护，本项目只映射 `evaluation/performance/` 的 benchmark、比较和回执工具。
+- **性能评测**：本地 [inference-performance-evaluation](skills/inference-performance-evaluation/SKILL.md) 负责无 profiler 性能测量及 Prefill、Decode、Mixed 证据；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。
 - **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、Prefill/Decode 阶段切分、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
 - **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断 Prefill/Decode/Mixed 热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
@@ -224,7 +224,7 @@ Agent 的职责是：
 
 执行顺序：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → smoke/C8 护栏 → 无 profiler 基线尝试（过慢时可转 baseline-recovery）→ 分层诊断与单变量实验 → milestone/正式性能检查 → 候选回归 → 最终精度与性能验收 → 复盘。
 
-- 精度和性能测试必须分别调用公共 `$inference-accuracy-evaluation` 与
+- 精度和性能测试必须分别读取并执行本地 `$inference-accuracy-evaluation` 与
   `$inference-performance-evaluation`。测试等级/模式、触发条件、配置字段、并发、预热、重复、
   指标与比较、进度监控、证据校验、三态判定和报告结构都由对应 Skill 包维护，不得在本
   AGENTS 文件中复制或重新定义。
@@ -240,7 +240,7 @@ Agent 的职责是：
   输出长度、并发上限和请求数。这四项约束正式测试，不限制中间优化路径：每轮可以建立较小的
   `milestone`，使用目标场景子集、缩短输出、减少请求/并发、阶段专项、短探针或算子 microbenchmark
   快速证伪和推进。每个 milestone 必须记录它服务的最终 `scenario_id`、差异、成功/停止条件和晋级验证；
-  它不是公共性能 Skill 的新模式，也不能直接成为最终性能结果。最终 `full` 仍须覆盖四个原始场景。
+  它不是性能 Skill 的新模式，也不能直接成为最终性能结果。最终 `full` 仍须覆盖四个原始场景。
   某场景超出模型上下文、显存或平台能力时，保留该场景并记录 `unsupported/incomplete` 及证据，不得
   静默删掉、缩短或改名后宣称完整验收通过。
 - 性能优化按 `P1K → P4K → P16K → P32K` 顺序从四个正式场景中每次选取一个当前目标场景，
@@ -273,6 +273,11 @@ Agent 的职责是：
 - 正式分数低于预冻结阈值或评测证据无效时调用 `$inference-accuracy-diagnosis`，冻结证据并停止叠加新优化；
   必须定位精度下降原因并修复或回退，以相同正式契约重新评测，只有新的 `score >= threshold` gate
   生成后才能恢复性能优化。输出健康异常单独记录或按需诊断，不改变 `score >= threshold` 结论。
+- 上游交付已经低于阈值时，记录 `inherited-accuracy-blocker`，不推定为本次优化导致，也不以最小回归替代正式达标。
+  默认只继续证据核验、问题定位及其必要复现/修复，不叠加新性能优化或关闭正式场景。
+  用户另行明确允许诊断性性能探索时，记录指令来源、范围和有效期；仍不得签发精度 gate 或宣称正式验收通过。
+- 相同候选仅重启服务时，旧精度 gate 不自动有效；按精度工具的 `rebind` 流程核验稳定身份、当前运行证据、
+  graph capture/两次 replay 和最小回归后可签发新绑定回执。源码、配置、设备或环境变化仍须重新评测。
 - 每次 Skill 结果都写回当前实验记录，保留准确服务身份、场景/样本范围、原生证据路径、
   结果和结论边界；不能只在对话中给出口头结论。
 

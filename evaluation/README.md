@@ -45,7 +45,8 @@ python3 evaluation/accuracy/formal_accuracy.py \
 
 正式执行前写出 `effective_config.json` 和 `frozen-inputs.json`；运行前后重验实际任务/数据证据。结束后核对样本与原生 results 的任务、模型、endpoint、配置和内容指纹，以确认得分属于当前候选。精度的唯一通过条件是 `score >= threshold`，等于阈值通过。超时、截断或其他输出健康信息可记录为诊断观察，不作为附加精度门槛。
 
-正式精度 contract/gate 使用 schema 3，run-record 保持 schema 2；它们与通用实验记录的 schema 独立。旧记录不能仅改版本号转为新 gate。当前解析器依据 lm-eval v0.4.9 的 ConfigurableTask 与结果结构编写；目标镜像不符时先适配证据接口，不改写得分或阈值。
+正式精度 contract/原始 gate 使用 schema 3，run-record 保持 schema 2；严格重启核验后的 rebind gate 使用 schema 4。
+它们与通用实验记录的 schema 独立。旧记录不能仅改版本号转为新 gate。当前解析器依据 lm-eval v0.4.9 的 ConfigurableTask 与结果结构编写；目标镜像不符时先适配证据接口，不改写得分或阈值。
 
 ```bash
 python3 evaluation/accuracy/acceptance.py issue \
@@ -65,7 +66,7 @@ python3 evaluation/accuracy/acceptance.py check \
   --service-manifest /external/current-service.json
 ```
 
-核验服务身份不等于自动远程采集。工具检测的是文件一致性，执行者必须根据当前进程、实际导入路径与源码内容重新确认 manifest；不能将旧快照当成当前事实。服务重启改变 `service_instance_id`，权重、代码、tokenizer、启动参数或运行身份变化均使旧 gate 失效。证据文件在消费端必须可访问；需搬运时保持内容 SHA 并明确更新引用，不能仅复制一个 `passed=true`。
+核验服务身份不等于自动远程采集。工具检测的是文件一致性，执行者必须根据当前进程、实际导入路径与源码内容重新确认 manifest；不能将旧快照当成当前事实。服务重启改变 `service_instance_id`，旧 gate 不再直接有效；仅纯重启可按 [rebind 流程](accuracy/README.md#服务身份与重启复用) 生成新绑定回执。权重、代码、tokenizer、启动配置或环境变化仍须重新评测。证据文件在消费端必须可访问；不能仅复制一个 `passed=true`。
 
 XingChen 历史模型 wrapper 已退出模型目录；新测试统一使用 `evaluation/performance/` 的公共计划入口，正式模式要求 accuracy gate 和 service manifest，纯性能研究不得生成正式精度达标声明。候选与 baseline/revert 的服务身份分别记录，不能为原路径伪造候选 gate。
 

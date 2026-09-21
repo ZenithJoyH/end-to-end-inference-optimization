@@ -27,6 +27,15 @@ vllm serve <model> <其余冻结参数> \
 
 只有用户明确要求评估 prefix cache 时，才允许在单独契约中改变该状态，并把缓存准备、前缀复用比例和命中证据列为受控变量。不得把开启缓存的结果与默认关闭缓存的结果归因为其他代码或算子优化。历史产物维持原记录，不按本门禁改写。
 
+执行计划在 dry-run/发送请求前检查默认关闭和配置一致性；比较器再次核验。
+缓存实验需在冻结 comparison 中新增 `cache_experiment: {authorization, reuse_ratio, hit_evidence}`，
+记录用户指令出处、0–1 前缀复用比例、命中证据路径，并在 `variable_paths` 显式声明实际变化的缓存状态、
+准备方式和启动配置字段。缺失声明、启用状态与观测矛盾，均不产生有效比较。
+服务身份必须记录 FlagGems-vllm 的实测安装状态与内容 SHA，规则见精度工具文档。
+
+独立重复仍指不同服务实例；纯重启可以通过精度工具的显式 `rebind` 复用同一已评测候选的分数，
+而不是复用旧实例的 gate。代码、配置、设备或环境变化不能走该分支。
+
 ## 配置执行与比较
 
 新任务从 [plan.example.json](plan.example.json) 和 [comparison.example.json](comparison.example.json) 准备外部配置。`plan.example.json` 已包含当前 Agent 固定的四个正式目标场景：P1K/P4K/P16K/P32K、D1K、C64、N128，均为 finite batch；正式 full 计划不得删减。目标服务、tokenizer、预热、重复、超时、指标与阈值仍须按任务修改并冻结。若比较要求 SLO 达标率，必须在计划的 `measurement.slo` 填写对应的 `ttft/tpot/e2el` 毫秒阈值；空 SLO 不能产生 goodput 验收。

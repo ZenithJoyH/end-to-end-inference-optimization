@@ -23,3 +23,7 @@ PYTHONPYCACHEPREFIX=/tmp/e2e-eval-pycache \
 `test_control_model_tools.py` 覆盖目标歧义、挂载选项、精确 sanity、历史汇总和启动 readiness；启动、进程及 HTTP 检查用替身模拟，不会启动模型服务。性能计划测试另外创建不安装 pip 的本地虚拟环境和合成包，验证客户端探针确实使用原虚拟环境入口及源码内容。
 
 完整本地验证使用 `./scripts/validate-local`。原始 `test/` 资产的逐文件 SHA 由清单核验，禁止通过更新哈希掩盖意外修改。
+
+历史控制/矩阵兼容实现位于 `evaluation/compat/`，测试不依赖 `models/` 或活跃案例脚本。
+`test_project_records.py` 验证重复键、实验 ID、文档映射和过程文件防新增规则。
+评测负例覆盖缓存启用/状态矛盾、FlagGems-vllm 身份缺失，以及纯重启 rebind 的成功、漂移和证据篡改。

@@ -117,6 +117,10 @@ baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和�
   output/valid-count exact 一致，graph capture + 两次 replay 通过。
 - 两场景无 profiler baseline/candidate/revert 的输出吞吐却分别为
   -0.041%/-0.005%，比较器 `failed`；补丁精确回退，未加入保留组合。
+- 后续 P4K profile 中 vendor Sparse MLA 在 Mixed/Prefill 仍占 rank0 累计设备
+  活动 24.694%/21.630%。精确 SQ16384/H4/DQK512 完整调用对照中，thead vendor
+  中位 43.005 ms，FlagGems-vllm 通用 Triton 中位 51.943 ms，后者只有 0.828x；
+  output/LSE 数值通过，但未达到 1.05x 算子门槛，未修改 dispatch 或源码。
 
 ### 知识差量
 
@@ -125,9 +129,13 @@ baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和�
 - `outcome`：`refined`。
 - `revised_belief`：即使辅助 kernel 的数值和 graph 验证完整，只要它不在
   请求级关键路径上形成足够占比，局部倍数仍可能完全被调度、主 kernel 和
-  通信覆盖；进入生产前必须用无 profiler A/B/R 验证。
+  通信覆盖；进入生产前必须用无 profiler A/B/R 验证。对于当前 thead H4/
+  DQK512/SQ16384，现有通用 Triton fallback 也不是 vendor 的更快替代项；应先
+  查 vendor 专用可调边界或新版实现，而不是切换到通用路径。
 - `future_first_check`：先估算该辅助 kernel 在完整请求关键路径中的可兑现
-  绝对时间，而不只看 profiler 累计时间；保留最小收益门槛和快速回退。
+  绝对时间，而不只看 profiler 累计时间；保留最小收益门槛和快速回退。若考虑
+  主 kernel replacement，先核验 live vendor 命中、替代 backend 的平台能力
+  guard 和 head padding，再用精确主 bucket 做完整调用门禁。
 - `contradicted_or_unproven`：BN1024 不是可迁移默认值；`out=` 预分配是否有
   收益未验证，且本轮端到端上限已使其降级。
 - `new_frontier`：同一 trace 的 general mm 有多个累计更大的明确 shape 族，

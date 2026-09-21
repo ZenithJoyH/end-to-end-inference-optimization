@@ -7,8 +7,53 @@
 
 | Case | 状态 | 匹配键 | 主要知识差量 | 证据等级 |
 |---|---|---|---|---|
+| [20260919-qwen38-flash-next-ppu-e2e](../../../../../models/Qwen3.8-Flash-Next/ppu/optimize/op-016-moe-splitk-reduction-frontier.md) | not-proven | Prefill/Mixed/Decode；BF16；E512/TopK10；PPU；TP8；graph | 先用完整 transaction 的 reduction 免费删除上界筛选 direct-sum/split-K；config 中有 `SPLIT_K` 不证明 kernel 实现了 split-K | `observation` |
 | [20260914-hy4-preview-ppu-e2e](../../../../../docs/cases/20260914-hy4-preview-ppu-e2e/README.md) | kept | Prefill/Mixed/Decode；W8A8；E256；PPU-ZW810E；TP16；graph | 平台 warp、量化和归约特化应由 `_thead` backend 覆盖公共 fused MoE | `reproduced` |
 | [20260911-glm53-flash-ppu-e2e](../../../../../docs/cases/20260911-glm53-flash-ppu-e2e/README.md) | kept | Decode cached32/cached64；BF16；E288；PPU；TP16；FULL_DECODE_ONLY | Decode config 必须按 live M 分支；M<=32 与 exact-M64 均已获得同 workload 服务收益 | `reproduced` |
+
+## Case：20260919-qwen38-flash-next-ppu-e2e / op-016
+
+### 环境与路径
+
+- 模型/平台：Qwen3.8-Flash-Next，PPU，TP8/BF16，E512/TopK10，graph。
+- 阶段与 shape：M64 Decode 和 M4096 Prefill/Mixed；每 rank hidden 2560，
+  local intermediate 80。
+- 实际路径：Plugin `fused_experts_impl` 依次调用 FlagGems GEMM1、
+  独立 SiLU、GEMM2 和 `moe_sum`。完整证据见
+  [op-016 事实记录](../../../../../models/Qwen3.8-Flash-Next/ppu/optimize/op-016-moe-splitk-reduction-frontier.md)。
+
+### 瓶颈与结果
+
+- FlagGems 已有 `direct_sum`/`out_top_k` 扩展点，但 live Plugin 没有
+  启用；该路径需要 output zeroing 和 BF16 relaxed atomic add，数值语义
+  不等同于当前 FP32 `moe_sum` accumulator。
+- 将 atomic、zeroing 和实现开销全部置零，仅按“免费删除全部
+  `moe_sum`”计算的宽松 kernel-activity 上界：M4096 Prefill `5.1426%`、
+  P4K Mixed `4.8080%`、M64 Decode `0.5624%`，均低于 8% 门槛。
+- wrapper 强制 `SPLIT_K=1`；kernel 的 pid 映射、K 循环和写回都没有
+  使用 `SPLIT_K`。真 split-K 需新 grid 及 partial/atomic reduction，本轮无
+  `>=8%` 完整 transaction 预测，所以未实现、未运行微基准。
+
+### 知识差量
+
+- `prior_belief`：MoE 仍是 Decode/Mixed 热点时，split-K 或归约融合可能是
+  config 空间耗尽后的下一个高收益方向。
+- `outcome`：`refined`。
+- `revised_belief`：先用 measured complete transaction 中 `moe_sum` 的免费
+  删除上界筛选 reduction fusion；若该上界低于门槛，不因 MoE 总热点
+  较大就开始 direct-sum 实现。对 split-K 必须检查 kernel body，不能
+  从 config key 推断功能已存在。
+- `future_first_check`：先分开 GEMM1/GEMM2/reduction 的 live shape 与时间，
+  计算 zero-cost complete-transaction 上界；只有 `>=8%` 才设计包含
+  zeroing/partial reduction 的微基准。
+
+### 适用限制
+
+这是源码和 profiler/现有微基准给出的候选筛选证据，不是
+direct-sum 或 split-K 的目标硬件实测。profiler activity 可重叠，不是
+端到端 critical-path 时间；本结论只用于拒绝明显无法跨过预冻结
+transaction 门槛的实现投入。正式精度仍被 GPQA 170/198（`85.86%`）
+低于 88% 阈值阻塞。
 
 ## Case：20260914-hy4-preview-ppu-e2e
 

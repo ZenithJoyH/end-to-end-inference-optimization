@@ -38,6 +38,24 @@
   3.547x–4.542x，但两场景输出吞吐为 -0.041%/-0.005%。
 - 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
 
+### Sparse Prefill：PPU H4/DQK512 先保留 thead vendor，不切通用 Triton
+
+- 证据等级：`reproduced`，限 GLM5.3-Flash/PPU/BF16/TP16/H4/DQK512/
+  DV512/topk2048/SQ16384/SKV65536。
+- 触发信号：thead vendor Sparse MLA 是 Prefill/Mixed 热点，考虑用已有通用
+  Triton 实现替换；FlagGems-vllm TLE 路径当前明确禁用于 thead。
+- 第一检查：确认运行时真正命中 `TheadMLASparseImpl -> flash_mla` 预编译实现，
+  并查看替代实现最小 BH。当前通用 Triton 最小 BH16，对 per-rank H4 仍有 4 倍
+  head padding，不能仅因“源码可调”就假设更快。
+- 首个实验：保持 BF16、indices、sink、topk_length、DQK/DV 和完整调用不变，
+  在主 Mixed bucket 上交错测量 vendor 与通用实现；先过 1.05x 算子门槛，再考虑
+  dispatch、graph 和服务 A/B/R。
+- 停止条件：现有通用实现不快 1.05x 时立即停止 replacement；不要通过切换到
+  非 thead TLE 或复用其他平台 BH/BK 绕开能力守卫。
+- 已知反例：SQ16384/H4 的 vendor 与通用 Triton 中位分别为 43.005/51.943 ms，
+  通用实现只有 0.828x；数值一致但性能失败，未修改源码。
+- 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
+
 ### Dense Decode：head tile 明显大于每 rank 有效 head 数
 
 - 证据等级：`reproduced`，限 XingChen4/PPU/BF16/H8/DQK576/DV512/SQ1/page16/64。

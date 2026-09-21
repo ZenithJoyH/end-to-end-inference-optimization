@@ -7,6 +7,8 @@ description: Orchestrate graph-mode correctness checks and formal GPQA accuracy 
 
 Use this skill to select the correct accuracy-validation depth, execute the existing project workflow, and bind the result to the exact inference service being optimized. It orchestrates existing tools; it does not implement another model evaluator.
 
+This repository-local file is the maintained entrypoint. If automatic discovery is unavailable, read it directly and follow [the project mapping](../../docs/skills-project-contract.md); do not silently substitute a global namesake.
+
 ## Select the mode
 
 Choose one mode and record it with the experiment IDs it covers:
@@ -74,7 +76,9 @@ When the formal score is below threshold or score evidence is invalid, invoke `$
 
 Before formal performance, run `evaluation/accuracy/acceptance.py check` with a freshly captured service manifest. Reuse the gate only when it still binds the exact frozen source, configuration, artifacts, and service identity.
 
-A service restart, source/configuration change, weight or tokenizer change, inference-affecting launch change, or mismatched artifact checksum invalidates the old gate. Run `formal-gate` again when the final candidate lacks an exact valid gate.
+A service restart invalidates the direct binding, but need not repeat GPQA when everything except the instance ID and runtime evidence is identical. In `gate-check` mode use the explicit `acceptance.py rebind` workflow in [the accuracy tools](../../evaluation/accuracy/README.md): freshly observe identity, graph capture/two replays and passed minimal regression, then issue a new binding to the original evaluated gate. Never relabel this as a new measured score. Missing evidence, changed source/configuration, weights/tokenizer, device/environment, endpoint or launch settings require `formal-gate`; never edit the old manifest to make it match.
+
+An inherited upstream score below threshold is an `inherited-accuracy-blocker`, not proof of a regression introduced here. Stop stacking new performance optimizations and invoke diagnosis to verify provenance and localize/fix the inherited issue. A minimal regression does not clear it. Only an explicit user instruction with recorded scope permits diagnostic performance exploration while blocked; it never authorizes a formal gate or acceptance claim.
 
 ## Report
 

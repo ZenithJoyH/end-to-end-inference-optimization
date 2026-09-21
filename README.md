@@ -54,7 +54,7 @@
 |---|---|---|
 | 调度与批处理 | 调整批处理 token 预算、prefill 分块、并发准入和执行顺序 | 吞吐、TTFT、decode 延迟和 KV 抢占 |
 | KV 与数据流 | 消除多余复制/分配，调整 cache 使用和数据复用 | 显存、重算、缓存语义及冷热请求表现 |
-| 主机与 graph 执行 | 减少 Python/dispatch 开销、设备同步和 graph break | eager/graph 正确性、动态输入及启动开销 |
+| 主机与 graph 执行 | 减少 Python/dispatch 开销、设备同步和 graph break | graph capture/两次 replay、动态输入及启动开销；eager 仅诊断 |
 | 并行与通信组织 | 调整通信时序、rank 数据组织及计算通信重叠 | 通信等待、负载均衡和多卡稳定性 |
 
 默认通过运行配置和 Plugin 已有的调度、Worker/ModelRunner、graph、dispatch 等扩展点实现。进入通用执行主链路前，需要证明更窄的配置或扩展点不足，并检查共享调用方。
@@ -66,7 +66,7 @@
 - **接入更好的算子（`operator/replace`）**：已有 FlagGems、vendor/native 或其他兼容实现可选时，在相同条件下比较，再通过既有 backend/dispatch 接入。工作包括适配调用契约、支持条件、实现选择和 fallback。例如，为特定 MoE shape 接入更快的已有 backend。
 - **优化当前算子（`operator/improve`）**：改进当前实现的 tile、warp、stage、访存、layout、并行划分或算法，也包括开发新的融合 kernel。例如，根据每 rank 的有效 head 数调整 MLA tile，或将相邻运算合并为一个新 kernel。
 
-替换与实现优化都需要可信数值对照、实际命中证据、eager/graph 验证，以及同条件端到端复测。选择新 backend 或得到更快的 microbenchmark 后，仍需检查接入成本和非目标输入。
+替换与实现优化都需要可信数值对照、实际命中证据、graph capture/至少两次 replay，以及同条件端到端复测。eager 仅按需诊断。选择新 backend 或得到更快的 microbenchmark 后，仍需检查接入成本和非目标输入。
 
 ### 如何判断容易混淆的改动
 
@@ -91,7 +91,7 @@
 
 这是默认排查顺序。实际优先级由预期端到端净收益、证据强度、验证成本和维护风险决定；已有充分证据时可以直接进入对应方向。候选同时满足正确性、稳定性和框架设计要求，收益不能豁免多模型/多平台兼容问题。
 
-用户已授权在明确指定的模型、Host 和隔离源码副本内修改 Plugin 与 FlagGems。vLLM、权重、tokenizer、基础镜像及共享系统配置的修改仍受 [AGENTS.md](AGENTS.md) 中的授权边界约束。源适配容器用于读取事实，不承载本任务的源码修改、profiling 或性能实验。提交、推送和创建 PR 需有明确指示。
+用户已授权在明确指定的模型、Host 和隔离源码副本内修改 Plugin、FlagGems-vllm 与 FlagGems。vLLM、权重、tokenizer、基础镜像及共享系统配置的修改仍受 [AGENTS.md](AGENTS.md) 中的授权边界约束。源适配容器用于读取事实，不承载本任务的源码修改、profiling 或性能实验。提交、推送和创建 PR 需有明确指示。
 
 ## 快速开始
 
@@ -155,8 +155,8 @@ TARGET_HOST='YOUR_HOST_ALIAS'
 | 正确性护栏 | 固定单请求、小批量及 C8 sanity，检查实际输出；涉及算子等改动时增加数值/参考对照 |
 | 无 profiler 基线 | 分离启动、预热和稳态，冻结 workload，多轮记录端到端指标、失败及资源情况 |
 | 诊断与实验 | 从请求、阶段、框架、通信收敛到算子；按证据排序，单变量比较并保留失败/回退记录 |
-| 候选回归 | 验证代表性 workload、eager/graph、边界与非目标路径；复核最终补丁设计和实际命中 |
-| 正式验收 | 完整精度及输出健康门禁通过后测同一候选 graph 配置，完成可比的 baseline/candidate/revert 性能对比 |
+| 候选回归 | 验证代表性 workload、graph capture/两次 replay、边界与非目标路径；复核最终补丁设计和实际命中 |
+| 正式验收 | 有效完整精度分数达到预冻结阈值后测同一候选 graph 配置，完成可比的 baseline/candidate/revert 性能对比；输出健康只作诊断观察 |
 | 复盘与交付 | 归档配置、逐轮结果、补丁、限制与回退入口，更新案例和有证据支持的知识差量 |
 
 Profiler 用于归因，其性能数据与无 profiler 测量分开。随机 token 测试与代表性业务数据分开报告。吞吐改善同时披露尾延迟、显存、功耗和稳定性取舍；缺失指标保持 `null`，不用最好单轮或局部加速倍数代替端到端结论。
@@ -221,7 +221,7 @@ docs/
 models/<model>/<platform>/
   README.md                     # 该模型/平台导航
   baseline/                     # 优化前环境、workload 和基线
-  optimize/                     # 多轮实验、profiling 摘要、工具、补丁及回退
+  optimize/                     # state.yml、README 总览、每个优化点的独立 Markdown
   acceptance/                   # 最终候选验收配置、结果/状态与总结
 
 skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库

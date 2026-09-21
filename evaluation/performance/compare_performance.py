@@ -80,7 +80,7 @@ def fields(value, allowed, required, label):
 
 def validate_contract(value):
     fields(value, ("schema_version", "scope", "hypothesis", "variable_paths", "primary",
-                   "guardrails", "repeats", "slo_min_attainment"),
+                   "guardrails", "repeats", "slo_min_attainment", "cache_experiment"),
            ("schema_version", "scope", "hypothesis", "variable_paths", "primary", "guardrails", "repeats"), "contract")
     if type(value["schema_version"]) is not int or value["schema_version"] != 1 or value["scope"] not in ("formal", "performance_only"):
         raise ValueError("comparison requires schema 1 and an explicit acceptance scope")
@@ -127,6 +127,16 @@ def validate_contract(value):
         number(repeats[key], key, maximum=1)
     if "slo_min_attainment" in value:
         number(value["slo_min_attainment"], "slo_min_attainment", maximum=1)
+    if "cache_experiment" in value:
+        cache = value["cache_experiment"]
+        fields(cache, ("authorization", "reuse_ratio", "hit_evidence"),
+               ("authorization", "reuse_ratio", "hit_evidence"), "cache_experiment")
+        for key in ("authorization", "hit_evidence"):
+            if not isinstance(cache[key], str) or not cache[key].strip():
+                raise ValueError(f"cache_experiment requires {key}")
+        number(cache["reuse_ratio"], "cache reuse_ratio", maximum=1)
+        if "/performance_context/prefix_cache_state" not in paths:
+            raise ValueError("cache experiment must declare prefix_cache_state as a variable")
     return value
 
 
@@ -137,7 +147,24 @@ def validate_metric(spec):
         raise ValueError("metric direction must be higher or lower")
 
 
-def service_identity(service):
+def validate_cache_policy(service, contract=None):
+    """Enforce the project default even if all roles share the same bad state."""
+    enabled = service.get("launch_config", {}).get("enable_prefix_caching")
+    state = service.get("performance_context", {}).get("prefix_cache_state")
+    if type(enabled) is not bool or state not in ("disabled", "cold", "warm", "mixed"):
+        raise ValueError("prefix cache requires an explicit boolean and observed state")
+    if (not enabled) != (state == "disabled"):
+        raise ValueError("prefix cache launch configuration contradicts observed state")
+    args = service.get("launch_config", {}).get("launch_args", [])
+    if isinstance(args, list):
+        if (("--enable-prefix-caching" in args and not enabled)
+                or ("--no-enable-prefix-caching" in args and enabled)):
+            raise ValueError("prefix cache launch arguments contradict manifest state")
+    if enabled and not (contract or {}).get("cache_experiment"):
+        raise ValueError("prefix cache must be disabled unless an authorized cache_experiment is frozen")
+
+
+def service_identity(service, contract=None):
     # These are observed manifests, not an automatic remote attestation.
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "accuracy"))
     from acceptance import validate_service
@@ -156,6 +183,7 @@ def service_identity(service):
         raise ValueError("performance_context requires explicit unique device identifiers")
     if context.get("prefix_cache_state") not in ("cold", "warm", "mixed", "disabled"):
         raise ValueError("prefix cache state is not established")
+    validate_cache_policy(service, contract)
     return {key: val for key, val in service.items() if key not in VOLATILE_SERVICE_FIELDS}
 
 
@@ -209,7 +237,7 @@ def check_run(path, contract_ref, contract):
     plan = performance_plan.load_plan(verified(refs["plan"]))
     service = read_json(verified(refs["service"]))
     performance_plan._check_service(service, plan["target"])
-    identity = service_identity(service)
+    identity = service_identity(service, contract)
     target, url = plan["target"], urlsplit(service["base_url"])
     if (target["model"] != service["model_name"] or target["tokenizer"] != service["tokenizer_path"]
             or target["host"] != url.hostname or target["port"] != (url.port or (443 if url.scheme == "https" else 80))):

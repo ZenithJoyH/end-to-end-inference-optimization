@@ -10,6 +10,8 @@
   "engine_sha256": "",
   "plugin_sha256": "",
   "flaggems_sha256": "",
+  "flaggems_vllm_installed": null,
+  "flaggems_vllm_sha256": null,
   "runtime_evidence_sha256": "",
   "launch_config": {
     "enable_prefix_caching": false,

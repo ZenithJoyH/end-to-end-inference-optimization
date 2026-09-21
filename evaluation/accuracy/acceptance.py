@@ -90,8 +90,17 @@ def validate_service(service, *, formal=True):
     """
     require_text(service, ("host", "optimization_container_name", "service_instance_id", "model_name", "base_url", "tokenizer_path"))
     for key in ("model_sha256", "tokenizer_sha256", "engine_sha256", "plugin_sha256", "flaggems_sha256", "runtime_evidence_sha256"):
-        if not re.fullmatch(r"[0-9a-f]{64}", service.get(key, "")):
+        if not isinstance(service.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", service[key]):
             raise ValueError(f"{key} must be a measured SHA-256")
+    installed = service.get("flaggems_vllm_installed")
+    if type(installed) is not bool:
+        raise ValueError("flaggems_vllm_installed must be an observed boolean (missing is not absent)")
+    digest = service.get("flaggems_vllm_sha256")
+    if installed:
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError("installed FlagGems-vllm requires measured flaggems_vllm_sha256")
+    elif digest is not None:
+        raise ValueError("absent FlagGems-vllm must have null flaggems_vllm_sha256")
     allowed_modes = ("graph",) if formal else ("eager", "graph")
     if service.get("mode") not in allowed_modes:
         raise ValueError("formal service must have graph mode" if formal else "service mode must be eager or graph")
@@ -303,8 +312,80 @@ def issue_gate(record_path, output, health_path=None):
     return gate
 
 
+def stable_service_identity(service):
+    """Only process-instance evidence may change; even endpoint changes fail closed."""
+    validate_service(service)
+    context = service.get("performance_context", {})
+    require_text(context, ("platform", "device_model", "driver_version", "device_runtime_version", "image_id"))
+    devices = context.get("device_ids")
+    if (not isinstance(devices, list) or not devices or any(not isinstance(d, str) or not d for d in devices)
+            or len(set(devices)) != len(devices)):
+        raise ValueError("gate rebind requires observed device topology")
+    return {k: v for k, v in service.items() if k not in ("service_instance_id", "runtime_evidence_sha256")}
+
+
+def verify_rebind(source_gate_path, service_path, evidence_path):
+    source = read_json(source_gate_path)
+    if source.get("schema_version") != 3:
+        raise ValueError("rebind must reference an original evaluated gate, not another rebind")
+    record = read_json(checked_artifact(source["run_record"]))
+    old_path = checked_artifact(record["artifacts"]["service"])
+    check_gate(source_gate_path, old_path)
+    old, current = read_json(old_path), read_json(service_path)
+    identity = stable_service_identity(current)
+    if identity != stable_service_identity(old):
+        raise ValueError("rebind changes source/configuration/environment; a new formal evaluation is required")
+    if current["service_instance_id"] == old["service_instance_id"]:
+        raise ValueError("rebind requires a fresh service instance")
+    evidence = read_json(evidence_path)
+    if (evidence.get("schema_version") != 1 or evidence.get("source_service") != artifact(old_path)
+            or evidence.get("current_service") != artifact(service_path)):
+        raise ValueError("rebind evidence must bind both exact service manifests")
+    runtime_path = checked_artifact(evidence["runtime_evidence"])
+    if (sha256(runtime_path) != current["runtime_evidence_sha256"]
+            or current["runtime_evidence_sha256"] == old["runtime_evidence_sha256"]):
+        raise ValueError("rebind requires new SHA-bound runtime evidence")
+    runtime = read_json(runtime_path)
+    if (runtime.get("service_instance_id") != current["service_instance_id"]
+            or runtime.get("stable_identity_sha256") != content_sha256(identity)
+            or runtime.get("graph_capture_completed") is not True
+            or type(runtime.get("graph_replays")) is not int or runtime["graph_replays"] < 2):
+        raise ValueError("rebind runtime evidence lacks identity/capture/two replays")
+    regression = read_json(checked_artifact(evidence["minimal_regression"]))
+    if (regression.get("service_sha256") != sha256(service_path)
+            or regression.get("status") != "passed"):
+        raise ValueError("rebind requires passed minimal regression for the new instance")
+    checked_artifact(regression["evidence"])
+    return source
+
+
+def rebind_gate(source_gate_path, service_path, evidence_path, output):
+    refs = [artifact(path) for path in (source_gate_path, service_path, evidence_path)]
+    source = verify_rebind(source_gate_path, service_path, evidence_path)
+    for ref in refs:
+        checked_artifact(ref)
+    result = {"schema_version": 4, "kind": "accuracy_gate_rebind", "passed": True,
+              "source_gate": refs[0], "rebind_evidence": refs[2],
+              "service_sha256": refs[1]["sha256"], "score": source["score"],
+              "threshold": source["threshold"], "criterion": source["criterion"],
+              "evaluation_reused": True}
+    write_new(output, result)
+    return result
+
+
 def check_gate(gate_path, service_path, model=None, host=None, port=None, tokenizer=None):
     gate = read_json(gate_path)
+    if gate.get("schema_version") == 4:
+        if (gate.get("kind") != "accuracy_gate_rebind" or gate.get("passed") is not True
+                or gate.get("evaluation_reused") is not True or gate.get("service_sha256") != sha256(service_path)):
+            raise ValueError("invalid rebind gate or changed current service")
+        source = verify_rebind(checked_artifact(gate["source_gate"]), service_path,
+                               checked_artifact(gate["rebind_evidence"]))
+        if any(gate.get(k) != source[k] for k in ("score", "threshold", "criterion")):
+            raise ValueError("rebind changed the evaluated verdict")
+        service = read_json(service_path)
+        check_target(service, model, host, port, tokenizer)
+        return gate
     if gate.get("schema_version") != 3 or gate.get("passed") is not True:
         raise ValueError("not a formal acceptance record")
     if sha256(service_path) != gate.get("service_sha256"):
@@ -318,6 +399,11 @@ def check_gate(gate_path, service_path, model=None, host=None, port=None, tokeni
         raise ValueError("gate does not match its run record")
     if "health_observation" in gate:
         checked_artifact(gate["health_observation"])
+    check_target(service, model, host, port, tokenizer)
+    return gate
+
+
+def check_target(service, model=None, host=None, port=None, tokenizer=None):
     url = urlsplit(service["base_url"])
     if tokenizer is not None and tokenizer != service["tokenizer_path"]:
         raise ValueError("benchmark tokenizer differs from accepted tokenizer path")
@@ -327,7 +413,6 @@ def check_gate(gate_path, service_path, model=None, host=None, port=None, tokeni
         raise ValueError("benchmark host differs from accepted endpoint")
     if port is not None and port != (url.port or (443 if url.scheme == "https" else 80)):
         raise ValueError("benchmark port differs from accepted endpoint")
-    return gate
 
 
 def main():
@@ -341,10 +426,17 @@ def main():
     check = commands.add_parser("check")
     check.add_argument("--gate", required=True, type=Path)
     check.add_argument("--service-manifest", required=True, type=Path)
+    rebind = commands.add_parser("rebind", help="reuse an evaluated gate only after verified identical-service restart")
+    rebind.add_argument("--source-gate", required=True, type=Path)
+    rebind.add_argument("--service-manifest", required=True, type=Path)
+    rebind.add_argument("--evidence", required=True, type=Path)
+    rebind.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     try:
         if args.command == "issue":
             issue_gate(args.run_record, args.output, args.health_observation)
+        elif args.command == "rebind":
+            rebind_gate(args.source_gate, args.service_manifest, args.evidence, args.output)
         else:
             check_gate(args.gate, args.service_manifest)
     except (ValueError, KeyError, OSError, TypeError) as exc:

@@ -13,6 +13,7 @@ Start from the exact failed result and classify it before changing code:
 
 | Class | Typical signal | First action |
 |---|---|---|
+| Inherited adaptation blocker | verified upstream formal score is already below the frozen threshold | Record `inherited-accuracy-blocker`; check provenance and reproduce/localize before adding performance changes; do not blame a new patch without evidence |
 | Measurement invalid | wrong task/filter, incomplete samples, changed dataset/config, parser/schema mismatch, stale files | Repair the evaluation evidence and rerun the same contract |
 | Identity/configuration drift | model, weights, tokenizer, chat template, endpoint, sampling, graph, service instance, or source differs | Restore a comparable service/manifest; use accuracy `gate-check` for gate validity |
 | Request/output health | timeout, empty/truncated/malformed/repeated output, wrong stop behavior | Record as non-gating, then reproduce only when operational diagnosis is useful or requested |

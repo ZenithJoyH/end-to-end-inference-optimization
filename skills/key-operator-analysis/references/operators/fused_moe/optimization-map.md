@@ -53,6 +53,30 @@ stage、有效 M、expert 数、dtype 和 graph 模式；未匹配维度均视�
   开销抵消 kernel 收益；端到端门槛失败。
 - 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
 
+### 高成本 split-K / reduction fusion 先做免费删除上界
+
+- 证据等级：`observation`。
+- 触发信号：Fused MoE 仍是分阶段热点，但 tile/config 和低成本融合
+  已失败，下一候选是将 GEMM2 与 top-k reduction 直接融合，或对
+  GEMM1 引入 split-K。
+- 第一检查：分开 live GEMM1/GEMM2/reduction 的 shape、调用数和累计
+  kernel activity；以“reduction 全部零代价删除”且忽略其他 transaction
+  成本的方式计算宽松上界。同时读 kernel body 核对 `SPLIT_K`
+  是否真的改变 grid、K 分片和归约，不从 config key 推断。
+- 首个实验：只有完整 transaction 预测达到当前任务门槛后，才做
+  生产 shape 微基准；计时必须包含 output zeroing、partial/atomic
+  reduction 和所有新 launch，不只测 GEMM 主 kernel。
+- 通过证据：BF16 reference/allclose、graph capture 和至少两次 replay；
+  完整 GEMM1+activation+GEMM2+reduction transaction 达到门槛，再进入
+  无 profiler 服务 A/B/R。
+- 停止条件：零代价删除上界仍低于门槛；`SPLIT_K` 只是未使用
+  的 meta-parameter；需要 BF16 relaxed atomic 导致语义/图稳定性风险；或
+  partial reduction 的新写入和 launch 抵消预期收益。
+- 已知反例：Qwen3.8-Flash-Next/PPU/TP8/BF16/E512/TopK10 中，
+  宽松上界仅 M4096 Prefill `5.1426%`、P4K Mixed `4.8080%`、
+  M64 Decode `0.5624%`，低于该任务 8% 门槛，因此停在实现前。
+- 来源：[Qwen3.8 op-016 case card](case-index.md#case20260919-qwen38-flash-next-ppu-e2e--op-016)。
+
 ## 每次 Fused MoE 改动后的重新排序
 
 1. 重新采集相同 workload 的短 profile，确认目标 config 和 kernel 真实命中。

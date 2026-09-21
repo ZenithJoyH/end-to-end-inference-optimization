@@ -57,7 +57,9 @@ class ComparisonTest(unittest.TestCase):
         plan = performance_plan.load_plan(folder / "plan.json")
         service = dict(host="host-a", optimization_container_name="isolated", service_instance_id=f"{role}-boot-{index}",
                        model_name="model-a", base_url="http://127.0.0.1:8000/v1/chat/completions", tokenizer_path="/tokenizer",
-                       mode="graph", launch_config={"tp": 1}, image_lineage="verified", mount_parity="passed")
+                       mode="graph", launch_config={"tp": 1, "enable_prefix_caching": False},
+                       flaggems_vllm_installed=False, flaggems_vllm_sha256=None,
+                       image_lineage="verified", mount_parity="passed")
         service.update({key: "a" * 64 for key in ("model_sha256", "tokenizer_sha256", "engine_sha256", "plugin_sha256",
                                                  "flaggems_sha256", "runtime_evidence_sha256")})
         if role == "candidate":
@@ -261,16 +263,33 @@ class ComparisonTest(unittest.TestCase):
         self.assertIn("reused", " ".join(self.decision()["issues"]))
 
     def test_cache_experiment_may_declare_specific_companion_state(self):
-        self.contract["variable_paths"] += ["/performance_context/prefix_cache_state", "/performance_context/cache_preparation"]
+        self.contract["variable_paths"] += ["/launch_config/enable_prefix_caching", "/performance_context/prefix_cache_state", "/performance_context/cache_preparation"]
+        self.contract["cache_experiment"] = {"authorization": "fixture user approval", "reuse_ratio": 0.5, "hit_evidence": "fixture runtime evidence"}
         self.save(self.contract_path, self.contract)
         for path in self.paths:
             record = compare.read_json(path)
             record["artifacts"]["comparison_contract"] = compare.artifact(self.contract_path)
             self.save(path, record)
         for i in (2, 3):
+            self.mutate_artifact(i, "service", lambda x: x["launch_config"].update(enable_prefix_caching=True))
             self.mutate_artifact(i, "service", lambda x: x["performance_context"].update(prefix_cache_state="warm", cache_preparation="controlled warm prefix"))
         report = self.decision()
         self.assertEqual(report["status"], "passed", report)
+
+    def test_cache_default_and_contradictions_fail_closed(self):
+        for i in range(len(self.paths)):
+            self.mutate_artifact(i, "service", lambda s: s["launch_config"].update(enable_prefix_caching=True))
+        self.assertEqual(self.decision()["status"], "incomplete")
+        for i in range(len(self.paths)):
+            self.mutate_artifact(i, "service", lambda s: s["performance_context"].update(prefix_cache_state="warm"))
+        self.assertEqual(self.decision()["status"], "incomplete")
+
+    def test_flaggems_vllm_identity_is_required_and_validated(self):
+        for value in ("not-a-hash", None, 42):
+            self.mutate_artifact(0, "service", lambda s: s.update(flaggems_vllm_installed=True, flaggems_vllm_sha256=value))
+            self.assertEqual(self.decision()["status"], "incomplete")
+        self.mutate_artifact(0, "service", lambda s: s.pop("flaggems_vllm_installed"))
+        self.assertEqual(self.decision()["status"], "incomplete")
 
     def test_zero_goodput_warmup_matches_executor_failure(self):
         for i, path in enumerate(self.paths):

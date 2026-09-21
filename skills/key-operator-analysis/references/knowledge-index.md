@@ -66,6 +66,21 @@ small-M Decode、stage config、expert routing。
 适用关键词：`fp8_fp4_mqa_logits`、sparse-indexer MQA、`libtuner`、
 online autotune、tune-config runtime、cold shape、worker RPC timeout。
 
+## QSA sparse GQA
+
+- [operators/qsa_sparse_gqa/optimization-map.md](operators/qsa_sparse_gqa/optimization-map.md)：
+  小 query-head tile 特化的生产 rows 门槛、首个实验和停止条件。
+- [operators/qsa_sparse_gqa/case-index.md](operators/qsa_sparse_gqa/case-index.md)：
+  Qwen3.8-Flash-Next/PPU 上 literal-four-lane 候选在 rows64 加速、但在
+  生产 rows4096 退化的反例证据。
+
+当前限域证据覆盖 PPU/TP8/BF16、query heads 3、head dim 256、
+TOPK 2051 和现有 online-softmax/dot 组织。rows64 的 21.659% graph 收益
+不能外推到 rows4096；生产 rows4096 graph 实测退化 4.563%。
+
+适用关键词：`QSA`、`sparse GQA`、`GROUP_SIZE=3`、`BLOCK_M`、
+paged KV、logical TOPK、query-head padding。
+
 ## 快速使用顺序
 
 1. 用 profiler 和运行时 dispatch 证据确定具体算子与实现。

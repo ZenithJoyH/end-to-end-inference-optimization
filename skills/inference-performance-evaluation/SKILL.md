@@ -7,6 +7,8 @@ description: Orchestrate baseline, phase-aware targeted/checkpoint, and formal n
 
 Use this Skill to select the smallest valid performance test for the current optimization stage, run the maintained performance toolchain, and bind the result to the exact service, scenario, workload, and experiment. Do not create another benchmark runner or copy logic from `evaluation/performance/`.
 
+Use this repository-local entrypoint even when automatic discovery is unavailable; see [the project mapping](../../docs/skills-project-contract.md). An inherited below-threshold accuracy result blocks new performance optimization unless the user explicitly authorizes a bounded diagnostic exception. Such an exception cannot authorize formal acceptance.
+
 ## Select one mode
 
 | Mode | Trigger | Minimum scope | Supported conclusion |
@@ -88,6 +90,7 @@ In `formal` mode:
 2. Verify that each target in scope has separate Prefill, Decode, and Mixed evidence plus cross-phase guards. Trace-level phase timing is not mandatory when low-overhead evidence is sufficient; unresolved attribution must remain explicit rather than being silently merged.
 3. Select scope from the lifecycle: `intermediate-single-target` runs only `current_target_scenario_id`; `final-all-targets` runs the complete pre-frozen acceptance set. Use the same candidate graph configuration.
 4. Collect comparable independent baseline, candidate, and revert runs with the contracted warmup and repetitions.
+   Independent processes remain distinct service instances. For an unchanged candidate restart, accuracy `gate-check` may issue an explicit verified `rebind` receipt; it must not reuse an old instance binding or invent a new evaluated score.
 5. Use `compare_performance.py` with the comparison contract that was already bound during measurement.
 6. Limit the conclusion to the contracted model, platform, Host/topology, service configuration, and scenario set. Long-term capacity requires a separate sustained-load contract when the current client does not implement it.
 

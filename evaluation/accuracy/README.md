@@ -23,6 +23,40 @@
 
 每次正式启动采用独立 UUID 缓存；同一运行内重试保留原 runner 行为，不跨候选复用响应。输出健康信息可保留为诊断观察，但不参与精度 gate 判定。
 
+## 服务身份与重启复用
+
+服务 manifest 必须填实测布尔值 `flaggems_vllm_installed`。已安装时
+`flaggems_vllm_sha256` 必须是实际使用源码（含未提交改动）的内容 SHA；未安装时为 `null`。
+缺失不能当作未安装。旧 manifest 缺字段时保持证据不足，不回填猜测值或改写已冻结回执。
+
+默认 `check` 仍严格绑定原实例。相同候选仅重启服务时，可显式创建新的 schema 4 绑定回执：
+
+```bash
+python3 evaluation/accuracy/acceptance.py rebind \
+  --source-gate /external/original-accuracy-gate.json \
+  --service-manifest /external/current-service.json \
+  --evidence /external/rebind-evidence.json \
+  --output /external/rebound-accuracy-gate.json
+```
+
+原 gate 必须为真实评测生成的 schema 3，仍须通过完整证据复验，禁止链式 rebind。
+新旧 manifest 仅允许 `service_instance_id` 和 `runtime_evidence_sha256` 变化；endpoint、Host、容器、
+源码/权重/tokenizer、启动配置、设备/镜像/runtime 等其余字段逐项相等。设备与环境字段必须明确，
+不得用删除字段或改写原始 manifest 来凑一致。
+
+`rebind-evidence.json` 为 schema 1，包含四个 `{path, sha256}` 引用：`source_service`、
+`current_service`、`runtime_evidence`、`minimal_regression`。运行证据 JSON 必须由当前实例取证生成，包含：
+
+- `service_instance_id`；
+- `stable_identity_sha256`：用 `acceptance.content_sha256(acceptance.stable_service_identity(service))` 计算；
+- `graph_capture_completed: true`、`graph_replays >= 2`；
+- 建议同时保存实际导入路径、进程参数、设备/环境和 capture/replay 的原生证据路径。
+
+最小回归回执包含 `status: passed`、当前 `service_sha256` 和指向原始回归结果的 `evidence` 引用。
+工具核验文件及关联，不替代远程实际取证，不能从期望配置伪造观察值。
+新 gate 标记 `evaluation_reused: true`，保留原分数和阈值，并绑定当前服务；这不是新跑出的精度分数。
+任一代码、配置或环境变化、证据缺失、回归失败都不能复用，必须诊断或重新完整评测。
+
 正式案例中的整数参数必须写为 JSON 整数，不能使用浮点数、字符串或布尔值；包装器在原 runner 的类型转换前检查，避免 `limit: 0.9` 被转换成完整评测的 `0`。并发、超时必须为正数，重试次数与等待时间不得为负数。
 
 `run-record.json` 只在分数达到预冻结阈值且其身份、原生结果和样本来源可核验时生成。后三者用于防止拿错分数，不是额外的精度通过条件。

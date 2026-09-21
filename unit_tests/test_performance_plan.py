@@ -146,6 +146,8 @@ class PlanExecutionTest(unittest.TestCase):
         self.plan_path, self.service_path = self.root / "plan.json", self.root / "service.json"
         self.plan_path.write_text(json.dumps(config()))
         self.service_path.write_text(json.dumps({"model_name": "example", "tokenizer_path": "example-tokenizer",
+                                                "launch_config": {"enable_prefix_caching": False},
+                                                "performance_context": {"prefix_cache_state": "disabled"},
                                                 "service_instance_id": "observed-process", "base_url": "http://127.0.0.1:8000/v1/chat/completions"}))
         self.args = SimpleNamespace(config=str(self.plan_path), service_manifest=str(self.service_path),
                                     role="baseline", run_id="baseline-1", output_dir=str(self.root / "results"),
@@ -191,9 +193,20 @@ class PlanExecutionTest(unittest.TestCase):
         self.assertEqual([row["seed"] for row in result["commands"]], [2143, 2144, 2145])
         self.assertFalse(Path(self.args.output_dir).exists())
 
+    def test_cache_gate_rejects_before_requests_and_output_creation(self):
+        service = PLAN.read_json(self.service_path)
+        service['launch_config']['enable_prefix_caching'] = True
+        service['performance_context']['prefix_cache_state'] = 'warm'
+        self.service_path.write_text(json.dumps(service))
+        with patch.object(PLAN.subprocess, 'run') as run:
+            with self.assertRaisesRegex(ValueError, 'prefix cache'):
+                PLAN.execute_plan(self.args)
+            run.assert_not_called()
+        self.assertFalse(Path(self.args.output_dir).exists())
+
     def test_complete_run_records_all_rounds_and_sha_bound_evidence(self):
         contract = self.root / "contract.json"
-        contract.write_text('{"frozen": true}')
+        contract.write_text((ROOT / 'evaluation/performance/comparison.example.json').read_text())
         self.args.comparison_contract = str(contract)
         path, record, count = self.execute()
         self.assertEqual(record["status"], "complete")

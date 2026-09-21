@@ -13,7 +13,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOL_DIR = ROOT / 'models/XingChen4-29B-A4B/ppu/optimize/tools'
+TOOL_DIR = ROOT / 'evaluation/compat'
 
 
 def load(name, path):

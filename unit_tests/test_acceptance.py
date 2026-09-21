@@ -76,6 +76,9 @@ class GateTest(unittest.TestCase):
                             model_name='model-a', base_url='http://127.0.0.1:8000/v1/chat/completions',
                             tokenizer_path='/tokenizer', mode='graph', launch_config={'tp': 4}, image_lineage='verified', mount_parity='passed')
         self.service.update({key: 'a' * 64 for key in ('model_sha256', 'tokenizer_sha256', 'engine_sha256', 'plugin_sha256', 'flaggems_sha256', 'runtime_evidence_sha256')})
+        self.service.update(flaggems_vllm_installed=False, flaggems_vllm_sha256=None)
+        self.service['performance_context'] = dict(platform='fixture', device_model='fixture',
+            driver_version='fixture', device_runtime_version='fixture', image_id='fixture-image', device_ids=['0'])
         self.contract = dict(schema_version=3, task=gate.TASK, metric='score', threshold=0.5,
                              expected_samples=198, expected_doc_ids=list(range(198)))
         self.cfg = dict(tasks=[gate.TASK], limit=0, expected_samples=198, allow_timeouts=True,
@@ -162,6 +165,73 @@ class GateTest(unittest.TestCase):
         issued = gate.issue_gate(self.record, diagnostic_gate, self.health)
         self.assertIn('health_observation', issued)
         gate.check_gate(diagnostic_gate, self.root / 'service.json')
+
+    def make_rebind(self):
+        gate.issue_gate(self.record, self.output)
+        current = dict(self.service, service_instance_id='boot-2')
+        runtime = dict(service_instance_id='boot-2', graph_capture_completed=True, graph_replays=2,
+                       stable_identity_sha256=gate.content_sha256(gate.stable_service_identity(current)))
+        runtime_path = self.root / 'restart-runtime.json'
+        runtime_path.write_text(json.dumps(runtime))
+        current['runtime_evidence_sha256'] = gate.sha256(runtime_path)
+        current_path = self.root / 'restarted-service.json'
+        current_path.write_text(json.dumps(current))
+        regression_path = self.root / 'restart-regression.json'
+        regression_path.write_text(json.dumps(dict(status='passed', service_sha256=gate.sha256(current_path),
+                                                   evidence=gate.artifact(runtime_path))))
+        evidence = dict(schema_version=1, source_service=self.refs['service'], current_service=gate.artifact(current_path),
+                        runtime_evidence=gate.artifact(runtime_path), minimal_regression=gate.artifact(regression_path))
+        evidence_path = self.root / 'rebind-evidence.json'
+        evidence_path.write_text(json.dumps(evidence))
+        return current_path, evidence_path, self.root / 'rebound-gate.json'
+
+    def test_rebind_is_explicit_and_rechecks_original_evidence(self):
+        current, evidence, output = self.make_rebind()
+        with self.assertRaises(ValueError):
+            gate.check_gate(self.output, current)
+        gate.rebind_gate(self.output, current, evidence, output)
+        self.assertTrue(gate.check_gate(output, current)['evaluation_reused'])
+        with self.assertRaises(ValueError):
+            gate.check_gate(output, current, model='different')
+        with self.assertRaises(ValueError):
+            gate.rebind_gate(output, current, evidence, self.root / 'chain.json')
+        runtime = self.root / 'restart-runtime.json'
+        runtime.write_text('{}')
+        with self.assertRaises(ValueError):
+            gate.check_gate(output, current)
+
+    def test_rebind_rejects_source_configuration_and_device_changes(self):
+        current, evidence, output = self.make_rebind()
+        original = gate.read_json(current)
+        for key, value in [('plugin_sha256', 'b' * 64), ('flaggems_vllm_installed', True),
+                           ('launch_config', {'tp': 8}), ('host', 'host-b'), ('base_url', 'http://localhost:9000/v1/chat/completions')]:
+            changed = dict(original, **{key: value})
+            current.write_text(json.dumps(changed))
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                gate.rebind_gate(self.output, current, evidence, output)
+
+    def test_rebind_requires_two_observed_replays_even_with_consistent_hashes(self):
+        current, evidence, output = self.make_rebind()
+        runtime_path = self.root / 'restart-runtime.json'
+        runtime = gate.read_json(runtime_path)
+        runtime['graph_replays'] = 1
+        runtime_path.write_text(json.dumps(runtime))
+        service = gate.read_json(current)
+        service['runtime_evidence_sha256'] = gate.sha256(runtime_path)
+        current.write_text(json.dumps(service))
+        receipt = gate.read_json(evidence)
+        receipt.update(current_service=gate.artifact(current), runtime_evidence=gate.artifact(runtime_path))
+        evidence.write_text(json.dumps(receipt))
+        with self.assertRaisesRegex(ValueError, 'two replays'):
+            gate.rebind_gate(self.output, current, evidence, output)
+
+    def test_flaggems_vllm_presence_cannot_be_assumed(self):
+        for change in ({'flaggems_vllm_installed': None}, {'flaggems_vllm_installed': True},
+                       {'flaggems_vllm_installed': True, 'flaggems_vllm_sha256': 'bad'},
+                       {'flaggems_vllm_sha256': 'a' * 64}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                gate.validate_service(dict(self.service, **change))
+        gate.validate_service(dict(self.service, flaggems_vllm_installed=True, flaggems_vllm_sha256='c' * 64))
 
     def test_formal_config_accepts_timeouts_but_rejects_invalid_config(self):
         gate.validate_config(self.cfg, self.service)
