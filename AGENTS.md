@@ -232,8 +232,8 @@ Agent 的职责是：
   服务、目录和原生回执。该契约只承担项目适配；本项目规则和用户范围可以收紧执行边界，
   但不能静默替换或削弱 Skill 方法。
 - 低开销指标无法继续归因或需要确认执行路径时调用 `$inference-profiling`；收敛到具体算子
-  后调用 `$key-operator-analysis`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由
-  对应 Skill 决定，不在本文件维护副本。
+  后调用 `$key-operator-analysis`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由调用方显式选择，
+  对应 Skill 校验支持范围，不在本文件维护模式副本。
 - 当前 Agent 的正式性能优化目标目录固定为以下四个 finite-batch 场景，长度单位均为 token：
   `P1024/D1024/C64/N128`、`P4096/D1024/C64/N128`、`P16384/D1024/C64/N128`、
   `P32768/D1024/C64/N128`，其中 P/D/C/N 分别表示输入长度、
@@ -427,3 +427,9 @@ python3 evaluation/accuracy/acceptance.py --help
 ## 15. 最终报告
 
 按 [实验契约的报告字段](docs/experiment-contract.md) 汇报对象、证据、对比、正确性、限制、复现与回退。只完成诊断或探索时，准确使用对应状态，不写成正式优化完成。
+
+## 可恢复的 Agent 执行记录
+
+- 精度/性能调用要求显式模式及本地 `interface.json` 声明的能力 ID，不猜测模式或替换成 Hub 同名包。
+- 使用长任务记录时遵循 `docs/agent-execution.md`。重试前检查既有 run 和实际证据；预算及进度
+  复查交由调用方决策，不自动重启任务。原生验收器及既有 `state.yml` 继续作为权威，不增加第二套模型历史目录。

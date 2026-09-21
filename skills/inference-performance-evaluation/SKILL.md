@@ -5,9 +5,16 @@ description: Orchestrate baseline, phase-aware targeted/checkpoint, and formal n
 
 # Inference Performance Evaluation
 
-Use this Skill to select the smallest valid performance test for the current optimization stage, run the maintained performance toolchain, and bind the result to the exact service, scenario, workload, and experiment. Do not create another benchmark runner or copy logic from `evaluation/performance/`.
+Use this Skill to execute the explicitly selected performance test for the current optimization stage, run the maintained performance toolchain, and bind the result to the exact service, scenario, workload, and experiment. Do not create another benchmark runner or copy logic from `evaluation/performance/`.
 
 Use this repository-local entrypoint even when automatic discovery is unavailable; see [the project mapping](../../docs/skills-project-contract.md). An inherited below-threshold accuracy result blocks new performance optimization unless the user explicitly authorizes a bounded diagnostic exception. Such an exception cannot authorize formal acceptance.
+
+
+This local workflow has capability ID `e2e/performance` in [interface.json](interface.json).
+The legacy directory name does not identify the Hub capability. Freeze the full
+bundle with `scripts/skill_bundle.py`, not only this Markdown file; use
+[the execution journal](../../docs/agent-execution.md) when checkpointing a long
+operation. Project gates and original business records remain authoritative.
 
 ## Select one mode
 
@@ -18,7 +25,7 @@ Use this repository-local entrypoint even when automatic discovery is unavailabl
 | `checkpoint` | Several changes are retained, the hotspot moves, candidates are combined, or a cross-scenario mechanism changes | Every affected scenario | Stage result for the listed affected set |
 | `formal` | A milestone meets its pre-frozen major-improvement trigger, the current target is ready to close, or the final combination is frozen; the candidate has an exact valid accuracy gate | Intermediate: the current single ordered target scenario. Final: the complete acceptance set. Both use comparable baseline, candidate, and revert repetitions | Formal result for the current target, or the final all-target performance gate, according to the recorded lifecycle |
 
-If the requested mode is not explicit, infer it from the trigger above. State the selected mode, scenarios, and conclusion boundary before executing.
+The caller must explicitly provide one mode. If missing or unsupported, return `incomplete` with the accepted modes; do not infer it from these triggers. State the supplied mode, scenarios, and conclusion boundary before executing.
 
 ## Read only what the mode needs
 
@@ -29,7 +36,7 @@ For every mode, read:
 
 Additionally:
 
-- For `formal`, read `evaluation/README.md`, `docs/experiment-contract.md`, and invoke `$inference-accuracy-evaluation` in `gate-check` mode before sending performance traffic.
+- For `formal`, read `evaluation/README.md`, `docs/experiment-contract.md`, and validate the supplied accuracy gate with `evaluation/accuracy/acceptance.py check` before sending performance traffic. A missing gate is a prerequisite returned to the caller.
 - When this invocation must create or restart the optimization service, read `docs/container-isolation.md` and satisfy its image-lineage and mount-parity gates first.
 
 ## Freeze the measurement contract
@@ -44,7 +51,7 @@ Before measuring, record:
 
 For reduced input/output lengths, requests, concurrency, repetitions, or scenarios, create a matching reduced baseline. Map the milestone to its target scenario(s), record every workload difference and its promotion condition, and never compare a reduced candidate with a target/full-plan historical summary.
 
-If a target baseline exceeds its pre-recorded diagnostic time budget, preserve the partial evidence as `deferred-too-slow/incomplete` and stop waiting. Select the project-recorded recovery strategy: run a smaller comparable `targeted` milestone, perform static analysis outside this Skill, or combine both. A reduced milestone may provide explicit numeric feedback for its own workload, but it is not the target baseline and cannot support a cross-workload speedup claim.
+If a target baseline exceeds its pre-recorded diagnostic time budget, preserve the partial evidence as `deferred-too-slow/incomplete` and stop waiting. Return the project-recorded recovery options for the caller to select: run a smaller comparable `targeted` milestone, perform static analysis outside this Skill, or combine both. A reduced milestone may provide explicit numeric feedback for its own workload, but it is not the target baseline and cannot support a cross-workload speedup claim.
 
 ## Separate prefill and decode evidence
 
@@ -80,13 +87,13 @@ If prefix caching is the explicit optimization variable, require a separate cont
 
 Stop and keep `incomplete` when the client is the bottleneck, the service identity or prefix-cache state is unproven, workloads differ, results are partial, warmup is unstable, repetitions are insufficient, or revert drift prevents attribution. Do not cherry-pick successful rounds or scenarios.
 
-When performance evidence cannot localize the bottleneck, invoke `$inference-profiling`. Keep all profiler-on timings outside this Skill's baseline/candidate/revert comparison, and return to `targeted` or `checkpoint` mode afterward to verify end-to-end impact without profiler.
+When performance evidence cannot localize the bottleneck, return the unresolved attribution and recommend a separate profiling invocation to the caller. Keep all profiler-on timings outside the comparison. The caller chooses any subsequent `targeted` or `checkpoint` invocation.
 
 ## Formal performance measurement
 
 In `formal` mode:
 
-1. Use `$inference-accuracy-evaluation` `gate-check` against the frozen candidate and current service facts. If it does not pass, do not run or claim formal performance; trigger `formal-gate` when a new accuracy gate is required.
+1. Run the native `evaluation/accuracy/acceptance.py check` against the supplied gate, frozen candidate and current service facts. If it does not pass, do not run or claim formal performance; return the missing prerequisite so the caller can request a new accuracy gate.
 2. Verify that each target in scope has separate Prefill, Decode, and Mixed evidence plus cross-phase guards. Trace-level phase timing is not mandatory when low-overhead evidence is sufficient; unresolved attribution must remain explicit rather than being silently merged.
 3. Select scope from the lifecycle: `intermediate-single-target` runs only `current_target_scenario_id`; `final-all-targets` runs the complete pre-frozen acceptance set. Use the same candidate graph configuration.
 4. Collect comparable independent baseline, candidate, and revert runs with the contracted warmup and repetitions.
@@ -94,7 +101,7 @@ In `formal` mode:
 5. Use `compare_performance.py` with the comparison contract that was already bound during measurement.
 6. Limit the conclusion to the contracted model, platform, Host/topology, service configuration, and scenario set. Long-term capacity requires a separate sustained-load contract when the current client does not implement it.
 
-Before starting, record `formal_run_lifecycle=intermediate-single-target|final-all-targets`. Use `intermediate-single-target` when the current ordered target's milestone met a significant-improvement threshold, its bottleneck materially migrated, or it is ready for a close decision; require exactly that target scenario and store the result in `optimize/`. If it meets the pre-frozen scene-completion criteria, advance to the next target scenario. Use `final-all-targets` only after every target is complete; require the complete acceptance set and store the accepted result in `acceptance/`. Both lifecycles use the same accuracy-gate, identity, repetition, and baseline/candidate/revert requirements within their declared scope.
+Before starting, record `formal_run_lifecycle=intermediate-single-target|final-all-targets`. Use `intermediate-single-target` when the current ordered target's milestone met a significant-improvement threshold, its bottleneck materially migrated, or it is ready for a close decision; require exactly that target scenario and store the result in `optimize/`. If it meets the pre-frozen scene-completion criteria, report eligibility to advance; the caller selects the next target scenario. Use `final-all-targets` only after every target is complete; require the complete acceptance set and store the accepted result in `acceptance/`. Both lifecycles use the same accuracy-gate, identity, repetition, and baseline/candidate/revert requirements within their declared scope.
 
 ## Record and route artifacts
 

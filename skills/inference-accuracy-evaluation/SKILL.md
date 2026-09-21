@@ -5,13 +5,20 @@ description: Orchestrate graph-mode correctness checks and formal GPQA accuracy 
 
 # Inference Accuracy Evaluation
 
-Use this skill to select the correct accuracy-validation depth, execute the existing project workflow, and bind the result to the exact inference service being optimized. It orchestrates existing tools; it does not implement another model evaluator.
+Use this skill to execute the caller-selected accuracy-validation depth, execute the existing project workflow, and bind the result to the exact inference service being optimized. It orchestrates existing tools; it does not implement another model evaluator.
 
 This repository-local file is the maintained entrypoint. If automatic discovery is unavailable, read it directly and follow [the project mapping](../../docs/skills-project-contract.md); do not silently substitute a global namesake.
 
+
+This local workflow has capability ID `e2e/accuracy` in [interface.json](interface.json).
+The legacy directory name does not identify the Hub capability. Freeze the full
+bundle with `scripts/skill_bundle.py`, not only this Markdown file; use
+[the execution journal](../../docs/agent-execution.md) when checkpointing a long
+operation. Project gates and original business records remain authoritative.
+
 ## Select the mode
 
-Choose one mode and record it with the experiment IDs it covers:
+Require one explicit mode from the caller and record it with the experiment IDs it covers. Missing or unsupported mode returns `incomplete`; do not infer or expand it:
 
 | Mode | Trigger | Output scope |
 |---|---|---|

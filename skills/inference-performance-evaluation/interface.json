@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "capability_id": "e2e/performance",
+  "interface_version": "1.0.0",
+  "selector": "mode",
+  "operations": [
+    "baseline",
+    "targeted",
+    "checkpoint",
+    "formal"
+  ],
+  "result_contract": "e2e-native-performance/v1",
+  "resources": [
+    "SKILL.md"
+  ]
+}

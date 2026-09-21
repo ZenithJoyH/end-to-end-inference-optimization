@@ -9,7 +9,9 @@
 - 性能入口：[inference-performance-evaluation](../skills/inference-performance-evaluation/SKILL.md)。
 - 其他技能按 AGENTS 中的相对路径加载；自动发现不可用时，直接完整读取对应 `SKILL.md` 及其本次必读引用，
   不假装调用了已安装公共插件，也不安装到用户全局目录。
-- 版本由仓库 revision 与实际 `SKILL.md` 内容 SHA 共同标识；每次评测记录入口路径和 SHA，未提交修改也计入。
+- 版本由仓库 revision 与完整 Skill bundle 的文件 SHA 集合共同标识；使用 `scripts/skill_bundle.py`，包括未提交资源变更。
+- 本地能力 ID 为 `e2e/accuracy`、`e2e/performance`，模式由调用方显式传入；不能从目录同名推断 Hub 兼容性。
+- 长任务的执行前后检查、进度和恢复记录见 [执行记录](agent-execution.md)，不替代 `state.yml` 和原生 gate。
 - 同名全局 Skill 不静默覆盖本地方法。若用户要求切换公共版本，先核对方法、模式与项目映射，再显式迁移。
 - 入口或必读引用缺失时，报告 `incomplete` 并停止该项评测；不得自行编造替代方法。
 

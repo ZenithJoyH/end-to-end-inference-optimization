@@ -1,7 +1,7 @@
 interface:
-  display_name: "推理精度评测"
-  short_description: "为端到端推理优化执行分层正确性回归与正式精度门禁"
-  default_prompt: "Use $inference-accuracy-evaluation to select and run the appropriate accuracy checks for the current inference optimization candidate."
+  display_name: "端到端优化精度评测"
+  short_description: "使用端到端优化项目原生工具执行显式操作，校验服务绑定与精度证据"
+  default_prompt: "Use $inference-accuracy-evaluation with an explicit mode to run the selected accuracy checks for the current inference optimization candidate."
 
 policy:
   allow_implicit_invocation: true
