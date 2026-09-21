@@ -70,13 +70,14 @@ spec、run.json、进度快照和 registry 放在批准的控制/外部 case 目
 
 - `service`：`acceptance.validate_service(formal=False)` 核验 manifest 格式及身份，允许原生工具支持的非正式服务。
 - `accuracy`：`acceptance.check_gate` 校验 gate 与当前 service manifest；对应 `manifest`、`gate`。
-- `performance-run`：`compare_performance.check_run` 核验 `contract` 下每个 `records` 的原始指标、输出 SHA、请求与绑定。仅证明单轮数据有效，不产生加速比或最终验收结论。
-- `performance`：`compare_performance.compare` 对 `contract` 和 `records` 做完整比较；`failed/incomplete` 都不能关闭为通过。
+- `performance-run`：`compare_performance.check_run` 核验 `contract` 下每个 `records` 的原始指标、输出 SHA、请求与绑定。还要求回执引用的 `plan` 内容 SHA 与本轮冻结计划完全一致，并且回执中的服务身份集合与冻结的 `services` 集合完全一致。仅证明单轮数据有效，不产生加速比或最终验收结论。
+- `performance`：`compare_performance.compare` 对 `contract` 和 `records` 做完整比较，并执行同样的 `plan`/`services` 精确绑定；`failed/incomplete` 都不能关闭为通过。
 
 `scope.model/host` 必须与原生 service 对应。正式 performance 必须前置 accuracy gate、使用
 `scope=formal` 的原生 comparison contract，并由原生比较器核验 candidate 自带的 accuracy gate。
 accuracy journal 当前只支持 `formal-gate/gate-check`；baseline-sanity/minimal-regression 继续原有流程，
-不能用 service 格式检查替代回归完成证据。所有前后检查的 manifest/contract 必须列入 context_files。
+不能用 service 格式检查替代回归完成证据。所有前后检查的 manifest/contract/plan、预期服务
+manifest 和前置 accuracy gate 必须列入 `context_files`。
 完成后冻结 gate/run-record 本身；其依赖仍由原生验证器逐次核验。业务结论写回原有
 `baseline/optimize/acceptance` 的 state、实验 Markdown 和摘要，不由 journal 自动推进。
 
@@ -109,6 +110,10 @@ accuracy journal 当前只支持 `formal-gate/gate-check`；baseline-sanity/mini
     {
       "kind": "performance-run",
       "contract": "/approved/case/comparison.json",
+      "plan": "/approved/case/plan.json",
+      "services": [
+        "/approved/case/service.json"
+      ],
       "records": [
         "/approved/case/measurement/run-record.json"
       ]

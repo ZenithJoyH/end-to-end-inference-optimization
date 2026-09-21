@@ -5,6 +5,23 @@
     "models/XingChen4-29B-A4B/ppu/optimize/history",
     "models/Hy4-preview/ppu/optimize/history"
   ],
+  "public_script_files": [
+    "scripts/accelerator-check",
+    "scripts/agent_step.py",
+    "scripts/ansible",
+    "scripts/bootstrap-control-node",
+    "scripts/check-project-records.py",
+    "scripts/check-targets.py",
+    "scripts/connectivity-check",
+    "scripts/health-check",
+    "scripts/inventory",
+    "scripts/playbook",
+    "scripts/project_gates.py",
+    "scripts/skill_bundle.py",
+    "scripts/syntax-check",
+    "scripts/validate-local",
+    "scripts/verify-container-mounts.py"
+  ],
   "status": "pending-active-task-review",
   "policy": "Existing paths only; do not add new exceptions automatically. Verify external copy, SHA and references before migration. Existing history is excluded.",
   "files": {

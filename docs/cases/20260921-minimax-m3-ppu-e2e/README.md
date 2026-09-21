@@ -46,3 +46,23 @@
 1. 用维护版性能工具建立 P1K Prefill/Decode/Mixed 无 profiler 基线。
 2. 依据三个阶段视图选择首轮框架或算子候选。
 3. 当前场景完成后依次进入 P4K/P16K/P32K；最终组合再运行四场景正式验收。
+
+## 6. 外部过程材料
+
+性能基线的可执行脚本和计划只保存在用户指定的远程案例目录
+`/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/performance/`，不在本地
+案例目录保留副本。2026-09-21 在 PPU-07 只读复核的 SHA-256 如下：
+
+| 文件 | SHA-256 |
+|---|---|
+| `build-baseline-service-manifest.py` | `f794a8396ed7fe8fe0819d8880497a46055274896da021a284ad40cd927c5c69` |
+| `capture-baseline-service.py` | `e8bd0ec0373100cbf163a20bfe05d48f65b81616495b54aaa85a2e643301e0d8` |
+| `perf-p1k-decode-plan.json` | `35d3e81c40b7fb0125e5cd584068f6b827c4feacc1fefee93d3098588fff59b4` |
+| `perf-p1k-mixed-plan.json` | `d35d5b454b72e865f9a1f132f8d82fbcedb3e86f222654fc6b0db4763664fba7` |
+| `perf-p1k-prefill-plan.json` | `adfe09db60321eefc18ec3b5d26e62684abb87eeba2c12d86fe4f6d97a36eade` |
+| `perf-p1k-prefill-warmup3-plan.json` | `b997df82a80c6938d8f3bc4b88fe28289a495ba8192c208d7a3c7dce534fb74c` |
+| `run-p1k-baseline-view.sh` | `328ae4aaf75f3c5d1bfe82474a2f821f67014383303560ebc0812d555e87dedf` |
+| `verify-live-baseline-service.py` | `7986543686d86f3481f96c1248c9865352caa70ba949a09b6a054b2d804db1e8` |
+
+远端目录中的文件仍是活跃任务材料；本次仅在确认路径和内容哈希一致后移除本地重复副本，未改写、
+删除或归档远端内容。

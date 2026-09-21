@@ -44,6 +44,28 @@ class RecordsTest(unittest.TestCase):
             errors, _ = records.check(root)
             self.assertFalse(any('missing op-001.md' in s for s in errors))
 
+    def test_script_detection_is_recursive_and_does_not_depend_on_dates(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            nested = root / 'scripts/glm'
+            nested.mkdir(parents=True)
+            (root / 'scripts/run-glm53.sh').write_text('true')
+            (nested / 'run-glm53-20260921.sh').write_text('true')
+            found = records.process_files(root)
+            self.assertIn('scripts/run-glm53.sh', found)
+            self.assertIn('scripts/glm/run-glm53-20260921.sh', found)
+
+    def test_only_explicit_public_scripts_are_excluded(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            scripts = root / 'scripts'
+            scripts.mkdir()
+            (scripts / 'validated-entry').write_text('#!/bin/sh')
+            (scripts / 'temporary-entry').write_text('#!/bin/sh')
+            found = records.process_files(root, ['scripts/validated-entry'])
+            self.assertNotIn('scripts/validated-entry', found)
+            self.assertIn('scripts/temporary-entry', found)
+
 
 if __name__ == '__main__':
     unittest.main()
