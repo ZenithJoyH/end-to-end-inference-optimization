@@ -56,6 +56,15 @@
   通用实现只有 0.828x；数值一致但性能失败，未修改源码。
 - 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
 
+### Sparse Prefill：vendor已有 `out=` 不代表输出分配值得工程化
+
+- 证据等级：`reproduced`，限GLM5.3-Flash/PPU/BF16/TP16/H4/DQK512/DV512/topk2048、SQ4096–16384。
+- 触发信号：预编译vendor主kernel是热点，Python API支持预分配输出，但框架未传 `out=`。
+- 首个实验：保持vendor符号、输入、indices和topk_length完全不变，baseline由vendor分配，candidate复用计时外预分配buffer；完整调用3seed交错计时，并验证BF16 output、辅助值及graph动态replay。
+- 停止条件：完整调用低于1.05×或最低seed低于1.03×时，不增加长期workspace、不进入服务测试。不要用“少一次分配”推导端到端收益。
+- 已知反例：GLM5.3三个shape中位仅1.000032×–1.000507×，最低seed为0.999978×；新增workspace约需128 MiB，未修改源码。
+- 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
+
 ### Dense Decode：head tile 明显大于每 rank 有效 head 数
 
 - 证据等级：`reproduced`，限 XingChen4/PPU/BF16/H8/DQK576/DV512/SQ1/page16/64。

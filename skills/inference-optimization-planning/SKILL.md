@@ -56,6 +56,11 @@ Separate:
 - correctness debt, untested scenarios, engineering debt, and rollback readiness;
 - eliminated, reduced, unchanged, newly exposed, and still-ambiguous bottlenecks.
 
+Use admitted steady-state measurements as the default evidence for bottleneck ranking and cumulative benefit. Cold-start,
+first-request, first-batch, and pre-steady anomalies may expose an insufficient warmup contract, but must not redirect the
+optimization plan toward startup-only work unless the user explicitly made cold start an objective. Do not repair apparent
+instability by dropping the first measured round after seeing it; request a new comparable measurement contract instead.
+
 If several changes are retained but the combined candidate lacks coverage of all affected scenarios, invoke `$inference-performance-evaluation` in `checkpoint` mode before treating the combination as established. If the new bottleneck is ambiguous, invoke `$inference-profiling`. If the configured accuracy trigger is due, invoke `$inference-accuracy-evaluation`. Keep the planning result `incomplete` when required evidence cannot be obtained.
 
 ## Rank the next directions

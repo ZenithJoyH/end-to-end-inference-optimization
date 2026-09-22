@@ -100,6 +100,7 @@ python3 evaluation/performance/compare_performance.py \
 - case 可分别指定输入/输出长度、请求数、并发、有限批次或有限请求的 open-loop 到达率与 burstiness，并用 `stage=prefill|decode|mixed` 保存分析角色；该字段是证据标签，不会让 runner 自动隔离设备阶段。多个 case 可构成有限速率扫描。
 - 优化循环可以为不同场景使用独立计划。targeted/checkpoint/full 是实验契约中的结论层级，当前执行器通过实际计划中的 case 集合体现，不会自行判断遗漏场景；最终验收必须由执行者提供预冻结 full 计划并核对场景完整性。
 - `warmup_rounds` 是固定预算。可选 `warmup_stability` 检查末尾窗口的 `(max-min)/median`；预算内未通过就停止。默认固定轮数不证明稳态，也不自动建立业务缓存冷热条件。
+- 默认结论面向稳态：冷启动、服务首请求、首批次和预热轮不进入正式聚合，也不应主导优化方向。比较器会保留并检查所有正式测量轮的波动；不得在看到结果后删除较慢的首个测量轮。若首个测量轮仍显示过渡态，应将运行判为 `incomplete`，在新契约中增加预热或收紧稳态准入，并用同一规则重跑全部比较角色。只有显式的独立冷启动契约才能把这些启动成本作为主目标。
 - `required_metrics` 明确本任务不可缺失的原生指标；支持 P50/P95/P99 等已列出的指标。单 token 输出不能要求 TPOT/ITL。`ignore_eos=false` 按每请求实际输出核对，不强行套固定输出总数。
 - 非空 `measurement.slo` 原样传入原生 `--goodput`，采用同一请求同时满足全部 SLO 的结果，再核对 goodput 与时长/请求数。不会从 chunk ITL 猜测 TPOT/E2EL；口径依赖所记录的原生客户端版本。[vLLM 原生计算](https://github.com/vllm-project/vllm/blob/v0.24.0/vllm/benchmarks/serve.py)
 - 当前仅支持 random 长度受控 workload 与 `/v1/completions`。持续 closed-loop、业务 trace 重放、客户端待发队列计时、自动跨进程服务编排、cache 清理、资源监控与长稳尚不由此入口实现。open-loop 的并发上限可能降低实际发出速率；工具不会把有限扫描的 passed 宣称为持续容量达标。

@@ -48,10 +48,23 @@ Before measuring, record:
 - Input/output lengths, endpoint, EOS/sampling, load mode, concurrency or arrival pattern, requests, seed, timeout, warmup, repetitions, main metrics, guard metrics, SLO, thresholds, and stop rules.
 - For each case, its `stage=prefill|decode|mixed`, parent target scenario, phase-isolation method, residual cross-phase/scheduler cost, and cross-phase guard. Formal target cases are `mixed`.
 - External or remote output directory. Use the user-provided remote work root only through its case-specific subdirectory.
+- `performance_objective=steady_state|cold_start`, whether cold start is explicitly in scope, and the pre-frozen steady-state admission rule. Default to `steady_state` and `cold_start_in_scope=false`.
 
 For reduced input/output lengths, requests, concurrency, repetitions, or scenarios, create a matching reduced baseline. Map the milestone to its target scenario(s), record every workload difference and its promotion condition, and never compare a reduced candidate with a target/full-plan historical summary.
 
 If a target baseline exceeds its pre-recorded diagnostic time budget, preserve the partial evidence as `deferred-too-slow/incomplete` and stop waiting. Return the project-recorded recovery options for the caller to select: run a smaller comparable `targeted` milestone, perform static analysis outside this Skill, or combine both. A reduced milestone may provide explicit numeric feedback for its own workload, but it is not the target baseline and cannot support a cross-workload speedup claim.
+
+## Keep the optimization objective on steady state
+
+By default, optimize and report the service after compilation, graph capture, allocator setup, connection setup, and other
+warmup effects have stabilized. Treat the first request, first batch, and pre-steady rounds as warmup diagnostics, not as
+the primary bottleneck or final performance. Do not prioritize a change that only improves those transients unless the user
+explicitly selected a separate cold-start objective.
+
+Freeze the warmup and steady-state admission rule before seeing results. Retain every admitted measured round in the evidence
+and comparison. Never discard a slow first measured round after the fact; if it shows the service had not stabilized, return
+`incomplete`, revise the contract, and rerun baseline, candidate, and revert under the same new rule. Use admitted steady-state
+measurements—not the best round or initial transient—to select the next optimization direction.
 
 ## Separate prefill and decode evidence
 
@@ -83,7 +96,8 @@ If prefix caching is the explicit optimization variable, require a separate cont
    - Other maintained entries only within the limits stated in `evaluation/performance/README.md`.
 3. Use unique run IDs and refuse to overwrite an existing run directory.
 4. Validate request counts, successes, token counts, native result schema, required finite metrics, warmup status, repetitions, output SHA, current service/client identity, and the declared phase role. Preserve phase results separately rather than averaging prefill and decode into one attribution.
-5. For comparable runs, evaluate the pre-frozen main metrics, guards, SLO, variability, and baseline/revert drift. Preserve the three-state result: `passed`, `failed`, or `incomplete`.
+5. Confirm that the aggregate contains only pre-declared measured rounds after steady-state admission and that all admitted rounds remain present. A transient first measured round makes the result `incomplete`; it is not a removable outlier.
+6. For comparable runs, evaluate the pre-frozen main metrics, guards, SLO, variability, and baseline/revert drift. Preserve the three-state result: `passed`, `failed`, or `incomplete`.
 
 Stop and keep `incomplete` when the client is the bottleneck, the service identity or prefix-cache state is unproven, workloads differ, results are partial, warmup is unstable, repetitions are insufficient, or revert drift prevents attribution. Do not cherry-pick successful rounds or scenarios.
 

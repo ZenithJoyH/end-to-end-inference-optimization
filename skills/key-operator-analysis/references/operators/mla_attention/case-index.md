@@ -121,6 +121,10 @@ baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和�
   活动 24.694%/21.630%。精确 SQ16384/H4/DQK512 完整调用对照中，thead vendor
   中位 43.005 ms，FlagGems-vllm 通用 Triton 中位 51.943 ms，后者只有 0.828x；
   output/LSE 数值通过，但未达到 1.05x 算子门槛，未修改 dispatch 或源码。
+- P16K/MBT32768 reprofile中vendor Sparse MLA仍为Prefill/Mixed第一热点。随后比较同一
+  vendor调用的默认输出分配与已有 `out=` 预分配：SQ4096/15455/16384三组完整调用
+  中位仅1.000507x/1.000078x/1.000032x，最低seed最低0.999978x；BF16 output逐位一致，
+  graph三次动态replay通过。未达到门槛，未增加约128 MiB workspace或修改源码。
 
 ### 知识差量
 
@@ -140,6 +144,9 @@ baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和�
   收益未验证，且本轮端到端上限已使其降级。
 - `new_frontier`：同一 trace 的 general mm 有多个累计更大的明确 shape 族，
   下一步应先比较已有实现，而不是继续细调 sparse-index 外围。
+- `new_frontier_refined`：vendor暴露预分配接口时也先测完整调用；本案例证明输出分配
+  不是SQ4096–16384主kernel的可兑现瓶颈。当前vendor主kernel不可调、通用替代更慢时，
+  应停止Sparse MLA并重新排序其他热点。
 
 ### 适用限制
 
