@@ -1,26 +1,40 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${repo_root}"
+mode="${1:---all}"
+if [[ $# -gt 1 || ! "${mode}" =~ ^--(all|code|records)$ ]]; then
+  printf 'Usage: %s [--all|--code|--records]\n' "$0" >&2
+  exit 2
+fi
+python="${repo_root}/.venv/bin/python"
+if [[ ! -x "${python}" ]]; then
+  printf 'Missing local control environment. Run ./scripts/bootstrap-control-node first.\n' >&2
+  exit 2
+fi
 export PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/e2e-eval-pycache"
-python3 -m py_compile evaluation/accuracy/*.py evaluation/performance/*.py evaluation/compat/*.py scripts/*.py
-python3 -m unittest discover -s unit_tests -p 'test_*.py'
-python3 scripts/check-project-records.py
-./scripts/inventory
-./scripts/syntax-check
-python3 evaluation/accuracy/verify_accuracy.py --help >/dev/null
-python3 evaluation/accuracy/formal_accuracy.py --help >/dev/null
-python3 evaluation/accuracy/acceptance.py --help >/dev/null
-python3 evaluation/performance/vllm_perf.py --help >/dev/null
-python3 evaluation/performance/vllm_profile.py --help >/dev/null
-python3 evaluation/performance/compare_performance.py --help >/dev/null
-python3 evaluation/performance/sglang_perf.py --help >/dev/null
-python3 evaluation/performance/sglang_profile.py --help >/dev/null
-python3 evaluation/performance/all_perf.py --help >/dev/null
-python3 evaluation/performance/trace_to_summary.py --help >/dev/null
-python3 test/Accuracy_test/llmrun.py --help >/dev/null
-python3 scripts/verify-container-mounts.py --help >/dev/null
-python3 - <<'PY'
+failures=()
+run() {
+  local label="$1"
+  shift
+  if "$@"; then
+    printf 'PASS: %s\n' "${label}"
+  else
+    failures+=("${label}")
+    printf 'FAIL: %s (remaining checks will continue)\n' "${label}" >&2
+  fi
+}
+if [[ "${mode}" != --records ]]; then
+  run 'Python compilation' "${python}" -m py_compile evaluation/accuracy/*.py evaluation/performance/*.py evaluation/compat/*.py scripts/*.py
+  run 'Tool unit tests' "${python}" -m unittest discover -s unit_tests -p 'test_*.py'
+  run 'Inventory' ./scripts/inventory
+  run 'Shell and playbooks' ./scripts/syntax-check
+  for entry in evaluation/accuracy/{verify_accuracy,formal_accuracy,acceptance}.py \
+    evaluation/performance/{vllm_perf,vllm_profile,compare_performance,final_acceptance,sglang_perf,sglang_profile,all_perf,trace_to_summary}.py \
+    test/Accuracy_test/llmrun.py scripts/{verify-container-mounts,case_records,agent_step}.py; do
+    run "Help ${entry}" "${python}" "${entry}" --help >/dev/null
+  done
+  run 'Original asset hashes' "${python}" - <<'PY'
 import hashlib
 from pathlib import Path
 import re
@@ -31,5 +45,17 @@ for name, expected in entries:
     assert hashlib.sha256((Path('test') / name).read_bytes()).hexdigest() == expected, name
 print(f'Original asset hashes verified: {len(entries)}')
 PY
-git diff --check
-printf 'Local validation passed; no remote checks were run.\n'
+  run 'Diff whitespace' git diff --check
+fi
+if [[ "${mode}" != --code ]]; then
+  run 'Records and artifact policy' "${python}" scripts/check-project-records.py
+fi
+if (( ${#failures[@]} )); then
+  printf 'Validation failed (%s):\n' "${mode}" >&2
+  printf '  %s\n' "${failures[@]}" >&2
+  exit 1
+fi
+printf 'Validation passed (%s); no remote checks were run.\n' "${mode}"
+if [[ "${mode}" == --code ]]; then
+  printf 'Record/artifact policy was not checked; this is not full project acceptance.\n'
+fi

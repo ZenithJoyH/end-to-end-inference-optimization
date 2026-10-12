@@ -60,7 +60,7 @@ Agent 的职责是：
 - **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、Prefill/Decode 阶段切分、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
 - **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断 Prefill/Decode/Mixed 热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
-- **模型实验产物**：`models/<model>/<platform>/` 保存该目标的 `baseline/`、`optimize/` 和 `acceptance/`。案例目录保留可读摘要并链接到具体产物；归档与知识沉淀要求见第 11 节。
+- **模型实验产物**：`models/<model>/<platform>/<case-id>/` 保存该案例的 `baseline/`、`optimize/` 和 `acceptance/`。案例目录保留可读摘要并链接到具体产物；归档与知识沉淀要求见第 11 节。
 
 ### 2.4 事实来源：按当前证据判断
 
@@ -313,7 +313,7 @@ Agent 的职责是：
 第一个实际任务开始时，按需创建：
 
 ```text
-models/<model>/<platform>/
+models/<model>/<platform>/<case-id>/
 ├── README.md
 ├── baseline/
 │   ├── state.yml
@@ -343,7 +343,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
   key-operator-analysis/          # profiler 收敛后的关键算子分析
 ```
 
-每个实际 `<model>/<platform>/` 下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部可以保留一个导航 `README.md`，不得再创建与三者并列的结果目录。三个目录统一采用结构化记录和 Markdown 两类长期文档：`state.yml` 是供 Agent 读取和更新的结构化事实主记录；各目录的 `README.md` 是供人查看的阶段总览；`optimize/<experiment-id>.md` 是每个优化点的人类可读独立记录。详细字段和迁移规则见 [模型产物契约](docs/model-artifact-contract.md)。
+新案例使用 `models/<model>/<platform>/<case-id>/`，同一案例下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部保留导航；案例根部可保留 `README.md`。已有三层模型记录按旧布局兼容读取，不自动迁移活跃任务。Host、设备拓扑或 anchor baseline 改变时创建新 case-id，不复用旧案例的当前状态。三个目录统一采用结构化记录和 Markdown 两类长期文档：`state.yml` 是供 Agent 读取和更新的结构化事实主记录；各目录的 `README.md` 是供人查看的阶段总览；`optimize/<experiment-id>.md` 是每个优化点的人类可读独立记录。详细字段和迁移规则见 [模型产物契约](docs/model-artifact-contract.md)。
 
 - `baseline/`：`state.yml` 保存优化前环境、workload、正确性状态、每场景 Prefill/Decode/Mixed 指标和原路径 `anchor baseline`；`README.md` 必须把已经执行的性能测试写成带单位的结果表。未跑出数据时明确写 `not_run/incomplete`、原因和下一触发条件，不能只写环境准备过程。
 - `optimize/`：`state.yml` 保存当前目标场景、当前组合候选、Prefill/Decode/Mixed 瓶颈、完整实验索引、性能与精度状态、下一步、旧决策摘要和外部证据；`README.md` 是多轮优化总览，保存当前进展、累计结果、实验索引、关键对比、失败经验和下一步。每个优化点在开始实施前创建唯一的 `optimize/<experiment-id>.md`，说明优化方向、证据与假设、具体改动、目标场景与阶段、正确性验证、baseline/candidate/revert 性能效果、结论边界、保留/回退决定及外部产物路径；失败、回退和未完成的点也必须保留记录。不得创建 `history/`、`experiments/` 等逐轮子目录，也不得为同一优化点的不同命令或测量轮创建多个 Markdown。
@@ -438,3 +438,17 @@ python3 evaluation/accuracy/acceptance.py --help
 - 精度/性能调用要求显式模式及本地 `interface.json` 声明的能力 ID，不猜测模式或替换成 Hub 同名包。
 - 使用长任务记录时遵循 `docs/agent-execution.md`。重试前检查既有 run 和实际证据；预算及进度
   复查交由调用方决策，不自动重启任务。原生验收器及既有 `state.yml` 继续作为权威，不增加第二套模型历史目录。
+
+
+## 人工介入与新案例恢复
+
+- 用户可随时暂停、接管、手工执行或调整计划；自然语言即可，Agent 负责整理记录与命令。
+- 按 `docs/agent-execution.md` 的人工介入协议执行。暂停/接管后禁止自动发起新的远端变更或评测，
+  先报告现有服务/客户端状态，等待明确恢复指令；人工介入不是实验失败。
+- 手工完成的原生证据按相同工具校验，通过后复用；配置/身份改变时建立新绑定或新 run，保留旧证据。
+- 新案例以 case-id 隔离并使用 schema 4；先用 `scripts/case_records.py summary` 获取紧凑当前状态，
+  再按实验 ID 读取详细记录。自动生成 README 的托管表格，保留人的分析、备注与决策正文。
+- 新最终验收须先冻结 comparison.project_scope，再由 `evaluation/performance/final_acceptance.py`
+  核验范围；人工选择继续探索不能替代正式验收通过。
+- `scripts/validate-local --code` 验证工具，`--records` 审计本地记录，默认 `--all` 两者都运行并汇总失败。
+  活跃案例的迁移债务保持可见，不通过扩大历史白名单或删除唯一证据消除检查错误。

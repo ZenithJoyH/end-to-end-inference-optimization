@@ -70,7 +70,8 @@ spec、run.json、进度快照和 registry 放在批准的控制/外部 case 目
 
 - `service`：`acceptance.validate_service(formal=False)` 核验 manifest 格式及身份，允许原生工具支持的非正式服务。
 - `accuracy`：`acceptance.check_gate` 校验 gate 与当前 service manifest；对应 `manifest`、`gate`。
-- `performance-run`：`compare_performance.check_run` 核验 `contract` 下每个 `records` 的原始指标、输出 SHA、请求与绑定。还要求回执引用的 `plan` 内容 SHA 与本轮冻结计划完全一致，并且回执中的服务身份集合与冻结的 `services` 集合完全一致。仅证明单轮数据有效，不产生加速比或最终验收结论。
+- `performance-run`：`compare_performance.check_run` 核验 `contract` 下每个 `records` 的原始指标、输出 SHA、请求与绑定。分别核验原始输入计划的 SHA 和规范化有效计划的一致性；默认值补全和序列化排版不会被误判为 workload 改变。无输入来源的旧回执仍要求精确快照 SHA。回执中的服务身份集合必须与冻结的 `services` 集合完全一致。仅证明单轮数据有效，不产生加速比或最终验收结论。
+- `acceptance`：测量结束后只读调用 `final_acceptance.validate`，要求 scope 的 `case_id/baseline_id` 匹配预冻结项目范围。入口和清单见 [性能工具](../evaluation/performance/README.md#项目范围冻结与最终验收)。
 - `performance`：`compare_performance.compare` 对 `contract` 和 `records` 做完整比较，并执行同样的 `plan`/`services` 精确绑定；`failed/incomplete` 都不能关闭为通过。
 
 `scope.model/host` 必须与原生 service 对应。正式 performance 必须前置 accuracy gate、使用
@@ -127,3 +128,47 @@ manifest 和前置 accuracy gate 必须列入 `context_files`。
   "lease_registry": "/approved/shared/agent-leases"
 }
 ```
+
+
+## 人工暂停、接管和恢复
+
+用户可直接说“暂停，我来调整”“这一步我已手动完成”“按这个配置继续”，由 Agent 整理命令和证据；
+不要求用户填写 JSON。人工指令优先于自动计划。存在 run 时，Agent 在下一次远端变更或发起请求前
+执行 `check`，只有 `automation_allowed=true` 才可继续。`paused/manual` 是正常控制状态，数值验收仍为
+`incomplete`，不计成失败。没有 journal 的旧任务先把暂停/接管意图写入当前案例，再补执行记录。
+
+| 人工意图 | 操作 | 保留/核验 |
+|---|---|---|
+| 暂停，稍后继续 | `pause --note '用户要求等待'` | 保留证据与资源登记；暂停期间不累计 Agent 活动预算 |
+| 接管部分步骤 | `takeover --actor 用户 --note '手动压测'` | 自动化停止发起变更；用户操作可产生原生回执 |
+| 原配置继续 | `resume --note '用户要求继续' --evidence <新现场检查>` | 冻结输入不变、前置 gate 重验；保留已完成轮次，不重启工作负载 |
+| 配置/源码/契约已改变 | `supersede --note '用户调整 TP/参数…'` | 原证据与原因保留，旧 run 不刷新 SHA、不标成性能失败 |
+| 手工完成评测 | 恢复后 `finish` | 消费实际原生回执，执行相同验收器，不因手工完成而免检或重跑 |
+
+例如：
+
+```bash
+python3 scripts/agent_step.py takeover --run-dir /approved/case/run-001 --note '用户接管服务参数调整'
+python3 scripts/agent_step.py check --run-dir /approved/case/run-001
+python3 scripts/agent_step.py resume --run-dir /approved/case/run-001 \
+  --note '用户要求继续，已核验原服务和配置未变' --evidence /approved/case/fresh-inspection.json
+```
+
+这些命令仅更改控制记录，不向远端发信号。Agent 应报告仍在运行的精确服务/客户端，以及哪些动作已经暂停；
+停止既有客户端或服务仍按用户意图和远端操作规则执行。监控在暂停/接管期间保持只读，不自动恢复评测。
+`resume` 需要人的明确继续指令；等待时间、进度增长和新文件出现都不能替代该指令。
+
+变更后恢复时，Agent 先整理新旧差异，并明确证据影响：
+
+- 仅人工观察/执行，输入与服务未变：保留原 run，原生回执验证后接续。
+- 仅服务重启：按精度 rebind 流程获取新绑定，新的性能实例使用新 run。
+- 源码、参数、设备、workload 或门槛改变：新契约/新 run，按影响范围补最小回归、正式精度和性能。
+- 仅控制工具或规则升级：新 run 重新消费并校验现有原生证据；通过时无需仅为 journal 重跑模型。
+
+旧 run 可用 `supersede` 关闭；确认相关进程已停止或资源已空闲后 `release --evidence … --note …`。
+随后使用 `begin --parent-run <旧run目录> --spec <新spec> --run-dir <新目录>` 建立有来源的新记录。
+同一案例内 successor 必须保持 scope；换 Host、TP/设备拓扑或 baseline 身份时创建新案例。
+资源登记不会因暂停、接管、超时或 supersede 自动释放，避免另一个任务误用仍被占用的设备。
+
+人工可以改变目标、场景或阈值，但新规则只对新实验生效；历史结果保留当时契约。
+人工允许继续诊断与正式验收通过是不同结论，最终分数/覆盖/证据检查不能靠手工修改 passed 绕过。

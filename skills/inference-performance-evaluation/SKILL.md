@@ -127,3 +127,18 @@ Write the Skill mode, scenarios, plan/contract SHA, service-manifest and run-rec
 - Plans, service manifests, run records, large JSON, logs, responses, traces, commands, and generated scripts remain in the external or remote case directory; store their absolute paths and required checksums in `state.yml` instead of copying them under `models/`.
 
 Return a compact result containing: mode, scenario IDs, stage/parent-target mapping, prefill/decode/mixed evidence and cross-phase guards, service identity, plan/contract evidence, result state, primary/guard metric changes, invalid or omitted evidence, conclusion boundary, artifact paths, and the next performance-test trigger.
+
+
+## Human intervention and project acceptance
+
+Use [the shared intervention protocol](../../docs/agent-execution.md#人工暂停接管和恢复) when a person pauses,
+takes over, changes parameters or supplies completed measurements. Pause new automated mutations immediately;
+retain all rounds and await explicit resume. Manual execution uses the same frozen contracts and native validators.
+Changed workload/configuration starts a linked new run; do not relabel or discard old observations.
+
+For new intermediate/final project acceptance, freeze `project_scope` in the comparison contract before measurement
+with `evaluation/performance/final_acceptance.py prepare`. After native comparison, use `final_acceptance.py check`
+with original run records and Prefill/Decode evidence. It distinguishes intermediate-single-target from final-all-targets,
+checks the unchanged original workload catalog and anchor identity, and requires cross-phase latency guards.
+Client TTFT/TPOT/ITL proxies are supported with explicit residual costs. See the performance README for the manifest.
+Old comparisons without project_scope retain their bounded conclusion and are not retroactively final acceptance.

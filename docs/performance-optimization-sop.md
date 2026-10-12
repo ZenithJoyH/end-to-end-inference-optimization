@@ -29,7 +29,7 @@ workload 可比性、指标决策、schema 与最终报告字段统一见 [实�
 
 正式精度 runner 位于 [`test/Accuracy_test/`](../test/Accuracy_test/README.md)；参数化工具、结果门禁、性能工具和验收模板见 [`evaluation/`](../evaluation/README.md)。
 
-端到端优化中的正确性和精度步骤统一由 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 编排。SOP 定义触发时机和门禁，Skill 根据 `baseline-sanity`、`minimal-regression`、`formal-gate`、`gate-check` 模式调用现有工具，不维护第二套 runner；前三种模式实际启动评测进程时创建绑定当前任务的 heartbeat 进度通知，默认每 30 分钟一次。
+端到端优化中的正确性和精度步骤统一由 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 编排。SOP 定义触发时机和门禁，Skill 根据 `baseline-sanity`、`minimal-regression`、`formal-gate`、`gate-check` 模式调用现有工具，不维护第二套 runner；进度通知遵循该 Skill：短任务前台反馈，需后台跟进或用户已要求定时通知时使用 heartbeat，并保留已有通知偏好。
 
 正式分数低于预冻结阈值、必要的最小回归失败或评测证据无效时，调用独立的 [推理精度问题定位技能](../skills/inference-accuracy-diagnosis/SKILL.md)。超时、空输出、截断、重复或格式异常可按需诊断，但不单独使精度失败或中断性能优化。
 
@@ -377,7 +377,7 @@ Plugin 候选在修改前与整理最终补丁后，按 [Plugin 优化设计与 
 
 以上步骤通过 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 执行：第 1 项使用 `minimal-regression`，第 2、3、5 项在需要新 gate 时使用 `formal-gate`；已有 gate 在进入正式性能前使用 `gate-check` 重新绑定当前服务事实。中间完整精度产物留在 `optimize/` 的实验记录，只有最终候选结论进入 `acceptance/`。
 
-精度 Skill 在 `baseline-sanity`、`minimal-regression` 或 `formal-gate` 启动实际评测进程前创建当前任务 heartbeat，默认每 30 分钟报告评测阶段、运行时长、进程健康、产物更新时间、可验证的唯一题目进度及新错误。多 filter 场景不得用原始行数冒充完成题数，ETA 无可靠依据时保持不可用。评测完成、失败、取消或提前停止后发送终态并停用监控；短任务在首次触发前结束时直接清理。`gate-check` 不创建定时任务。
+精度评测按本地 Skill 选择前台进度或 heartbeat。沿用用户已明确的周期要求；其他后台跟进仅在状态变化、完成、失败或需人工处理时通知。多 filter 场景不得用原始行数冒充完成题数，ETA 无可靠依据时保持不可用。评测终态后停用监控；`gate-check` 不创建定时任务。
 
 ### D6.1 精度问题定位
 
@@ -395,7 +395,7 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 
 从最后一个可信正确状态开始，用同一 prompt/token、生成参数、seed、endpoint、服务配置和输入 shape 建立最小复现，再按改动依赖做单变量二分。优先核对高正确性风险改动、graph capture/replay、C1/C8、目标/fallback shape、短/长上下文、单 rank/分布式、Plugin dispatch/backend 和算子数值边界。撤掉某改动后恢复只能形成嫌疑；重新启用可复现、真实路径命中和机制证据闭合后才能确认根因。
 
-修复后先用精度评测 Skill 的 `minimal-regression` 覆盖复现与边界矩阵；原问题来自正式 GPQA 时必须对固定后的候选重新执行 `formal-gate`。相关重跑复用精度评测 Skill 的进度 heartbeat，不重复创建监控。当前定位状态和带稳定 issue ID 的历史摘要写入 `optimize/state.yml`，人可读结论同步到 `optimize/README.md`，不得另建历史目录；只有原失败范围重新通过后才恢复性能优化。
+修复后先用精度评测 Skill 的 `minimal-regression` 覆盖复现与边界矩阵；原问题来自正式 GPQA 时必须对固定后的候选重新执行 `formal-gate`。相关重跑复用已有且适用的进度监控，不重复创建。当前定位状态和带稳定 issue ID 的历史摘要写入 `optimize/state.yml`，人可读结论同步到 `optimize/README.md`，不得另建历史目录；只有原失败范围重新通过后才恢复性能优化。
 
 ### D7. 性能场景与分层测试频率
 
@@ -559,3 +559,13 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 | 2026-09-14 | 0.38 | 用户要求后续模型优化不保留 history 目录 | 后续每轮实验、精度问题、profiling 和规划复盘统一写入 `optimize/state.yml` 的稳定 ID 账本并同步 `README.md`；禁止新建模型内 `history/` 或逐轮目录，机制经验进入案例/知识库，原始证据外置；已有 history 由用户另行调整 | 用户指定产物结构 `invariant` |
 | 2026-09-20 | 0.39 | 用户要求每个优化点单独保留 Markdown | 每个优化点以稳定 experiment ID 直接在 `optimize/<experiment-id>.md` 记录方向、内容、正确性、性能效果、决定和外部证据；`optimize/README.md` 改为多轮优化总览与索引，仍禁止 history/experiments 子目录和按运行轮拆文档 | 用户指定人类可读记录结构 `invariant` |
 | 2026-09-22 | 0.40 | 用户明确最终性能以稳态为准 | 默认不把冷启动、首请求、首批次或进入稳态前首轮作为优化方向；首轮异常只用于诊断稳态准入。禁止事后删除慢首轮，准入失败时按统一新契约重跑 baseline/candidate/revert，最终结果仅聚合合格稳态测量 | 用户指定优化目标与测量有效性 `invariant` |
+
+## 人工交接与最终结论的执行入口
+
+任何阶段均可按 [人工介入协议](agent-execution.md#人工暂停接管和恢复) 暂停、接管或提交手工结果；
+恢复前核验现场与冻结输入，复用有效证据，变更身份或条件时创建新 run。暂停保留资源登记，
+不自动停止共享服务，也不因经过一段时间就恢复自动操作。
+
+新案例按 case-id 隔离 Host/拓扑/anchor。中间 formal 和最终 full 在测量前冻结
+`project_scope`，测量后用 [项目验收入口](../evaluation/performance/README.md#项目范围冻结与最终验收)
+重验原生证据及阶段覆盖；仅有局部比较 passed 不关闭四场景最终验收。

@@ -134,5 +134,51 @@ class JournalTests(unittest.TestCase):
         self.begin()
         with self.assertRaises(FileExistsError): self.begin()
 
+    def test_manual_pause_blocks_finish_and_preserves_resource_claim(self):
+        self.begin()
+        result = step.update(self.run, 'takeover', note='user will run the benchmark')
+        self.assertEqual(result['state'], 'manual')
+        self.assertFalse(result['automation_allowed'])
+        with self.assertRaises(ValueError): step.update(self.run, 'finish')
+        with self.assertRaises(ValueError): step.update(self.run, 'release', evidence=str(self.evidence), note='idle')
+        self.assertTrue(step.read(self.root / 'leases/claims.json'))
+        with self.assertRaises(ValueError): step.update(self.run, 'resume', note='continue')
+        result = step.update(self.run, 'resume', note='user finished; same service and contract', evidence=str(self.evidence))
+        self.assertTrue(result['automation_allowed'])
+        self.assertEqual(step.update(self.run, 'finish')['status'], 'passed')
+
+    def test_changed_manual_context_cannot_resume_or_refresh_old_hashes(self):
+        old = self.begin()['context'].copy()
+        step.update(self.run, 'pause', note='user will change configuration')
+        self.context.write_text('new configuration')
+        with self.assertRaisesRegex(ValueError, 'context changed'):
+            step.update(self.run, 'resume', note='continue', evidence=str(self.evidence))
+        record = step.read(self.run / 'run.json')
+        self.assertEqual(record['context'], old)
+        self.assertEqual(record['state'], 'paused')
+        step.update(self.run, 'supersede', note='new configuration requires a new plan')
+        step.update(self.run, 'release', evidence=str(self.evidence), note='verified no active workload')
+        self.spec['run_id'] = 'two'
+        spec = self.root / 'new-spec.json'
+        spec.write_text(json.dumps(self.spec))
+        new = step.begin(spec, self.root / 'successor', parent_run=self.run)
+        self.assertEqual(new['parent_run']['run_id'], 'one')
+        self.assertEqual(new['state'], 'ready')
+
+    def test_pause_time_is_excluded_without_resetting_active_budget(self):
+        self.begin()
+        record = step.read(self.run / 'run.json')
+        record.update(started_at=10, last_progress_at=10)
+        step.write(self.run / 'run.json', record)
+        with patch.object(step.time, 'time', return_value=20):
+            step.update(self.run, 'pause', note='wait for human')
+        self.assertEqual(step.decision(step.read(self.run / 'run.json'), now=1000)['review_reasons'], [])
+        with patch.object(step.time, 'time', return_value=1000):
+            result = step.update(self.run, 'resume', note='continue', evidence=str(self.evidence))
+        self.assertEqual(result['review_reasons'], [])
+        record = step.read(self.run / 'run.json')
+        self.assertEqual(record['paused_seconds'], 980)
+        self.assertTrue(any('budget_exhausted' in r for r in step.decision(record, now=1120)['review_reasons']))
+
 
 if __name__ == '__main__': unittest.main()

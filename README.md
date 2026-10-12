@@ -104,7 +104,7 @@
 ./scripts/validate-local
 ```
 
-初始化脚本创建本仓库的 `.venv/`；可通过 `PYTHON_BIN` 显式指定 Python 解释器。`validate-local` 检查 Python/Shell/Playbook 语法、工具单元测试、帮助入口、原始评测资产 SHA 和 Git diff，不连接目标机器，也不安装模型推理环境。
+初始化脚本创建本仓库的 `.venv/`；可通过 `PYTHON_BIN` 显式指定 Python 解释器。`validate-local` 使用该虚拟环境，检查记录审计、Python/Shell/Playbook 语法、工具单元测试、帮助入口、原始评测资产 SHA 和 Git diff，不连接目标机器，也不安装模型推理环境。
 
 目标 Host 与平台组配置见 [inventory/hosts.yml](inventory/hosts.yml)。SSH 用户、端口、堡垒机和私钥路径由本机 `~/.ssh/config` 管理，不复制到项目或实验日志。
 
@@ -218,8 +218,8 @@ docs/
   optimization-patterns.md
   cases/                        # 少量可读案例摘要与证据链接
 
-models/<model>/<platform>/
-  README.md                     # 该模型/平台导航
+models/<model>/<platform>/<case-id>/
+  README.md                     # 该案例导航；平台根部另列案例索引
   baseline/                     # 优化前环境、workload 和基线
   optimize/                     # state.yml、README 总览、每个优化点的独立 Markdown
   acceptance/                   # 最终候选验收配置、结果/状态与总结
@@ -227,13 +227,13 @@ models/<model>/<platform>/
 skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库
 ```
 
-每个实际模型/平台只使用 `baseline/`、`optimize/`、`acceptance/` 三个子目录；按需创建，不为未请求的目标批量生成空目录。中间和未达标实验数据留在 `optimize/`，案例摘要链接到对应记录。原始响应、日志、CSV/JSONL、trace、数据库和数据集放外部存储，项目记录绝对位置及必要校验值。
+每个新案例按 Host、设备拓扑和 anchor baseline 隔离，只使用 `baseline/`、`optimize/`、`acceptance/` 三个子目录；按需创建，不为未请求的目标批量生成空目录。中间和未达标实验数据留在 `optimize/`，案例摘要链接到对应记录。原始响应、日志、CSV/JSONL、trace、数据库和数据集放外部存储，项目记录绝对位置及必要校验值。
 
 镜像谱系与挂载比较的工具说明见 [容器隔离流程](docs/container-isolation.md)。相同目录挂载可能共享源码和缓存；新建容器本身不证明修改已隔离。挂载比较通过也不能自动证明镜像继承了有效适配状态。
 
 ## 案例与知识积累
 
-从 [案例索引](docs/cases/README.md) 检索同结构、阶段、平台和 workload 的证据，再核对当前运行条件。已有的 [XingChen4 / PPU](models/XingChen4-29B-A4B/ppu/README.md) 记录提供实际实验与产物导航；带 `imported` 标记的历史案例尚未在本项目复测，不与本项目实测结论混用。
+从 [案例索引](docs/cases/README.md) 检索同结构、阶段、平台和 workload 的证据，再核对当前运行条件。本机已有的 `models/XingChen4-29B-A4B/ppu/README.md` 提供实际实验与产物导航（模型记录独立备份，不随代码仓库发布）；带 `imported` 标记的历史案例尚未在本项目复测，不与本项目实测结论混用。
 
 当端到端测量已收敛到具体算子、dispatch、layout 或融合路径时，按需使用 [关键算子技能](skills/key-operator-analysis/SKILL.md)。知识按“案例证据 → 算子证据卡 → 优化地图 → 稳定理解”演进，当前包含 MLA Attention 与 mHC 资料。仅在证据改变下一次诊断或设计决策时更新相应层级。
 
@@ -250,3 +250,18 @@ skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库
 仅修改文档时，至少执行 `git diff --check` 并核验本地链接。原始评测资产 SHA 由 [test/IMPORT_MANIFEST.md](test/IMPORT_MANIFEST.md) 管理，维护版改动记录在 [evaluation/IMPORT_MANIFEST.md](evaluation/IMPORT_MANIFEST.md)。本地检查通过证明工具层验证完成，不替代目标环境的模型精度、性能或跨平台回归。
 
 已确认的问题、官方参考资料如何进入流程，以及尚未自动化的环节见 [2026-09-06 项目复审](docs/project-review.md)。该报告用于维护导航，不替代执行规范。
+
+## 人工参与优化
+
+随时可以对 Agent 说“暂停，我来调整”“这一步我已经手动完成”或“按这个配置继续”。
+Agent 会记录交接原因、保留已完成证据，并说明仍在运行的服务/客户端；恢复时先核对
+人工改动及影响范围，再接续可复用步骤。不会因为等待超时自动恢复，也不会因手动评测
+而要求无条件重跑。配置、源码或设备变化时，建立新的运行记录并重新做受影响的验证。
+具体操作见 [人工介入协议](docs/agent-execution.md#人工暂停接管和恢复)。
+
+新案例按 `case-id` 隔离 Host、拓扑和基线，用 `case_records.py summary/render` 获取紧凑状态
+并同步总览，保留人工说明；模型记录的独立备份与恢复见 [产物契约](docs/model-artifact-contract.md)。
+
+维护时可分别运行 `./scripts/validate-local --code`（工具）和 `--records`（记录与产物审计）；
+默认 `--all` 全部执行并汇总失败。代码通过不表示记录审计或模型验收通过，历史材料待迁移
+也不会导致后面的代码检查被跳过。最终四场景验收使用 [项目验收入口](evaluation/performance/README.md#项目范围冻结与最终验收)。

@@ -28,3 +28,8 @@ PYTHONPYCACHEPREFIX=/tmp/e2e-eval-pycache \
 `test_project_records.py` 验证重复键、实验 ID、文档映射、递归过程文件识别和公共脚本显式白名单；
 `test_project_gates.py` 另外验证 journal 的原生回执必须绑定本轮冻结的计划及完整服务实例集合。
 评测负例覆盖缓存启用/状态矛盾、FlagGems-vllm 身份缺失，以及纯重启 rebind 的成功、漂移和证据篡改。
+
+`validate-local --code` 使用仓库 `.venv` 检查工具；`--records` 独立审计本地案例及过程材料；
+默认 `--all` 汇总二者，即使记录审计失败也保留完整代码检查结果。
+新增回归覆盖人工接管/恢复/变更后接续、原始与规范化计划绑定、案例隔离/备份恢复/人工文字保护，
+以及使用原生合成精度和性能证据的四场景项目验收。合成数据测试不代表目标设备已通过。

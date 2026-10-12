@@ -40,21 +40,19 @@ Bind every result to the target Host, optimization container, service instance, 
 
 When the user supplied a remote work directory, place configs, inspect evidence, logs, samples, results, health review, and gate under its unique case directory. Intermediate accuracy results update the model/platform `optimize/state.yml`, the correctness section of every covered `optimize/<experiment-id>.md`, and the multi-round summary in `optimize/README.md`; only the final candidate status updates `acceptance/state.yml` and `acceptance/README.md`. Large or sensitive artifacts, runner configs, service manifests, and gate files remain remote, with paths and necessary checksums recorded in structured state instead of copied into `models/`.
 
-## Schedule progress notifications
+## Progress and human intervention
 
-Whenever `baseline-sanity`, `minimal-regression`, or `formal-gate` starts an actual accuracy-evaluation process, create a recurring heartbeat automation attached to the current Codex task before launching the process. The default cadence is every 30 minutes; use a user-specified cadence when provided. `gate-check` only validates existing evidence and does not create a monitor.
+Use foreground progress for short sanity/minimal checks. Create or reuse a heartbeat only when the user
+requests scheduled updates or a long evaluation needs background monitoring and scheduling is available.
+Scheduling availability is not an accuracy prerequisite. Report monitoring limitations and retain native
+progress artifacts. Notify on meaningful progress, completion, failure or required action; periodic unchanged
+reports require an explicit user preference. Stop the monitor on completion, cancellation or failure.
 
-Use a case- and experiment-specific automation name. Reuse or update an existing matching monitor instead of creating duplicates. Record its automation ID, cadence, start time, monitored Host/process and artifact paths in the experiment record. For a long-running `formal-gate`, successful monitor creation is a preflight requirement unless the user explicitly waives periodic notifications. If scheduling is unavailable, report that before starting and do not pretend monitoring is active; this operational gap does not change the numerical meaning of a completed accuracy result.
-
-Each heartbeat must inspect the exact evaluation process and bound artifacts read-only, then notify the current task even when progress is unchanged because the user explicitly requested periodic reports. Include:
-
-- case/experiment ID, accuracy mode, current stage, elapsed time, process health, and last artifact update;
-- completed unique questions out of 198 only when the current samples/run evidence supports that count; never use raw JSONL line count when multiple filters can create multiple rows;
-- newly observed errors, timeouts, empty/truncated output indicators, or stalled progress;
-- ETA only when supported by observed progress; otherwise say it is unavailable;
-- terminal state and result/gate paths when completed, failed, or cancelled.
-
-The monitor must not alter, restart, or duplicate the evaluator or model service. When evaluation reaches a terminal state, send the terminal notification and pause or delete the matching heartbeat. The main accuracy workflow must also clean it up on normal completion, failure, cancellation, or early stop and record cleanup evidence. A short evaluation that finishes before the first 30-minute tick still creates and then removes the monitor without emitting a misleading progress update.
+Human requests to pause or take over suspend new automated actions. Follow
+[the shared intervention protocol](../../docs/agent-execution.md#人工暂停接管和恢复): preserve ongoing process
+identity and evidence, record the handoff, and await explicit resume. Human-produced native outputs may be
+validated by the same tools; do not rerun them just because a person launched the evaluator. Changed service
+identity/configuration still requires the corresponding rebind or new evaluation, never rewritten old hashes.
 
 ## Baseline and minimal regression
 

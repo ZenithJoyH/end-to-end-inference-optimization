@@ -18,7 +18,7 @@
 ## 项目标识与规则
 
 - 项目：端到端推理优化。
-- 根目录标记：`AGENTS.md`、`evaluation/`、`models/`、`test/`。
+- 根目录标记：`AGENTS.md`、`evaluation/`、`test/`；`models/` 是可选的本地案例记录。
 - 项目内解析顺序：用户当前指令 → 本仓库 `AGENTS.md` → 本契约 → 本地 Skill 方法；上层工具与安全约束仍适用。
 - 项目执行顺序和授权边界由 `AGENTS.md`、`docs/performance-optimization-sop.md` 和
   `docs/experiment-contract.md` 维护。
@@ -54,8 +54,8 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
 - `gate-check`：使用
   `python3 evaluation/accuracy/acceptance.py check --gate <accuracy-gate.json> --service-manifest <current-service.json>`，只读执行，不发送精度流量。
 - 困难样本作为 `minimal-regression` 的显式范围，不是额外模式；未冻结版本化列表时返回 `incomplete`。
-- 精度任务需要进度监控时，按本地 Skill 的监控方法创建当前任务 heartbeat；本项目
-  默认 30 分钟，用户指定频率优先，终态必须停用并记录。
+- 短精度任务使用前台进度；长任务需后台跟进或用户已要求定时通知时，按本地 Skill 使用 heartbeat。
+  保留用户已指定的频率和通知偏好，终态停用并记录；调度工具不可用不阻断评测。
 
 ## 性能评测映射
 
@@ -117,3 +117,14 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
 优化容器、共享服务、源码修改和破坏性操作的授权仍由 `AGENTS.md` 管理。本地 Skill 不扩大
 授权。正式精度的业务通过条件只是 `score >= threshold`；原生 gate 和 run-record 用于证明
 指标、阈值和服务身份未被替换，它们的证据有效性检查不是第二个精度门槛。
+
+## 人工交接与项目验收映射
+
+人工暂停、接管、补交原生回执和恢复统一使用 [执行记录协议](agent-execution.md#人工暂停接管和恢复)。
+Skill 仍决定测量方法，操作者可以是人；原生 runner、身份绑定及验收器保持一致。
+新案例采用 `case_records.py` 的 case 级身份和紧凑视图，旧案例不自动迁移。
+
+项目最终验收由 `evaluation/performance/final_acceptance.py` 包装原生比较器：测量前
+`prepare` 冻结 `project_scope`，测量后 `check` 核验生命周期、基线身份、四场景和阶段证据。
+`compare_performance.py` 的 passed 仍只表示对应比较契约通过，不自行代表全项目完成。
+规划字段留在案例文档，runner 仅接收其支持的原生字段。
