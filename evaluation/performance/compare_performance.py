@@ -28,6 +28,7 @@ VARIABLE_ROOTS = {
     "mode",
 }
 CACHE_VARIABLE_PATHS = {"/performance_context/prefix_cache_state", "/performance_context/cache_preparation"}
+REQUIRED_SCENARIOS = {f"p{p}-d1024-c64-n128": (p, 1024, 64, 128) for p in (1024, 4096, 16384, 32768)}
 
 
 def read_json(path):
@@ -80,7 +81,7 @@ def fields(value, allowed, required, label):
 
 def validate_contract(value):
     fields(value, ("schema_version", "scope", "hypothesis", "variable_paths", "primary",
-                   "guardrails", "repeats", "slo_min_attainment", "cache_experiment"),
+                   "guardrails", "repeats", "slo_min_attainment", "cache_experiment", "project_scope"),
            ("schema_version", "scope", "hypothesis", "variable_paths", "primary", "guardrails", "repeats"), "contract")
     if type(value["schema_version"]) is not int or value["schema_version"] != 1 or value["scope"] not in ("formal", "performance_only"):
         raise ValueError("comparison requires schema 1 and an explicit acceptance scope")
@@ -137,7 +138,51 @@ def validate_contract(value):
         number(cache["reuse_ratio"], "cache reuse_ratio", maximum=1)
         if "/performance_context/prefix_cache_state" not in paths:
             raise ValueError("cache experiment must declare prefix_cache_state as a variable")
+    if "project_scope" in value:
+        validate_project_scope(value["project_scope"])
+        if value["scope"] != "formal":
+            raise ValueError("project acceptance scope requires a formal comparison")
     return value
+
+
+def validate_project_scope(scope):
+    keys = ("lifecycle", "case_id", "baseline_id", "baseline_kind", "baseline_identity_sha256", "scenario_ids")
+    fields(scope, keys, keys, "project_scope")
+    for key in ("case_id", "baseline_id"):
+        if not isinstance(scope[key], str) or not scope[key].strip():
+            raise ValueError(f"project_scope requires {key}")
+    if not isinstance(scope["baseline_identity_sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", scope["baseline_identity_sha256"]):
+        raise ValueError("freeze the stable baseline identity SHA before measurement")
+    ids = scope["scenario_ids"]
+    if not isinstance(ids, list) or not ids or any(not isinstance(v, str) or not v for v in ids) or len(set(ids)) != len(ids):
+        raise ValueError("project_scope requires unique scenario_ids")
+    if scope["baseline_kind"] not in ("anchor", "scenario-entry"):
+        raise ValueError("baseline_kind must be anchor or scenario-entry")
+    if scope["lifecycle"] == "final-all-targets":
+        if not set(REQUIRED_SCENARIOS) <= set(ids) or scope["baseline_kind"] != "anchor":
+            raise ValueError("final acceptance requires all four original scenarios and an anchor baseline")
+    elif scope["lifecycle"] == "intermediate-single-target":
+        if len(ids) != 1 or ids[0] not in REQUIRED_SCENARIOS:
+            raise ValueError("intermediate acceptance requires exactly one original target scenario")
+    else:
+        raise ValueError("unknown formal lifecycle")
+
+
+def identity_digest(identity):
+    return hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False,
+                                    separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+
+
+def check_project_plan(plan, scope):
+    if {case["id"] for case in plan["cases"]} != set(scope["scenario_ids"]):
+        raise ValueError("measured scenarios differ from the frozen project scope")
+    for case in plan["cases"]:
+        if case.get("stage") != "mixed":
+            raise ValueError("formal target scenarios must be mixed")
+        if case["id"] in REQUIRED_SCENARIOS:
+            shape = tuple(case[k] for k in ("input_tokens", "output_tokens", "concurrency", "requests"))
+            if shape != REQUIRED_SCENARIOS[case["id"]] or case["load_mode"] != "finite_batch":
+                raise ValueError("an original target scenario was renamed or shortened")
 
 
 def validate_metric(spec):
@@ -238,6 +283,10 @@ def check_run(path, contract_ref, contract):
     service = read_json(verified(refs["service"]))
     performance_plan._check_service(service, plan["target"])
     identity = service_identity(service, contract)
+    if "project_scope" in contract:
+        check_project_plan(plan, contract["project_scope"])
+        if record["role"] in ("baseline", "revert") and identity_digest(identity) != contract["project_scope"]["baseline_identity_sha256"]:
+            raise ValueError("baseline/revert differ from the pre-frozen baseline identity")
     target, url = plan["target"], urlsplit(service["base_url"])
     if (target["model"] != service["model_name"] or target["tokenizer"] != service["tokenizer_path"]
             or target["host"] != url.hostname or target["port"] != (url.port or (443 if url.scheme == "https" else 80))):
@@ -367,7 +416,8 @@ def compare(contract_path, record_paths):
     try:
         contract_ref = artifact(contract_path)
         contract = validate_contract(read_json(contract_path))
-        report.update(scope=contract["scope"], contract=contract_ref)
+        report.update(scope=contract["scope"], contract=contract_ref,
+                      project_scope=contract.get("project_scope"), project_acceptance="not_evaluated")
         runs = [check_run(path, contract_ref, contract) for path in record_paths]
         if len({r["record"]["sha256"] for r in runs}) != len(runs) or len({r["run_id"] for r in runs}) != len(runs):
             raise ValueError("duplicate run records or run IDs")

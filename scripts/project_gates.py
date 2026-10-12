@@ -7,10 +7,11 @@ import sys
 
 def validate_check(check):
     required = {'service': {'manifest'}, 'accuracy': {'manifest', 'gate'},
+                'acceptance': {'manifest'},
                 'performance': {'contract', 'plan', 'services', 'records'},
                 'performance-run': {'contract', 'plan', 'services', 'records'}}
     if not isinstance(check, dict) or check.get('kind') not in required:
-        raise ValueError('supported native gates: service, accuracy, performance-run, performance')
+        raise ValueError('supported native gates: service, accuracy, performance-run, performance, acceptance')
     kind = check['kind']
     if set(check) != {'kind', *required[kind]}:
         raise ValueError(f'{kind}: missing/unknown gate arguments')
@@ -40,7 +41,7 @@ def validate_plan(spec):
     final_kinds = {c['kind'] for c in spec['after']}
     capability = spec['capability_id']
     if capability == 'e2e/performance':
-        required = {'performance'} if spec['selection'] == 'formal' else {'performance', 'performance-run'}
+        required = {'performance', 'acceptance'} if spec['selection'] == 'formal' else {'performance', 'performance-run'}
         if not final_kinds & required: raise ValueError('performance completion requires native performance evidence')
         if spec['selection'] == 'formal' and not any(c['kind'] == 'accuracy' for c in spec['before']):
             raise ValueError('formal performance requires an accuracy gate before measurement')
@@ -85,7 +86,8 @@ def bind_service(service, scope):
 
 def bind_performance_inputs(validator, check, scope):
     """Bind native run outputs to this journal's frozen workload and instances."""
-    expected_plan = validator.artifact(Path(check['plan']))['sha256']
+    expected_ref = validator.artifact(Path(check['plan']))
+    expected_plan = validator.performance_plan.load_plan(Path(check['plan']))
     expected_services = {validator.artifact(Path(path))['sha256'] for path in check['services']}
     actual_services = set()
     for path in check['records']:
@@ -94,8 +96,17 @@ def bind_performance_inputs(validator, check, scope):
         service_ref = record.get('artifacts', {}).get('service')
         plan_path = validator.checked(plan_ref)
         service_path = validator.checked(service_ref)
-        if plan_ref['sha256'] != expected_plan:
+        if validator.performance_plan.load_plan(plan_path) != expected_plan:
             raise ValueError(f'run plan differs from the frozen journal plan: {path}')
+        # The executor serializes a normalized plan (including defaults). Bind
+        # original inputs separately; a formatting change is not workload drift.
+        original = record.get('input_artifacts', {}).get('plan')
+        if original is not None:
+            original_path = validator.checked(original)
+            if validator.performance_plan.load_plan(original_path) != expected_plan:
+                raise ValueError(f'run input plan differs from the frozen journal plan: {path}')
+        elif plan_ref['sha256'] != expected_ref['sha256']:
+            raise ValueError('legacy run without input provenance requires the exact frozen plan snapshot')
         service = validator.read_json(service_path)
         bind_service(service, scope)
         actual_services.add(service_ref['sha256'])
@@ -106,6 +117,18 @@ def bind_performance_inputs(validator, check, scope):
 def run_check(root, check, scope):
     validate_check(check)
     kind = check['kind']
+    if kind == 'acceptance':
+        validator = module(root / 'evaluation/performance/final_acceptance.py', '_step_final_acceptance')
+        manifest = validator.native.read_json(check['manifest'])
+        for ref in manifest['run_records']:
+            record = validator.native.read_json(validator.native.checked(ref))
+            service = validator.native.read_json(validator.native.checked(record['artifacts']['service']))
+            bind_service(service, scope)
+        result = validator.validate(Path(check['manifest']))
+        project_scope = result.get('project_scope', {})
+        if any(scope.get(k) != project_scope.get(k) for k in ('case_id', 'baseline_id')):
+            raise ValueError('acceptance requires matching case_id/baseline_id in journal scope')
+        return {'kind': kind, **result}
     if kind in ('service', 'accuracy'):
         validator = module(root / 'evaluation/accuracy/acceptance.py', '_step_accuracy')
         service = json.loads(Path(check['manifest']).read_text())

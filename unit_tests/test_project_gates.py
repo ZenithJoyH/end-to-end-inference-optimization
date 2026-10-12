@@ -43,6 +43,24 @@ class NativeAdapterTests(unittest.TestCase):
         check['kind'] = 'performance'
         self.assertEqual(gates.run_check(ROOT, check, self.scope)['status'], 'incomplete')
 
+    def test_input_and_normalized_plan_have_independent_provenance(self):
+        f = self.fixture(performance_fixture.ComparisonTest)
+        check = self.performance_check(f)
+        source = f.root / 'input-plan.json'
+        source.write_text(json.dumps(f.plan))
+        check['plan'] = str(source)
+        for path in f.paths:
+            record = performance_fixture.compare.read_json(path)
+            snapshot = Path(record['artifacts']['plan']['path'])
+            effective = performance_fixture.performance_plan.load_plan(source)
+            snapshot.write_text(json.dumps(effective, indent=2))
+            record['artifacts']['plan'] = performance_fixture.compare.artifact(snapshot)
+            record['input_artifacts'] = {'plan': performance_fixture.compare.artifact(source)}
+            f.save(path, record)
+        self.assertEqual(gates.run_check(ROOT, check, self.scope)['status'], 'passed')
+        source.write_text(json.dumps(dict(f.plan, generation={'seed': 999})))
+        with self.assertRaises(ValueError): gates.run_check(ROOT, check, self.scope)
+
     def test_native_accuracy_gate_and_stale_service(self):
         f = self.fixture(accuracy_fixture.GateTest)
         accuracy_fixture.gate.issue_gate(f.record, f.output)

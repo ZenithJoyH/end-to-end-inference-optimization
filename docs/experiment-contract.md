@@ -124,7 +124,7 @@ acceptance_scope: diagnostic
 accuracy_status: incomplete
 performance_status: incomplete
 experiment_id: YYYYMMDD-HHMM-short-name
-experiment_markdown: models/<model>/<platform>/optimize/<experiment-id>.md
+experiment_markdown: models/<model>/<platform>/<case-id>/optimize/<experiment-id>.md
 objective: ""
 status: planned
 adaptation_handoff:
@@ -147,8 +147,8 @@ accuracy_evaluation:
   evidence: ""
   next_trigger: ""
   progress_monitor:
-    kind: heartbeat
-    interval_minutes: 30
+    kind: foreground  # foreground | heartbeat；按用户已给出的监控要求选择
+    interval_minutes: null  # heartbeat 时填写
     automation_id: ""
     automation_name: ""
     status: not_created  # not_created | active | paused | deleted | unavailable | waived
@@ -433,3 +433,16 @@ notes: ""
 ```
 
 只完成诊断、工具准备或探索性实验时，准确使用对应状态，不写成“优化完成”。
+
+## 项目范围冻结与人工变更
+
+新案例的稳定身份放入 `identity`，包括 `case_id/model/platform/host/baseline_id/topology`。
+原生性能比较契约可携带 `project_scope`：中间 formal 为 `intermediate-single-target`，
+最终为 `final-all-targets`；同时冻结场景 ID、基线类型和基线稳定身份 SHA。
+使用 `final_acceptance.py prepare` 在测量前生成，所有 baseline/candidate/revert 运行绑定
+同一契约；最终要求 anchor 和完整四场景。字段与命令见 [性能工具](../evaluation/performance/README.md#项目范围冻结与最终验收)。
+
+人工介入记录操作者、时间、原因、现场证据和接续决定，协议见 [执行记录](agent-execution.md#人工暂停接管和恢复)。
+暂停不改变数值门槛；人工更改配置或阈值时保留旧记录，并在新 run 中冻结新条件。
+`performance_objective`、milestone 映射、完成条件等规划字段留在案例 state/实验文档；
+原生 plan 仅接受其 schema 定义的测量字段，不把整个实验记录直接传给 runner。

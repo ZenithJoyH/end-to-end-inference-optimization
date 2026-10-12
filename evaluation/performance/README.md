@@ -150,3 +150,75 @@ SGLang profiling 将第一条命令的入口换为 `sglang_profile.py` 并设置
 维护版 SGLang 使用固定随机长度、无限到达率和独立并发上限，分别保存每轮 JSONL、stdout/stderr 与 validation。原生 `request_rate=Infinity` 是该客户端的有限批次表示；决策指标仍须有限。接口按 [SGLang v0.5.11 源码](https://github.com/sgl-project/sglang/blob/v0.5.11/python/sglang/bench_serving.py)核对，区分 `--request-rate` 与 `--max-concurrency`，并使用其 `--output-details` 结果核验计数、长度和指标。此前 SGLang profiling 将并发作为到达率，旧性能脚本使用不同随机长度设置，不能与本次修复后的结果直接混比。当前未做 SGLang 真实服务集成验证。
 
 `trace_to_summary.py` 按活动类别分组：CUDA runtime/driver 调用留在主机侧，不能因名称含 CUDA 或参数含 stream 就计入设备耗时。未知类别单列，需要时用 `--device-category` 显式补充经核实的平台类别。输出是可能重叠的活动时长之和，不是设备忙碌时间、关键路径时间或 CPU self time；缺失/非法 trace、空目录及目录中任一文件处理失败返回非零，已有摘要拒绝覆盖。
+
+## 项目范围冻结与最终验收
+
+原生比较器的 `passed` 只说明所绑定的比较契约通过。新项目验收另用 `final_acceptance.py`：
+先在测量前冻结生命周期与基线身份，后对原生回执、阶段证据和目标目录一起重验。
+旧记录不补写事后的范围 SHA，也不自动升级为最终通过。
+
+先按任务修改比较模板的主指标、阈值、重复要求及变量；项目验收的主指标/守护项中必须
+同时包含 TTFT 和 TPOT/ITL（例如 `p99_ttft_ms`、`p99_tpot_ms`）。然后准备契约：
+
+```bash
+.venv/bin/python evaluation/performance/final_acceptance.py prepare \
+  --contract /external/comparison-draft.json \
+  --baseline-service /external/anchor-service.json \
+  --case-id case-001 --baseline-id anchor-001 \
+  --lifecycle final-all-targets --baseline-kind anchor \
+  --output /external/comparison-frozen.json
+```
+
+默认最终范围为 `p1024-d1024-c64-n128`、`p4096-d1024-c64-n128`、
+`p16384-d1024-c64-n128`、`p32768-d1024-c64-n128`；允许显式追加业务场景，不能删减四项。
+工具核验原始长度、并发、请求数和 finite-batch 模式；缩短后沿用原 ID 也不能通过。
+中间验收改用 `--lifecycle intermediate-single-target --baseline-kind scenario-entry`
+并指定一个 `--scenario-id`。所有测量通过 `--comparison-contract` 绑定准备好的新契约。
+`prepare` 只准备文件，不判断基线来源真实与否；Agent 仍须核验该 manifest 来自未优化原路径
+或相应场景入口，记录 baseline ID 的来源。工具随后保证 baseline/revert 与冻结身份一致。
+
+收齐运行后，由 Agent（也可以人工）准备外部 `acceptance-manifest.json`，字段为：
+
+- `schema_version: 1`。
+- `contract`：测量前冻结的比较契约，格式 `{"path":"/绝对路径","sha256":"文件SHA256"}`。
+- `run_records`：baseline/candidate/revert 所有独立运行的同格式引用列表。
+- `phase_evidence`：以每个目标场景 ID 为键；每项包含 `prefill` 和 `decode`，例如以下单项。
+
+```json
+{
+  "prefill": {
+    "run_record": {"path": "/external/candidate-01/run-record.json", "sha256": "填写SHA256"},
+    "case_id": "p1024-d1024-c64-n128",
+    "method": "client-proxy",
+    "residual_costs": "TTFT 含网络、排队和调度，不能解释为纯设备 Prefill 时间"
+  },
+  "decode": {
+    "run_record": {"path": "/external/candidate-01/run-record.json", "sha256": "填写SHA256"},
+    "case_id": "p1024-d1024-c64-n128",
+    "method": "client-proxy",
+    "residual_costs": "TPOT/ITL 含调度间隔及阶段干扰，不能解释为纯设备 Decode 时间"
+  }
+}
+```
+
+`client-proxy` 必须引用当前组合候选的同一 Mixed workload，并有相应 TTFT/TPOT/ITL 指标。
+`isolated-probe` 可以引用同候选、同输入长度且 stage 对应的阶段探针，仍核验其全部原生
+证据并说明残余成本；此引用只证明阶段观测有效，不独立证明阶段收益。阶段收益另需同配置
+baseline/candidate 比较。最终净收益始终来自父目标 Mixed 的完整角色比较。
+
+```bash
+.venv/bin/python evaluation/performance/final_acceptance.py check \
+  --manifest /external/acceptance-manifest.json \
+  --output /external/project-acceptance.json
+```
+
+文件不覆盖；`passed` 返回 0，未通过返回 2，结果中的 `status` 区分 failed/incomplete。
+只有 `status=passed` 且 `final_acceptance=true` 才表示最终四场景性能与绑定精度验收通过；
+硬件不支持或缺轮时保留 incomplete。此结果不替代 PR readiness、交付/回退准备或长期稳定性验证。
+人工发起的测量使用同一检查入口，不要求仅为更换操作者而重跑。
+
+如果使用 agent journal，可在测量完成后建立只读验收步骤，`after` 使用
+`{"kind":"acceptance","manifest":"/external/acceptance-manifest.json"}`；将已有 manifest
+列入 `context_files`，scope 加入对应 `case_id`、`baseline_id`，保留正式精度前置检查。
+验收 manifest 引用已存在的回执，不能在测量前伪造未来回执的 SHA。测量步骤本身仍冻结
+原生 plan/contract/service 并使用 `performance` 后置检查。
