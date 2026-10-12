@@ -1,0 +1,4 @@
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -39,0 +40 @@
++    print("op008 MOE_PRINT", signature, flush=True)

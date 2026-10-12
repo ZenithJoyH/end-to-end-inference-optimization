@@ -1,0 +1,32 @@
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -1633,17 +1633,16 @@
+ ) -> None:
+     """Launch the fused_moe_kernel Triton kernel."""
+-    if A.size(0) in (1, 2, 4, 8, 16, 32):
+-        _log_op008_moe_invoke(
+-            (
+-                _get_device_name(),
+-                tuple(A.shape),
+-                tuple(B.shape),
+-                tuple(C.shape),
+-                sorted_token_ids.numel() if sorted_token_ids is not None else None,
+-                expert_ids.numel(),
+-                top_k,
+-                bool(FUSE_SILU),
+-                tuple(sorted((str(k), str(v)) for k, v in config.items())),
+-            )
++    _log_op008_moe_invoke(
++        (
++            _get_device_name(),
++            tuple(A.shape),
++            tuple(B.shape),
++            tuple(C.shape),
++            sorted_token_ids.numel() if sorted_token_ids is not None else None,
++            expert_ids.numel(),
++            top_k,
++            bool(FUSE_SILU),
++            tuple(sorted((str(k), str(v)) for k, v in config.items())),
+         )
++    )
+     assert topk_weights is not None or not mul_routed_weight

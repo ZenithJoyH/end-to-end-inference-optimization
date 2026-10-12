@@ -1,0 +1,9 @@
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -35,5 +35,6 @@
+ def _log_op008_moe_invoke(signature: tuple) -> None:
+     logger.warning(
+         "op008 MOE_INVOKE device=%s A=%s B=%s C=%s sorted=%s expert=%s topk=%s fused=%s config=%s",
+         *signature,
+     )
++    print("op008 MOE_PRINT", signature, flush=True)

@@ -1,0 +1,127 @@
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -18,3 +18,3 @@
+ from enum import Enum
+-from typing import Any, Optional
++from typing import Any, Callable, Optional
+ 
+@@ -1844,4 +1844,5 @@
+     block_shape: Optional[list[int]] = None,
+     w1_bias: Optional[torch.Tensor] = None,
+     w2_bias: Optional[torch.Tensor] = None,
++    gemm2_config_override: Optional[Callable[..., dict[str, Any]]] = None,
+ ) -> torch.Tensor:
+@@ -2127,9 +2128,27 @@
+         # 6. Select GEMM2 config and output buffer/reduction path
+         gemm2_config = base_config
+         if use_half_gemm_fast_paths:
+             gemm2_config, _ = get_moe_config(
+                 tokens_in_chunk,
+                 gemm_stage="gemm2",
+                 enable_gemm_fast_path=True,
+             )
++        if gemm2_config_override is not None:
++            gemm2_config = gemm2_config_override(
++                gemm2_config,
++                tokens_in_chunk,
++                w1,
++                w2,
++                top_k_num,
++                hidden_states.dtype,
++                use_fp8_w8a8,
++                use_int8_w8a8,
++                use_int8_w8a16,
++                use_int4_w4a16,
++                ocp_mx_scheme,
++                block_shape,
++                expert_map,
++                w1_bias,
++                w2_bias,
++            )
+         use_direct_sum = (
+--- a/src/flag_gems/runtime/backend/_thead/fused/__init__.py
++++ b/src/flag_gems/runtime/backend/_thead/fused/__init__.py
+@@ -15,5 +15,7 @@
++from .fused_moe import fused_experts_impl
+ from .unified_attention import unified_attention
+ 
+ __all__ = [
++    "fused_experts_impl",
+     "unified_attention",
+ ]
+--- /dev/null
++++ b/src/flag_gems/runtime/backend/_thead/fused/fused_moe.py
+@@ -0,0 +1,73 @@
++"""T-Head-specific fused MoE config selection for an observed small-M BF16 shape."""
++
++import functools
++
++import torch
++
++from flag_gems.fused.fused_moe import fused_experts_impl as _generic_fused_experts_impl
++from flag_gems.runtime import torch_device_fn
++
++
++@functools.lru_cache(maxsize=1)
++def _is_target_device() -> bool:
++    return torch_device_fn.get_device_name().replace(" ", "_") == "PPU-ZW810E"
++
++
++@functools.lru_cache(maxsize=1)
++def _report_op009_hit() -> None:
++    # Experimental actual-hit proof; remove when preparing a PR candidate.
++    print("op009 THEAD_M32_GEMM2_BK64_HIT", flush=True)
++
++
++def _select_gemm2_config(
++    config,
++    num_tokens,
++    w1,
++    w2,
++    top_k,
++    dtype,
++    use_fp8_w8a8,
++    use_int8_w8a8,
++    use_int8_w8a16,
++    use_int4_w4a16,
++    ocp_mx_scheme,
++    block_shape,
++    expert_map,
++    w1_bias,
++    w2_bias,
++):
++    if (
++        num_tokens != 32
++        or tuple(w1.shape) != (128, 384, 6144)
++        or tuple(w2.shape) != (128, 6144, 192)
++        or top_k != 4
++        or dtype != torch.bfloat16
++        or use_fp8_w8a8
++        or use_int8_w8a8
++        or use_int8_w8a16
++        or use_int4_w4a16
++        or ocp_mx_scheme is not None
++        or block_shape is not None
++        or expert_map is not None
++        or w1_bias is not None
++        or w2_bias is not None
++        or config.get("BLOCK_SIZE_M") != 16
++        or config.get("BLOCK_SIZE_N") != 64
++        or config.get("BLOCK_SIZE_K") != 128
++        or config.get("num_warps") != 4
++        or config.get("num_stages") != 4
++    ):
++        return config
++    if not _is_target_device():
++        return config
++    tuned = dict(config)
++    tuned["BLOCK_SIZE_K"] = 64
++    _report_op009_hit()
++    return tuned
++
++
++def fused_experts_impl(*args, **kwargs):
++    """Preserve the generic operation and change only the proven T-Head tile."""
++    return _generic_fused_experts_impl(
++        *args, gemm2_config_override=_select_gemm2_config, **kwargs
++    )

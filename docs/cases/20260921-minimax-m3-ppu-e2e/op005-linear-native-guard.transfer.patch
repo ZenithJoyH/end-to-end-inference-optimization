@@ -1,0 +1,50 @@
+--- src/flag_gems/ops/linear.py
++++ src/flag_gems/ops/linear.py
+@@ -26,4 +26,22 @@
+ logger = logging.getLogger(__name__)
+ 
++# Capture the vendor mm implementation before FlagGems installs its temporary
++# CUDA registration. Calling F.linear here would re-enter this wrapper.
++_NATIVE_MM = None
++_NATIVE_MM_KEYSET = None
++if runtime.device.vendor_name == "thead" and hasattr(torch.library, "get_kernel"):
++    try:
++        _NATIVE_MM = torch.library.get_kernel(
++            torch.ops.aten.mm.default, runtime.device.dispatch_key
++        )
++        _NATIVE_MM_KEYSET = torch._C.DispatchKeySet(
++            getattr(torch._C.DispatchKey, runtime.device.dispatch_key)
++        )
++    except (AttributeError, RuntimeError):
++        # Older PyTorch builds keep the existing FlagGems implementation.
++        _NATIVE_MM = None
++        _NATIVE_MM_KEYSET = None
++
++
+ @libentry()
+ @libtuner(
+@@ -157,5 +175,24 @@
+     # Flatten input: (*, K) -> (M, K)
+     input_flat = input.view(M, K)
+ 
++    # T-Head BF16 small-M projections: native GEMM wins at these measured
++    # shapes. Keep all other shapes, layouts, dtypes and bias on the original
++    # autotuned Triton path. In particular, the K192/512/768 projections are
++    # faster with FlagGems and must not be sent to native mm.
++    if (
++        _NATIVE_MM is not None
++        and bias is None
++        and input_dim == 2
++        and M == 32
++        and K == 6144
++        and N in (384, 1024)
++        and input.dtype == torch.bfloat16
++        and weight.dtype == torch.bfloat16
++        and input.device.type == "cuda"
++        and input_flat.is_contiguous()
++        and weight.is_contiguous()
++    ):
++        return _NATIVE_MM.call_boxed(_NATIVE_MM_KEYSET, input_flat, weight.t())
++
+     # Ensure weight is contiguous and properly shaped
+     weight = weight.contiguous()

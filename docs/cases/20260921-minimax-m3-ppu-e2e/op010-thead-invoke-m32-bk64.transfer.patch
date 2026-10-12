@@ -1,0 +1,84 @@
+--- a/src/flag_gems/runtime/backend/_thead/fused/__init__.py
++++ b/src/flag_gems/runtime/backend/_thead/fused/__init__.py
+@@ -15,5 +15,7 @@
++from .fused_moe import invoke_fused_moe_triton_kernel
+ from .unified_attention import unified_attention
+ 
+ __all__ = [
++    "invoke_fused_moe_triton_kernel",
+     "unified_attention",
+ ]
+--- /dev/null
++++ b/src/flag_gems/runtime/backend/_thead/fused/fused_moe.py
+@@ -0,0 +1,71 @@
++"""T-Head stage-launch config specialization for a verified Decode shape."""
++
++import functools
++
++import torch
++
++from flag_gems.fused.fused_moe import (
++    invoke_fused_moe_triton_kernel as _generic_invoke_fused_moe_triton_kernel,
++)
++from flag_gems.runtime import torch_device_fn
++
++
++@functools.lru_cache(maxsize=1)
++def _is_target_device() -> bool:
++    return torch_device_fn.get_device_name().replace(" ", "_") == "PPU-ZW810E"
++
++
++@functools.lru_cache(maxsize=1)
++def _report_op010_hit() -> None:
++    # Experimental actual-hit proof; remove before preparing a PR candidate.
++    print("op010 THEAD_M32_STAGE2_BK64_HIT", flush=True)
++
++
++def _eligible(args, kwargs) -> bool:
++    if len(args) < 18:
++        return False
++    a, b, c = args[:3]
++    a_scale, b_scale = args[3:5]
++    topk_weights, sorted_token_ids, expert_ids = args[5:8]
++    top_k, config = args[10:12]
++    quant_flags = args[13:18]
++    if (
++        tuple(a.shape) != (128, 192)
++        or tuple(b.shape) != (128, 6144, 192)
++        or tuple(c.shape) != (32, 4, 6144)
++        or a.dtype != torch.bfloat16
++        or b.dtype != torch.bfloat16
++        or top_k != 1
++        or a_scale is not None
++        or b_scale is not None
++        or topk_weights is None
++        or sorted_token_ids is None
++        or sorted_token_ids.numel() != 2048
++        or expert_ids.numel() != 128
++        or any(quant_flags)
++        or kwargs.get("block_shape") is not None
++        or (len(args) > 18 and args[18] is not None)
++        or kwargs.get("B_bias") is not None
++        or (len(args) > 19 and args[19] is not None)
++        or kwargs.get("FUSE_SILU", False)
++        or (len(args) > 20 and args[20])
++        or config.get("BLOCK_SIZE_M") != 16
++        or config.get("BLOCK_SIZE_N") != 64
++        or config.get("BLOCK_SIZE_K") != 128
++        or config.get("num_warps") != 4
++        or config.get("num_stages") != 4
++    ):
++        return False
++    return _is_target_device()
++
++
++def invoke_fused_moe_triton_kernel(*args, **kwargs):
++    """Preserve the generic launch except for the exact T-Head stage2 tile."""
++    if not _eligible(args, kwargs):
++        return _generic_invoke_fused_moe_triton_kernel(*args, **kwargs)
++    changed = list(args)
++    changed_config = dict(args[11])
++    changed_config["BLOCK_SIZE_K"] = 64
++    changed[11] = changed_config
++    _report_op010_hit()
++    return _generic_invoke_fused_moe_triton_kernel(*changed, **kwargs)

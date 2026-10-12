@@ -1,0 +1,30 @@
+--- a/src/flag_gems/fused/fused_moe.py
++++ b/src/flag_gems/fused/fused_moe.py
+@@ -32,3 +32,10 @@
+ logger = logging.getLogger(__name__)
+ 
++@functools.lru_cache(maxsize=128)
++def _log_op008_moe_invoke(signature: tuple) -> None:
++    logger.warning(
++        "op008 MOE_INVOKE device=%s A=%s B=%s C=%s sorted=%s expert=%s topk=%s fused=%s config=%s",
++        *signature,
++    )
++
+ # OCP MX quantization helpers (requires amd-quark)
+@@ -1627,2 +1634,16 @@
+     """Launch the fused_moe_kernel Triton kernel."""
++    if A.size(0) in (1, 2, 4, 8, 16, 32):
++        _log_op008_moe_invoke(
++            (
++                _get_device_name(),
++                tuple(A.shape),
++                tuple(B.shape),
++                tuple(C.shape),
++                sorted_token_ids.numel() if sorted_token_ids is not None else None,
++                expert_ids.numel(),
++                top_k,
++                bool(FUSE_SILU),
++                tuple(sorted((str(k), str(v)) for k, v in config.items())),
++            )
++        )
+     assert topk_weights is not None or not mul_routed_weight
