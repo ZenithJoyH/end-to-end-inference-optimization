@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Reducing max_num_batched_tokens from 8192 to 4096 mitigates the previously observed slow seed 74288; an 8192 revert must reproduce the baseline workpoint before any candidate is retained for broader validation.",
+  "variable_paths": [
+    "/launch_config/max_num_batched_tokens",
+    "/launch_config/launch_args/22"
+  ],
+  "primary": {
+    "metric": "p99_tpot_ms",
+    "direction": "lower",
+    "min_improvement": 0.05
+  },
+  "guardrails": [
+    {
+      "metric": "output_throughput",
+      "direction": "higher",
+      "max_regression": 0.03
+    },
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "total_token_throughput",
+      "direction": "higher",
+      "max_regression": 0.03
+    }
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 1,
+    "max_relative_spread": 0.3,
+    "max_baseline_drift": 0.15
+  }
+}

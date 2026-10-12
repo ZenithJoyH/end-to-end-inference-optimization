@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "performance_only",
+  "hypothesis": "Restricting FlagGems SQLAlchemy schema reflection to the requested config table removes intermittent multi-second ITL gaps without regressing stable P1024/D1024 throughput, TTFT, or TPOT.",
+  "variable_paths": [
+    "/flaggems_sha256"
+  ],
+  "primary": {
+    "metric": "p99_itl_ms",
+    "direction": "lower",
+    "min_improvement": 0.05
+  },
+  "guardrails": [
+    {
+      "metric": "output_throughput",
+      "direction": "higher",
+      "max_regression": 0.03
+    },
+    {
+      "metric": "total_token_throughput",
+      "direction": "higher",
+      "max_regression": 0.03
+    },
+    {
+      "metric": "p99_ttft_ms",
+      "direction": "lower",
+      "max_regression": 0.05
+    },
+    {
+      "metric": "p99_tpot_ms",
+      "direction": "lower",
+      "max_regression": 0.03
+    }
+  ],
+  "repeats": {
+    "min_processes": 1,
+    "min_measured_rounds": 3,
+    "max_relative_spread": 0.3,
+    "max_baseline_drift": 0.15
+  }
+}

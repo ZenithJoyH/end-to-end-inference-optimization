@@ -1,0 +1,22 @@
+diff --git a/src/flag_gems/utils/models/sql.py b/src/flag_gems/utils/models/sql.py
+index 4d9ba93..47c8294 100644
+--- a/src/flag_gems/utils/models/sql.py
++++ b/src/flag_gems/utils/models/sql.py
+@@ -164,10 +164,16 @@ class SQLPersistantModel(PersistantModel):
+         name: str,
+         engine: sqlalchemy.engine.Engine,
+     ) -> Optional[Type[Base]]:
++        inspector = sqlalchemy.inspect(engine)
++        if not inspector.has_table(name):
++            return None
++
+         AutoBase: sqlalchemy.ext.automap.AutomapBase = (
+             sqlalchemy.ext.automap.automap_base()
+         )
+-        AutoBase.prepare(engine)
++        AutoBase.prepare(
++            autoload_with=engine, reflection_options={"only": [name]}
++        )
+         ModelCls: Optional[Type[Base]] = AutoBase.classes.get(name)
+         return ModelCls
+ 
