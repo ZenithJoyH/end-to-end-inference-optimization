@@ -40,3 +40,15 @@
 - 停止条件：完整事务未达当前任务的 8% rows4096 门槛，或需要把
   clear/build/fallback 移出计时边界才显示收益。
 - 来源：[Qwen3.8 op-022 证据卡](case-index.md#case20260919-qwen38-flash-next-ppu-e2e--op-022)。
+
+## 已验证规则：小头 tile 数值错误先隔离 dot 的 K-fragment 地址
+
+- 证据等级：`reproduced`，正确性诊断；没有性能收益结论。
+- 匹配范围：当前 PPU Triton 3.6.0、BF16、MiniMax native Prefill Q1/GQA8/D128/K128/topk16；独立 dot M8/K128/N128、4 warps。不是对全部小 M 或其他平台的通用判断。
+- 触发信号：同输入 QKV 一致但 H8 attention 失败，H4/H16 或内部H16 padding正确。
+- 首个实验：用同一 CPU 输入分别测 QK 和 PV onehot，加入128K行/列基向量；对照普通load/store、逐K FP32 FMA与平台矩阵乘。
+- 已确认机制：该版本 A ldmatrix 地址漏 lane16 K位，K每32元素前16重复、后16遗漏。仅在诊断IR副本把A地址补回lane16、B保持原式，原始→修正→原始控制了最小dot和完整native attention错误。
+- 通过证据：全K基向量、随机误差、原native不同query/prefix与graph2，且改回原地址复现；只改变共享SSA常数会同时影响B，不能据onehot0通过晋级。
+- 停止条件：普通复制/参考路径也错；不能明确A/B数据流；数值未恢复；编译pass关闭失败；其他dtype/shape必须重新建立证据。
+- 保留方式：现有Plugin限域H16 padding继续作为绕行；生成IR替换不是发布修复。任何实际compiler修复先定位真实revision/源函数，并重新走原精度范围及服务绑定。
+- 来源：[MiniMax M3.1 fix-001/diag-003卡](case-index.md#case20261010-minimax-m31-w8a8-ppu-tp8-e2e--fix-001--diag-003)。

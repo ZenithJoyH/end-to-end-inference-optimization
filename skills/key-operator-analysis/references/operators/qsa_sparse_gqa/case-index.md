@@ -120,3 +120,44 @@ limits: no Mixed timing, no installed implementation, no endpoint result, and fo
   grouped/fallback 全部纳入后，该实现在生产 rows 稳定退化超过 32%。
 - `future_first_check`：对任何新 selected-union 方案，第一个计时必须是包含所有
   metadata 生命周期的 rows4096 完整 consumer 事务，而不是 union 率或内核子段。
+
+## Case：20261010-minimax-m31-w8a8-ppu-tp8-e2e / fix-001 + diag-003
+
+```yaml
+case_id: 20261010-minimax-m31-w8a8-ppu-tp8-e2e
+case_link: ../../../../../models/MiniMax-M3.1-W8A8/ppu/optimize/diag-003.md
+status: kept
+evidence_level: reproduced
+environment:
+  model: MiniMax-M3.1 W8A8
+  platform: ppu
+  hardware: PPU-ZW810E
+  engine_revision: vLLM 0.24.0+empty; native sparse_attn source fefbbcb4ab1e6c4d40538d515e8bf7c247a4cc3ceb8682587b2909b3f0619460
+  plugin_revision: cafe6363 plus inherited adaptations and fix-001
+  operator_library_revision: PPU Triton 3.6.0; libtriton.so fd682752fda03a2f74e32fb65f9d06eac3fa94b12c172d0c87ca62771428a4c5
+  mode: both
+operator_path:
+  stage: prefill
+  impl_id: vllm.models.minimax_m3.common.ops.sparse_attn._gqa_sparse_fwd_kernel
+  effective_shape: BLOCK_Q1/GQA8/D128/Kblock128/topk16; QK and PV dot M8/K128/N128
+  dtype: BF16 inputs and FP32 accumulation
+  layout: paged KV; PPU shared-to-MMA A operand fragment, 4 warps
+bottleneck_evidence: correctness divergence first at layer0 attention despite exact QKV; standalone native H8 fails CPU oracle
+change:
+  classification: operator/improve
+  primary_variable: existing fix-001 pads internal H8 tile to H16; diag-003 independently isolates generated A-address lane16 K bit
+  applicability_guard: existing fix-001 is PPU BF16 GQA8/D128/topk16, Q1/K128, non-FP8; all other shapes retain original path
+results:
+  operator: A-only LLVM intervention reduces M8 matmul relativeL2 .998820 to 1.40e-7; Q176 native 1.10164 to .00191226; original reenabled reproduces failure
+  end_to_end: no new throughput result; no accepted TP8 performance gain
+  correctness: onehot and all128K row/column basis exact; 3 native cases and graph2 pass; existing H16 fix has full198 170/198, not a new run/currentservice rebind
+  regressions: shared SSA mask8to24 also altersB and fails random; removing accelerate_matmul fails compiler lowering, not numerical proof
+knowledge_delta:
+  prior_belief: H8 kernel fails and H16 padding works, mechanism unknown
+  outcome: refined
+  revised_belief: current PPU M8 A ldmatrix K-coordinate omits lane16; lower16 repeated and upper16 lost perK32; independent A-address correction controls full native failure
+  future_first_check: separate QK/PV with onehot and K-basis before blaming attention metadata; trace MMA A/B separately because shared SSA expressions can affect both
+limits: current PPU BF16 M8 path only; C++ source line and installed compiler fix not provided; no new GPQA gate or E2E acceptance
+```
+
+这是正确性机制卡。实际安装的编译器未修改；IR干预仅在独立空闲PPU8诊断进程，生产TP8服务与四仓源码保留。完整命令、失败项、IR和SHA由模型实验记录及远端案例review签收。

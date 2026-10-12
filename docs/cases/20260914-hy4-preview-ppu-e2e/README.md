@@ -1,5 +1,25 @@
 # 20260914-hy4-preview-ppu-e2e：Hy4-preview / PPU 端到端优化
 
+## 当前状态（2026-09-21）
+
+- 当前正式目标已从 P4K 切换为 `P16384/D1024/C64/N128`；P4K 结果保留为历史
+  阶段证据，不代表当前完成状态。
+- 最新保留候选为 cached-prefill sparse MLA hybrid：full-prefix grouped、
+  cached-prefill native 与 small-SQ split-K 按 shape 分段选择。
+- `P16384/D128/C16/N16` profiler-off A/B/revert 的 output throughput 为
+  `12.9728 / 13.5640 / 12.9755 tok/s`，候选提升 `4.558%`，P99
+  TTFT/TPOT/ITL 同向改善约 `4.5%`。该结果只属于缩减 milestone。
+- 当前候选源码未提交、未推送；模型服务已停止，8010 空闲。2026-09-19 的
+  `92.93%` GPQA gate 绑定旧冻结身份，不覆盖当前源码。
+- 下一硬门禁是当前源码精度 gate，以及正式 `P16384/D1024/C64/N128` 的
+  profiler-off A/B/revert；在两者完成前不宣称 P16K 或最终验收通过。
+- 当前模型文档入口：[Hy4-preview / PPU](../../../models/hy4-preview/ppu/README.md)，
+  [P16K 优化实验](../../../models/hy4-preview/ppu/optimize/README.md)，
+  [最新 hybrid 实验](../../../models/hy4-preview/ppu/optimize/20260921-p16k-cached-prefill-sparse-mla-hybrid.md)。
+
+以下内容按时间保留历史阶段记录，其中“当前”“下一步”等措辞只对相应日期的
+冻结状态有效。
+
 ## 2026-09-19 full-prefix sparse MLA 真实命中与 SQ384 扩展
 
 - `P4096/D128/C64/N64` 重采在 stop-profile 恢复前 16 个 gzip 均未写完 footer，
@@ -31,7 +51,7 @@
 - 代码位于 FlagGems-vllm `support-hy4-preview` 未提交工作区；服务未启动。
   既有 GPQA gate 不覆盖这个新服务身份。
 
-## 1. 摘要
+## 1. 初始阶段摘要（历史）
 
 - 执行规则：SOP `0.29` / 2026-09-11
 - 验收范围：`performance_only targeted milestone`
@@ -80,7 +100,7 @@
 - 最终保留服务实例 `848575b2b0a8-pid1223838-start210872589`，Plugin 源码 SHA256 `e0f45312...3650e`；smoke+C8 9/9 通过，graph capture 完成并在 capture 后成功生成 521 个 completion token。
 - 自动比较结果为 `incomplete`，唯一原因是沿用了上一项 2048→4096 契约的变量路径；旧 run-record 未被事后改写。因此保留结论只适用于 P4K scout milestone，不作为正式验收。
 
-## 5. 暂停点与恢复入口
+## 5. 早期暂停点与恢复入口（历史）
 
 1. `mm_out` 已加入 `vllm_fl/dispatch/config/thead.yaml` 的 `flagos_blacklist`；实际策略解析得到 `use_flaggems_op("mm_out")=False`。`FLAGGEMS_ENABLE_OPLIST_PATH` 只指定 enabled-op 记录输出位置，不覆盖黑名单；必须在下一次服务启动后验证真实 dispatch 命中。
 2. FlagGems `flashmla_sparse.py` 已加入 `BK64/BH4/4-warps/2-stages` autotune 候选。`SQ8/HQ4/DQK576/SKV8192/TOPK2048` 核心 kernel 从 `194.33 us` 降到 `176.85 us`（`1.099x`）；SQ1/8/64/256/2048 sweep 均为正收益。small-head pytest 3/3 通过，目标 shape graph capture + 3 replay 通过。

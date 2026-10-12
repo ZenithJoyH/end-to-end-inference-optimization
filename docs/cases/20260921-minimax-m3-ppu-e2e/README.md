@@ -4,8 +4,8 @@
 
 - 执行规则：`0.39` / `2026-09-20`
 - 验收范围：`formal`
-- 状态：`running`
-- 精度/性能状态：`baseline_sanity_passed_with_output_health_observation` / `incomplete`
+- 状态：`op010_incomplete_reverted_mixed_itl_partially_attributed`（以下旧诊断保留历史时序）
+- 精度/性能状态：历史 131K/60K 正式 GPQA `180/198=90.91%` 达 88% 阈值，但绑定旧退出服务；当前原路径服务无新 gate。`fw006` 保留；`op010` 两次 D256 A/B/A 观察约 +8% 输出吞吐，均因 P99 ITL 轮间 spread 判为 `incomplete` 并回退。
 - 目标：对 PPU-07 上已适配的 MiniMax-M3 建立可比基线，按 P1K→P4K→P16K→P32K 优化端到端推理。
 - 主指标：output-token throughput；守护指标：TTFT、TPOT/ITL、E2E、失败率、显存与正确性。
 - 通过门槛：用户未指定相对提升或 SLO；只作客观改善/回退判定，不宣称“达标”。
@@ -17,7 +17,7 @@
 - 模型：`/mnt/cpfs/models/MiniMax-M3`
 - 平台/Host：T-Head PPU / `PPU-07`（inventory 实机 `bm-aliyun-wlcb-zonea3-c-810e-96g-10-7`）
 - 源适配容器：`minimaxM3`；容器保持运行且未修改、未重启。经用户明确授权，仅停止了其中监听 `8013` 的 MiniMax-M3 服务树以释放设备。
-- 独立优化容器：`minimaxM3-opt-20260921`，已从当前有效适配镜像创建；基线服务在独立端口 `8023` ready，使用 AABS0、65K、max-seqs32、6 个 capture size，并显式关闭 prefix cache。
+- 独立优化容器：`minimaxM3-opt-20260921`，已从有效适配镜像创建；当前原路径回退服务实例 `bd37abcbf719:8023:1368844:288789027` 健康，TP16 BF16、131K、max-seqs32、FULL_DECODE_ONLY 6 个 capture size、prefix cache off。旧 65K 配置仅属前期历史实验。
 - 用户工作根：`/mnt/nfs/users/jinghao/minimaxM3`
 - 案例远程目录：`/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e`
 - 历史端到端结果：`/mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3`，待核验 workload/客户端/缓存与当前服务身份后决定可否作为诊断基线。
@@ -39,13 +39,14 @@
 - `image_lineage=verified`；`mount_parity=passed`；源/优化容器的三个代码仓 revision 和工作区状态无差异。
 - 配置漂移诊断：漂移的 AABS1/100K/no-prefix/默认 51-capture 组合稳定生成 NUL；恢复已验证交付组合后输出正确，再单变量关闭 prefix cache 仍通过 6/6 capture 与北京/巴黎双 replay。单个漂移变量未完全隔离，不把 AABS、100K 或 capture 数量中的任一项单独宣称为根因。
 - baseline-sanity：固定 GPQA 前十题、greedy、C8，strict-match `10/10=1.0`、0 timeout、服务前后身份一致。doc_id 7/8 各达到 30K 上限，按项目规则作为非门禁输出健康观察保留。证据：`/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/baseline-sanity/`。
+- `fw-006` 正式 GPQA：198 题 C64，`temperature=1/top_p=0.95/top_k=20/max_gen_toks=30000`，得分 `172/198=0.8686868687 < 0.88`；0 timeout、0 request error，证据有效。相对上游 PPU-13 历史 177/198，净失分全部来自 30K 截断组，非截断组多对 1 题。同服务、同 prompt、同 `seed=1234` 的 6 个并发重复响应哈希全部不同，三道 formal 错题都可在重复中翻转为正确答案。已确认当前单次 C64 采样契约不可复现，30K 截断放大了轨迹漂移；`fw-006` 尚未做 formal 级因果二分，但当前没有它改变数值/答案语义的证据。
 - Host 纠正：曾因上游记录首先在 PPU-13 创建了一个空闲容器和快照；已将证据移至 `hosts/PPU-13-off-target/`，未启动服务、未改源码、未占卡，镜像/容器保留待后续确认是否清理。
 
 ## 5. 下一步
 
-1. 用维护版性能工具建立 P1K Prefill/Decode/Mixed 无 profiler 基线。
-2. 依据三个阶段视图选择首轮框架或算子候选。
-3. 当前场景完成后依次进入 P4K/P16K/P32K；最终组合再运行四场景正式验收。
+1. [op010 实验](../../../models/MiniMax-M3/ppu/optimize/op-010-thead-invoke-m32-gemm2-bk64.md) 已完成并精确回退：单卡 stage +37.19%、TP16 16/16 worker 命中、10 题最小 GPQA strict 10/10；两轮独立 D256 A/B/A 观察 +7.98%/+7.79% 输出吞吐且回退复现，但冻结比较均 `incomplete`，未运行候选的 198 题 formal gate，不能宣称端到端优化完成。
+2. [perfdiag-001](../../../models/MiniMax-M3/ppu/optimize/perfdiag-001-p1k-mixed-first-token-itl-variance.md) 只读分析全部 18 个测量轮：原路径和候选都可能出现请求波次前/末 token 的 300–500ms 额外 ITL；现有服务聚合日志不足以证明唯一根因。若继续此候选，应先冻结新的 Mixed 长尾判定方法或采有界时序 trace，再对三角色同配置重测，不追改旧结果。
+3. 当前组合只有 fw006 + 私有 blacklist；仍需当前服务的新精度 gate、P1K/D1024 与四正式场景验收后才能发布任何正式收益结论。当前原路径服务未被本轮诊断修改。
 
 ## 6. 外部过程材料
 

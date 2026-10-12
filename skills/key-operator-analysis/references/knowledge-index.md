@@ -78,6 +78,8 @@ online autotune、tune-config runtime、cold shape、worker RPC timeout。
 TOPK 2051 和现有 online-softmax/dot 组织。rows64 的 21.659% graph 收益
 不能外推到 rows4096；生产 rows4096 graph 实测退化 4.563%。
 
+另有 MiniMax-M3.1/PPU/BF16/GQA8 的正确性机制卡：当前 Triton 3.6.0 的 M8 A ldmatrix K位遗漏，经原始→A-only IR修正→原始证明。该卡不增加性能结论，也不将编译问题外推到其他shape/dtype/revision。
+
 适用关键词：`QSA`、`sparse GQA`、`GROUP_SIZE=3`、`BLOCK_M`、
 paged KV、logical TOPK、query-head padding。
 

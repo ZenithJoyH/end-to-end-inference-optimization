@@ -182,10 +182,9 @@ M64 baseline config 做 3-seed 扫描后，选取保持 BM32 padding 边界的 G
 与 TPOT 分别改善 15.769% 与 15.561%，384/384 measured 请求成功。候选已保留、
 未提交、未推送；服务已停止。
 
-已有 MoE align 与 mHC 的“算子快但端到端慢”反例表明，隔离微基准不包含 graph
-overlap、dispatch、邻接 routing/padding、copy、reduction 与同步，算子
-activity-duration 下降不等于关键路径缩短。它们没有候选 trace，因此精确抵消项
-仍是推断；本次 exact-M64 则同时满足 live shape/config、首热点和无 profiler
+当时将 MoE align 与 mHC 视为“算子快但端到端慢”反例；该解释已被
+2026-09-23 的候选 trace 纠正，具体见下文。本次 exact-M64 同时满足
+live shape/config、首热点和无 profiler
 服务复测，收益才得以兑现。完整数值、SHA 与远端路径见
 [优化事实与实验台账](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/state.yml)。
 
@@ -196,3 +195,30 @@ activity-duration 下降不等于关键路径缩短。它们没有候选 trace�
 budget，但三轮 warmup 离散 17.771%、没有 measured 结果或 +3% 晋级信号，已拒绝，
 启动脚本仍使用 16384。P1K 低风险方向因此已收敛；下一步是修正契约后的 P1K
 checkpoint，再按顺序进入 P4K scenario-entry baseline/profile。
+
+## 2026-09-23 P32K 算子筛选与 mHC/MoE align 归因
+
+P32K Sparse MLA BH4 特化在精确 `Hq=4/Hkv=1/SKV=80000/topk=2048`
+边界上未超过 vendor：主 `SQ=32768` 只有 `0.831×`，因此在服务前
+回退。
+
+mHC/MoE align 的“微基准快但端到端无收益”已完成 trace 级纠正。
+mHC baseline 虽由 `reference.torch` 路由，编译服务图已执行 FlagGems
+`mhc_pre_fused_kernel_hc_mult_4`，所以 isolated reference graph 不是服务的真实
+分母。MoE align 的旧候选则因生产 `expert_map` 条件一次都未命中；
+C32 trace 中新 kernel 为 0 次，老 stage2 仍为 2772 次。因此历史
+`-1.308%` 只是 no-op 候选漂移，不是局部收益被 overlap 抵消。
+
+本轮进一步将 MoE align 特化扩到 EP map 与 `M=64`；16 个 EP map、
+4 个 shape 的有效输出精确一致，完整 align 调用加速 2.84×–3.12×。
+但候选在 TP16 服务的首批 C64 请求上发生 worker 同步停滞，未通过
+服务门禁，因此未进入 P32K A/B/R；两份源码曾按 SHA 恢复，8011 关闭。
+2026-09-23 用户明确要求保留该修复并自行测试端到端性能，因此同一候选已按
+已验证 SHA 重新装入优化容器。用户随后启动服务，P4K/P16K/P32K/P65536
+三轮共 1536/1536 请求成功，服务现仍在运行。调用链复核发现本轮 align
+dispatch 选中 `default.flagos`，直接调用 FlagGems 通用实现，绕开本次
+FlagGems-vllm 候选入口；没有候选 kernel trace，也没有同配置 A/B/R，
+因而不能将跨日期吞吐提升归因于本修复。长输入日志显示 Prefill 期间
+Decode 速率急降，P65536 KV cache 曾达 99.9%，下一轮优先验证阶段调度与
+KV 容量。详细数值、证据 SHA 和当前状态见
+[优化事实与实验台账](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/state.yml)。
