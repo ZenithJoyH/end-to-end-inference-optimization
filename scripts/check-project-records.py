@@ -4,32 +4,15 @@ import argparse
 import json
 from pathlib import Path
 import re
+import sys
 
 import yaml
-
-
-class UniqueLoader(yaml.SafeLoader):
-    pass
-
-
-def unique_mapping(loader, node, deep=False):
-    result = {}
-    for key_node, value_node in node.value:
-        key = loader.construct_object(key_node, deep=deep)
-        if key in result:
-            raise ValueError(f"duplicate YAML key: {key}")
-        result[key] = loader.construct_object(value_node, deep=deep)
-    return result
-
-
-UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import case_records
 
 
 def load_state(path):
-    value = yaml.load(path.read_text(), Loader=UniqueLoader)
-    if not isinstance(value, dict) or type(value.get('schema_version')) is not int:
-        raise ValueError('state requires an integer schema_version and mapping')
-    return value
+    return case_records.load(path)
 
 
 def point_links(state):
@@ -69,9 +52,22 @@ def process_files(root, public_scripts=()):
 
 def check(root):
     errors, warnings = [], []
-    for path in sorted((root / 'models').glob('*/*/*/state.yml')):
+    identities = {}
+    for path in sorted((root / 'models').rglob('state.yml')):
+        if path.parent.name not in ('baseline', 'optimize', 'acceptance') or 'history' in path.parts:
+            continue
         try:
             state = load_state(path)
+            if state['schema_version'] == 4:
+                identity = state['identity']
+                if identity['case_id'] != path.parent.parent.name or state['stage'] != path.parent.name:
+                    raise ValueError('case directory/stage disagree with schema 4 identity')
+                key = str(path.parent.parent)
+                if key in identities and identities[key] != identity:
+                    raise ValueError('baseline/optimize/acceptance case identities differ')
+                identities[key] = identity
+            elif state.get('active_case_id') not in (None, state.get('case_id')):
+                warnings.append(f'{path}: legacy case_id/active_case_id differ; inspect case scope before resuming')
             readme = path.with_name('README.md')
             if not readme.is_file():
                 raise ValueError('missing stage README.md')
@@ -85,8 +81,14 @@ def check(root):
                     errors.append(f'{path}: {identifier} missing {name}')
                 elif not re.search(r'\]\((?:\./)?' + re.escape(name) + r'(?:#[^)]*)?\)', text):
                     errors.append(f'{readme}: missing point link {name}')
-        except (ValueError, TypeError, KeyError, yaml.YAMLError) as exc:
+        except (OSError, ValueError, TypeError, KeyError, yaml.YAMLError) as exc:
             errors.append(f'{path}: {exc}')
+    for root_case in identities:
+        for stage in case_records.STAGES:
+            for name in ('state.yml', 'README.md'):
+                expected = Path(root_case) / stage / name
+                if not expected.is_file():
+                    errors.append(f'missing schema 4 stage record: {expected}')
     for name in ('inference-accuracy-evaluation', 'inference-performance-evaluation',
                  'inference-accuracy-diagnosis', 'inference-profiling', 'inference-optimization-planning',
                  'key-operator-analysis'):

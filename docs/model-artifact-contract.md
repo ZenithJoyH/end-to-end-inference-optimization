@@ -1,6 +1,6 @@
 # 模型优化产物契约
 
-本契约规定 `models/<model>/<platform>/` 的长期记录方式。目标是让 Agent 能从一个稳定入口恢复当前状态，同时让人无需阅读运行脚本、原始回执或 trace 就能理解进展和结论。
+本契约规定 `models/<model>/<platform>/<case-id>/`（旧案例兼容平台直属布局） 的长期记录方式。目标是让 Agent 能从一个稳定入口恢复当前状态，同时让人无需阅读运行脚本、原始回执或 trace 就能理解进展和结论。
 
 ## 结构化记录与人类文档
 
@@ -107,3 +107,64 @@
 原始运行路径与仍有效引用。更新本地导航到可访问的外部位置后再移除源文件，保留恢复路径与清单；
 不得因为远程记录提到同名文件就假定已有相同副本。未完成这些核验时保持 `pending-active-task-review`，
 不宣称目录清理完成。此过程不触及用户保留的已有 `history/`。
+
+## 新案例隔离与轻量维护（schema 4）
+
+新案例使用 `models/<model>/<platform>/<case-id>/`。`case-id` 绑定模型、平台、Host、
+设备拓扑与 anchor baseline；切换 Host、TP/设备集合或 anchor 时创建新案例。已有平台直属
+三阶段目录仍可读，不自动迁移正在运行的案例，也不拼接 TP8/TP16 的“当前状态”。
+
+```bash
+.venv/bin/python scripts/case_records.py init \
+  --root models/Example/ppu/case-001 --case-id case-001 \
+  --model Example --platform ppu --host HOST-01 \
+  --baseline-id anchor-001 --topology 'TP8:device0-device7'
+.venv/bin/python scripts/case_records.py summary \
+  --state models/Example/ppu/case-001/optimize/state.yml
+.venv/bin/python scripts/case_records.py render \
+  --state models/Example/ppu/case-001/optimize/state.yml \
+  --output models/Example/ppu/case-001/optimize/README.md
+```
+
+初始化拒绝覆盖目录。schema 4 使用 `identity` 保存上述六项身份，`stage` 标识阶段，
+`current` 只放当前状态/候选/下一步；实验详情按稳定 ID 写入 `experiments`，指标放入 `metrics`。
+保留本文要求的环境、门禁与外部证据字段，初始化空模板不代表这些事实已核验。例如：
+
+```yaml
+experiments:
+  - experiment_id: op-001
+    document: op-001.md
+    scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    direction: operator/replace
+    evidence: null
+metrics:
+  - scenario_id: p1024-d1024-c64-n128
+    role: candidate
+    metric: output_throughput
+    value: null
+    unit: token/s
+    scope: not_run
+```
+
+`summary` 输出紧凑视图，避免每次通读整个账本；旧 schema 只读展示并提示身份歧义。
+`render` 仅更新 `<!-- e2e:summary:start -->` 到 `<!-- e2e:summary:end -->` 的状态、实验索引
+和指标表，保留区块外的人工说明与决定。生成表不替代必要的假设、优化方向、失败分析和
+人工交接记录。旧 README 缺少该标记时拒绝覆盖，先人工审阅并添加一个有序空区块后再使用。
+
+## 本地记录备份与恢复
+
+`models/` 在共享 `.gitignore` 中排除；代码仓库克隆成功不代表模型记录或原始证据已恢复。
+使用独立、受控的备份位置保存 Markdown/YAML 记录，原始远端证据仍按其留存策略保存。
+
+```bash
+.venv/bin/python scripts/case_records.py export --root models \
+  --output /approved/backups/model-records-20261012.zip
+.venv/bin/python scripts/case_records.py restore \
+  --archive /approved/backups/model-records-20261012.zip \
+  --destination /approved/restore/model-records-20261012
+```
+
+导出只包含 Markdown/YAML，并附逐文件 SHA；拒绝符号链接，排除权重、日志和 trace。
+恢复先核验清单、路径及 SHA，再写入不存在的新目录，不覆盖活跃案例。ZIP 校验只能证明
+备份内一致性；需另外保存导出时返回的整包 SHA。人工核对目标身份与外部证据可用性后再使用。

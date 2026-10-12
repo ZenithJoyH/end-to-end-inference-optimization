@@ -9,6 +9,7 @@
     "scripts/agent_step.py",
     "scripts/ansible",
     "scripts/bootstrap-control-node",
+    "scripts/case_records.py",
     "scripts/check-project-records.py",
     "scripts/check-targets.py",
     "scripts/connectivity-check",
