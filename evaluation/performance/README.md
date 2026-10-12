@@ -35,6 +35,7 @@ vllm serve <model> <其余冻结参数> \
 
 独立重复仍指不同服务实例；纯重启可以通过精度工具的显式 `rebind` 复用同一已评测候选的分数，
 而不是复用旧实例的 gate。代码、配置、设备或环境变化不能走该分支。
+比较器验证 schema4 rebind 时，要求 `run-record.input_artifacts.service` 的原始 manifest 仍可读取且 SHA 与测量快照一致，再用该原路径验证精确绑定；缺失或变更不能以相同内容副本绕过。测量快照、原始精度证据及 runtime/最小回归证据都继续做 SHA 校验。
 
 ## 配置执行与比较
 

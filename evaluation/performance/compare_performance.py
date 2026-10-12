@@ -247,7 +247,16 @@ def check_run(path, contract_ref, contract):
             raise ValueError("formal comparison requires formally admitted candidate runs")
         from acceptance import check_gate
         gate_path = verified(refs["accuracy_gate"])
-        check_gate(gate_path, verified(refs["service"]), model=target["model"], host=target["host"],
+        gate_service = verified(refs["service"])
+        if read_json(gate_path).get("schema_version") == 4:
+            # Rebind evidence binds the original manifest's path and SHA.
+            # The executor snapshots it; verify both before using that path.
+            inputs = record.get("input_artifacts")
+            original = inputs.get("service") if isinstance(inputs, dict) else None
+            if not isinstance(original, dict) or original.get("sha256") != refs["service"]["sha256"]:
+                raise ValueError("rebound gate requires the original service manifest matching its snapshot")
+            gate_service = verified(original)
+        check_gate(gate_path, gate_service, model=target["model"], host=target["host"],
                    port=target["port"], tokenizer=target["tokenizer"])
     elif record.get("scope") not in ("diagnostic", "performance_only", "formal_candidate"):
         raise ValueError("unknown run scope")

@@ -207,6 +207,63 @@ class ComparisonTest(unittest.TestCase):
         report = self.decision(generated)
         self.assertEqual(report["status"], "passed", report)
 
+    def make_rebound_candidate(self):
+        from test_acceptance import GateTest, gate
+        fixture = GateTest()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        path = self.paths[2]
+        record = compare.read_json(path)
+        fixture.service = compare.read_json(record["artifacts"]["service"]["path"])
+        fixture.service["service_instance_id"] = "evaluated-boot"
+        fixture.service["runtime_evidence_sha256"] = "a" * 64
+        fixture.save("service", fixture.service)
+        evaluated = compare.read_json(fixture.record)
+        evaluated["artifacts"]["service"] = fixture.refs["service"]
+        self.save(fixture.record, evaluated)
+        original, evidence, rebound = fixture.make_rebind()
+        gate.rebind_gate(fixture.output, original, evidence, rebound)
+        gate.check_gate(rebound, original)
+        snapshot = Path(record["artifacts"]["service"]["path"])
+        snapshot.write_bytes(original.read_bytes())
+        record["artifacts"]["service"] = compare.artifact(snapshot)
+        record["input_artifacts"] = {"service": compare.artifact(original)}
+        gate_snapshot = path.parent / "accuracy_gate.json"
+        gate_snapshot.write_bytes(rebound.read_bytes())
+        record["artifacts"]["accuracy_gate"] = compare.artifact(gate_snapshot)
+        self.contract["scope"] = "formal"
+        record["artifacts"]["comparison_contract"] = self.save(self.contract_path, self.contract)
+        record["scope"] = "formal_candidate"
+        self.save(path, record)
+        return path, original, fixture.root / "restart-runtime.json"
+
+    def test_rebound_gate_consumes_verified_original_and_identical_snapshot(self):
+        path, original, _ = self.make_rebound_candidate()
+        checked = compare.check_run(path, compare.artifact(self.contract_path), self.contract)
+        self.assertIn(compare.artifact(original), checked["evidence_refs"])
+
+    def test_rebound_gate_rejects_missing_or_changed_original_and_runtime(self):
+        for damage in ("missing_ref", "malformed_inputs", "mismatched_sha", "missing_file", "changed_file", "changed_runtime"):
+            with self.subTest(damage=damage):
+                # Each fixture has independently issued and rebound real gates.
+                path, original, runtime = self.make_rebound_candidate()
+                record = compare.read_json(path)
+                if damage == "missing_ref":
+                    record.pop("input_artifacts")
+                elif damage == "malformed_inputs":
+                    record["input_artifacts"] = []
+                elif damage == "mismatched_sha":
+                    record["input_artifacts"]["service"]["sha256"] = "0" * 64
+                elif damage == "missing_file":
+                    original.unlink()
+                elif damage == "changed_file":
+                    original.write_text("{}")
+                else:
+                    runtime.write_text("{}")
+                self.save(path, record)
+                with self.assertRaises((ValueError, OSError)):
+                    compare.check_run(path, compare.artifact(self.contract_path), self.contract)
+
     def test_missing_role_duplicate_run_and_same_process_are_incomplete(self):
         self.assertEqual(self.decision(self.paths[:-1])["status"], "incomplete")
         self.assertEqual(self.decision(self.paths + [self.paths[0]])["status"], "incomplete")
