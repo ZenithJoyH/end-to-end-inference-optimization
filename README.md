@@ -233,7 +233,7 @@ skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库
 
 ## 案例与知识积累
 
-从 [案例索引](docs/cases/README.md) 检索同结构、阶段、平台和 workload 的证据，再核对当前运行条件。本机已有的 `models/XingChen4-29B-A4B/ppu/README.md` 提供实际实验与产物导航（模型记录独立备份，不随代码仓库发布）；带 `imported` 标记的历史案例尚未在本项目复测，不与本项目实测结论混用。
+从 [案例索引](docs/cases/README.md) 检索同结构、阶段、平台和 workload 的证据，再核对当前运行条件。本机已有的 `models/XingChen4-29B-A4B/ppu/README.md` 提供实际实验与产物导航（目前按用户要求暂缓提交，待用户整理分析后再决定纳入范围）；带 `imported` 标记的历史案例尚未在本项目复测，不与本项目实测结论混用。
 
 当端到端测量已收敛到具体算子、dispatch、layout 或融合路径时，按需使用 [关键算子技能](skills/key-operator-analysis/SKILL.md)。知识按“案例证据 → 算子证据卡 → 优化地图 → 稳定理解”演进，当前包含 MLA Attention 与 mHC 资料。仅在证据改变下一次诊断或设计决策时更新相应层级。
 
