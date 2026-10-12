@@ -1,0 +1,99 @@
+diff --git a/vllm_fl/models/qwen3_8_flash_next.py b/vllm_fl/models/qwen3_8_flash_next.py
+--- a/vllm_fl/models/qwen3_8_flash_next.py
++++ b/vllm_fl/models/qwen3_8_flash_next.py
+@@ -2350,6 +2350,9 @@ class Qwen3_8FlashNextQSAAttention(nn.Module):
+                 query,
+                 key,
+                 value,
++                self.kv_cache,
++                self.indexer.raw_key_cache.kv_cache,
++                self.indexer.compressed_key_cache.kv_cache,
+                 attn_output,
+                 encoded_layer_name,
+             )
+@@ -2361,6 +2364,9 @@ class Qwen3_8FlashNextQSAAttention(nn.Module):
+                 query,
+                 key,
+                 value,
++                self.kv_cache,
++                self.indexer.raw_key_cache.kv_cache,
++                self.indexer.compressed_key_cache.kv_cache,
+                 attn_output,
+                 encoded_layer_name,
+             )
+@@ -2384,6 +2390,9 @@ def qwen3_8_flash_next_qsa_with_output(
+     query: torch.Tensor,
+     key: torch.Tensor,
+     value: torch.Tensor,
++    main_kv_cache: torch.Tensor,
++    raw_state_cache: torch.Tensor,
++    compressed_key_cache: torch.Tensor,
+     output: torch.Tensor,
+     layer_name: LayerNameType,
+ ) -> None:
+@@ -2393,6 +2402,9 @@ def qwen3_8_flash_next_qsa_with_output(
+     layer = get_forward_context().no_compile_layers[layer_name]
+     if not isinstance(layer, Qwen3_8FlashNextQSAAttention):
+         raise TypeError(f"{layer_name} is not a Qwen3.8-Flash-Next QSA owner")
++    # Declare the actual cache aliases at the graph/custom-op boundary.
++    # The existing transaction continues to access these same bound storages.
++    del main_kv_cache, raw_state_cache, compressed_key_cache
+     layer._run_qsa(
+@@ -2410,6 +2422,9 @@ def qwen3_8_flash_next_qsa_with_output_fake(
+     query: torch.Tensor,
+     key: torch.Tensor,
+     value: torch.Tensor,
++    main_kv_cache: torch.Tensor,
++    raw_state_cache: torch.Tensor,
++    compressed_key_cache: torch.Tensor,
+     output: torch.Tensor,
+     layer_name: LayerNameType,
+ ) -> None:
+@@ -2417,6 +2432,9 @@ def qwen3_8_flash_next_qsa_with_output_fake(
+-    del hidden_states, positions, query, key, value, output, layer_name
++    del hidden_states, positions, query, key, value
++    del main_kv_cache, raw_state_cache, compressed_key_cache
++    del output, layer_name
+@@ -2420,7 +2438,12 @@ direct_register_custom_op(
+     op_name="qwen3_8_flash_next_qsa_with_output",
+     op_func=qwen3_8_flash_next_qsa_with_output,
+-    mutates_args=["output"],
++    mutates_args=[
++        "main_kv_cache",
++        "raw_state_cache",
++        "compressed_key_cache",
++        "output",
++    ],
+     fake_impl=qwen3_8_flash_next_qsa_with_output_fake,
+ )
+@@ -3260,6 +3283,7 @@ class Qwen3_8FlashNextPLELayer(nn.Module):
+         torch.ops.vllm.qwen3_8_flash_next_ple_short_conv(
+             normalized,
++            self.kv_cache[0],
+             conv_output,
+             self.prefix,
+         )
+@@ -3273,10 +3297,12 @@ def qwen3_8_flash_next_ple_short_conv(
+ def qwen3_8_flash_next_ple_short_conv(
+     inputs: torch.Tensor,
++    conv_state_cache: torch.Tensor,
+     output: torch.Tensor,
+     layer_name: str,
+ ) -> None:
+     layer = get_forward_context().no_compile_layers[layer_name]
++    del conv_state_cache  # The existing layer binding is this same Tensor.
+     result = layer._short_conv(inputs)
+@@ -3281,6 +3307,7 @@ def qwen3_8_flash_next_ple_short_conv_fake(
+ def qwen3_8_flash_next_ple_short_conv_fake(
+     inputs: torch.Tensor,
++    conv_state_cache: torch.Tensor,
+     output: torch.Tensor,
+     layer_name: str,
+ ) -> None:
+@@ -3286,7 +3313,7 @@ direct_register_custom_op(
+     op_name="qwen3_8_flash_next_ple_short_conv",
+     op_func=qwen3_8_flash_next_ple_short_conv,
+-    mutates_args=["output"],
++    mutates_args=["conv_state_cache", "output"],
+     fake_impl=qwen3_8_flash_next_ple_short_conv_fake,
+ )
