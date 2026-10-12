@@ -1,0 +1,9 @@
+diff --git a/vllm_fl/dispatch/config/thead.yaml b/vllm_fl/dispatch/config/thead.yaml
+index c542c31..69e2a29 100644
+--- a/vllm_fl/dispatch/config/thead.yaml
++++ b/vllm_fl/dispatch/config/thead.yaml
+@@ -46,3 +46,4 @@ operator_priority:
+ 
+ # FlagOS operator blacklist
+ flagos_blacklist:
++  - conv3d

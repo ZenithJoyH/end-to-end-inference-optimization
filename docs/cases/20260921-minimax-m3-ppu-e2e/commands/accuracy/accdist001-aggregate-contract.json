@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "experiment_id": "accdist-001-gpqa-c64-multiseed3",
+  "purpose": "diagnostic_distribution_before_freezing_a_replacement_formal_gate",
+  "task": "gpqa_diamond_generative_cot",
+  "metric": "exact_match,strict-match",
+  "expected_unique_questions_per_seed": 198,
+  "request_seeds": [1234, 2026, 3407],
+  "lm_eval_seed": 42,
+  "num_concurrent": 64,
+  "generation": {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 20,
+    "max_gen_toks": 30000
+  },
+  "reference_threshold": 0.88,
+  "aggregation": {
+    "point_estimate": "mean_of_three_per_seed_scores",
+    "uncertainty": "question_cluster_bootstrap_10000_resamples_two_sided_95_percent_interval",
+    "cluster_unit": "doc_id_with_all_three_seed_outcomes",
+    "random_seed": 20260922,
+    "report": [
+      "per_seed_score",
+      "mean",
+      "min",
+      "max",
+      "bootstrap_95_percent_interval",
+      "all_correct_all_wrong_mixed_question_counts",
+      "per_seed_30000_token_truncation_rate"
+    ]
+  },
+  "diagnostic_decision": {
+    "point_estimate_meets_reference": "mean >= 0.88",
+    "conservative_confidence_meets_reference": "bootstrap_lower_95 >= 0.88",
+    "formal_gate": false,
+    "note": "This diagnostic does not replace the existing schema-3 single-run gate. Freeze a replacement formal rule only after reviewing this distribution."
+  }
+}

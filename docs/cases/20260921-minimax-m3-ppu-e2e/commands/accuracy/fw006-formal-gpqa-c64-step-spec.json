@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "run_id": "fw006-formal-gpqa-c64-threshold88-20260922-01",
+  "owner": "codex-current-task",
+  "capability_id": "e2e/accuracy",
+  "selection": "formal-gate",
+  "scope": {
+    "model": "MiniMax-M3",
+    "host": "PPU-07"
+  },
+  "skill_dir": "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/formal-eval-workspace/skills/inference-accuracy-evaluation",
+  "context_files": [
+    "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/config.json",
+    "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/contract.json",
+    "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/service-manifest.json",
+    "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/task-provenance.json"
+  ],
+  "before": [
+    {
+      "kind": "service",
+      "manifest": "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/service-manifest.json"
+    }
+  ],
+  "after": [
+    {
+      "kind": "accuracy",
+      "manifest": "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/service-manifest.json",
+      "gate": "/mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88/accuracy-gate.json"
+    }
+  ],
+  "budget_seconds": 28800,
+  "stall_seconds": 3600,
+  "resources": [
+    "PPU-07/PPU-0-15"
+  ],
+  "lease_registry": "/mnt/nfs/users/jinghao/minimaxM3/.agent-leases"
+}
