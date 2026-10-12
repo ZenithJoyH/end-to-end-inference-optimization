@@ -18,6 +18,7 @@
 - graph、TP/PP/EP/DP、KV cache 和 prefix cache 配置
 - Host、设备数量与拓扑、容器镜像和软件 revision
 - 预热轮数、正式轮数、失败和超时处理方式
+- 稳态准入指标、窗口、波动阈值，以及冷启动是否属于明确优化目标
 
 默认 vLLM 性能比较的 baseline、candidate 和 revert 服务均在启动时显式追加 `--no-enable-prefix-caching`；不要求追加 `--no-enable-log-requests`。服务 manifest 的 `launch_config.enable_prefix_caching` 记录为 `false`，`performance_context.prefix_cache_state` 记录为 `disabled`，并保存进程/runtime 侧证据。只有 prefix cache 被用户明确声明为主要变量时才允许例外；此时必须建立独立基线并记录缓存准备、复用比例和命中证据。
 
@@ -34,6 +35,11 @@
 - 一方包含失败请求而另一方不包含
 
 随机 workload 用于受控吞吐和延迟分析；真实或代表性数据用于业务结论。两类结果分开报告。
+
+默认 `performance_objective=steady_state`、`cold_start_in_scope=false`。服务首请求、首批次和预热轮不进入
+正式性能聚合，也不单独决定下一项优化；它们用于诊断编译、graph capture、allocator、cache 或客户端建连。
+稳态判据和首轮处理必须在测量前冻结。不得在看到性能后事后删除首个正式测量轮；如果它仍处于过渡态，
+本轮标记 `incomplete`，修改契约版本后对所有比较角色重跑。
 
 ### 性能场景和执行层级
 
@@ -326,6 +332,8 @@ workload:
 measurement:
   client_revision: ""
   result_schema: ""
+  performance_objective: steady_state  # steady_state | cold_start；默认 steady_state
+  cold_start_in_scope: false
   required_metrics: []
   slo: {}  # 指标、阈值、单位和分母定义；未定义不得声称达标
   warmup:
@@ -333,6 +341,11 @@ measurement:
     completion_rule: ""
     max_budget_s: null
     state_restore_and_queue_drain: ""
+  steady_state_admission:
+    metric: ""
+    window: null
+    max_relative_spread: null
+    first_measured_round_policy: retain_or_incomplete  # 禁止事后丢弃
   repeats:
     rounds_per_process: null
     independent_processes: null

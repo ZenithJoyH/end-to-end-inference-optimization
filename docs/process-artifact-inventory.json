@@ -2,8 +2,7 @@
   "schema_version": 1,
   "snapshot_date": "2026-09-21",
   "legacy_history_roots": [
-    "models/XingChen4-29B-A4B/ppu/optimize/history",
-    "models/Hy4-preview/ppu/optimize/history"
+    "models/XingChen4-29B-A4B/ppu/optimize/history"
   ],
   "public_script_files": [
     "scripts/accelerator-check",
