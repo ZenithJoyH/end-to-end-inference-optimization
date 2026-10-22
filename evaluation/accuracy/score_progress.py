@@ -15,7 +15,9 @@ from typing import Dict, List, Optional
 
 
 STRICT_PATTERN = re.compile(
-    r"answer is[\s*]*[\(\[]?([ABCDEFGHIJ])[\)\]]?[\s*]*[.\s]"
+    # Match the fixed GPQA task's native RegexFilter. A response may end at
+    # the answer letter; punctuation is not required by the native filter.
+    r"answer is\s*[\(\[]?([ABCDEFGHIJ])[\)\]]?"
 )
 PRIMARY_FLEXIBLE_PATTERN = re.compile(r"(\([A-Z]\))")
 
