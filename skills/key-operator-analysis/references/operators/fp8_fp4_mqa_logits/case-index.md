@@ -62,3 +62,23 @@
 当前证据只覆盖上述模型、PPU-ZW810E、TP16、配置、dtype 和三个验证 shape。
 没有新的正式端到端性能 A/B，也没有重新运行完整模型精度；其他平台、dtype、
 layout 和 shape 必须重新验证。
+
+### 同案例追加证据：2026-10-19 官方上游迁移
+
+[点43](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261019-upstream-migration-43.md)
+将 FlagGems-vllm 更新到官方 `b4d3382`、Plugin 到 PR454 `f769696`，
+保持 PPU/TP16/BF16/D128 与原 graph 参数。新上游 host 显式只接受 FP8/FP4，
+而旧 PPU 调用传 BF16 Q/K；虽然 tiled dot/clean kernel AST 相同，入口仍会拒绝。
+16K 服务回归中 fallback reference 产生 8GiB 的 `[M,H,N]` 临时张量后 OOM；
+并非新的 MQA 多配置调优问题，原候选失败与旧服务恢复证据均保留。
+
+限域兼容入口仅在 thead backend 导出，BF16/D128/scale 已折叠等条件检查后复用
+上游相同 kernel，其余 dtype 仍调用原上游入口；计算无需 `[M,H,N]` 临时张量。
+7 项接口合同、6 组设备边界/空维度、4 组非空输出与旧版逐位一致、变更输入
+并填毒后的两次 graph replay 通过，实际 tuner 仍是包内单配置。修复后16K边界
+与旧输出一致；正式模型精度、端到端收益尚未确认，不能据此宣布迁移验收通过。
+
+`knowledge_delta=refined`：跨版本迁移不仅要核验 kernel/tuner 来源，还必须核验
+host dtype/scale/layout 契约；相同 impl_id 或 kernel 不能证明入口兼容。
+未来先对实际 BF16 调用直接执行目标入口，禁止以 fallback 成功代替目标实现命中。
+证据等级为本模型边界内 `reproduced`，不是跨平台不变量。

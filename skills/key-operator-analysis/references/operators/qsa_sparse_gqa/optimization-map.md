@@ -52,3 +52,16 @@
 - 停止条件：普通复制/参考路径也错；不能明确A/B数据流；数值未恢复；编译pass关闭失败；其他dtype/shape必须重新建立证据。
 - 保留方式：现有Plugin限域H16 padding继续作为绕行；生成IR替换不是发布修复。任何实际compiler修复先定位真实revision/源函数，并重新走原精度范围及服务绑定。
 - 来源：[MiniMax M3.1 fix-001/diag-003卡](case-index.md#case20261010-minimax-m31-w8a8-ppu-tp8-e2e--fix-001--diag-003)。
+
+## 已复现分支：新QSA M8接入先做输入保全和M16对照
+
+- 证据等级：`reproduced`，限域数值路径，不是已确认编译器地址机制或性能结论。
+- 匹配范围：PPU-ZW810E/Triton3.6.0、FlagGems-vllm6568039、BF16/GQA3/D256、rows5、TOPK16/33、N16/warps4/stages2，paged KV含invalid request。
+- 信号：新QSA wrapper选M8，CPU sparse reference大幅偏离；先确认真实constexpr，不按名义group_size猜测tile。
+- 首个实验：在执行前保存完整Q/K/V/selected/table/token-to-request、mask/physical mapping及storage/stride，固定输入比较M8→M16→M8；输出落盘再assert，再用相同buffer变更输入/索引做两次graph replay。首次数值异常保全后仅在预先明确授权下继续冻结对照，非法访问/nonfinite立即停，不自动恢复服务。
+- 已知结果：两组随机M8约70%元素超容差，M16全部通过，再启M8逐位重现；eager和graph相同。只改wrapper最小tile、kernel AST不变，支持M8执行/编译分支隔离；弱基向量仍在宽容差内，不能冒充全K地址证明。
+- 机制边界：已有A-ldmatrix机制只能作为下一步假设；QSA需另做QK/PV拆分、足够强基向量及地址单变量干预才能确认。不能用M16通过直接归因旧模型GPQA或宣布模型修复。
+- 晋级/停止条件：M16任一数值/graph/状态检查失败即停；M16限域绕行只有目标生产shape、模型最小回归和同配置性能验证后才能安装/保留，本卡不提供这些通过证据。
+- 来源：[Qwen3.8 PPU07 op-019卡](case-index.md#case20261015-qwen38-flash-next-ppu07-master--op-019)。
+
+同一案例的实现分支已验证：用户明确PPU最小tile16后，使用现有`_thead.fused`导出→共享private wrapper提供floor16，single/split一并覆盖，generic floor8不变，GQA32仍tile32。14项元数据路由与12事务PPU验证（含split2/gate/stride/empty/graph2）通过，未做模型/性能。**先核对导入边界**：从`flaggems_vllm.ops.qwen4`直接取函数会绕过包级vendor替换；候选应从`flaggems_vllm`公共导出取函数，并用对象身份/实际constexpr证明命中。源码安装不等于旧worker已热加载，不得因此复用旧精度gate或宣称模型修复。该规则限域于此库现有vendor注册结构，不要求其他项目照搬。

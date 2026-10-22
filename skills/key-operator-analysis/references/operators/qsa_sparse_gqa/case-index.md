@@ -161,3 +161,48 @@ limits: current PPU BF16 M8 path only; C++ source line and installed compiler fi
 ```
 
 这是正确性机制卡。实际安装的编译器未修改；IR干预仅在独立空闲PPU8诊断进程，生产TP8服务与四仓源码保留。完整命令、失败项、IR和SHA由模型实验记录及远端案例review签收。
+
+## Case：20261015-qwen38-flash-next-ppu07-master / op-019
+
+```yaml
+case_id: 20261015-qwen38-flash-next-ppu07-master
+case_link: ../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-019-fgvllm-integration.md
+status: not-proven
+evidence_level: reproduced
+environment:
+  model: Qwen3.8-Flash-Next
+  platform: ppu
+  hardware: PPU-ZW810E; driver2.1.1-rbd225
+  engine_revision: vLLM0.24.0+empty; standalone operator diagnosis does not invoke model engine
+  plugin_revision: active model SHA2c36d1c3334d910c50be8c54e5337808fe8f2f02e3e01d7107a532875b3a184f unchanged
+  operator_library_revision: FlagGems-vllm65680392edfdd566a8c8e3cd99cba18e4dc3c26b; PPU Triton3.6.0
+  mode: both
+operator_path:
+  stage: mixed
+  impl_id: flaggems_vllm.runtime.backend._thead.fused.qsa_attention public vendor wrapper reusing generic single/split kernels
+  effective_shape: q=[5,3,256], kv=[8,16,1,256], selected=[5,33] or[5,16]; M8/M16,N16,warps4,stages2
+  dtype: BF16 inputs and FP32 accumulation
+  layout: paged KV; noncontiguous physical pages; invalid request; unique and duplicate logical indices
+bottleneck_evidence: new-library minimal prerequisite fails numerical CPU oracle before any model reload or traffic; not performance bottleneck evidence
+change:
+  classification: operator/replace
+  primary_variable: M8 toM16 toM8 isolation then PPU vendor floor16 for single/split; generic floor8 and three kernel AST unchanged
+  applicability_guard: user-required PPU floor16; installed private editable library for new processes only, bounded BF16 GQA3/D256 numerical coverage
+results:
+  operator: no timing; initial20-transaction isolation plus separate12-transaction vendor regression;14 metadata tests; current fixed-path graph2
+  end_to_end: not run; zero model requests or service reloads
+  correctness: M8 random mismatch2684/3840 and2671/3840; fixed vendor single/split2/gate/strided/empty/graph2 passes with maxabs.0078125; metadata generic3=8,PPU3=16,largegroup32=32; real candidate/public export identity verified
+  regressions: M8 numerically wrong; basisK16 M8 bias.0234375 within frozen tolerance, not fullK proof; no nonfinite or illegal-access observed
+knowledge_delta:
+  prior_belief: an earlier M8 compiler mechanism might explain new QSA failure but first input was not retained
+  outcome: refined
+  revised_belief: use existing PPU vendor boundary with shared kernel helper to enforce floor16 in both single/split; direct qwen4 submodule import bypassed vendor replacement and candidate must use public package export; concrete compiler address mechanism still unconfirmed
+  future_first_check: verify actual public vendor object identity, single/split constexpr and generic/largegroup counterexamples before graph or model integration
+limits: new inputs do not replace old missing tensor; no QK/PV compiler intervention, production TOPK2051/rows,20972 coverage, model gate/performance or otherdtype/platform hardware; subsequent8010 reload health200 but protected8035 drift stopped request-level validation at0 requests
+```
+
+完整20份调用前输入/索引/映射及输出、4份编译配置TTIR/TTGIR/LLVMIR与二进制、首次新异常和专用缓存保留在该实验`diagnostics/qsa-m8-m16-001`；170文件SHA及CPU复核回执见模型记录。8010/8035和i64修复未变。先前17:55未保存的输入仍记缺失；本次独立数值证据不能归因此前未启用新库的GPQA错误。
+
+后续用户授权的PPU后端实现与独立回归在同一实验`diagnostics/qsa-thead-backend-001`，125文件SHA及source/route回执见模型记录；源码已安装而在线8010未重载。8035在此次实现前已不监听，任务未操作其进程/卡组，不改写为本次故障。补丁只按平台选择最低合法tile，不新增NVIDIA调优策略或性能结论。
+
+再后续用户授权仅一次8010重载：`service-qsa-001`新实例health200、启动捕获完成，但等待门禁时保护端点8035（此前新起3611426）监听消失，driver停止、0生成请求、性能未运行，证据冻结后等待用户确认。此执行门禁不增加或推翻上面的算子数值知识（knowledge_delta=none），不把未完成模型验证当通过或错误分数。

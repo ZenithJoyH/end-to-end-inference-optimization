@@ -65,6 +65,23 @@
 - 已知反例：GLM5.3三个shape中位仅1.000032×–1.000507×，最低seed为0.999978×；新增workspace约需128 MiB，未修改源码。
 - 来源：[GLM5.3/PPU case card](case-index.md#case20260911-glm53-flash-ppu-e2e)。
 
+### Sparse Prefill OOM：先区分kernel tile padding与HBM物化
+
+- 匹配键：GLM5.3公共PR454路径、FGV普通Sparse MLA、PPU TP16/BF16、有效H4→适配H64、SQ20172；不与此前vendor路径性能结论混用。
+- 信号：小batch最小回归/FULL Decode graph通过，大Prefill在输出分配OOM；最大MBT的启动profile却通过。
+- 第一检查：从实际per-rank形状算`SQ×H_padded×DV×dtype_bytes`，同时核算padded Query、输出和切片backing；沿dummy/profile是否创建metadata检查真实backend是否被跳过。源码存在`profile_run(max_tokens)`不等于adapter临时内存已覆盖。
+- 首个候选：在现有库的普通kernel支持实际小H后移除Plugin存储padding；workspace/真实attention profile作为关联但独立变量验证，不靠降MBT/并发或盲设allocator参数宣称修复。
+- 通过证据：实际H4分配/命中、原shape及边界数值、FULL capture/两次动态replay、原最小回归和C64正式原契约。停止条件：需恢复旧模型路径、值/缓存语义变化未验、或只有meta通过无整模证据。
+- 当前证据仅为原生OOM观察与源码/CPU-meta分配机制，未修复，完整峰值和碎片归因仍未知；见[GLM公共路径证据卡](case-index.md#公共路径新身份hbm-head-padding与profile盲区点50)。
+
+### Sparse Prefill OOM：映射/稳定压缩的整数中间量
+
+- 匹配键：公共PR454/H4路径、PPU TP16 BF16/FULL，实际Prefill `M32768/K2176`，逻辑索引/页表整数、最终int32；不能沿用另一旧索引kernel的低E2E占比结论。
+- 信号：H4 attention存储修复后，仍在物理索引转换remainder/cumsum/scatter等分配OOM。先记录实际M/K/dtype/strides与完整活跃中间量；单张量申请大小不唯一确定shape。
+- 机制/首个实验：保持主attention与页表/缓存语义、MBT不变，只融合映射+无效项过滤+稳定压缩，以int64地址计算直接输出int32前缀/-1尾部。先同输入逐位/峰值对照，覆盖缺页中间空洞、重复、非连续、大地址、empty和动态graph两次回放，再原C1/C8/长边界/C64。
+- 通过/停止：须实际所有rank命中、原失败范围成功且峰值下降；只做按原位映射/有效计数而不稳定压缩的既有op不能替代。数值、地址、graph、并发或身份失败立即停止；最小回归不代替正式gate，微基准不代替稳态A/B/R。
+- 证据`reproduced`仅转换与短C64：点52实际16worker命中、64/64通过，微基准约3.88GiB→260.22MiB；随后原脚本默认flagos、完全无临时hook的同范围也通过，198题新正式运行中。完整模型总峰值/碎片、正式gate和稳态性能仍未验。来源：[GLM点52卡](case-index.md#公共路径接续物理索引稳定压缩的内存正确性点52)。
+
 ### Dense Decode：head tile 明显大于每 rank 有效 head 数
 
 - 证据等级：`reproduced`，限 XingChen4/PPU/BF16/H8/DQK576/DV512/SQ1/page16/64。

@@ -9,6 +9,8 @@
 
 ## mHC
 
+TP通信首差异定位另见[TP allreduce限域证据卡](operators/tp_allreduce/case-index.md)：Qwen3.8-Flash-Next/PPU TP8 BF16完整目标行在归约前相同、归约后不同；不与下列Sinkhorn mHC性能案例混用，不把FP64单次舍入reference差异直接称通信bug。
+
 - [operators/mhc/README.md](operators/mhc/README.md)：mHC 数学语义、Prefill/Decode 特征、带宽与 launch 瓶颈、post+pre fusion、graph-friendly 调度和验证矩阵。
 - [operators/mhc/optimization-map.md](operators/mhc/optimization-map.md)：mHC Decode backend 替换的首个实验、端到端晋级证据和停止条件。
 - [operators/mhc/case-index.md](operators/mhc/case-index.md)：GLM-5.3-Flash/PPU 上单算子 5.528× 但 P1K 吞吐下降的反例证据卡。
@@ -40,6 +42,15 @@
 
 一般分析先读论文摘要；只有摘要不足以支持结论时再读取 PDF 原文。
 
+## Flash Attention / packed GQA
+
+- [optimization-map](operators/flash_attention/optimization-map.md)：逻辑/物理 KV 页、真实 dispatch 命中、splits/warps 与 spill、Mixed 稳态停止条件。
+- [case-index](operators/flash_attention/case-index.md)：Qwen3.6-27B/MetaX C550 的限域算子收益和候选 Mixed 未完成反例；不外推其他硬件、模型或页映射。
+
+## Top-k / top-p sampling
+
+- [README](operators/top_k_top_p/README.md)、[优化地图](operators/top_k_top_p/optimization-map.md)、[证据卡](operators/top_k_top_p/case-index.md)：MetaX values-only sampling中实际BF16/radix分支、局部整数histogram、桶分组反例与小收益的回退漂移判读。仅C550/FlagTree3.6.0/Qwen3-VL TP2限域证据，正式GPQA未做。
+
 ## Fused MoE
 
 - [operators/fused_moe/optimization-map.md](operators/fused_moe/optimization-map.md)：按
@@ -66,6 +77,10 @@ small-M Decode、stage config、expert routing。
 适用关键词：`fp8_fp4_mqa_logits`、sparse-indexer MQA、`libtuner`、
 online autotune、tune-config runtime、cold shape、worker RPC timeout。
 
+## MM 请求内调参
+
+MM请求内调参、Config bucket与raw BenchmarkCache的区别另见[MM诊断地图](operators/mm/optimization-map.md)及[证据卡](operators/mm/case-index.md)：GLM-5.3-Flash/PPU的M20481/8198冷bucket触发104候选搜索、缓存正常写回；仅机制诊断，不是数值kernel或性能修复通过。
+
 ## QSA sparse GQA
 
 - [operators/qsa_sparse_gqa/optimization-map.md](operators/qsa_sparse_gqa/optimization-map.md)：
@@ -83,10 +98,37 @@ TOPK 2051 和现有 online-softmax/dot 组织。rows64 的 21.659% graph 收益
 适用关键词：`QSA`、`sparse GQA`、`GROUP_SIZE=3`、`BLOCK_M`、
 paged KV、logical TOPK、query-head padding。
 
+## PLE short-conv 状态地址
+
+[证据卡](operators/ple_short_conv/case-index.md)及[排查图](operators/ple_short_conv/optimization-map.md)：独立state kernel遗漏乘前i64，不能以输出或通用index已修复代替逐kernel审计；本例stride204800边界10486，离线驱动匹配、未GPU修复验证。
+
+## Conv3d 启动预热
+
+- [case-index](operators/conv3d/case-index.md)：MiniMax-M3/PPU-13的399360 patch大规模视觉预热，冷autotune约16分钟后自然完成；区分慢候选扫描与永久死锁。仅诊断观察，不是请求Prefill/Decode或已验证优化配置。
+
+## randn / 大N输出地址
+
+- [case-index](operators/randn/case-index.md)：Qwen3.8-Flash-Next/PPU startup合成BF16 N6400030720，输出偏移先i32溢出后扩位的缺陷；固定版数值/边界/graph及startup通过，不是模型精度gate。
+- [optimization-map](operators/randn/optimization-map.md)：分别检查RNG计数与store地址，危险原实现用有界地址探针，固定版再做完整覆盖/canary/参考/graph；不按同步上报栈直接认定首错kernel。
+
 ## 快速使用顺序
+
+KPool尾页graph输入生命周期另见[证据卡](operators/kpool_cache/case-index.md)和[排查图](operators/kpool_cache/optimization-map.md)：GLM-5.3-Flash/PPU公共路径开放FULL后，capture外临时槽位映射未原地址刷新、释放可复用；合法地址下复现旧尾块写入。仅诊断机制，未生产修复/新模型gate，不否定PR默认eager边界。
 
 1. 用 profiler 和运行时 dispatch 证据确定具体算子与实现。
 2. 读算子 `README.md` 建立语义、数据流和性能模型。
 3. 读 `optimization-map.md`，按当前有效 shape 和环境选首个可证伪实验。
 4. 只打开 map 所链接的匹配案例卡；需要进一步证据时，从 `docs/cases/` 的摘要链接到对应模型/平台的 `baseline/`、`optimize/` 或 `acceptance/` 主记录，原始大产物按其中的外部路径查阅。
 5. 案例完成后按 `case-to-knowledge.md` 回写知识差量。
+
+## GDN / Gated Delta Rule
+
+- [README](operators/gdn/README.md)：实际export的state ABI、量化后输入参考和state精度边界。
+- [optimization-map](operators/gdn/optimization-map.md)：舍入消融、慢衰减多chunk回归及正确FP32链的性能证伪。
+- [case-index](operators/gdn/case-index.md)：Qwen3.6-27B/MetaX的布局纠错、精度不足修复与失败项；模型GPQA/E2E收益未测。
+
+## Fused MoE 配置语义
+
+- [README](operators/fused_moe/README.md)：配置格式、阶段覆盖与执行路径的边界。
+- [optimization-map](operators/fused_moe/optimization-map.md)：更换配置后性能持续下降时的首个检查和单变量证伪。
+- [case-index](operators/fused_moe/case-index.md)：Qwen3-VL/MetaX旧stage覆盖与新完整表的差异；性能贡献未独立量化。

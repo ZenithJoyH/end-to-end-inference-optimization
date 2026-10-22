@@ -25,6 +25,21 @@
 
 ## 尚未证明的边界
 
+### 版本迁移先检查 host dtype 契约，再判断调优或显存问题
+
+- 信号：sparse-indexer MQA 的 impl_id 未变，但长输入切 reference、出现大临时张量/OOM。
+- 匹配：GLM-5.3-Flash/PPU/TP16，BF16 Q/K、D128、FP32 weights/scales；上游新 host
+  仅声明 FP8/FP4。不能按算子名字推断实际 dtype。
+- 机制：相同 tiled kernel 不代表相同 host 接口。入口 ValueError 可先触发 fallback，
+  `[M,H,N]` reference 临时张量继而 OOM，掩盖第一异常。
+- 首个实验：在服务外用真实 dtype/shape 直接调用实际导出，保留第一异常；比较
+  host 校验、函数对象来源和 tuner configs，再考虑 vendor 限域兼容入口。
+- 通过证据：目标入口实际命中，新旧/独立 oracle、边界及两次变更输入 graph replay，
+  随后模型最小回归和新身份完整精度；单算子通过不代表模型或性能通过。
+- 停止：不支持的 scale/layout、fallback、数值或 graph 失败；不得靠降 MBT 隐藏入口不兼容。
+- 来源：[同案例上游迁移证据](case-index.md#同案例追加证据2026-10-19-官方上游迁移)，
+  `reproduced`，模型正式精度/新端到端收益仍待验证。
+
 - 单配置消除了本案例的超时路径，但尚无正式端到端 A/B 证明它在所有 shape 上都是
   最快配置。
 - 不能把既有 `172/198` 模型分数当成本次源码修复后的新精度结果；需要新分数时应

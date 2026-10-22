@@ -148,9 +148,26 @@ baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和�
   不是SQ4096–16384主kernel的可兑现瓶颈。当前vendor主kernel不可调、通用替代更慢时，
   应停止Sparse MLA并重新排序其他热点。
 
+### 公共路径新身份：HBM head padding与profile盲区（点50）
+
+- 与上述vendor性能记录严格分开：Plugin PR454 `f769696`加公共兼容修复、FGV `b4d3382`加必要修复，PPU TP16/BF16/FULL_DECODE_ONLY。正式C64的实际Prefill总SQ20172，原生TP14在FGV Sparse MLA输出`torch.empty`申请1.23 GiB时OOM，随后RPC超时；198题全请求失败、无gate，未测性能或修复。
+- `forward_mqa`方法AST与纯PR454相同，每rank有效H4因算子HQ64/128约束物化为H64。CPU/meta执行实际padding函数及输出分配表达式：有效输出78.796875 MiB，padding后Query/输出各1260.75 MiB，裁回H4的view仍持有完整1260.75 MiB backing。无GPU初始化/模型请求；不是设备数值或完整OOM受控重现。
+- 源码同时确认max-token profile默认无attention metadata，MLA提前返回，未运行padding/真实Sparse MLA；FULL Decode小batch捕获不代替大Prefill工作区估算。碎片、原故障完整活跃/缓存峰值及非连续KV副本占比无snapshot，不推定为泄漏或宣称独占根因已确认。
+- 知识增量 `refined`：除了kernel tile的head padding，还应检查HBM张量物化及view backing；“按MBT profile过”不保证backend adapter临时内存已覆盖。下一首个方向是在现有普通Triton FGV边界支持实际小H、再去掉Plugin的HBM head padding，并补真实workspace预算；尚未实施，不降MBT/重回旧模型或引入TileLang。
+- 证据：同点[OOM记录](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-pr454-public-path-50.md)，远端同case `oom-analysis-v1.json`/`model08/public/service.log`；证据等级：原生OOM `observation`、分配与alias机制 `source+CPU/meta`，非完整根因修复闭环。
+
+### 公共路径接续：物理索引稳定压缩的内存正确性（点52）
+
+- 状态`kept`（仅修复源码，诊断服务OFF），证据等级`reproduced`限转换数值/内存和原短C64回归；不是新正式gate或性能通过。环境：同PPU TP16/BF16、vLLM0.24.0/FULL；Plugin `f769696`+内容`529cd814…`、FGV `b4d3382`+内容`ba76c1df…`，公共模型/H4，显式vendor及MM07临时MM策略保持同一前置。
+- Prefill路径`_convert_request_to_physical_indices → flaggems_vllm.convert_sparse_indices`：实际16worker最大`[32768,2176]`，请求/页表/逻辑索引整数，输出int32。旧remainder单张量544MiB OOM后，`operator/improve`用逐行有界scan融合映射/缺页过滤/稳定压缩，保留int64地址计算、顺序/重复/计数/-1尾部；不生成全尺寸int64工作区，无平台模型分支。
+- 独立同输入`8198×8320`对照额外峰值约3.88GiB→260.22MiB、逐位相等；不是实际模型shape/总峰值。CPU420、FGV设备145、原cache设备2通过，3宽度各2次更新输入graph replay；原C1/C8、三16K边界、11答案及P4096/D16/C64/N64全部通过（64唯一响应），实际shape输出272MiB+128KiB长度，未见OOM/RPC。原argv/MBT/生产DB不变，完整当前审计通过。首次CPU fixture边界失败/精确回退保留，不加生产Torch fallback来满足CPU单测。
+- 知识差量`refined`：早期“索引局部提速未兑现E2E”不能用来否定新公共路径中的索引**内存正确性**修复；H4存储问题消除后，原被掩盖的O(MK)整数中间量可成为下一独立OOM。下一首查实际M/K/dtype与活跃中间量，不从单次544MiB分配反猜shape或把一个修复扩成全峰值根因。
+- 后续真实生产验证：原脚本/MBT不变、无任何MM/vendor/观测hook，默认`glm5.flaggems`的C64 64/64、C1/C8/三16K/11答案/FULL于12:15:49通过，16worker前后无hook，生产DB正常调参写入保留。同实例198题/C64正式GPQA已启动，score/gate待定；先前临时策略与本生产范围分开。
+- 边界：仍无当前198题gate、稳态三臂、非PPU硬件或完整allocator峰值证据；冷请求诊断和转换微基准不代表E2E收益。完整证据与SHA：[点52](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261022-sparse-physical-index-fusion-52.md)，远端`index-conversion-repair-08/validation-recovery-01`及`production-no-mm-02`，正式在后者`formal-gpqa-01`。
+
 ### 适用限制
 
-反例只覆盖上述 PPU、BF16、TP16、topk2048、两个冻结服务 workload。
+前述性能反例只覆盖上述 PPU、BF16、TP16、topk2048、两个冻结服务 workload。
 它支持“局部辅助 kernel 必须回到端到端验证”的方法，不证明其他模型或
 更高占比场景中的索引转换都没有优化价值。
 
