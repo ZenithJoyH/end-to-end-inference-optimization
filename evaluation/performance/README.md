@@ -68,6 +68,10 @@ python3 evaluation/performance/vllm_perf.py \
 
 客户端身份还绑定实际 Python 入口/解释器、vLLM benchmark 和 CLI 的 Python 源文件，运行前后检查其内容，比较时重验保存的探针；同一版本号或 console script SHA 不足以证明 editable 安装未变化。当前支持直接 Python console script 和简单 `env python` shebang；shell wrapper 或不可读取源码的安装需先适配，不会跳过检查。虚拟环境入口保持原路径。此范围不等于全部第三方依赖的环境锁定；缺少这些证据的旧 run-record 不自动通过新比较。
 
+客户端 capability 预检默认每项预算 30 秒。SDK/插件导入较慢时，计划入口可显式传入
+`--client-probe-timeout 120`；预算记录在 client 证据中，仍执行解释器/源码绑定、版本和完整 CLI
+能力检查。它只调整客户端启动预检，不改变 benchmark 轮次超时、服务配置或稳态准入。
+
 `--output-dir/<run-id>/` 保留有效计划、服务/比较契约快照、客户端身份、原始结果和输出、逐轮 validation 及 `run-record.json`。原始大产物留在目标环境的外部路径，不加入项目。三个角色的每次独立进程运行都使用唯一 run-id。
 
 收齐契约要求的运行后比较，例如每个角色各两个独立进程：
@@ -146,6 +150,10 @@ python3 evaluation/performance/sglang_perf.py \
 SGLang profiling 将第一条命令的入口换为 `sglang_profile.py` 并设置实际端口。服务须事先配置 profiler；`--profile-dir` 指向执行客户端可见的实际 trace 目录，不推断远端映射。`--no-profile` 可省略此目录，只做诊断。`--case` 可重复，四个值依次为输入长度、输出长度、并发上限、请求数；`--profile-runs all|first|last` 只作用于非预热轮，`--timeout` 限制每轮客户端运行时间。
 
 非零退出、超时、原生结果缺失或预热失败会保留失败证据并返回非零；profiling 与无 profiler 轮次分组汇总。请求采集但没有观察到新的或发生变化的非空有效 trace 时返回 `incomplete` / 2，不把旧文件或普通 benchmark JSON 当作采集成功。异步 trace 尚未导出时也保持 incomplete；新文件的时间窗口与 SHA 仅是采集证据，worker 覆盖、实际热点命中仍需检查 trace 内容。客户端超时后须检查目标服务的 profiler 状态，工具不会擅自重启服务。
+
+vLLM profiling 默认 temperature=0；分析 temperature=1 的目标服务时显式传入
+`--temperature 1`，避免诊断跳过实际采样路径。top-k/top-p 沿用目标服务的已核验默认值；
+采样配置仍需写入诊断契约。
 
 维护版 SGLang 使用固定随机长度、无限到达率和独立并发上限，分别保存每轮 JSONL、stdout/stderr 与 validation。原生 `request_rate=Infinity` 是该客户端的有限批次表示；决策指标仍须有限。接口按 [SGLang v0.5.11 源码](https://github.com/sgl-project/sglang/blob/v0.5.11/python/sglang/bench_serving.py)核对，区分 `--request-rate` 与 `--max-concurrency`，并使用其 `--output-details` 结果核验计数、长度和指标。此前 SGLang profiling 将并发作为到达率，旧性能脚本使用不同随机长度设置，不能与本次修复后的结果直接混比。当前未做 SGLang 真实服务集成验证。
 

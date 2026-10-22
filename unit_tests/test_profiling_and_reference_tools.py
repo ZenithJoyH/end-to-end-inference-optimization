@@ -42,6 +42,22 @@ class ProfilingTest(unittest.TestCase):
         self.assertEqual(report['summaries'], [])
         self.assertEqual(report['rounds'][0]['metrics']['p99_ttft_ms'], {'invalid_number': 'nan'})
 
+    def test_profile_preserves_requested_sampling_temperature(self):
+        args = self.args(['--no-profile', '--temperature', '1'])
+        with patch.object(vllm_profile.vllm_perf, 'run_once', return_value={'valid': True}) as run, \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(vllm_profile.run_diagnostic(args), 0)
+        for call in run.call_args_list:
+            command = call.args[3]
+            self.assertEqual(float(command[command.index('--temperature') + 1]), 1)
+        self.assertEqual(self.report()['configuration']['temperature'], 1)
+
+    def test_invalid_sampling_temperature_is_rejected(self):
+        for value in ('-1', 'nan', 'inf'):
+            with self.subTest(value=value), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    self.args(['--no-profile', '--temperature', value])
+
     def test_profile_without_new_trace_is_incomplete(self):
         traces = self.root / 'traces'
         traces.mkdir()

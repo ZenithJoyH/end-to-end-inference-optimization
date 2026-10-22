@@ -19,7 +19,12 @@ import vllm_perf
 
 
 ROLES = ("baseline", "candidate", "revert")
-VOLATILE_SERVICE_FIELDS = {"service_instance_id", "runtime_evidence_sha256", "base_url"}
+# PID and evidence locations change with each observed service instance. The
+# evidence files are still SHA-verified in check_run, not discarded as inputs.
+VOLATILE_SERVICE_FIELDS = {
+    "service_instance_id", "runtime_evidence_sha256", "base_url",
+    "api_pid", "runtime_evidence_files",
+}
 VARIABLE_ROOTS = {
     "plugin_sha256",
     "flaggems_sha256",
@@ -229,6 +234,15 @@ def service_identity(service, contract=None):
     if context.get("prefix_cache_state") not in ("cold", "warm", "mixed", "disabled"):
         raise ValueError("prefix cache state is not established")
     validate_cache_policy(service, contract)
+    if "api_pid" in service and (type(service["api_pid"]) is not int or service["api_pid"] <= 0):
+        raise ValueError("api_pid must be a positive observed integer")
+    if "runtime_evidence_files" in service:
+        files = service["runtime_evidence_files"]
+        if not isinstance(files, dict) or not files:
+            raise ValueError("runtime_evidence_files must be a nonempty path/SHA mapping")
+        if any(not isinstance(path, str) or not path or not isinstance(digest, str)
+               or not re.fullmatch(r"[0-9a-f]{64}", digest) for path, digest in files.items()):
+            raise ValueError("runtime_evidence_files requires explicit paths and SHA-256 values")
     return {key: val for key, val in service.items() if key not in VOLATILE_SERVICE_FIELDS}
 
 
@@ -283,6 +297,8 @@ def check_run(path, contract_ref, contract):
     service = read_json(verified(refs["service"]))
     performance_plan._check_service(service, plan["target"])
     identity = service_identity(service, contract)
+    for path, digest in service.get("runtime_evidence_files", {}).items():
+        verified({"path": path, "sha256": digest})
     if "project_scope" in contract:
         check_project_plan(plan, contract["project_scope"])
         if record["role"] in ("baseline", "revert") and identity_digest(identity) != contract["project_scope"]["baseline_identity_sha256"]:

@@ -307,8 +307,8 @@ def runtime_command(executable):
     return [invocation, "-c", RUNTIME_PROBE, invocation]
 
 
-def _probe(command):
-    result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+def _probe(command, *, timeout_s=30):
+    result = subprocess.run(command, capture_output=True, text=True, timeout=timeout_s)
     output = result.stdout + "\n" + result.stderr
     return {"command": command, "returncode": result.returncode,
             "output_sha256": hashlib.sha256(output.encode()).hexdigest(), "output": output}
@@ -343,11 +343,13 @@ def runtime_from_probe(probe):
     return value
 
 
-def inspect_client(commands):
+def inspect_client(commands, *, probe_timeout_s=30):
+    _number(probe_timeout_s, "client probe timeout")
     executable = shutil.which("vllm")
     required = sorted({argument for command in commands for argument in command if argument.startswith("--")})
     report = {"schema_version": 1, "executable": executable, "executable_sha256": None, "version": None,
-              "required_flags": required, "supported_flags": [], "probes": {}}
+              "required_flags": required, "supported_flags": [], "probes": {},
+              "probe_timeout_s": probe_timeout_s}
     errors = []
     if not executable:
         return report, ["vllm executable not found; no requests were sent"]
@@ -356,7 +358,7 @@ def inspect_client(commands):
     except OSError as exc:
         return report, [f"cannot fingerprint vllm executable: {exc}"]
     try:
-        runtime_probe = _probe(runtime_command(executable))
+        runtime_probe = _probe(runtime_command(executable), timeout_s=probe_timeout_s)
         report["probes"]["runtime"] = runtime_probe
         report["runtime"] = runtime_from_probe(runtime_probe)
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
@@ -364,7 +366,7 @@ def inspect_client(commands):
     for name, command in (("version", [executable, "--version"]),
                           ("help", [executable, "bench", "serve", "--help=all"])):
         try:
-            result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(command, capture_output=True, text=True, timeout=probe_timeout_s)
             output = result.stdout + "\n" + result.stderr
             report["probes"][name] = {"command": command, "returncode": result.returncode,
                                       "output_sha256": hashlib.sha256(output.encode()).hexdigest(), "output": output}
@@ -406,6 +408,8 @@ def _warmup_check(values, config):
 def execute_plan(args):
     """Freeze inputs and persist all completed/failed rounds; return run-record path."""
     _identifier(args.run_id, "run_id")
+    probe_timeout_s = getattr(args, "client_probe_timeout", 30)
+    _number(probe_timeout_s, "client probe timeout")
     source_refs = {"plan": artifact(args.config), "service": artifact(args.service_manifest)}
     plan = load_plan(args.config)
     _check_service(read_json(args.service_manifest), plan["target"])
@@ -453,7 +457,8 @@ def execute_plan(args):
             record["artifacts"][name] = artifact(destination)
             if record["artifacts"][name]["sha256"] != ref["sha256"]:
                 raise ValueError(f"{name} input changed before snapshot")
-        client, client_errors = inspect_client([entry["command"] for entry in commands])
+        client, client_errors = inspect_client([entry["command"] for entry in commands],
+                                              probe_timeout_s=probe_timeout_s)
         client = dict(client)
         record["artifacts"]["client_probes"] = _write_new(directory / "client-probes.json", client.pop("probes", {}))
         record["artifacts"]["client"] = _write_new(directory / "client.json", client)

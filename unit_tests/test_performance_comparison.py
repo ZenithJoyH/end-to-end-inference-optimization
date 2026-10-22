@@ -123,6 +123,45 @@ class ComparisonTest(unittest.TestCase):
         self.assertEqual(metric["candidate"]["process_values"], [20, 20])
         self.assertEqual(report["changed_paths"], ["/flaggems_sha256"])
 
+    def add_instance_observations(self):
+        proofs = []
+        for i, record in enumerate(self.paths):
+            proof = record.parent / "runtime-proof.json"
+            ref = self.save(proof, {"observed_instance": i, "graph_replays": 2})
+            self.mutate_artifact(i, "service", lambda service, i=i, ref=ref: service.update(
+                api_pid=1000 + i, runtime_evidence_files={ref["path"]: ref["sha256"]}))
+            proofs.append(proof)
+        return proofs
+
+    def test_instance_pid_and_verified_evidence_locations_do_not_change_configuration(self):
+        proofs = self.add_instance_observations()
+        report = self.decision()
+        self.assertEqual(report["status"], "passed", report)
+        self.assertEqual(report["changed_paths"], ["/flaggems_sha256"])
+        checked = compare.check_run(self.paths[0], compare.artifact(self.contract_path), self.contract)
+        self.assertIn(compare.artifact(proofs[0]), checked["evidence_refs"])
+
+    def test_changed_instance_evidence_is_rejected(self):
+        proofs = self.add_instance_observations()
+        self.save(proofs[0], {"observed_instance": "tampered"})
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete")
+        self.assertIn("artifact missing, relocated or changed", " ".join(report["issues"]))
+
+    def test_unknown_observation_field_still_requires_declared_configuration_change(self):
+        self.add_instance_observations()
+        self.mutate_artifact(2, "service", lambda service: service.update(actual_backend="another"))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete")
+        self.assertIn("/actual_backend", " ".join(report["issues"]))
+
+    def test_invalid_instance_observation_metadata_is_rejected(self):
+        self.mutate_artifact(0, "service", lambda service: service.update(api_pid=True))
+        self.assertIn("api_pid", " ".join(self.decision()["issues"]))
+        self.mutate_artifact(0, "service", lambda service: service.update(
+            api_pid=1000, runtime_evidence_files={"proof.json": "not-a-sha"}))
+        self.assertIn("runtime_evidence_files", " ".join(self.decision()["issues"]))
+
     def test_native_metadata_is_revalidated_against_frozen_plan(self):
         self.mutate_round(0, 0, lambda raw: raw.update(model_id="wrong-model", max_concurrency=999))
         report = self.decision()

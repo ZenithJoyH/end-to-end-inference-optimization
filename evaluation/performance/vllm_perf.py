@@ -69,6 +69,8 @@ def parse_args():
     parser.add_argument("--run-id", help="Unique output directory name; required with --config")
     parser.add_argument("--scope", choices=("diagnostic", "performance_only"), default="diagnostic")
     parser.add_argument("--comparison-contract", help="Pre-frozen comparison contract to bind by SHA")
+    parser.add_argument("--client-probe-timeout", type=float, default=30,
+                        help="Seconds allowed for each client capability probe (default 30)")
     parser.add_argument("--dry-run", action="store_true", help="With --config, validate and print commands without running vLLM")
 
     parser.add_argument(

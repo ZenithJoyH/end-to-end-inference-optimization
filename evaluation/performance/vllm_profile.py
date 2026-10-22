@@ -40,6 +40,11 @@ def parse_args(argv=None, engine='vllm'):
     parser.add_argument('--runs', type=int, default=3 if engine == 'vllm' else 2)
     parser.add_argument('--warmup-rounds', type=int, default=2 if engine == 'vllm' else 1)
     parser.add_argument('--seed', type=int, default=42)
+    if engine == 'vllm':
+        parser.add_argument('--temperature', type=float, default=0,
+                            help='Match the target sampling temperature (default 0)')
+    else:
+        parser.set_defaults(temperature=0)
     parser.add_argument('--timeout', type=float, default=3600)
     parser.add_argument('--no-profile', action='store_true', help='Diagnostic benchmark only; no formal gate')
     parser.add_argument('--profile-runs', choices=['all', 'first', 'last'], default='last')
@@ -52,6 +57,8 @@ def parse_args(argv=None, engine='vllm'):
         parser.error('require 0 <= warmup-rounds < runs and a valid port')
     if not 0 <= args.seed < 2**32 or not math.isfinite(args.timeout) or args.timeout <= 0:
         parser.error('invalid seed or timeout')
+    if not math.isfinite(args.temperature) or args.temperature < 0:
+        parser.error('temperature must be finite and nonnegative')
     if any(args.seed + c[0]*10 + c[2]*1000 + args.runs >= 2**32 for c in args.case):
         parser.error('derived per-round seed exceeds the client range')
     if not args.no_profile and not args.profile_dir:
@@ -63,7 +70,8 @@ def build_common_args(args):
     return ['vllm', 'bench', 'serve', '--backend', 'vllm', '--model', args.model,
             '--tokenizer', args.tokenizer, '--endpoint', args.endpoint, '--host', args.host,
             '--port', str(args.port), '--dataset-name', 'random', '--random-range-ratio', '0',
-            '--temperature', '0', '--ignore-eos', '--request-rate', 'inf', '--seed', str(args.seed)]
+            '--temperature', str(getattr(args, 'temperature', 0)),
+            '--ignore-eos', '--request-rate', 'inf', '--seed', str(args.seed)]
 
 
 def should_profile_run(run_id, total_runs, profile_runs_mode, warmup_rounds=2):

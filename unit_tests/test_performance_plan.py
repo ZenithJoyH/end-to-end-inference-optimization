@@ -333,6 +333,29 @@ class PlanExecutionTest(unittest.TestCase):
             PLAN.execute_plan(self.args)
         run.assert_not_called()
 
+    def test_client_probe_budget_keeps_all_capability_checks(self):
+        commands = [["vllm", "bench", "serve", "--model", "example", "--save-result"]]
+        runtime = client_fixture(PLAN, [])['runtime']
+        outputs = [subprocess.CompletedProcess([], 0, json.dumps(runtime), ""),
+                   subprocess.CompletedProcess([], 0, "0.12.0\n", ""),
+                   subprocess.CompletedProcess([], 0, "--model --save-result\n", "")]
+        executable = self.root / "vllm"
+        executable.write_text("#!/usr/bin/python3\n")
+        with patch.object(PLAN.shutil, "which", return_value=str(executable)), \
+                patch.object(PLAN.subprocess, "run", side_effect=outputs) as run:
+            client, errors = PLAN.inspect_client(commands, probe_timeout_s=120)
+        self.assertEqual(errors, [])
+        self.assertEqual(run.call_count, 3)
+        self.assertEqual([call.kwargs["timeout"] for call in run.call_args_list], [120] * 3)
+        self.assertEqual(client["probe_timeout_s"], 120)
+
+    def test_invalid_client_probe_budget_sends_no_requests(self):
+        for value in (0, -1, float("nan"), float("inf"), True):
+            with self.subTest(value=value), patch.object(PLAN.subprocess, "run") as run:
+                with self.assertRaises(ValueError):
+                    PLAN.inspect_client([], probe_timeout_s=value)
+                run.assert_not_called()
+
     def test_native_workload_mismatch_stops_before_measured_rounds(self):
         for key, value in (("model_id", "wrong"), ("tokenizer_id", "wrong"), ("max_concurrency", 999),
                            ("request_rate", 5), ("burstiness", 0.2), ("input_lens", [1, 19])):
