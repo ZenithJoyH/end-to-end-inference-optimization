@@ -1,5 +1,55 @@
 # 20260911-glm53-flash-ppu-e2e：GLM-5.3-Flash-BF16 / PPU 端到端优化
 
+## 当前状态（2026-10-22，覆盖下文历史状态描述）
+
+12:20：[点52生产路径](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261022-sparse-physical-index-fusion-52.md)原脚本/MBT不变，去除全部临时MM/vendor/观测hook，默认flagos的C64 64/64及完整最小模型/FULL回归通过，16worker无hook/TileLang，无OOM/RPC。相同新实例198题/C64/seed42/60K/86% GPQA已唯一启动，原生新UUID缓存命中0、开始实际请求；分数/gate未定，监控跟进，无新性能或提交推送。原生产DB合法调参写入已记录，未清/复制/回退；以下11:40/OFF/诊断策略为历史。
+
+11:40：[点52索引融合修复](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261022-sparse-physical-index-fusion-52.md)已通过原C64 64/64与C1/C8、三16K边界、11/11答案、FULL捕获/多token回放；16worker实际`32768×2176`命中，未见OOM/RPC。保持MBT32768及原argv/脚本，以FGV通用融合算子消除多份全尺寸int64中间量；H4+融合源码保留，诊断服务OFF、完整及当前只读审计通过，monitor删除。首轮CPU fixture失败与精确回退保留。沿用MM07临时vendor/MM策略，仅验证该转换OOM在原C64短契约内修复，默认flagos/生产MM路径、新198题gate与稳态性能仍未验；无提交推送，不复用旧收益。
+
+10:37：[点51 MM07终态](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)固定shape/输入三臂数值与graph全过，原/候选/回退冷调用302.08/12.40/302.66s，仅确认冷搜索机制、不冒称稳态收益。模型通过C1/C8/16K/11答案/FULL捕获，但C64在公共物理索引转换remainder分配544MiB处OOM，16rank均报错；候选实际每worker22次限4命中，仍非充分修复。控制器恢复SQL-only/OFF且当前独立全树/index/身份/DB审计通过，候选不保留、无自动重试/GPQA/性能，终态监控删除；旧RPC唯一根因及当前峰值张量机制未完全归因。
+
+09:40：[点51 MM06已闭环](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)，原测试昨晚23:54结束，断网只是未取得回执。当前源码/index/唯一安装/镜像挂载及master DB审计SQL-only/OFF通过；原策略一轮C8通过、回退RPC失败，候选实际104→4命中并通过，但三臂冷shape无交集，不能报严格加速。下一07固定shape序列/输入SHA，再条件式原C64完整回归；尚无新gate/稳态性能，不保留临时策略。旧监控已暂停，下面运行/失联状态为历史。
+
+23:36进行中：[点51 MM因果对照06](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)真实PPU四候选×23shape的92项oracle和8次动态graph回放已通过，原P4096 C1/C8三臂唯一启动。MBT/FULL/kernel/key/生产DB不变，仅临时缩短候选搜索；同源SQL缓存、共享编译cache限制与实际shape对照在账本冻结。暂无模型修复/新gate/性能结论；已有只读monitor跟进，终态精确恢复SQL-only/OFF，不把23:04旧终态当当前试验结果。
+
+23:04只读定位终态：[点51](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)SQL修复保留，但C8仍约300s RPC失败。真实原生key/prune及前后只读DB差分进一步确认：不是缓存失效，19个winner/2040条候选标签正常写入；M20480已有11组、M20481/8198进入21504/9216冷bucket，每projection104候选（默认114经合法性裁剪），20个冷组中最后一组未完成。充分修复仍需同初始缓存单变量MM策略对照，另有独立do_bench协议tag风险未修复。本轮零模型/GPU请求、零库/生产DB变更，完整审计通过、服务OFF、H4未安装、monitor暂停。原C8失败/新gate/性能缺口保留，不将CPU预算推算当端到端收益；[可复用诊断卡](../../../skills/key-operator-analysis/references/operators/mm/case-index.md)。
+
+17:11定位：[点50](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-pr454-public-path-50.md)公共Sparse MLA的H4→H64物化使SQ20172时Query/输出各1.23 GiB，有效输出仅78.8 MiB；切片仍持有大存储，源码与PR454方法一致。启动profile跳过真实attention，未覆盖额外物化，已用原生日志+源码AST/CPU-meta确认该机制；全峰值/碎片/缓存副本未完全归因，未修复/重启或重跑、无gate/性能。知识增量见MLA卡/map，不把历史BF16 vendor性能归属本公共路径。
+
+16:53终态：[点50](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-pr454-public-path-50.md)完整最小回归虽通过，C64全量仍因TP14 Sparse MLA输出申请1.23 GiB时OOM失败，RPC超时是后续症状。原生0/198、198题全timeout，86%门槛未通过，不将服务故障解释成模型答题能力；无gate/性能晋级。当前服务已退出、8011拒绝连接，三库源码/index、唯一安装和静态身份只读审计未变；未自动重启/回退/重跑，证据冻结、monitor暂停，下一边界为公共Prefill峰值显存而非盲目叠加优化。以下16:37及此前是历史。
+
+16:37最新：[点50公共路径修复](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-pr454-public-path-50.md)通过实际完整最小回归与独立审计。KPool稳定buffer和FG目标表缓存反射修复已在真实私有三库安装根生效，原FULL C1/C8/三16K-D8/11答案、16Worker无TileLang、唯一安装/身份/镜像挂载通过；Plugin12文件、FGV4、FG两个既有文件变动，无旧PPU模型路径/临时trace，原参数/脚本/vLLM不变。新身份198题/C64/strict>=86% GPQA已唯一派发，尚无gate/性能，不复用旧分数；旧失败、恢复及冷缓存因果限制保留。
+
+[点50公共PR路径验证](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-pr454-public-path-50.md)13:56闭环：PPU仅用FlagGems/FlagGems-vllm，421相关CPU通过/4既有跳过、算子与三子图通过，实际16-rank完成11/11档decode FULL捕获、无降级；必要C8回归仍触发`_kpool_decode_update_batched_kernel`设备非法内存访问，因此公共候选未通过、不保留。旧TileLang导入、constructor与分组能力查询阻塞已有进展，不能继续把它们当当前首个故障；KPool输入/metadata/graph机制根因尚未确认。原point49两库源码/index及原FULL服务精确恢复，C1/C8、三16K边界、11答案和capture/多token回放通过，最终只读身份/唯一安装/镜像挂载及health200空闲审计通过；实际仍52项SCM、两库各1份安装。安全回退不是公共迁移完成；原参数/脚本未变，无新GPQA/gate/性能/提交推送，全部失败/恢复证据保留，监控暂停。
+
+[点49职责边界复查](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-responsibility-preserving-dedup-49.md)已在容器实际安装Plugin完成并保留：仅共享FlagGems/reference同职责懒解析闭包，保留两端工厂/注册策略及vendor/MHC/cache/worker/processor边界，运行代码净减12行。首轮1项工厂契约失败后精确回退，修订后原失败测试及完整543 CPU通过/4既有跳过、模型C1/C8/16K三边界/11答案/FULL_DECODE_ONLY capture/多token回放、21:21最终审计通过。当前源1244047d…，原参数8011健康，两库各1份editable；未提交推送，无新完整GPQA/性能，不改绑点46旧175/198。PR既有配套依赖、非PPU/FP8/多模态硬件及当前新完整gate仍待补，本轮停止。下文为当时证据。
+
+[点48 config/processor公共复用](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-config-processor-consolidation-48.md)已在实际安装Plugin完成：配置269→45行、处理器868→226行，运行代码净减825行，公共默认/短视频守护不变，无新增平台判断。188项新旧对照、536 CPU通过/4跳过、模型C1/C8/三档16K边界/11答案、FULL_DECODE_ONLY capture/多token回放及最终独立环境/身份审计通过，当前源1581bddf…，原参数服务健康。两库各1份安装，无新完整GPQA/性能/提交推送；175/198只属点46旧源，PR剩余配套FGV依赖及非PPU/FP8/多模态硬件/最终新gate缺口。本点结束，不自动派发新实验。
+
+[点47正式PR审查与收敛](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-pr-review-consolidation-47.md)已直接收敛实际安装Plugin：移除无消费者旧indexer接口、重复INT8覆盖、5个透传和实验日志，runtime净减428行，SCM50→48；3文件删除可恢复。CPU511通过/4跳过、模型C1/C8/16K/11答案、FULL_DECODE_ONLY graph及最终身份审计通过，当前源471a65fb…；无新完整GPQA/性能/提交推送。正式PR仍needs_revision：FGV配套依赖、非PPU/公共FP8与多模态验证待补；下述点46的175/198不改绑到本点。
+
+[点46共享模型/BF16缓存ABI](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-shared-model-cache-abi-46.md)已直接修改实际安装Plugin：复用PR454公共模型与cache生命周期，保留必要ABI及非等价config/processor，净减2252行。CPU498通过/4跳过，整模C1/C8、三个16K边界、11/11答案、FULL_DECODE_ONLY capture/多token回放及设备bitwise对照通过。新身份独立全量GPQA198题/C64 strict为175/198＝88.3838%≥86%，原生gate与最终身份/样本审计通过，监控暂停；8题timeout标记仅诊断、无补充替换。前五轮失败/恢复保留，无新性能测量/提交推送，非PPU/多模态硬件未验，下文为历史。
+
+14:51最新：[点45审计与继续收敛](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-multiplatform-architecture-45.md)已直接在实际安装Plugin删除4个无语义转发文件，46→42项，净减183行；37运行/1配置/4测试，95 CPU/真实provider解析及最终只读核验通过。保留不同cache ABI的host实现和非等价config/processor，不称已最小化。服务未重启或发推理请求，参数/其他组件不变、健康，未提交推送；新磁盘版本模型/graph/gate待验证，删除可恢复。
+
+13:41最新：[点45收敛补丁](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-multiplatform-architecture-45.md)已按用户明确要求直接应用容器实际editable Plugin，不再仅审查副本。实际目录95项CPU/新进程导入与注册通过，SCM46项，原有改动保留且删除文件可恢复。服务健康、进程/参数不变，未重装/重启/热重载/推送或发模型请求；磁盘源身份已更新，既有worker是否加载新逻辑未证明，旧模型graph/精度证据不能重新绑定。以下13:28“未安装”属此前历史。
+
+13:28审查候选：[点45后续runtime contract收敛](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-multiplatform-architecture-45.md)消除通用注册入口T-Head特判，改用已有dispatch缓存ABI声明，移除无调用方bootstrap；95项CPU及真实元数据/重复注册检查通过。仅未安装副本，无模型构造/graph/full精度或性能验证；仍保留不同缓存ABI的host实现，其他平台真机启动和较早OpManager初始化时序未验证。实际容器、SCM45和服务未变，未提交推送。
+
+11:18最新：按用户原生VS Code SCM审查要求，同一Plugin目录额外45项显示为“暂存的更改”；HEAD保留纯PR454，磁盘/index仍为已安装修复版，完整`a07f384`提交由快照分支保护。源码内容与服务不变、health200，无额外评测/重装/重启/推送。目录与注意事项见[点45](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-multiplatform-architecture-45.md)，以下11:11工作区干净状态为历史。
+
+11:11后续：[点45](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-multiplatform-architecture-45.md)已按用户要求将实际安装Plugin提交为本地`a07f384`，工作分支`glm53-multiplatform-worker-fix-p45`，另保留纯PR454及冻结main基线分支，便于直接git diff。45文件差异包含累计适配/优化/测试；源码字节不变、工作区干净、运行服务不变且健康，未重装/重启或推送。FlagGems-vllm本次未提交，无新评测。
+
+最新：[点45多平台结构修订、安装去重](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261020-multiplatform-architecture-45.md)已按用户后续授权完成。通用注册恢复公共默认实现，BF16 ABI独立算子键，真正平台特化保留vendor边界；Plugin v4与FlagGems-vllm v3各一份editable安装，13个旧私有源码目录已删除且有逐项校验的恢复归档。首轮worker进程初始化故障已最小复现、修复及实际模型回归闭环，失败/回退证据保留。116 CPU契约、10组PPU设备回归、9组graph各两回放、模型capture/C1/C8/16K边界和明确答案通过，最终独立审计通过、服务健康；不代表其他平台硬件验收。交付脚本/启动参数、vLLM/FlagGems/权重未改，无新全量GPQA gate或性能测量，未提交推送。
+
+历史：[点44补丁收敛](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261019-minimal-patch-consolidation-44.md)曾部署并完成审计。Plugin新增内容净减702行（38→35个文件，含新增回归测试），FlagGems-vllm调参无关格式diff去除，数值kernel保持；75 CPU、41选路、graph及模型最小回归通过。现被点45替代，点43/44展开源码已归档删除，回退须恢复对应归档；点43补充171/198仍为历史，不伪造当前新分数或性能收益。
+
+当前[点43上游迁移](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261019-upstream-migration-43.md)：官方Plugin main+PR454、官方FlagGems-vllm main及保留优化已安装到私有新副本，最小回归通过。用户授权14题统一补跑已完成并独立复验，全部14题替换、其余184题不变后171/198＝86.36%≥86%，补充口径达标；原单轮169/198失败保留、不签发新的单次全量gate。服务身份未变且健康、监控暂停，未自动继续性能优化或提交推送。保留PPU BF16兼容边界，不冒充纯净PR454 PPU验收；旧版173补充不混入新版。以下点42为此前已闭环历史。
+
+用户要求固定MBT32768优化批次组织/晚到接纳。[点42有界Prefill合批](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261019-ready-prefill-coalescing-42.md)日志修复与真实“延后新Prefill、继续Decode”命中通过，但完整缩减三臂Mixed只+0.035879%且原生failed；Decode TTFT退化、基线/回退波动及回退漂移使guard保持incomplete。候选不保留，原服务/源码/参数恢复审计通过，monitor暂停，无新实验/完整gate/正式四场景结论。复盘将短探针命中与measured流量命中率未知分开，下一步先做frontend/IPC阶段归因，不据低spread宣称端到端成功。当前事实在模型state/总览维护，不在案例复制瞬时PID/health。
+
+点41逐step诊断完成，16rank新trace确认前端接纳时序→异步成批/step边界接纳→含Prefill step碎片化的放大链；未证明单个算子随机失速。原参数服务已恢复健康，maxseq64/MBT32768/TP16/BF16/FULL_DECODE_ONLY/关闭前缀缓存保持，源码与交付脚本未改。此前缩减Mixed增量+5.3491%有效，Decode guard仍incomplete，正式四场景验收未完成；用户认可GPQA补充合并173/198与原生169/198分别保留，本次未签发新gate。细节与证据只维护在[点41记录](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261018-prefill-quantum-41.md)及[当前台账](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/state.yml)，以下旧阶段状态为历史，不代表当前服务已停止。
+
 ## 摘要
 
 - 执行规则：`0.18` / `2026-09-10`
