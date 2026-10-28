@@ -2,6 +2,8 @@
 
 ## 1. 文档定位与版本边界
 
+后续开发按 [算子层开发规范](operator-development-standard.md) 执行：FlagGems 仅提供 ATen 算子能力，vLLM 融合算子由 FlagGems-vllm 提供。本文中的融合 API、`fused/` 及历史调用链仅描述下述 revision，不构成继续向 FlagGems 新增非 ATen 融合接口的依据；运行事实仍按目标代码核验，不据新规则推定历史实现已经迁移。
+
 - 官方仓库：<https://github.com/flagos-ai/FlagGems>
 - 默认分支：`master`
 - 分析基线：`8e1fce4db7414da1668c2805ff337e0d96859a86`

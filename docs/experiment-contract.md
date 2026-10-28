@@ -368,13 +368,22 @@ change:
   hypothesis: ""
   primary_variable: ""
   files: []
-engineering_review:  # 涉及 Plugin 时填写；不涉及则 status=not_applicable
+engineering_review:  # 涉及 Plugin 或算子接入/修改时填写；均不涉及才 not_applicable
   status: pending  # pending | passed | needs_revision | not_applicable
-  standard: docs/plugin-development-standard-v1.md
+  standard: docs/plugin-development-standard-v1.md  # 以下兼容字段属于 Plugin；纯算子实验设 null
   standard_sha256: 7fdc56acaf83688e5fee50c4e1400b44dca43032068ebfe235c28b57b36f67f1
   applicable_clauses: []  # 按规范任务索引选择 A1–G2；跨类型取并集
   clause_checks: []  # 条目包含 clause、result、evidence、reason；未执行填 not_run，不适用说明原因
   recommendation_deviations: []  # 【应该】条款偏离时记录 clause、reason、alternative_validation
+  operator_standard:  # 算子接入/修改填写；纯 Plugin 实验 status=not_applicable
+    status: pending  # pending | passed | needs_revision | not_applicable
+    standard: docs/operator-development-standard.md
+    standard_sha256: null  # 本地执行版的实际 SHA；不是 Downloads 源文件 SHA
+    repositories: []  # FlagGems | FlagGems-vllm；以任务真实修改/接入范围填写
+    ownership: []  # symbol、repository、aten_schema/overload 或 fusion_api、reason；ATen / vLLM 融合分开记录
+    applicable_clauses: []  # 算子规范 A1–F6，按任务取并集；包含适用项目特例
+    clause_checks: []  # clause、result、evidence、reason；覆盖公开调用/分发命中、契约、graph、benchmark 等适用项
+    recommendation_deviations: []  # clause、reason、alternative_validation
   design_record: ""  # optimize 中的设计归属、支持范围和非目标影响
   pr_readiness: experimental  # experimental | needs_revision | ready_for_review
   compatibility_evidence: []
@@ -412,10 +421,17 @@ notes: ""
 
 不可用指标保持 `null`，不得用 `0` 伪装已测量。
 
-`engineering_review` 的规范字段用于新建或更新的 Plugin 实验记录；条款检查结果使用
+`engineering_review` 的规范字段用于新建或更新的 Plugin 或算子实验记录。顶层 `standard`、
+`standard_sha256`、`applicable_clauses`、`clause_checks`、`recommendation_deviations` 保留为 Plugin
+字段；纯算子实验将前两项设为 `null`，后三项为空，并填写 `operator_standard`。纯 Plugin 实验将
+`operator_standard.status` 设为 `not_applicable`；联动实验分别检查两套规范，避免混淆同名条款。
+顶层 `status` 汇总适用复核项，不能因为未改 Plugin 就将算子复核标为不适用；存在未完成的必要检查时
+保留 `pending` 或按缺陷标为 `needs_revision`，不能直接判 `passed`。条款检查结果使用
 `executed_passed|executed_failed|not_run|not_applicable`，静态/人工检查的证据须标明类型。
 适用【必须】不满足时为 `needs_revision`，未测项不能当通过；【应该】的替代方案记录理由和验证。
-这些字段是记录契约，不表示已有工具能自动判定 A1–G2 合规，也不要求追溯改写所有历史案例。
+这些字段是记录契约，不表示已有工具能自动判定 Plugin A1–G2 或算子 A1–F6 合规，也不要求追溯改写所有历史案例。
+算子归属按本地执行版第 0 节：FlagGems 仅提供 ATen，vLLM 融合算子归 FlagGems-vllm；同一
+优化点 Markdown 记录设计、验证、性能效果及证据链接，复核结果不替代模型精度/性能门禁。
 
 ## 4. 最终报告
 
@@ -430,7 +446,7 @@ notes: ""
 基线：负载模式、缓存历史、预热完成证据、轮次/进程重复、性能与资源结果
 改动：文件、参数、补丁与服务操作
 优化分类：框架层 / 算子接入 / 当前算子优化；排序依据与跨层依赖
-工程复核：Plugin 设计归属、多模型/多平台影响、最终补丁验证、pr_readiness、跨仓库依赖与未测项
+工程复核：Plugin/算子规范、ATen/融合 API 归属、多模型/多平台影响、最终补丁验证、pr_readiness、跨仓库依赖与未测项
 候选结果：同条件多轮对比、统计口径和不确定性；容量结论附负载曲线与 SLO
 正确性：sanity、正式评测、异常回复和超时
 精度环境：目标机器 / 评测容器 / `flageval-llmeval:v1` 镜像身份 / `llmrun.py` 与配置校验值 / GPQA 198 题完整性

@@ -41,6 +41,7 @@ Agent 的职责是：
 | [容器隔离流程](docs/container-isolation.md) | 容器复刻、挂载比较与共享源码隔离 | 创建优化环境和修改共享目录中的源码前 |
 | [Plugin 设计与 PR 准备](docs/plugin-change-review.md) | 扩展点选择、多模型/多平台兼容与最终补丁要求 | Plugin 修改前及形成最终候选时 |
 | [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 用户指定的 A1–G2 工程条款，保留【必须】/【应该】强度 | Plugin 修改前阅读综述并按任务索引读取适用条款；实现、验证与交付时逐项复核 |
+| [算子层开发规范](docs/operator-development-standard.md) | FlagGems / FlagGems-vllm 的 A1–F6 条款及最新职责边界：ATen 与 vLLM 融合算子分别归属 | 算子接入、实现、融合或调优前读第 0、1 节和适用条款，最终候选复核 |
 
 ### 2.2 执行工具：控制环境、评测与本地验证
 
@@ -293,13 +294,15 @@ Agent 的职责是：
 
 同时遵循用户提供的 [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md)：先读第 1 节综述，再按任务索引读取适用的 A1–G2 原条款；【必须】为硬性要求，【应该】如有偏离需记录理由和验证方式。该规范约束端到端优化中的 Plugin 设计、实现和交付，旧文档中的宽泛实现建议不能削弱它。条款适用范围及证据写入既有实验的 `engineering_review`，不另建过程目录。规范也覆盖 SGLang Plugin，但仅在当前任务已涉及该仓库时应用，不因此扩大模型适配或源码修改范围。
 
+**后续 FlagGems 仅提供 ATen 算子能力，vLLM 融合算子能力由 FlagGems-vllm 提供。** 算子修改必须同时遵循 [算子层开发规范](docs/operator-development-standard.md) 的第 0、1 节及适用 A1–F6 条款；该职责边界优先于两份来源规范和历史分析中的宽泛归属描述。ATen 算子内部可以融合计算，但必须保持同一个 schema/overload 的完整语义；不得向 FlagGems 新增非 ATen 融合 API。历史路径按实际 revision 取证，不因此批量迁移无关实现。归属、公开 API、条款证据和未测范围写入 `engineering_review.operator_standard` 及同一优化点 Markdown；Plugin 联动改动同时复核两套规范，条款编号注明来源。
+
 - 优先复用现有 registry/dispatch/backend/config 边界；平台特例留在平台边界，模型语义差异留在模型边界。性能特化按能力和真实 shape 等条件选择，禁止以模型路径、served name 或机器身份代替支持条件。
 - 保持非目标模型/平台的导入、默认选择和原路径行为；保护可选依赖、strict/fallback 语义、worker 生命周期及缓存隔离。未实测的平台如实标记，不把 mock 当作硬件通过。
 - 区分实验补丁和可供 PR 评审的最终代码；整理后重新验证，报告 `pr_readiness`、跨仓库依赖及未测项。局部收益不能豁免设计问题，不擅自提交/推送或创建 PR。
 
 - 修改前记录 Plugin、vLLM、FlagGems-vllm（若安装）和 FlagGems revision、branch 与工作区状态。
 - 解析运行中服务实际使用的 Plugin、FlagGems-vllm（若安装）和 FlagGems 导入路径、安装方式及源码目录，确认修改的是目标服务使用的副本。已有未提交改动必须保留，不 reset、覆盖或擅自同步升级。
-- 框架逻辑及接入代码优先在 Plugin 中修改；vLLM 专用/融合算子可以直接在 FlagGems-vllm 中修改，通用 FlagGems 算子的实现、调优配置或平台特化可以直接在 FlagGems 中修改，不要求为了避开算子仓库源码而复制到 Plugin。
+- 框架逻辑及接入代码优先在 Plugin 中修改；vLLM 专用/融合算子在 FlagGems-vllm 中实现，ATen 算子的实现、调优配置或平台特化在 FlagGems 中修改，不要求为了避开算子仓库源码而复制到 Plugin。
 - 涉及一个或多个仓库时分别保存基线、补丁和回退方法；将源码修改、必要的构建/安装和目标服务重载步骤记录到本项目案例中。验证服务实际加载新代码，不以磁盘文件已更新代替生效证明。
 - 验证请求确实进入修改路径，不以代码存在代替命中证据。
 - 优先复用 Plugin 已有 dispatch、backend 和 OOT operator 入口。

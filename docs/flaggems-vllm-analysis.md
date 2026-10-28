@@ -2,6 +2,8 @@
 
 ## 1. 文档定位与版本边界
 
+后续开发按 [算子层开发规范](operator-development-standard.md) 执行：FlagGems 仅提供 ATen 算子能力，FlagGems-vllm 提供 vLLM 融合及专用算子能力。下文是特定 revision 的导航，旧代码的实际位置不改变后续开发归属，也不能据新规则推定当前容器已经完成迁移。
+
 - 官方仓库：<https://github.com/flagos-ai/FlagGems-vllm>
 - 默认分支：`main`
 - 分析基线：`2e5805d53b22d0d548dee811788d520cbd06d0ab`

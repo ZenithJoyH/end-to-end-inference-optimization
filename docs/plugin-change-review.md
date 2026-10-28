@@ -8,6 +8,8 @@
 
 本流程纳入用户提供的 [推理框架插件开发规范 v1](plugin-development-standard-v1.md)，原条款 A1–G2 为工程要求的依据；本文件负责将其接入优化流程，不替代或降低原条款强度。
 
+算子归属按用户后续明确的 [算子层开发规范第 0 节](operator-development-standard.md) 执行：FlagGems 仅提供 ATen 算子能力，vLLM 融合算子由 FlagGems-vllm 提供。这一边界覆盖 Plugin 规范原文中“通用计算/融合归 FlagGems”的宽泛表述；其余适用条款仍须满足。联动修改算子库时，另在 `engineering_review.operator_standard` 记录其 A1–F6 条款，避免与 Plugin 的同编号条款混淆。
+
 - 来源：`/Users/baai/Downloads/推理框架插件开发规范v1.md`；导入日期：2026-10-28。
 - 本地副本保留原文；SHA-256：`7fdc56acaf83688e5fee50c4e1400b44dca43032068ebfe235c28b57b36f67f1`。后续执行读取本项目副本，不依赖 Downloads 路径持续存在。
 - 修改前先读规范第 1 节，再按其任务索引读取所有适用条款；跨任务类型取并集。【必须】是硬性要求，【应该】采用其他方案时须说明理由与验证方式。目录及命令依目标仓库当前约定，旧架构快照或实验习惯不能豁免硬性条款。
@@ -40,7 +42,7 @@
 | 实现选择/支持范围 | 复用既有 registry、dispatch policy 和 capability/support 判断，避免在多个调用点复制选择逻辑 |
 | 平台实现与可选依赖 | 放在相应 backend/平台适配边界；通用模块导入不能要求其他平台安装该 vendor SDK |
 | 模型语义差异 | 放在模型 shim 或显式模型配置边界；仅当语义由架构身份决定时按架构路由 |
-| 数值 kernel 实现/调参 | 通用计算归 FlagGems，vLLM/SGLang 专属契约归对应专用算子库；Plugin 经统一分发调用公开 API，禁止复制 kernel 或加载私有实现文件（A1、A4、B1） |
+| 数值 kernel 实现/调参 | FlagGems 仅承接 ATen 契约；vLLM 融合/专用数值计算归 FlagGems-vllm，SGLang 专属契约归其专用库。Plugin 经统一分发调用公开 API，禁止复制 kernel 或加载私有实现文件（Plugin A1、A4、B1，归属以算子规范第 0 节为准） |
 | metadata 与 KV 数值读写 | 请求/token/slot/block 映射、复制计划及状态管理归框架；实际 KV 数值读写、量化、模型评分/排序/Top-k 归算子库，混合函数拆接口。metadata 使用 GPU/Triton 不改变职责（A3） |
 | 调度、graph、KV 或通信组织 | 使用对应框架扩展点；进入 Worker/ModelRunner 前证明共享路径修改必要，明确所有受影响调用方 |
 | 临时兼容 patch | 仅在正式扩展点不足时使用；限制符号/能力/版本范围，幂等、可观测、可回退，并说明未来删除条件 |
