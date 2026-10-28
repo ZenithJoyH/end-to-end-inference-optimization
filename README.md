@@ -24,6 +24,7 @@
 | 核验 vLLM 专用算子栈 | [FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) | Plugin 怎样调用 vLLM 专用算子、如何定位通用实现与 vendor backend |
 | 核验通用算子后端 | [FlagGems 仓库讲解](docs/flaggems-analysis.md) | ATen 注册、通用/vendor 实现选择、算子测试和调优入口在哪里 |
 | 设计与整理改动 | [Plugin 设计与 PR 准备](docs/plugin-change-review.md) | 改动放在哪个扩展点、影响哪些模型/平台、如何准备最终补丁 |
+| 修改 Plugin | [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 按任务读取 A1–G2：代码归属、分发、补丁、配置、状态/graph、验证与交付 |
 | 执行评测与验收 | [评测入口](evaluation/README.md) | 使用哪个 runner、怎样运行、如何核验精度与性能证据 |
 
 ### 分析问题：查架构、算子和案例
@@ -187,6 +188,8 @@ Profiler 用于归因，其性能数据与无 profiler 测量分开。随机 tok
 
 优化代码需要与目标 revision 的框架职责、接口和贡献规范一致。每项 Plugin 修改先说明设计归属和支持范围，再按影响范围验证：
 
+用户提供的 [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) 已纳入执行要求：修改前阅读综述和适用条款，设计、实现、验证及交付持续复核；【必须】为硬性要求，【应该】的偏离需记录理由与验证。数值 kernel 归对应算子库，框架负责 metadata、编排与长期资源；执行开始后禁止异常切换后端重试。适用条款及证据写入实验 `engineering_review`。
+
 - 复用既有 registry、dispatch、backend 与配置入口；模型语义和平台实现分别留在对应边界。
 - 性能特化使用真实能力、shape、dtype、layout 等条件，避免用模型路径、served name 或机器身份选择实现。
 - 保持非目标模型/平台的默认选择、可选依赖、fallback、导入与缓存生命周期行为。
@@ -212,6 +215,7 @@ docs/
   experiment-contract.md
   container-isolation.md
   plugin-change-review.md
+  plugin-development-standard-v1.md
   vllm-plugin-FL-analysis.md
   flaggems-vllm-analysis.md
   flaggems-analysis.md

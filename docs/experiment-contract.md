@@ -370,6 +370,11 @@ change:
   files: []
 engineering_review:  # 涉及 Plugin 时填写；不涉及则 status=not_applicable
   status: pending  # pending | passed | needs_revision | not_applicable
+  standard: docs/plugin-development-standard-v1.md
+  standard_sha256: 7fdc56acaf83688e5fee50c4e1400b44dca43032068ebfe235c28b57b36f67f1
+  applicable_clauses: []  # 按规范任务索引选择 A1–G2；跨类型取并集
+  clause_checks: []  # 条目包含 clause、result、evidence、reason；未执行填 not_run，不适用说明原因
+  recommendation_deviations: []  # 【应该】条款偏离时记录 clause、reason、alternative_validation
   design_record: ""  # optimize 中的设计归属、支持范围和非目标影响
   pr_readiness: experimental  # experimental | needs_revision | ready_for_review
   compatibility_evidence: []
@@ -406,6 +411,11 @@ notes: ""
 ```
 
 不可用指标保持 `null`，不得用 `0` 伪装已测量。
+
+`engineering_review` 的规范字段用于新建或更新的 Plugin 实验记录；条款检查结果使用
+`executed_passed|executed_failed|not_run|not_applicable`，静态/人工检查的证据须标明类型。
+适用【必须】不满足时为 `needs_revision`，未测项不能当通过；【应该】的替代方案记录理由和验证。
+这些字段是记录契约，不表示已有工具能自动判定 A1–G2 合规，也不要求追溯改写所有历史案例。
 
 ## 4. 最终报告
 

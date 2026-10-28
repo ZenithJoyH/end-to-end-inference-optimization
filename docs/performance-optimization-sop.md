@@ -2,9 +2,9 @@
 
 ## 文档状态
 
-- 版本：`0.40`
+- 版本：`0.41`
 - 状态：已包含本项目实际案例与导入案例；导入案例的性能数字尚未在本项目复测
-- 最后更新：2026-09-22
+- 最后更新：2026-10-28
 - 维护方式：由已完成或明确失败的实际优化案例持续修订
 
 本 SOP 是工作入口，不是固定真理。它只保留能够提高诊断效率、实验可比性、正确性或交付质量的步骤。不同模型、平台和业务 workload 可以有不同分支，但任何删减都需要说明原因。
@@ -45,7 +45,7 @@ workload 可比性、指标决策、schema 与最终报告字段统一见 [实�
 | C：热点指向 vLLM 专用/融合算子 | [FlagGems-vllm 仓库讲解](flaggems-vllm-analysis.md) | 沿 Plugin 显式调用、包级导出和 vendor backend 证明命中 |
 | C/D：热点指向普通 `torch.*`、ATen 注册或通用算子 | [FlagGems 仓库讲解](flaggems-analysis.md) | 沿注册 key、最终函数对象和 profiler 区分通用/vendor 实现 |
 | C/D：已收敛到具体关键算子 | [关键算子技能](../skills/key-operator-analysis/SKILL.md) | 只加载相关算子材料，不套用历史硬件、shape 和 revision 结论 |
-| D/E：形成 Plugin 最终候选 | [Plugin 设计与 PR 准备](plugin-change-review.md) | 同时复核非目标模型/平台、可选依赖和跨仓库改动 |
+| D：设计 Plugin 改动；D/E：整理最终候选 | [开发规范 v1](plugin-development-standard-v1.md)、[Plugin 设计与 PR 准备](plugin-change-review.md) | 先读综述，按任务索引读取适用 A1–G2 条款；设计、实现、验证和交付持续复核 |
 
 FlagGems 和 FlagGems-vllm 可能存在同名或相近实现。不得按仓库名或文件名猜测服务来源；以目标代码 import、ATen 注册、运行中函数对象和 profiler 命中证据为准。静态分析只帮助缩短定位路径，不能代替目标环境测量。
 
@@ -310,7 +310,7 @@ TTFT 包含排队、调度、网络等开销，TPOT/ITL 也可能包含调度、
 1. 分配稳定 `experiment-id`，在 `optimize/state.yml` 建立结构化条目，并创建同名
    `optimize/<experiment-id>.md`；先写优化方向、瓶颈证据和可证伪假设，再开始改动。
 2. 预测主指标、守护指标和可能退化场景。
-3. Plugin 修改前说明设计归属、复用扩展点、支持范围和非目标影响；保存可重复命令、配置和补丁。
+3. Plugin 修改前按开发规范 v1 的任务索引读取适用条款，说明符号职责、复用扩展点、公开 API、支持范围和非目标影响；记录 `engineering_review` 并保存可重复命令、配置和补丁。
 4. 调用精度评测 Skill 的 `minimal-regression` 模式，执行与改动影响面匹配的最小正确性回归，并更新该优化点文档。
 5. 用同一预冻结场景子集重测 baseline 与 candidate；该轮不要求运行完整验收矩阵。
 6. 在该优化点文档中记录实际性能数据、变化比例、波动、守护指标和结论边界。
@@ -351,7 +351,9 @@ Prefill 候选至少以 Decode 指标和 Mixed 端到端结果为守护，Decode
 
 ### D4. Plugin 设计复核与 PR 准备
 
-Plugin 候选在修改前与整理最终补丁后，按 [Plugin 优化设计与 PR 准备](plugin-change-review.md) 完成设计归属、能力/shape 边界、共享调用方与可选依赖检查。测试按影响范围覆盖目标、非目标和生命周期，复用目标仓库实际 CI 规范；无硬件项目记为未测，不扩大连接范围。
+Plugin 候选从修改前开始遵循 [开发规范 v1](plugin-development-standard-v1.md)，按 [Plugin 优化设计与 PR 准备](plugin-change-review.md) 完成设计归属、能力/shape 边界、共享调用方与可选依赖检查。新增数值计算落在对应算子库，metadata 与计算混合职责按 A3 拆分；执行前完成选择，执行开始后的错误不得切换后端重试。测试按影响范围覆盖目标、非目标和生命周期；涉及 graph 时按 F3 更新输入、填充独立输出哨兵、重置状态并对照独立 reference，保留至少两次 replay 的证据。复用目标仓库实际 CI 规范；无硬件项目记为未测，不扩大连接范围。
+
+在实验 `engineering_review` 中记录规范版本、适用条款、证据、未测/不适用原因及【应该】条款的偏离理由。最终补丁按相同条款重新复核；硬性条款未满足则标记 `needs_revision`。跨仓库按 D3 先交付公开算子接口及测试再接入并锁定可获取版本，交付文档按 G1/G2 区分长期用户信息与 PR/CI 验证材料。
 
 实验开关、日志和临时 patch 在形成 PR 候选时整理；最终 diff 改变后重新验证实际路径和受影响指标。Plugin、FlagGems-vllm、FlagGems 分别保存补丁与依赖关系。性能结论与 `pr_readiness` 分别记录，可用实验结果不自动等于可合入设计。该复核属于已授权工作，无需新增例行审批。
 
@@ -559,6 +561,7 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 | 2026-09-14 | 0.38 | 用户要求后续模型优化不保留 history 目录 | 后续每轮实验、精度问题、profiling 和规划复盘统一写入 `optimize/state.yml` 的稳定 ID 账本并同步 `README.md`；禁止新建模型内 `history/` 或逐轮目录，机制经验进入案例/知识库，原始证据外置；已有 history 由用户另行调整 | 用户指定产物结构 `invariant` |
 | 2026-09-20 | 0.39 | 用户要求每个优化点单独保留 Markdown | 每个优化点以稳定 experiment ID 直接在 `optimize/<experiment-id>.md` 记录方向、内容、正确性、性能效果、决定和外部证据；`optimize/README.md` 改为多轮优化总览与索引，仍禁止 history/experiments 子目录和按运行轮拆文档 | 用户指定人类可读记录结构 `invariant` |
 | 2026-09-22 | 0.40 | 用户明确最终性能以稳态为准 | 默认不把冷启动、首请求、首批次或进入稳态前首轮作为优化方向；首轮异常只用于诊断稳态准入。禁止事后删除慢首轮，准入失败时按统一新契约重跑 baseline/candidate/revert，最终结果仅聚合合格稳态测量 | 用户指定优化目标与测量有效性 `invariant` |
+| 2026-10-28 | 0.41 | 用户提供《推理框架插件开发规范v1》 | 将 A1–G2 原文及按任务阅读要求接入 Plugin 设计、实现、验证和交付；收紧数值算子归属、执行后禁止重试、workspace/graph 契约、公开固定依赖与 PR 文档边界，并在工程复核中记录条款证据 | 用户指定工程规范，非新增性能证据 |
 
 ## 人工交接与最终结论的执行入口
 

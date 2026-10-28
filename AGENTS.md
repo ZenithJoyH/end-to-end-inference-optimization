@@ -40,6 +40,7 @@ Agent 的职责是：
 | [模型产物契约](docs/model-artifact-contract.md) | `baseline/`、`optimize/`、`acceptance/` 的双视图文件、外部产物和清理规则 | 创建模型目录、写回 Skill 结果和案例收尾时 |
 | [容器隔离流程](docs/container-isolation.md) | 容器复刻、挂载比较与共享源码隔离 | 创建优化环境和修改共享目录中的源码前 |
 | [Plugin 设计与 PR 准备](docs/plugin-change-review.md) | 扩展点选择、多模型/多平台兼容与最终补丁要求 | Plugin 修改前及形成最终候选时 |
+| [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 用户指定的 A1–G2 工程条款，保留【必须】/【应该】强度 | Plugin 修改前阅读综述并按任务索引读取适用条款；实现、验证与交付时逐项复核 |
 
 ### 2.2 执行工具：控制环境、评测与本地验证
 
@@ -211,7 +212,7 @@ Agent 的职责是：
 1. 不在任务开始时通读三份资料。先核验实际依赖和调用路径，再按表中阶段读取对应文档的报告信息、核心结论和专题。
 2. 在目标环境中重新核对 Plugin、vLLM、FlagGems-vllm、FlagGems revision、版本、安装方式和真实导入目录；未安装的组件记为不适用。
 3. 文档路径、类名或结论与当前 revision 不一致时，以当前代码为准并记录差异。
-4. 优先选择最窄扩展点：配置参数，其次 Plugin shim/dispatch/backend，再次 Plugin 内 Triton，最后才考虑 runtime patch。
+4. 优先选择最窄扩展点：配置参数，其次 Plugin shim/dispatch/backend；新增数值计算归入对应算子库并通过公开 API 接入，正式扩展点不足时才考虑限域 runtime patch。请求/调度 metadata 的 GPU/Triton 实现仍按开发规范 A3 归属框架侧，不能以输出为索引为由把评分、排序或 Top-k 数值计算留在 Plugin。
 5. 不以 fallback 成功证明目标 backend 已命中；必须记录实际 `impl_id`、dispatch 日志或等价证据。
 6. Plugin hook 必须幂等，因为 general plugin 可能在多个 worker 中重复加载。
 7. 性能优化以 graph 服务为准；新实现必须验证目标 graph 模式可以启动、capture 并至少 replay 两次。eager 只在定位 graph 差异时作为可选诊断，不是进入优化或候选晋级的门禁。
@@ -290,6 +291,8 @@ Agent 的职责是：
 
 **Plugin 修改必须同时考虑端到端收益与上游可维护性。** 用户后续将基于优化代码提交 PR；修改前及形成最终候选前，必须按 [Plugin 优化设计与 PR 准备](docs/plugin-change-review.md) 核对目标 revision 的框架设计、现有扩展点、多模型/多平台影响和验证证据。
 
+同时遵循用户提供的 [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md)：先读第 1 节综述，再按任务索引读取适用的 A1–G2 原条款；【必须】为硬性要求，【应该】如有偏离需记录理由和验证方式。该规范约束端到端优化中的 Plugin 设计、实现和交付，旧文档中的宽泛实现建议不能削弱它。条款适用范围及证据写入既有实验的 `engineering_review`，不另建过程目录。规范也覆盖 SGLang Plugin，但仅在当前任务已涉及该仓库时应用，不因此扩大模型适配或源码修改范围。
+
 - 优先复用现有 registry/dispatch/backend/config 边界；平台特例留在平台边界，模型语义差异留在模型边界。性能特化按能力和真实 shape 等条件选择，禁止以模型路径、served name 或机器身份代替支持条件。
 - 保持非目标模型/平台的导入、默认选择和原路径行为；保护可选依赖、strict/fallback 语义、worker 生命周期及缓存隔离。未实测的平台如实标记，不把 mock 当作硬件通过。
 - 区分实验补丁和可供 PR 评审的最终代码；整理后重新验证，报告 `pr_readiness`、跨仓库依赖及未测项。局部收益不能豁免设计问题，不擅自提交/推送或创建 PR。
@@ -301,11 +304,11 @@ Agent 的职责是：
 - 验证请求确实进入修改路径，不以代码存在代替命中证据。
 - 优先复用 Plugin 已有 dispatch、backend 和 OOT operator 入口。
 - FlagGems 实现必须核对当前符号、支持 dtype、shape/layout 和 graph 能力。
-- FlagGems 不具备兼容实现时，Plugin 内新增 Triton 实现必须有可信 reference。
+- 缺少兼容数值实现时，先在 FlagGems 或对应框架专用算子库补充公开 API 与独立参考测试，再通过既有分发层接入；禁止将数值 kernel 复制进 Plugin 或按私有文件路径加载。混合职责按 A3 拆分，无关历史实现不因本次规范导入自动迁移。
 - 覆盖数值、dtype、shape、stride/layout、设备、边界 batch 和 zero-token 场景。
 - graph 服务必须能够启动并完成 capture 和至少两次 replay；不要求另行验证 eager 服务，除非 graph 问题定位需要对照。
 - 避免 capture-time host sync、动态分配、数据依赖主机控制流和不稳定地址。
-- fallback 只用于诊断或明确的兼容策略，不能掩盖目标 backend 失效。
+- fallback 仅允许在计算尚未开始且无副作用时按既有策略选择同契约实现；原地写入、状态更新、异步 kernel 或 collective 一旦开始，错误必须向上抛出，禁止捕获后切换后端重试。
 - 性能改动附带最小正确性测试和同条件端到端 benchmark。
 
 ## 11. 项目产物结构
