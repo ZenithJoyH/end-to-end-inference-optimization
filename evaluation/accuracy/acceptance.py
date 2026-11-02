@@ -60,6 +60,48 @@ def checked_artifact(ref):
     return Path(ref["path"])
 
 
+def bound_task(payload):
+    """Keep the standard task default; an explicit reference binds all resources.
+
+    This opt-in path replays a user-authorized, complete GPQA request protocol.
+    A task name alone never enables custom task classes or a different dataset.
+    """
+    reference = payload.get("reference_protocol")
+    if reference is None:
+        return TASK
+    required = {"task", "authorization", "manifest", "requests", "parameters", "implementation"}
+    if not isinstance(reference, dict) or set(reference) != required:
+        raise ValueError("reference protocol requires explicit authorization and four frozen resources")
+    require_text(reference, ("task", "authorization"))
+    name = reference["task"]
+    if name == TASK or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", name):
+        raise ValueError("reference task must have a distinct explicit identifier")
+    resources = {key: checked_artifact(reference[key]) for key in
+                 ("manifest", "requests", "parameters", "implementation")}
+    manifest = read_json(resources["manifest"])
+    if manifest.get("task") != name or not re.fullmatch(r"[0-9a-f]{64}", manifest.get("reference_sha256", "")):
+        raise ValueError("reference manifest does not identify the frozen task/source")
+    parent = resources["manifest"].resolve().parent
+    for key in ("requests", "parameters", "implementation"):
+        path = resources[key].resolve()
+        if path.parent != parent or manifest.get("files", {}).get(path.name) != reference[key]["sha256"]:
+            raise ValueError("reference resource differs from its original protocol manifest")
+    docs = [row for _, row in iter_sample_records(resources["requests"])]
+    if (len(docs) != 198 or any(not isinstance(doc, dict) for doc in docs)
+            or [doc.get("index") for doc in docs] != list(range(198))):
+        raise ValueError("reference protocol must contain exactly the ordered 198 GPQA documents")
+    parameters = read_json(resources["parameters"])
+    for doc in docs:
+        request = doc.get("request")
+        if (doc.get("gold") not in ("A", "B", "C", "D") or not isinstance(request, dict)
+                or not isinstance(request.get("model"), str) or not request["model"]
+                or not isinstance(request.get("messages"), list) or not request["messages"]):
+            raise ValueError("invalid frozen GPQA reference request/target")
+        if {key: value for key, value in request.items() if key not in ("model", "messages")} != parameters:
+            raise ValueError("reference request generation parameters differ from the frozen parameters")
+    return name
+
+
 def write_new(path, value):
     # Serialize before creating anything. Publish a complete sibling file with
     # link(), whose no-clobber behavior also protects concurrent issuers. A
@@ -118,13 +160,15 @@ def validate_service(service, *, formal=True):
 
 
 def validate_contract(contract):
-    if contract.get("schema_version") != 3 or contract.get("task") != TASK:
+    if contract.get("schema_version") != 3 or contract.get("task") != bound_task(contract):
         raise ValueError("contract must be schema 3 with collected task provenance, full GPQA Diamond")
     if contract.get("expected_samples") != 198 or contract.get("expected_doc_ids") != list(range(198)):
         raise ValueError("contract must freeze all GPQA doc IDs 0..197")
     require_text(contract, ("metric", "dataset_revision"))
     provenance = read_json(checked_artifact(contract.get("task_provenance")))
     validate_provenance(provenance)
+    if provenance.get("reference_protocol") != contract.get("reference_protocol"):
+        raise ValueError("contract and task provenance bind different reference protocols")
     if contract["dataset_revision"] != provenance["dataset_revision"]:
         raise ValueError("contract dataset_revision differs from the collected dataset content")
     threshold = contract.get("threshold")
@@ -135,9 +179,10 @@ def validate_contract(contract):
 
 
 def validate_provenance(provenance, cfg=None):
+    task_name = bound_task(provenance)
     if (provenance.get("schema_version") != 1
             or provenance.get("adapter") != "lm-eval-configurable-task-v1"
-            or provenance.get("task") != TASK):
+            or provenance.get("task") != task_name):
         raise ValueError("unsupported/missing collected task provenance")
     for key in ("raw_doc_sha256", "eval_doc_sha256"):
         hashes = provenance.get(key)
@@ -148,7 +193,7 @@ def validate_provenance(provenance, cfg=None):
     if provenance.get("dataset_revision") != revision:
         raise ValueError("dataset revision does not match raw document fingerprints")
     task_config = provenance.get("task_config")
-    if not isinstance(task_config, dict) or task_config.get("task") != TASK:
+    if not isinstance(task_config, dict) or task_config.get("task") != task_name:
         raise ValueError("resolved task configuration is missing")
     if task_config.get("output_type") != "generate_until":
         raise ValueError("formal task must use generate_until")
@@ -161,8 +206,21 @@ def validate_provenance(provenance, cfg=None):
     for source in sources.values():
         if not isinstance(source, dict) or not re.fullmatch(r"[0-9a-f]{64}", source.get("sha256", "")):
             raise ValueError("invalid evaluator/task source fingerprint")
-    require_text(provenance, ("lm_eval_version", "datasets_version", "dataset_path", "dataset_name", "dataset_split"))
+    names = ("lm_eval_version", "datasets_version", "dataset_path", "dataset_split")
+    require_text(provenance, names if provenance.get("reference_protocol") else (*names, "dataset_name"))
+    if provenance.get("reference_protocol"):
+        reference = provenance["reference_protocol"]
+        docs = [doc for _, doc in iter_sample_records(checked_artifact(reference["requests"]))]
+        if provenance["raw_doc_sha256"] != [content_sha256(doc) for doc in docs]:
+            raise ValueError("resolved reference dataset differs from the frozen original requests")
+        if provenance.get("reference_request_sha256") != [content_sha256(doc["request"]) for doc in docs]:
+            raise ValueError("reference task request construction was not verified against all 198 frozen requests")
+        if (task_config.get("dataset_path") != "json" or task_config.get("dataset_name") is not None
+                or task_config.get("dataset_kwargs", {}).get("data_files", {}).get("test") != reference["requests"]["path"]):
+            raise ValueError("reference task must load the exact frozen request file")
     if cfg is not None:
+        if cfg.get("reference_protocol") != provenance.get("reference_protocol") or bound_task(cfg) != task_name:
+            raise ValueError("config and provenance bind different task protocols")
         for key in ("dataset_path", "dataset_name", "dataset_split", "seed", "gen_kwargs", "include_path"):
             if provenance.get(key) != cfg.get(key, "" if key == "include_path" else None):
                 raise ValueError(f"case config differs from collected task provenance: {key}")
@@ -179,6 +237,7 @@ def verify_result_provenance(result_path, samples_path, cfg, provenance):
     Schema source: EleutherAI/lm-evaluation-harness v0.4.9 evaluator.py,
     simple_evaluate/evaluate. No dependency on lm_eval is needed to consume a gate.
     """
+    task_name = bound_task(cfg)
     payload = read_json(result_path)
     metadata = payload.get("config")
     if not isinstance(metadata, dict) or metadata.get("model") != cfg["model_type"]:
@@ -193,15 +252,24 @@ def verify_result_provenance(result_path, samples_path, cfg, provenance):
             raise ValueError(f"results seed differs or is missing: {key}")
     if "limit" not in metadata or metadata["limit"] is not None:
         raise ValueError("results must report a full evaluation with limit=null")
-    if metadata.get("gen_kwargs") != provenance["generation_overrides"]:
+    # lm-eval serializes absent/empty CLI overrides as an explicit null.
+    # Missing metadata is not evidence of that state; nonempty frozen overrides
+    # must still compare exactly.
+    actual_overrides = metadata.get("gen_kwargs")
+    if ("gen_kwargs" in metadata and actual_overrides is None
+            and cfg.get("gen_kwargs") == ""
+            and provenance["generation_overrides"] == {}):
+        actual_overrides = {}
+    if ("gen_kwargs" not in metadata
+            or actual_overrides != provenance["generation_overrides"]):
         raise ValueError("results generation overrides differ from the frozen run")
     safe = lambda value: re.sub(r"[^A-Za-z0-9_.-]+", "_", value).strip("_") or "run"
-    cache = Path(cfg["cache_root"]) / safe(cfg["eval_model"]) / safe(cfg["run_id"]) / TASK / "responses.sqlite"
+    cache = Path(cfg["cache_root"]) / safe(cfg["eval_model"]) / safe(cfg["run_id"]) / task_name / "responses.sqlite"
     if metadata.get("use_cache") != str(cache):
         raise ValueError("results do not belong to this run's response-cache namespace")
-    if payload.get("configs", {}).get(TASK) != provenance["task_config"]:
+    if payload.get("configs", {}).get(task_name) != provenance["task_config"]:
         raise ValueError("results task configuration differs from the resolved frozen task")
-    count = payload.get("n-samples", {}).get(TASK, {})
+    count = payload.get("n-samples", {}).get(task_name, {})
     if any(type(count.get(key)) is not int or count[key] != 198 for key in ("original", "effective")):
         raise ValueError("results do not report 198 original and effective samples")
     # lm-eval logs the actual processed doc per sample. Bind each ID to content,
@@ -230,7 +298,8 @@ def validate_config_integers(cfg):
 
 def validate_config(cfg, service):
     validate_config_integers(cfg)
-    if cfg.get("tasks") != [TASK] or cfg.get("limit") != 0 or cfg.get("expected_samples") != 198:
+    task_name = bound_task(cfg)
+    if cfg.get("tasks") != [task_name] or cfg.get("limit") != 0 or cfg.get("expected_samples") != 198:
         raise ValueError("formal config requires full GPQA: limit=0, expected_samples=198")
     if type(cfg.get("allow_timeouts")) is not bool:
         raise ValueError("allow_timeouts must be a boolean compatibility field")
@@ -238,12 +307,24 @@ def validate_config(cfg, service):
         raise ValueError("config model/endpoint does not match service manifest")
     if any("," in cfg[key] for key in ("model_name", "base_url")):
         raise ValueError("model/endpoint cannot contain commas in the original runner's model_args format")
-    if cfg.get("dataset_name") != "gpqa_diamond" or cfg.get("dataset_split") != "train" or not cfg.get("dataset_path"):
-        raise ValueError("explicit GPQA dataset configuration is required")
-    if cfg.get("model_type") != "openai-chat-completions" or cfg.get("apply_chat_template") is not True:
-        raise ValueError("formal workflow requires chat completions and chat template")
-    if not isinstance(cfg.get("gen_kwargs"), str) or not cfg["gen_kwargs"].strip():
-        raise ValueError("freeze generation parameters explicitly")
+    if cfg.get("reference_protocol"):
+        reference = cfg["reference_protocol"]
+        parameters = read_json(checked_artifact(reference["parameters"]))
+        docs = [doc for _, doc in iter_sample_records(checked_artifact(reference["requests"]))]
+        if (cfg.get("dataset_path") != "json" or cfg.get("dataset_name") is not None
+                or cfg.get("dataset_split") != "test" or cfg.get("model_type") != "local-chat-completions"
+                or cfg.get("gen_kwargs") != "" or cfg.get("seed") != parameters.get("seed")
+                or cfg.get("apply_chat_template") is not True
+                or Path(cfg.get("include_path", "")).resolve() != Path(reference["manifest"]["path"]).resolve().parent
+                or any(doc["request"]["model"] != cfg["model_name"] for doc in docs)):
+            raise ValueError("reference config must preserve the frozen model, dataset, seed and request-owned generation")
+    else:
+        if cfg.get("dataset_name") != "gpqa_diamond" or cfg.get("dataset_split") != "train" or not cfg.get("dataset_path"):
+            raise ValueError("explicit GPQA dataset configuration is required")
+        if cfg.get("model_type") != "openai-chat-completions" or cfg.get("apply_chat_template") is not True:
+            raise ValueError("formal workflow requires chat completions and chat template")
+        if not isinstance(cfg.get("gen_kwargs"), str) or not cfg["gen_kwargs"].strip():
+            raise ValueError("freeze generation parameters explicitly")
     if type(cfg.get("seed")) is not int or cfg["seed"] < 0:
         raise ValueError("freeze a nonnegative integer lm-eval seed")
 
@@ -286,6 +367,8 @@ def verify_run_record(record):
     validate_contract(contract)
     cfg = read_json(paths["config"])
     validate_config(cfg, service)
+    if cfg.get("reference_protocol") != contract.get("reference_protocol"):
+        raise ValueError("run configuration differs from the contracted reference protocol")
     if refs["task_provenance"]["sha256"] != contract["task_provenance"]["sha256"]:
         raise ValueError("run task provenance differs from the frozen contract")
     provenance = read_json(paths["task_provenance"])
@@ -321,7 +404,24 @@ def stable_service_identity(service):
     if (not isinstance(devices, list) or not devices or any(not isinstance(d, str) or not d for d in devices)
             or len(set(devices)) != len(devices)):
         raise ValueError("gate rebind requires observed device topology")
-    return {k: v for k, v in service.items() if k not in ("service_instance_id", "runtime_evidence_sha256")}
+    if "api_pid" in service and (type(service["api_pid"]) is not int or service["api_pid"] <= 0):
+        raise ValueError("api_pid must be a positive observed integer")
+    if "runtime_evidence_files" in service:
+        files = service["runtime_evidence_files"]
+        if (not isinstance(files, dict) or not files
+                or any(not isinstance(path, str) or not path or not isinstance(digest, str)
+                       or not re.fullmatch(r"[0-9a-f]{64}", digest)
+                       for path, digest in files.items())):
+            raise ValueError("runtime_evidence_files requires a nonempty path/SHA-256 mapping")
+        if service["runtime_evidence_sha256"] not in files.values():
+            raise ValueError("runtime evidence mapping does not bind the service runtime SHA")
+        # Evidence locations and API PID change on restart, but the evidence is
+        # still consumed. Rehash both old and current manifests' references
+        # before omitting these volatile fields from their stable identities.
+        for path, digest in files.items():
+            checked_artifact({"path": path, "sha256": digest})
+    return {k: v for k, v in service.items() if k not in (
+        "service_instance_id", "runtime_evidence_sha256", "api_pid", "runtime_evidence_files")}
 
 
 def verify_rebind(source_gate_path, service_path, evidence_path):
@@ -373,8 +473,184 @@ def rebind_gate(source_gate_path, service_path, evidence_path, output):
     return result
 
 
+def tuning_cache_identity(service):
+    """Only the observed FlagGems cache bytes are mutable, not its URL/policy."""
+    identity = stable_service_identity(service)
+    identity['service_instance_id'] = service['service_instance_id']
+    launch = dict(identity['launch_config'])
+    digest = launch.pop('flaggems_db_sha256', None)
+    if not isinstance(digest, str) or not re.fullmatch(r'[0-9a-f]{64}', digest):
+        raise ValueError('cache update requires an observed FlagGems DB SHA')
+    if not isinstance(launch.get('environment'), dict):
+        raise ValueError('cache update requires the observed cache URL environment')
+    require_text(launch['environment'], ('FLAGGEMS_DB_URL',))
+    identity['launch_config'] = launch
+    return identity
+
+
+def verify_cache_update(source_gate_path, service_path, evidence_path):
+    """Explicit same-instance cache evolution; original verdict stays immutable."""
+    source = read_json(source_gate_path)
+    if source.get('schema_version') != 3:
+        raise ValueError('cache update requires an original evaluated gate, not a chained binding')
+    record = read_json(checked_artifact(source['run_record']))
+    old_path = checked_artifact(record['artifacts']['service'])
+    check_gate(source_gate_path, old_path)
+    old, current = read_json(old_path), read_json(service_path)
+    if tuning_cache_identity(old) != tuning_cache_identity(current):
+        raise ValueError('cache update changes stable identity or service instance')
+    evidence = read_json(evidence_path)
+    if evidence.get('schema_version') != 1 or evidence.get('kind') != 'flaggems_tuning_cache_update':
+        raise ValueError('missing explicit tuning cache update evidence')
+    require_text(evidence, ('authorization',))
+    if (evidence.get('source_service') != artifact(old_path)
+            or evidence.get('current_service') != artifact(service_path)):
+        raise ValueError('cache evidence must bind both exact manifests')
+    before_runtime = checked_artifact(evidence['before_runtime'])
+    current_runtime = checked_artifact(evidence['current_runtime'])
+    if (sha256(before_runtime) != old['runtime_evidence_sha256']
+            or sha256(current_runtime) != current['runtime_evidence_sha256']):
+        raise ValueError('cache evidence runtime does not match the manifests')
+    audit = read_json(checked_artifact(evidence['cache_audit']))
+    expected = {
+        'status': 'passed', 'kind': 'flaggems_autotune_cache',
+        'service_instance_id': current['service_instance_id'],
+        'cache_url': current['launch_config']['environment']['FLAGGEMS_DB_URL'],
+        'before_sha256': old['launch_config']['flaggems_db_sha256'],
+        'after_sha256': current['launch_config']['flaggems_db_sha256'],
+        'stable_identity_sha256': content_sha256(tuning_cache_identity(current)),
+        'cache_tables_only': True,
+        'manual_reset_copy_or_policy_override': False,
+    }
+    if any(type(audit.get(k)) is not type(v) or audit[k] != v for k, v in expected.items()):
+        raise ValueError('cache audit does not prove this exact observed transition')
+    # The audit producer inspects the live service and actual cache schema/writer;
+    # the verifier binds that evidence, rather than claiming hashes prove causality.
+    checked_artifact(audit['inspection'])
+    return source
+
+
+def cache_update_gate(source_gate_path, service_path, evidence_path, output):
+    refs = [artifact(p) for p in (source_gate_path, service_path, evidence_path)]
+    source = verify_cache_update(source_gate_path, service_path, evidence_path)
+    for ref in refs:
+        checked_artifact(ref)
+    result = {'schema_version': 5, 'kind': 'accuracy_gate_tuning_cache_update',
+              'passed': True, 'source_gate': refs[0], 'cache_update_evidence': refs[2],
+              'service_sha256': refs[1]['sha256'], 'evaluation_reused': True,
+              **{k: source[k] for k in ('score', 'threshold', 'criterion')}}
+    write_new(output, result)
+    return result
+
+
+def cache_restart_identity(service):
+    """Restart identity with only the audited tuning DB bytes omitted."""
+    identity = tuning_cache_identity(service)
+    identity.pop('service_instance_id')
+    return identity
+
+
+def verify_cache_rebind(source_gate_path, service_path, evidence_path):
+    """Explicit restart plus cache evolution; never chain or relax code/config."""
+    source = read_json(source_gate_path)
+    if source.get('schema_version') != 3:
+        raise ValueError('cache rebind requires the original evaluated gate')
+    record = read_json(checked_artifact(source['run_record']))
+    old_path = checked_artifact(record['artifacts']['service'])
+    check_gate(source_gate_path, old_path)
+    old, current = read_json(old_path), read_json(service_path)
+    identity = cache_restart_identity(current)
+    if identity != cache_restart_identity(old):
+        raise ValueError('cache rebind changes source/configuration/environment')
+    if current['service_instance_id'] == old['service_instance_id']:
+        raise ValueError('cache rebind requires a fresh instance; use cache-update otherwise')
+    evidence = read_json(evidence_path)
+    if (evidence.get('schema_version') != 1 or evidence.get('kind') != 'flaggems_cache_restart'
+            or evidence.get('source_service') != artifact(old_path)
+            or evidence.get('current_service') != artifact(service_path)):
+        raise ValueError('cache rebind requires exact original/current manifests')
+    require_text(evidence, ('authorization',))
+    before = checked_artifact(evidence['before_runtime'])
+    runtime_path = checked_artifact(evidence['current_runtime'])
+    if (sha256(before) != old['runtime_evidence_sha256']
+            or sha256(runtime_path) != current['runtime_evidence_sha256']
+            or current['runtime_evidence_sha256'] == old['runtime_evidence_sha256']):
+        raise ValueError('cache rebind runtime hashes differ from manifests')
+    runtime = read_json(runtime_path)
+    if (runtime.get('service_instance_id') != current['service_instance_id']
+            or runtime.get('stable_identity_sha256') != content_sha256(identity)
+            or runtime.get('graph_capture_completed') is not True
+            or type(runtime.get('graph_replays')) is not int or runtime['graph_replays'] < 2):
+        raise ValueError('cache rebind needs current identity/capture/two replays')
+    # Recheck the raw observations supporting the producer's capture assertion.
+    observations = read_json(checked_artifact(runtime['observations']))
+    refs = observations.get('artifacts')
+    if not isinstance(refs, list) or not refs:
+        raise ValueError('cache rebind observations require raw evidence references')
+    for ref in refs:
+        checked_artifact(ref)
+    regression = read_json(checked_artifact(evidence['minimal_regression']))
+    if regression.get('status') != 'passed' or regression.get('service_sha256') != sha256(service_path):
+        raise ValueError('cache rebind requires current passed minimal regression')
+    checked_artifact(regression['evidence'])
+    audit = read_json(checked_artifact(evidence['cache_audit']))
+    expected = dict(status='passed', kind='flaggems_autotune_cache_restart',
+        source_service_instance_id=old['service_instance_id'],
+        service_instance_id=current['service_instance_id'],
+        cache_url=current['launch_config']['environment']['FLAGGEMS_DB_URL'],
+        before_sha256=old['launch_config']['flaggems_db_sha256'],
+        after_sha256=current['launch_config']['flaggems_db_sha256'],
+        stable_identity_sha256=content_sha256(identity), cache_tables_only=True,
+        manual_reset_copy_or_policy_override=False)
+    if any(type(audit.get(k)) is not type(v) or audit[k] != v for k, v in expected.items()):
+        raise ValueError('cache rebind audit does not bind the observed transition')
+    checked_artifact(audit['inspection'])
+    # Missing historical DB bytes are an explicit provenance gap, not an
+    # invented row-level equivalence proof. This receipt only reuses accuracy;
+    # it never establishes performance cache comparability.
+    if audit.get('historical_row_delta_available') is True:
+        checked_artifact(audit['historical_row_delta'])
+    elif audit.get('historical_row_delta_available') is False:
+        require_text(audit, ('history_gap',))
+    else:
+        raise ValueError('cache rebind must disclose historical row-delta availability')
+    return source
+
+
+def cache_rebind_gate(source_gate_path, service_path, evidence_path, output):
+    refs = [artifact(p) for p in (source_gate_path, service_path, evidence_path)]
+    source = verify_cache_rebind(source_gate_path, service_path, evidence_path)
+    for ref in refs:
+        checked_artifact(ref)
+    result = dict(schema_version=6, kind='accuracy_gate_cache_restart', passed=True,
+        source_gate=refs[0], cache_rebind_evidence=refs[2], service_sha256=refs[1]['sha256'],
+        evaluation_reused=True, **{k: source[k] for k in ('score', 'threshold', 'criterion')})
+    write_new(output, result)
+    return result
+
+
 def check_gate(gate_path, service_path, model=None, host=None, port=None, tokenizer=None):
     gate = read_json(gate_path)
+    if gate.get('schema_version') == 6:
+        if (gate.get('kind') != 'accuracy_gate_cache_restart' or gate.get('passed') is not True
+                or gate.get('evaluation_reused') is not True or gate.get('service_sha256') != sha256(service_path)):
+            raise ValueError('invalid cache restart gate or changed current manifest')
+        source = verify_cache_rebind(checked_artifact(gate['source_gate']), service_path,
+                                    checked_artifact(gate['cache_rebind_evidence']))
+        if any(gate.get(k) != source[k] for k in ('score', 'threshold', 'criterion')):
+            raise ValueError('cache rebind changed the evaluated verdict')
+        check_target(read_json(service_path), model, host, port, tokenizer)
+        return gate
+    if gate.get('schema_version') == 5:
+        if (gate.get('kind') != 'accuracy_gate_tuning_cache_update' or gate.get('passed') is not True
+                or gate.get('evaluation_reused') is not True or gate.get('service_sha256') != sha256(service_path)):
+            raise ValueError('invalid cache update gate or changed current manifest')
+        source = verify_cache_update(checked_artifact(gate['source_gate']), service_path,
+                                     checked_artifact(gate['cache_update_evidence']))
+        if any(gate.get(k) != source[k] for k in ('score', 'threshold', 'criterion')):
+            raise ValueError('cache update changed the evaluated verdict')
+        check_target(read_json(service_path), model, host, port, tokenizer)
+        return gate
     if gate.get("schema_version") == 4:
         if (gate.get("kind") != "accuracy_gate_rebind" or gate.get("passed") is not True
                 or gate.get("evaluation_reused") is not True or gate.get("service_sha256") != sha256(service_path)):
@@ -431,12 +707,24 @@ def main():
     rebind.add_argument("--service-manifest", required=True, type=Path)
     rebind.add_argument("--evidence", required=True, type=Path)
     rebind.add_argument("--output", required=True, type=Path)
+    cache = commands.add_parser('cache-update', help='explicit same-instance FlagGems tuning cache transition')
+    cache.add_argument('--source-gate', required=True, type=Path)
+    cache.add_argument('--service-manifest', required=True, type=Path)
+    cache.add_argument('--evidence', required=True, type=Path)
+    cache.add_argument('--output', required=True, type=Path)
+    restart_cache = commands.add_parser('cache-rebind', help='explicit audited restart plus normal tuning-cache writes')
+    for name in ('source-gate', 'service-manifest', 'evidence', 'output'):
+        restart_cache.add_argument('--'+name, required=True, type=Path)
     args = parser.parse_args()
     try:
         if args.command == "issue":
             issue_gate(args.run_record, args.output, args.health_observation)
         elif args.command == "rebind":
             rebind_gate(args.source_gate, args.service_manifest, args.evidence, args.output)
+        elif args.command == 'cache-update':
+            cache_update_gate(args.source_gate, args.service_manifest, args.evidence, args.output)
+        elif args.command == 'cache-rebind':
+            cache_rebind_gate(args.source_gate, args.service_manifest, args.evidence, args.output)
         else:
             check_gate(args.gate, args.service_manifest)
     except (ValueError, KeyError, OSError, TypeError) as exc:

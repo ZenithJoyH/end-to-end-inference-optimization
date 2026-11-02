@@ -23,6 +23,33 @@
 
 每次正式启动采用独立 UUID 缓存；同一运行内重试保留原 runner 行为，不跨候选复用响应。输出健康信息可保留为诊断观察，但不参与精度 gate 判定。
 
+### 用户明确选择已有 GPQA 参考请求协议
+
+默认任务仍是 `gpqa_diamond_generative_cot`。用户明确要求沿用一套已有的完整 GPQA 参考协议时，
+配置、契约和 provenance 可以携带相同的 `reference_protocol`：`task`、用户原话 `authorization`，
+以及 `manifest`、`requests`、`parameters`、`implementation` 四个 `{path, sha256}` 引用。
+这些资源放在同一个已冻结的协议目录；原 manifest 的 `files` 必须匹配后三项，
+`reference_sha256` 标识交付参考源。不能只换任务名或把新结果标成默认任务。
+
+参考 requests 为 198 行 JSONL，按 `index=0..197` 排列，每行含 `gold` 和完整 `request`。
+所有请求除 model/messages 外的字段必须等于 parameters；任务只读取该 requests 文件。
+使用 `local-chat-completions`、`dataset_path=json`、`dataset_name=null`、`dataset_split=test`，
+`gen_kwargs` 为空，由请求自带生成参数，lm-eval seed 与 parameters 一致。
+`include_path` 指向该协议目录，完整集合、model、endpoint 和并发仍显式冻结。
+
+仍通过 `formal_accuracy.py --capture-provenance`、`--preflight-only`、完整评测及
+`acceptance.py issue/check`；原始 runner 不变。仅允许来源文件与冻结 implementation 完全相同的
+ConfigurableTask 子类，并实际调用其请求构造，逐题核对 messages、全部生成字段和空 stop 列表。
+原始请求内容、任务源码、评分函数、样本/结果 metadata、服务身份及 198 题完整性共同绑定，
+任何漂移均拒绝签发或消费 gate。这是用户授权的协议选择，不是放宽正确性阈值。
+
+无额外生成覆盖时，已核验的 lm-eval 会把原生结果 `config.gen_kwargs` 写为显式 `null`，
+而 provenance 的解析值是 `{}`。校验器仅在该键存在、冻结配置 `gen_kwargs=""` 且
+provenance 覆盖为 `{}` 时接受这两种等价表示；缺键、错误类型及任何非空参数漂移仍拒绝。
+若完整原生运行仅因此被旧封装拒绝，可在保存旧工具/失败回执和新工具 SHA、完成回归后，
+用 `formal_accuracy.py --finalize-run <原UUID目录>` 复验同一完整结果，再原生 issue/check。
+该路径不查询模型，不改写原始样本、结果、协议或阈值；其他证据缺陷仍阻止签发。
+
 ## 服务身份与重启复用
 
 服务 manifest 必须填实测布尔值 `flaggems_vllm_installed`。已安装时
@@ -64,6 +91,64 @@ python3 evaluation/accuracy/acceptance.py rebind \
 先使用 `--capture-provenance` 采集数据/任务内容指纹，再冻结 schema 3 契约。正式签发交叉检查原生结果 metadata 与实际题目内容，字段缺失或不支持时记为证据无效，不产生可消费的 gate。
 
 ## 真实接口与镜像集成边界
+
+### 同一实例的正常调参缓存写入
+
+调参DB内容是可变运行状态，不等同于模型代码或启动参数。默认schema3/4检查不放宽；
+用户明确授权处理该差异后，可以使用新增`cache-update`签发schema5回执：
+
+```bash
+python3 evaluation/accuracy/acceptance.py cache-update \
+  --source-gate /external/original-evaluated-gate.json \
+  --service-manifest /external/current-service.json \
+  --evidence /external/cache-update-evidence.json \
+  --output /external/cache-bound-gate.json
+```
+
+原生`issue`仍从真实run-record签发原始schema3 gate。schema5只引用原gate，不改旧manifest、
+样本、契约、分数或阈值，不代表重跑精度。只允许同一实例的
+`launch_config.flaggems_db_sha256`及运行快照SHA变化；DB URL、调参策略、源码、设备、权重、
+tokenizer、graph和启动参数仍严格相同。不同实例不能走此分支，禁止链式绑定。
+
+证据schema1的`kind`为`flaggems_tuning_cache_update`，必须含用户授权原文`authorization`，以及
+`source_service/current_service/before_runtime/current_runtime/cache_audit`五个SHA引用。
+runtime SHA逐项对应原始/当前manifest。cache_audit包含`status: passed`、
+`kind: flaggems_autotune_cache`、`service_instance_id/cache_url/before_sha256/after_sha256`、
+以`tuning_cache_identity(current)`计算的`stable_identity_sha256`、实测布尔值
+`cache_tables_only: true`与`manual_reset_copy_or_policy_override: false`，以及实际缓存表结构/
+写入实现与当前服务检查的`inspection`引用。观察由调用方现场采集，不能用期望值代替。
+
+开始DB未保存字节快照时，必须注明不能逐行证明全部历史写入者；不能伪造行级差分。
+后续DB再次变化需新证据/新schema5回执，不能把所有未来DB变化默认视作相同身份。
+
+### 同时重启且调参缓存发生正常写入
+
+此时纯`rebind`和同实例`cache-update`都仍拒绝，不伪造中间实例或链式签发。
+用户明确授权后，可用`cache-rebind`签发独立schema6回执，直接引用原始schema3 gate：
+
+```bash
+python3 evaluation/accuracy/acceptance.py cache-rebind \
+  --source-gate /external/original-evaluated-gate.json \
+  --service-manifest /external/current-service.json \
+  --evidence /external/cache-restart-evidence.json \
+  --output /external/cache-restart-gate.json
+```
+
+证据schema1/kind=`flaggems_cache_restart`，含非空`authorization`、原始/当前精确
+`source_service/current_service`、`before_runtime/current_runtime`、`minimal_regression`、
+`cache_audit`路径/SHA引用。只省略实例、已核验进程证据及DB内容SHA，URL、调参策略、源码、
+环境、权重、tokenizer、设备和全部推理参数仍严格相等；必须真实新实例及当前完整最小回归。
+当前runtime须含实例、`cache_restart_identity`的稳定身份SHA、capture完成、至少两次真实replay，
+以及支撑这些断言的`observations`路径/SHA。不得以旧实例trace或CPU子图代替当前模型证据。
+
+cache audit kind=`flaggems_autotune_cache_restart`，含原/当前实例ID、DB URL、前后内容SHA、
+稳定身份SHA、`cache_tables_only=true`、`manual_reset_copy_or_policy_override=false`及真实
+schema/writer/运行事实`inspection`引用。`historical_row_delta_available`必须显式为布尔值：
+true时引用逐行差分，false时写非空`history_gap`，不能将较早快照冒充本次原始快照。
+该回执复用原生精度结果，不声称仅靠SHA证明写入因果或性能缓存条件相同。
+性能可比性仍须独立冻结和检查，不能因此允许性能比较忽略DB变化。
+消费schema6时重验原生结果及上述全部引用，不链式绑定，不改变分数/阈值；新源码不适用。
+此分支只修复缓存分类与绑定问题，不豁免性能实验的预热、缓存准备和可比性要求。
 
 采集器按 lm-eval CLI 的实际行为，将解析后的 `model_args` 传给 `TaskManager(metadata=...)`；模型、endpoint 和请求参数会进入任务配置的 metadata，正式结果必须与之相等。忽略这一步会令采集配置与真正执行的配置不同。接口依据是 [lm-eval v0.4.9 CLI](https://github.com/EleutherAI/lm-evaluation-harness/blob/v0.4.9/lm_eval/__main__.py) 和 [TaskManager](https://github.com/EleutherAI/lm-evaluation-harness/blob/v0.4.9/lm_eval/tasks/__init__.py)。
 

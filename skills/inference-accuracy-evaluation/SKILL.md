@@ -85,6 +85,23 @@ A service restart invalidates the direct binding, but need not repeat GPQA when 
 
 An inherited upstream score below threshold is an `inherited-accuracy-blocker`, not proof of a regression introduced here. Stop stacking new performance optimizations and invoke diagnosis to verify provenance and localize/fix the inherited issue. A minimal regression does not clear it. Only an explicit user instruction with recorded scope permits diagnostic performance exploration while blocked; it never authorizes a formal gate or acceptance claim.
 
+Normal FlagGems autotune-cache writes are mutable runtime state, not a source or
+launch-policy change. In `gate-check`, explicit user authorization permits the
+audited same-instance `acceptance.py cache-update` flow documented in the accuracy
+tools. Preserve both exact DB fingerprints and original evidence; require stable
+code/configuration/device identity and unchanged DB URL/policy. This narrowly
+scoped schema5 binding reuses the native score, does not weaken default checks,
+does not cover restarts or future unobserved writes, and never excuses changed
+sampling, model data, kernels or cache policy.
+
+If an otherwise identical service both restarted and accumulated normal tuning
+cache writes, neither of the above flows can be silently substituted. With
+explicit authorization use the separate `cache-rebind` schema6 procedure in the
+accuracy tools: original schema3 only, exact old/current observations, audited
+cache provenance (including any missing historical byte snapshot), and current
+model capture/two replays plus minimal regression. It reuses accuracy only; it
+does not prove cache comparability for performance and cannot cover new kernels.
+
 ## Report
 
 State the mode, covered experiment IDs, service identity, checks performed, evidence locations, progress-monitor ID/cadence/status, result, limitations, next trigger, and whether formal performance is allowed. Use `incomplete` when required evidence is missing; never convert diagnostic or minimal checks into a formal acceptance claim.

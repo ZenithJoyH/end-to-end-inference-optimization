@@ -82,6 +82,31 @@ class ProvenanceTest(unittest.TestCase):
     def test_matching_native_metadata_and_documents(self):
         self.verify(result_payload(self.cfg, self.provenance))
 
+    def test_explicit_null_matches_only_frozen_empty_generation_overrides(self):
+        self.cfg["gen_kwargs"] = ""
+        self.provenance["generation_overrides"] = {}
+        payload = result_payload(self.cfg, self.provenance)
+        for value in (None, {}):
+            with self.subTest(value=value):
+                payload["config"]["gen_kwargs"] = value
+                self.verify(payload)
+        for value in ("", False, [], {"temperature": 0}):
+            with self.subTest(rejected=value), self.assertRaises(ValueError):
+                payload["config"]["gen_kwargs"] = value
+                self.verify(payload)
+        del payload["config"]["gen_kwargs"]
+        with self.assertRaises(ValueError):
+            self.verify(payload)
+
+    def test_null_cannot_erase_nonempty_frozen_generation_overrides(self):
+        payload = result_payload(self.cfg, self.provenance)
+        payload["config"]["gen_kwargs"] = None
+        with self.assertRaises(ValueError):
+            self.verify(payload)
+        self.provenance["generation_overrides"] = {}
+        with self.assertRaises(ValueError):
+            self.verify(payload)
+
     def test_unicode_line_separator_inside_json_string_is_not_a_record_boundary(self):
         docs = example_docs()
         docs[0]["question"] = "first line\u2028second line"

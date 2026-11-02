@@ -11,7 +11,7 @@ import uuid
 from pathlib import Path
 
 from acceptance import (
-    TASK, RUNNER_SHA256, artifact, checked_artifact, content_sha256, inspect_evaluator,
+    TASK, RUNNER_SHA256, artifact, bound_task, checked_artifact, content_sha256, inspect_evaluator,
     model_args_text, read_json, sha256,
     validate_config, validate_config_integers, validate_contract, validate_provenance,
     validate_service, verify_run_record, write_new,
@@ -48,6 +48,30 @@ def source_tree(path):
     return {"path": str(path), "sha256": content_sha256(entries)}
 
 
+def reference_request_fingerprints(task, docs, task_name):
+    """Exercise the frozen task's request construction, without creating an LM."""
+    hashes = []
+    for index, doc in enumerate(docs):
+        instance = task.construct_requests(doc, "", metadata=(task_name, index, 1))
+        arguments = instance.arguments
+        if not isinstance(arguments, tuple) or len(arguments) != 2 or not isinstance(arguments[1], dict):
+            raise ValueError("unsupported reference task request arguments")
+        encoded = arguments[0]
+        if not isinstance(encoded, str):
+            encoded = getattr(encoded, "prompt", None)  # lm-eval's JsonChatStr wrapper.
+        if not isinstance(encoded, str):
+            raise ValueError("reference messages must use a serialized JSON chat argument")
+        messages = json.loads(encoded)
+        generation = dict(arguments[1])
+        if generation.pop("until", None) != []:
+            raise ValueError("reference transport may only add an empty stop list")
+        request = {"model": doc["request"]["model"], "messages": messages, **generation}
+        if request != doc["request"]:
+            raise ValueError("constructed reference messages/generation differ from the frozen request")
+        hashes.append(content_sha256(request))
+    return hashes
+
+
 def task_snapshot(task, cfg, generation_overrides, sources, versions):
     """Collect raw split and processed eval docs, without building model requests.
 
@@ -79,7 +103,7 @@ def task_snapshot(task, cfg, generation_overrides, sources, versions):
         raise ValueError("resolved raw split and processed eval_docs must both contain 198 documents")
     raw_hashes = [content_sha256(doc) for doc in raw_docs]
     snapshot = {
-        "schema_version": 1, "adapter": "lm-eval-configurable-task-v1", "task": TASK,
+        "schema_version": 1, "adapter": "lm-eval-configurable-task-v1", "task": bound_task(cfg),
         "dataset_revision": "content-sha256:" + content_sha256(raw_hashes),
         "raw_doc_sha256": raw_hashes,
         "eval_doc_sha256": [content_sha256(doc) for doc in eval_docs],
@@ -88,6 +112,9 @@ def task_snapshot(task, cfg, generation_overrides, sources, versions):
         **{key: cfg.get(key, "" if key == "include_path" else None) for key in (
             "dataset_path", "dataset_name", "dataset_split", "seed", "gen_kwargs", "include_path")},
     }
+    if cfg.get("reference_protocol"):
+        snapshot["reference_protocol"] = cfg["reference_protocol"]
+        snapshot["reference_request_sha256"] = reference_request_fingerprints(task, eval_docs, bound_task(cfg))
     validate_provenance(snapshot, cfg)
     return snapshot
 
@@ -101,12 +128,26 @@ def resolve_task(cfg, task_manager, get_task_dict, configurable_task, parse_args
     """
     manager = task_manager(include_path=cfg.get("include_path") or None,
                            metadata=parse_args(model_args_text(cfg)))
-    if TASK not in manager.all_tasks:
-        raise ValueError(f"required task {TASK!r} is not registered; use the verified evaluation image/task definitions, not a similarly named substitute")
-    tasks = get_task_dict([TASK], manager)
-    if set(tasks) != {TASK} or type(tasks[TASK]) is not configurable_task:
+    task_name = bound_task(cfg)
+    if task_name not in manager.all_tasks:
+        raise ValueError(f"required task {task_name!r} is not registered; use the verified evaluation image/task definitions, not a similarly named substitute")
+    tasks = get_task_dict([task_name], manager)
+    if set(tasks) != {task_name}:
+        raise ValueError("resolved task differs from the explicitly frozen task")
+    if cfg.get("reference_protocol"):
+        try:
+            source = inspect.getsourcefile(type(tasks[task_name]))
+        except TypeError:
+            # TaskManager may load !function classes without retaining their
+            # module in sys.modules. Python function code still names its file.
+            source = inspect.getsourcefile(type(tasks[task_name]).__init__)
+        implementation = checked_artifact(cfg["reference_protocol"]["implementation"])
+        if (not isinstance(tasks[task_name], configurable_task) or not source
+                or Path(source).resolve() != implementation.resolve() or sha256(source) != sha256(implementation)):
+            raise ValueError("reference task class does not come from its frozen implementation")
+    elif type(tasks[task_name]) is not configurable_task:
         raise ValueError("unsupported task class/group; provenance adapter supports one ConfigurableTask")
-    return tasks[TASK]
+    return tasks[task_name]
 
 
 def collect_provenance(cfg):
@@ -162,9 +203,10 @@ def finalize_existing_run(run_dir):
         raise ValueError("frozen inputs are missing or contain unexpected artifacts")
     for ref in frozen.values():
         checked_artifact(ref)
-    task_dir = run_dir / TASK
+    task_name = bound_task(read_json(checked_artifact(frozen["config"])))
+    task_dir = run_dir / task_name
     results = list(task_dir.rglob("results_*.json"))
-    samples = list(task_dir.rglob(f"samples_{TASK}_*.jsonl"))
+    samples = list(task_dir.rglob(f"samples_{task_name}_*.jsonl"))
     if len(results) != 1 or len(samples) != 1:
         raise ValueError("ambiguous output pair; cannot finalize the existing run")
     frozen.update(results=artifact(results[0]), samples=artifact(samples[0]))
@@ -198,6 +240,9 @@ def run(args):
     validate_service(service)
     validate_contract(contract)
     validate_config(cfg, service)
+    task_name = bound_task(cfg)
+    if cfg.get("reference_protocol") != contract.get("reference_protocol"):
+        raise ValueError("config and contract bind different task protocols")
     provenance_path = checked_artifact(contract["task_provenance"])
     if provenance != read_json(provenance_path):
         raise ValueError("current evaluator/task/dataset differs from the pre-frozen provenance")
@@ -248,16 +293,16 @@ def run(args):
     # Pin the interpreter/seed and strengthen provenance/acceptance checks.
     runner.build_command = build_command
     runner.validate_samples = validate_samples
-    succeeded = runner.run_task(cfg, TASK, run_dir)
+    succeeded = runner.run_task(cfg, task_name, run_dir)
     if collect_provenance(cfg) != provenance:
         raise ValueError("evaluator/task/dataset changed during evaluation")
     for ref in frozen.values():
         checked_artifact(ref)
     if not succeeded:
         raise ValueError(f"formal process/result validation failed; artifacts: {run_dir}")
-    task_dir = run_dir / TASK
+    task_dir = run_dir / task_name
     results = list(task_dir.rglob("results_*.json"))
-    samples = list(task_dir.rglob(f"samples_{TASK}_*.jsonl"))
+    samples = list(task_dir.rglob(f"samples_{task_name}_*.jsonl"))
     if len(results) != 1 or len(samples) != 1:
         raise ValueError("ambiguous output pair; start a new run rather than choosing the best result")
     frozen.update(results=artifact(results[0]), samples=artifact(samples[0]))
