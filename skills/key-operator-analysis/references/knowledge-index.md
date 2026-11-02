@@ -51,6 +51,10 @@ TP通信首差异定位另见[TP allreduce限域证据卡](operators/tp_allreduc
 
 - [README](operators/top_k_top_p/README.md)、[优化地图](operators/top_k_top_p/optimization-map.md)、[证据卡](operators/top_k_top_p/case-index.md)：MetaX values-only sampling中实际BF16/radix分支、局部整数histogram、桶分组反例与小收益的回退漂移判读。仅C550/FlagTree3.6.0/Qwen3-VL TP2限域证据，正式GPQA未做。
 
+## Sparse indexer prefill top-k
+
+- [证据卡](operators/indexer_topk/case-index.md)、[排查地图](operators/indexer_topk/optimization-map.md)：MetaX C550上多轮Mixed中的精确stride copy JIT变体、保留合法行pitch的wrapper修复，以及三轮P32稳定性验证。该路径选择attention索引，与词表sampling分开。未新增完整GPQA或跨平台验证。
+
 ## Fused MoE
 
 - [operators/fused_moe/optimization-map.md](operators/fused_moe/optimization-map.md)：按
@@ -77,9 +81,13 @@ small-M Decode、stage config、expert routing。
 适用关键词：`fp8_fp4_mqa_logits`、sparse-indexer MQA、`libtuner`、
 online autotune、tune-config runtime、cold shape、worker RPC timeout。
 
-## MM 请求内调参
+## MM 派发、布局与请求内调参
 
 MM请求内调参、Config bucket与raw BenchmarkCache的区别另见[MM诊断地图](operators/mm/optimization-map.md)及[证据卡](operators/mm/case-index.md)：GLM-5.3-Flash/PPU的M20481/8198冷bucket触发104候选搜索、缓存正常写回；仅机制诊断，不是数值kernel或性能修复通过。
+
+DeepSeek-V4-Flash/MetaX的BF16→FP32投影另验证了高层router primitive绕过vendor、转置权重实体化及native NT接入：同一地图/证据卡给出实际派发、输出dtype、stride与graph的首个检查。op004阶段的新GPQA与三轮P32通过当轮契约，彼时第三轮仍有非copy/GEMM的raw-M特化编译；不外推PPU调参机制或其他平台速度。
+
+后续[op005 MM证据卡](operators/mm/case-index.md#deepseek-v4-flash--metax去除量化等边界特化后残余nt编译仍在)补充：量化/padding等原7项已消除，第三轮BF16 NT新编译与慢段仍在；运行时bounds、tile/EVEN cache键、选参benchmark须分开核验，不能把标量5%通过当完全预编译覆盖。
 
 ## QSA sparse GQA
 
@@ -132,3 +140,12 @@ KPool尾页graph输入生命周期另见[证据卡](operators/kpool_cache/case-i
 - [README](operators/fused_moe/README.md)：配置格式、阶段覆盖与执行路径的边界。
 - [optimization-map](operators/fused_moe/optimization-map.md)：更换配置后性能持续下降时的首个检查和单变量证伪。
 - [case-index](operators/fused_moe/case-index.md)：Qwen3-VL/MetaX旧stage覆盖与新完整表的差异；性能贡献未独立量化。
+
+
+## 分页KV cache gather
+
+- [稳定理解](operators/kv_cache_gather/README.md)、[排查地图](operators/kv_cache_gather/optimization-map.md)、[证据卡](operators/kv_cache_gather/case-index.md)：大物理页stride下FP32 scale地址32位溢出、B+1搜索边界、同名跨库dispatch核验，以及无内存错误但吞吐测量仍不稳的限域证据。
+
+当前仅MetaX C550/DeepSeek-V4 Flash FP8 indexer复现；不外推其他平台的性能或模型正式精度。
+
+DeepSeek-V4-Flash/MetaX 后续 NT 调查已在同一 [MM地图](operators/mm/optimization-map.md) / [证据卡](operators/mm/case-index.md#deepseek-v4-flash--metaxnt候选试跑与configcache分桶)验证真实请求的 Default 精确M配置miss与6候选试跑；有界log-M与形状域准备消除三轮NT JIT/cache写入。保持原始BenchmarkCache和实际EVEN条件；当前三轮通过5%稳定性，但仍有index/mHC2编译，不能升级为全链路零JIT或其他模型/平台结论。

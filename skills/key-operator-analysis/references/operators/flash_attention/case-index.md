@@ -28,3 +28,19 @@
 - regressions：N32/W1 206 spills、N32/W2 182 spills，严重负优化；N16/W2为244 regs /0 spills。小 batch 减少 splits 可退化。最初页784 guard 未命中服务，17.55%原型微测不作真实服务收益。
 - knowledge_delta：contradicted/refined。日志中的逻辑页不能替代实际 KV tensor 页；资源参数收益不能相加；微测通过不能替代 Mixed 稳态准入。下一次先反向核验真实 tensor、dispatch 与 grid，再设计 shape guard。
 - limits：仅该硬件、revision、dtype、packed shape 与诊断 workload；其他平台/模型未测。模型数值根因 unknown，PR experimental，未做最终四场景验收。
+
+## Qwen3-VL / C550 固定前缀的 native kvcache batch数值分歧
+
+- case_id：20261022-qwen3vl-metax-pr977；[diag-005](../../../../../models/Qwen3-VL-30B-A3B-Instruct/metax/20261022-qwen3vl-metax-pr977/optimize/diag-005-fixed-prefix-logits.md)。operator evidence `reproduced`，diag005当时完整模型原GPQA失败未解决；后续op006见下。
+- environment：Qwen3-VL BF16/TP2，MetaX C550/mx-59，vLLMee0da84a、Plugin08da21cb、gems-opt c3c5f5ab；FV实际PR943 a1570df/MoE bbc2edded。服务GPU0/1 FULL_AND_PIECEWISE64，独立GPU2重放；native Python接口SHA a0ce682d。
+- operator_path：逻辑Prefill缓存命中后的query9被MetaX阈值128归入decode；Plugin vendor.metax → `flash_attn.flash_attn_interface.flash_attn_with_kvcache`。每rank Q16/KV2/D128，page16，P233/cached224/query9，真实batch1/8。
+- evidence：同实例capture off/on/off的完整logits/hidden逐位一致；目标完整9query Q与233位置K/V均相同，首层Attention末query输出rank0/1最大差1.22e-4/3.05e-5，随后logits最大差0.3125。FP64误差只作观察，不直接称语义bug。
+- change：diagnostic only，未替换backend或修改数值算子；仅保留用户要求的PR943同步。A/B/A只改变batch，组件额外对照num_splits，未应用服务。
+- results：按原物理页/storage/stride重建后，双rank实际C1/C8原输出逐位复现。默认num_splits0下同输入batch有差异，固定1时消除；两种batch/默认与固定1共8captures/16replays均等于未capture。默认并未与显式1/2/4完整匹配，不能推断自动实际split数。无E2E或新精度结果。
+- negative/control：客户端C8可拆成1+7；跨层缓存的同一RoPE对象会覆写单层hook；varlen-only探针不命中小Prefill；重放若GPU scatter或传输stride改变，必须先拒绝，不能用它解释模型误差。
+- knowledge_delta `refined`：先看缓存后真实query长度、实际接口，再抓完整Q/K/V/逻辑KV并证明探针中性；重放先逐位还原原输出，再隔离默认自动路径。单个token输入相同不足以排除其他query生成的KV差异。
+- limits：仅该版本/C550/BF16/形状限域；具体自动kernel/split未知；diag005当时未测固定split模型精度/性能，随后op006结果见下；9999未动，原GPQA123/198不覆盖。
+
+- 后续验证（2026-10-23）：[op-006](../../../../../models/Qwen3-VL-30B-A3B-Instruct/metax/20261022-qwen3vl-metax-pr977/optimize/op-006-kvcache-split1-gpqa.md)在现有Plugin MetaX kvcache调用处仅增加num_splits1，保持prefix cache/采样/gems-opt/PR943及其他配置；14个数值用例、12capture/48replay、两rank服务真实命中与capture+16replay/C8通过。唯一一轮完整GPQA 131/198=66.16分，达到64分阈值；性能和ERQA未重测，原失败仍留存，不外推跨平台或全模型batch严格不变。
+
+- 后续knowledge_delta `refined`：当前固定split1组合已有单轮正式GPQA阈值证据；它不证明完整模型所有batch输出相同，也不证明端到端性能收益。下一步如评估保留为性能优化，仍需同配置baseline/candidate/revert和短/长KV守护，不把本次精度恢复与未经测量的加速等同。

@@ -4,4 +4,7 @@
 
 排序、top-k阈值、softmax/CDF、稳定tie掩码和RNG是不同环节。优化整数计数应保持每桶精确值与原有序key映射；缩短CDF或改变浮点归约则需要额外数值论证，不能混为同一低风险改动。
 
-使用顺序：[优化地图](optimization-map.md) → [限域证据卡](case-index.md)。当前仅有MetaX C550/FlagTree3.6.0/Qwen3-VL TP2证据，不是跨平台调参建议。
+使用顺序：[优化地图](optimization-map.md) → [限域证据卡](case-index.md)。当前限域证据包括MetaX C550上的Qwen3-VL局部histogram优化，以及Qwen3.6-35B接口迁移后shortlist丢失的诊断；各自FlagTree版本/shape见证据卡，不是跨平台调参建议。
+
+
+迁移采样接口时，先核对旧路径是否只处理小shortlist。完整词表排序与shortlist的复杂度、临时内存和同步行为不同；同样的公开API和数值通过并不保证同样的性能。白黑名单/依赖同时变化时，先做固定栈的政策隔离，再定位完整过滤API。复用旧`torch.topk`时要核验当前ATen注册后实际backend；旧CPU同步路径也不能直接冒充graph-friendly库实现。

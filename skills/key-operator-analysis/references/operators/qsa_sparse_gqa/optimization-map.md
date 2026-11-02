@@ -60,7 +60,7 @@
 - 信号：新QSA wrapper选M8，CPU sparse reference大幅偏离；先确认真实constexpr，不按名义group_size猜测tile。
 - 首个实验：在执行前保存完整Q/K/V/selected/table/token-to-request、mask/physical mapping及storage/stride，固定输入比较M8→M16→M8；输出落盘再assert，再用相同buffer变更输入/索引做两次graph replay。首次数值异常保全后仅在预先明确授权下继续冻结对照，非法访问/nonfinite立即停，不自动恢复服务。
 - 已知结果：两组随机M8约70%元素超容差，M16全部通过，再启M8逐位重现；eager和graph相同。只改wrapper最小tile、kernel AST不变，支持M8执行/编译分支隔离；弱基向量仍在宽容差内，不能冒充全K地址证明。
-- 机制边界：已有A-ldmatrix机制只能作为下一步假设；QSA需另做QK/PV拆分、足够强基向量及地址单变量干预才能确认。不能用M16通过直接归因旧模型GPQA或宣布模型修复。
+- 机制边界：MiniMax A-ldmatrix机制只能作为下一步假设；QSA需另做QK/PV拆分、足够强基向量及地址单变量干预才能确认。不能用M16通过直接归因旧模型GPQA或宣布模型修复。
 - 晋级/停止条件：M16任一数值/graph/状态检查失败即停；M16限域绕行只有目标生产shape、模型最小回归和同配置性能验证后才能安装/保留，本卡不提供这些通过证据。
 - 来源：[Qwen3.8 PPU07 op-019卡](case-index.md#case20261015-qwen38-flash-next-ppu07-master--op-019)。
 

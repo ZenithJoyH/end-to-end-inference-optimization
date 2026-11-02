@@ -194,7 +194,7 @@ results:
   correctness: M8 random mismatch2684/3840 and2671/3840; fixed vendor single/split2/gate/strided/empty/graph2 passes with maxabs.0078125; metadata generic3=8,PPU3=16,largegroup32=32; real candidate/public export identity verified
   regressions: M8 numerically wrong; basisK16 M8 bias.0234375 within frozen tolerance, not fullK proof; no nonfinite or illegal-access observed
 knowledge_delta:
-  prior_belief: an earlier M8 compiler mechanism might explain new QSA failure but first input was not retained
+  prior_belief: existing MiniMax M8 compiler mechanism might explain new QSA failure but first input was not retained
   outcome: refined
   revised_belief: use existing PPU vendor boundary with shared kernel helper to enforce floor16 in both single/split; direct qwen4 submodule import bypassed vendor replacement and candidate must use public package export; concrete compiler address mechanism still unconfirmed
   future_first_check: verify actual public vendor object identity, single/split constexpr and generic/largegroup counterexamples before graph or model integration

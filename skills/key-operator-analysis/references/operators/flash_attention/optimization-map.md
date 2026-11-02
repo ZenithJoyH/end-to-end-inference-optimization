@@ -11,5 +11,8 @@
 | 实际 K 较小但 scheduler 使用大 maxK | 按 batch 分层比较2/4/8/16 splits，保留 merge/copy 开销；小 batch 更依赖 splits 填充设备 | 实际 shape、原/候选/回退同计时；maxK 与 K 不同本身不足以推广少拆分 | reproduced：本案 B16 长 KV 少拆分退化 |
 | 独立 graph 探针 queue 创建超时，服务无请求却占设备 | 先检查同设备进程/运行时队列资源；只在授权的专用设备与精确所属服务上隔离 | 隔离后可复现才继续；无精确所属身份不取消进程，不把0测量超时归因 kernel | observation：本案 MACA queue 冲突 |
 | kernel 更快，阶段收益小或 Mixed 慢轮 | 以同计划 baseline/candidate/revert、预冻结稳态规则检验阶段与 Mixed；所有轮保留 | 候选未通过准入、无 measured、漂移超限即 incomplete / 回退；健康恢复不证明数值根因 | reproduced：本案 micro18.17%，Mixed18.03%散差失败 |
+| 固定seed并发结果漂移；C550/BF16/Q16-KV2-D128，prefix cache命中后query9 | 先确认阈值128下实际走native kvcache；真实batch门禁、同实例探针off/on/off、完整Q/K/V与KV页比较，再按物理storage/stride忠实重放；组件num_splits0/1单变量 | 原输出未逐位还原或输入不等则停止算子归因；默认差异/固定1消除仅是限域组件机制，不能据此直接晋级或替代正式GPQA；不猜自动split数 | reproduced：[Qwen3-VL diag005](case-index.md)；后续op006新增单轮GPQA gate，E2E未测 |
 
 后续第一步是核对当前服务实际页映射和执行路径。测量前逐项核对比较契约的主指标/guard均已在计划required_metrics中声明；本案缺口不得事后补绑。任何新候选仍须正式精度 gate 与原始四场景验收；该案例没有支持放宽门槛或外推默认配置。
+
+Qwen3-VL/C550限域后续：[op006](case-index.md)将固定split1接入独立Plugin服务，保持prefix cache和其他配置，通过数值/graph/C8后唯一一轮完整GPQA 131/198=66.16分，达到64分阈值。该结论不含性能收益、ERQA或其他模型/平台；组件batch对照本身仍不能代替完整模型评测。

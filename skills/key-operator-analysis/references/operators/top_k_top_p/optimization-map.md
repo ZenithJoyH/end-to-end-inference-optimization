@@ -7,4 +7,6 @@
 | 想把radix桶分组8改16以少读输入 | 核验CTA并行度、循环长度和寄存器；单变量完整算子B/C/R | 小batch回归或M64无收益则停止；逻辑读取减少不代表硬件更快 | 同案例M1慢约24%，M64近无收益，反例 |
 | 端到端收益与B/R漂移同量级 | 同时报告候选相对基线和回退、所有计时轮；核验实际采样默认值及seed含义 | 不以初始参考给较大的百分比冒充稳定孤立收益；正式精度另有gate | 同案例+3.76%vsB、+1.67%vsR，漂移2.06%；仅performance_only |
 
+| 接口迁移后生成步固定增加数毫秒，白黑名单变化与多包升级并存；C550/M64/V248320/k20/p.95/temp.6 | 先保留当前依赖做政策B/A/B，再将旧专项shortlist与新完整filter按同shape new/old/new测量，结合双rank实际Decode trace；核验温度后的BF16/radix分支 | API语义正确不代表算法等价；恢复shortlist须验证实际topk backend、tie/fallback、CPU同步及graph，回同workload E2E/nativeGPQA；不能用微测加速比当模型恢复 | [Qwen3.6-35B限域诊断](case-index.md)，reproduced；生产修复未实施 |
+
 当前参数不外推至其他M/V、平台、FlagTree版本或compact-CDF算法。每次重新验证dispatch、稳态准入和模型目标workload。

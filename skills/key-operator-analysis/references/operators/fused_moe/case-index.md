@@ -12,6 +12,21 @@
 
 v2终态补充（不改上面v1失败事实）：原controller退出，10个seq/同一短doc2全部HTTP200、完整think-end/EOS/非空final且诊断B，C1两次570完整token相同，C8 8请求真实FULL8执行；两类capture7/7和native FULL>=2成立。83PT/raw-token/source/服务与11份终态CPU审计文件通过，新8010健康保留、monitor暂停。模型独立cache已有19份四阶段MLIR（含v2源码loc），未见TLE alignment字串；原audit用Python def识别MLIR的0命中启发式不采信，补证独立保留。仅局部可保留候选、status=not-proven（性能），不是GPQA/C64/60K或性能波动解决；无独立逐rank逐步trace/新formal gate。knowledge_delta=refined：零输入ABI修复通过模型接入护栏，但消除已知编译浪费的端到端贡献仍需同契约B/C/R，不能用短doc2或产物缺失代替稳态测量。
 
+env065迁移FGVLLM后补证（2026-10-22，限域CPU/source+既有compiled evidence）：[当前调用链与PR982必要性](../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/env-065-flaggems-vllm-routing-cleanup.md#moe-pr必要性与当前plugin调用链只读复核)。Plugin a696859b+PR455的PlatformFL.is_cuda只对NVIDIA为真，PPU完整FGVLLM fused_experts快路径不进入；分步TritonExpertsFL→CachedOp进入FGVLLM通用alignment/invoke。启动冻结SHA与当前三关键文件一致，19成功alignment/14generic fused-MoE compiled模块佐证，无独立逐调用trace。CPU原/修复对照在thead/HAS_TLE=True时从先尝试TLE变为直选四阶段；空compact API由三extent0变1，正extent不变。普通E512/topk10/noEP条件M0/1/12走naive，M13/64/128才alignment，故公共空边界不可称模型触发。knowledge_delta=refined/contradicted：纠正“库内thead no_tle即Plugin已走完整API”的假设；不回写旧Gems失败、不新增GPU/推理/服务改动或性能结论。
+
+后续入口候选（2026-10-22，[eng066](../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/eng-066-thead-full-moe-entry.md)）：只在MoE完整API guard加入thead且FGVLLM开关1，不改全局is_cuda或LoRA/SiLU/clamp限制，开关0仍分步。两文件回读＋126 CPU AST/mock通过，既有三库修复/HEAD/index保留。**尚未重载**：env065当前运行路径与上面编译证据仍旧，不能把磁盘guard变更当新thead完整API命中或数值/graph验证；下一步需新实例路径证据和模型回归，完整theadvendor内部使用no_tle不自动证明其他通用caller门禁多余。无新GPU/模型/性能结论。
+
+后续eng066/acc019补证（2026-10-23，[事实主记录](../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/acc-019-full-gpqa-thead-full-moe.md#阶段结果首要嫌疑收敛至4项全局转置缓存选参是第二独立变量)）：一次获准重载后all8真实进入vendor完整API807d12ce，短护栏通过；同实例全198/C64正式174/198 failed-score、11真实客户端超时，无新gate，旧长推理与较低生成速度同时存在。stage=Decode/Mixed、BF16/PPU810E TP8、48层/E512/topk10，推导每rank w1=(512,160,2560)、w2=(512,2560,80)。本次无生产改动，status=not-proven（性能因果）；4项全局transpose cache对96稳定权重循环三次均100%miss是reproduced（CPU原函数AST/mock），旧14个GEMM IR为原布局、新17GEMM＋2GEMV IR为转置布局是observation，不是每步trace。若全层每步复制则28.125GiB payload/rank，不能称实测流量。FULL replay不运行Python，但capture中copy可重复，具体节点/时长未知；小M G1宽N/shared增加而G2也有有利变化。knowledge_delta=refined：缓存生命周期/容量与graph中device工作先于泛调tile，下一首实验仅隔离转置策略，严禁用增预热或简单扩容（额外28GiB/rank）当已验证修复。既有算子修复/BF16保持，无新GPU/推理/重启/源码更改，详见CPU报告a0ee43ee/manifest1e33b386。
+
+op067获准设备补证（同日，[实验记录](../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-067-moe-transpose-ab.md)）：不改8010，在物理15以同一层合成BF16/上述TP后尺寸、M0/1/8/13/64/128做两独立B/C/R，仅进程内_ENABLE_TRANSPOSE True/False，原selector/kernel/门禁不改。冷缓存capture实际B/R两次miss转置、C零次；126数值/30capture/120 changed-input及合成权重修改恢复replay通过，B1/C1已核20对逐位相同。M1/8/64/128关闭分别约74.91/30.08/4.74/3.92×完整算子graph加速、减少成本约2.47–2.54ms/层，回退复现，详表/轮次在主记录；**不是模型倍数**。max spread2.45%/B-R漂移1.43%，原2015产物及CPU审计56799a90通过，线上源码/身份/计数不变，0模型请求/重启/GPQA。evidence=reproduced（冷缓存单层策略成本），status=not-proven（当前模型端到端恢复），knowledge_delta=confirmed/refined：先隔离容量级转换的策略确有实测支持；热转置布局与copy成本未拆分，不能把全部差值当单kernel时间或解除正式低分阻塞。
+
+### op068：最终原布局修复与权重生命周期回归
+
+- [事实记录](../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-068-thead-moe-weight-layout-fix.md)，2026-10-23，status=kept（源码／限域算子正确性）、not-proven（模型性能），evidence=reproduced。同Qwen3.8/PPU-07 ZW810E，FlagGems-vllm HEAD b4d3382b加既有修复，生产807d12ce→cac5b989；Plugin BF16 d458a1ce及所有选参／kernel未变，详细三库／engine revision与源码快照在主记录。
+- operator/improve：只删thead host隐式转置／4项全局缓存／显存迟滞查询，原w1/w2直达已有stride-aware完整算子；Decode及边界合成验证，FP16/BF16、E512/I80/topk10、M0/1/8/12/13/64/128/256、H128及M8/H1024 GEMV，原连续或leading-padding合法stride，非模型实际请求shape分布。
+- 用户授权原8010精确单次SIGTERM并自然排空后独占物理15：最终补丁50项全过、16capture各4次changed-input／weights-update／restore replay、110数值检查（max relative-L2=.0060573）；多live权重轮转、inplace别名和禁止copy／mem_get_info守护通过。945原件SHA与110输入CPU重建reference逐字复核，audit822cc798；当前8010保持关闭，不自动启动。
+- knowledge_delta=confirmed/refined：从旧策略成本转为最终删除版有界数值／graph证明；布局缓存回归必须覆盖超过cache容量的live权重，以及同址权重修改和恢复后的graph，不仅静态重复输入。其他FP32／量化／平台和shape性能未知，无模型minimal／GPQA／端到端净收益或旧超时恢复证明；不是正式gate或可无条件跨平台合入的宣称。
+
 ## Qwen3.8-Flash-Next / PPU：模型外层FP32不覆盖MoE自有归约
 
 - case_id：20261015-qwen38-flash-next-ppu07-master / accdiag-032；[事实记录](../../../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/accdiag-032-post-attn-moe-reduction-offline.md)，status=not-proven，evidence=observation（当前编译数据流+旧张量CPU核验，非新推理）。
@@ -65,6 +80,21 @@ v2终态补充（不改上面v1失败事实）：原controller退出，10个seq/
 
 - [op019大M补充](../../../../../models/Qwen3-VL-30B-A3B-Instruct/metax/20261015-qwen3vl-metax-p64k-opt3/optimize/op-019-moe-gemm1-prefill-profile.md)：同MetaX/C550/TP2/BF16及expert形状，只改G1 M4096..8192 warp8/group1，BM和小M/G2全部保持。40数值逐bit一致、8参考、18capture及双rank生产graph/C8通过；FullMoE M8192 6.75549→4.27548ms。完整P64 B/C/R 71.944/76.840/72.080TPS（+6.81%，漂移+0.19%），native passed，保留candidate；不外推其他模型/芯片/场景/正式精度，knowledge_delta=refined。
 
+## MiniMax-M3.1 Flash / PPU：完整入口不等于更少设备工作
+
+- [perf-002主记录](../../../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-sigmoid-tp8-accuracy/optimize/perf-002.md)，status=not-proven（模型E2E收益），evidence=reproduced（限域完整调用micro）。2026-10-22/PPU-07/810E，单独物理0卡，原TP8模型空闲且服务未变；per-rank E128/H6144/I384/topk4，BF16动态per-token W8A8，Plugin3a107/FV168b03/FG1798、FlagTree0.7.1.dev1+ppu3.6用户dot-K16。
+- path：Plugin split桥接实际default.flagos量化/alignment/GEMM/activation-quant/GEMM2/sum，对比FV Thead fused_experts_impl；均为完整MoE链graph，不是单kernel或TP8请求压测。7个M×均匀/集中16专家×2独立进程，6warm×50、5measure×100、split/full/revert，所有块保留；28case两次变输入graph输出逐位相同。最大测量spread1.037%、回退漂移.431%、进程spread.792%。
+- 原样：均匀M1 39.354→56.052μs（完整入口+42.43%），M8/16/32慢6.08/11.13/9.84%；M64/1024/8192约+.274/.072/.058%。集中16专家M16/32可快5.12/11.13%，不能跨路由概括。没有真实生产路由频率。
+- 归因：小M的原样base GEMM tile不同；仅在独立测试进程将完整入口selector改用Plugin实际selector，M1/8/16/32×两路由×两进程16case仍逐位相同。均匀M1差距收窄为+4.45%（+1.75μs），M8/16/32为+.843/.489/.350%。支持主要差距来自配置策略；剩余量化/alignment开销未逐kernel消融，不归为纯Python入口开销。
+- 决定/限制：不切换模型默认，原split服务/源码/启动脚本保持；full API仅独立GPU验证，旧split三项精度不是full API模型gate。没有Prefill/Decode/Mixed请求A/B、TP通信或模型吞吐收益，也不外推其他量化、芯片、平台。首个计时脚本strict-context接口错误在0GPU用例前结束，原产物保留；修脚本后新run同契约执行，非产品修复或丢慢轮。
+- knowledge_delta=refined：API统一不自动合并GPU kernel；首先核对真实阶段配置和路由，再比较整链graph，统一选参控制可区分配置差异与入口编排。库内原样/归因结果分开保存，不能用匹配配置控制替换原样结果。
+
+perf002融合语义复核：当前Plugin与FV完整入口都复用同一个激活+quant2融合helper；GEMM1融合guard只允许SILU/SWIGLUOAI，当前SWIGLUOAI_UNINTERLEAVE不命中。完整入口名字不代表当前分支额外融合；已证实主因为配置策略，剩余约1.6–2.4μs尚未逐kernel归因，quant1新/旧provider是候选。只读源码SHA及行号在perf002主记录，不把源码分支当精确kernel计数或模型trace。
+
+op003补证（同一案例/硬件/shape，2026-10-22）：[主记录](../../../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-sigmoid-tp8-accuracy/optimize/op-003.md)。两独立进程只替换quant1为原vLLM实现未减少约1.6–2μs差距，因而否定该限域下“quant1为主要残余成本”的假设。完整入口随后复用split已有fused workspace清零，28个完整graph shape-routing结果逐位相同，full相对split−0.57%～+0.16%（基本持平）。102项候选及安装回归通过，7个不可见设备index跳过；新FV源码已安装，Plugin/模型入口未切换。knowledge_delta=contradicted/refined：同GEMM策略后先比较alignment初始化；FV round-even/零scale通用量化器不能直接替换round-away/正FP32 floor契约。此为限域operator reproduced，模型Mixed/正式精度未晋级、其他硬件未测，pr_readiness=needs_revision。
+
+用户最终决策：op003虽数值/graph和同配置微测通过，但只达到与split基本持平，复杂度不值得保留；2026-10-22已定向恢复两个文件至实验前topk-sigmoid内容，模型仍split。status=reverted（维护性/收益权衡），不抹去已复现的selector/alignment归因，也不将其列为当前累计优化或PR候选。
+
 ## Qwen3-VL / MetaX：PR977 未覆盖 E128 通用共享内存分支
 
 - case_id: 20261022-qwen3vl-metax-pr977；status: reverted/not-deployed；evidence_level: reproduced。
@@ -73,3 +103,16 @@ v2终态补充（不改上面v1失败事实）：原controller退出，10个seq/
 - 结果：B/R各18/18、14capture/28变化输入replay；C14/18、10capture/20replay。两dtype的M4096/8192均在GEMM1失败，实际BM128/BN128/BK64/warps8/stages4/PAIR=true，compiled metadata要求98304B而上限65536B。其余非空数值遵守原BF16.004/.016、FP16.0005/.003容差；非数值错误。
 - knowledge_delta=refined：977专用修复面向E256/TP2；当前E128未命中Qwen白名单，仍进200000-byte通用启发式。检查某PR的资源修复是否可迁移，先重放当前E/N/K/topk白名单与最终dispatch，不能仅以PR标题或工作区已更新推定已修。
 - 限制：原服务/四仓库/采样/gems-opt未改，未启动候选模型服务、无Prefill/Decode/Mixed性能或模型精度结论；保持停止晋级，不把通过的小M当整链可用。不是声称977引入该问题，也未修改最新代码强行通过。
+
+同一案例后续pr002（2026-10-22）：用户授权刷新PR943到最新bad340d。保留原943资源保护和E128 profile后，已发布316f036（非强推、正常两parent merge、相对最新仅两文件66+/5-）。55原矩阵+8E128/E256 workspace用例均通过，合计69数学参考/31capture/62变化输入replay；992项上游专用配置对照不变，TP2双rank exact hash749e81、11HTTP/C8通过。CI两workflow成功；两MetaX job中的Run backend tests被跳过，不冒称完整CI硬件覆盖。本地GPU证据独立保留。knowledge_delta=confirmed/refined：不能全撤保护，但旧保护可在不动最新kernel/workspace的条件下窄移植；发表到PR不等于回写生产或获得新E2E/正式精度。详见同案例pr-002主记录。
+
+## Qwen3.6-35B / MetaX C550：BF16 GEMM1/2有限调参
+
+- [gemm-tune-001实验](../../../../../models/qwen3.6-35b-a3b/metax/20261022-qwen36-35b-mx104-stack-regression/optimize/fgv-moe-gemm-tune-001.md)：operator_scope=reproduced、model/E2E=not-proven；用户后续明确要求后源码已写入，服务pending_reload。mx-104 GPU4（用户明确允许4/5临停恢复）、Torch2.8.0+metax3.7.0.7/FlagTree3.6，FGV e1a02b6私有source c575、Plugin release0.2+PR638+FGV显式MoE接入。
+- BF16/E256/H2048/I256/topk8/连续无量化无LoRA；完整MetaX fused_experts_impl→get_default_config→原GEMM kernel，原VLLM_TUNED_CONFIG_FOLDER不控制该FGV默认选择。G2日志M65536是tokens8192×8，不是selector M。
+- 只在M64/8192固定共享BM和融合/归约/SWAP/pipeline，53配置搜索＋12新进程前三确认：M64 G1/G2 BN128→64为1.35x/1.07x；M8192 G1 BK32→64为3.51x、G2warps8→4为1.13x。
+- 完整MoE14组原输入/变更输入graph与独立FP32参考通过，rtol0.1/atol至少0.01沿用原契约；uniform M64/8192为1.26x/2.62x，集中路由仅1.07x/1.18x；其他M/FP16路径保持，观测无>3%回退。不是TP/模型端到端加速，也不是新GPQA。
+- 全M0..32768 CPU字典覆盖及非目标dtype/shape哨兵证明单函数候选与实测进程内selector同配置，实际库/启动脚本未改；finally原argv/env/cwd/source恢复18135，旧恢复helper的字符串替换故障已独立修复并保留，无GPU重跑。
+- knowledge_delta=refined：完整API接入后先核实际选参入口与M口径，固定共享BM独立调G1/G2，再用完整MoE及路由集中度验证可兑现收益；不能把单GEMM速度相加或将微测当E2E。下一步生产晋级仍须实际新服务路径/最小回归、同契约Mixed和适用正式精度gate；不外推E128/其他芯片或M区间。
+
+该卡后续apply-004：只将同AST限域四标量配置写入私有MetaX fused_moe.py，实际新进程四组选择与原候选相同、5730受保护文件仅一处变化；当前服务未重启，不将source-applied解释成运行时命中或新GPQA。原未应用阶段与微测证据保持历史边界。

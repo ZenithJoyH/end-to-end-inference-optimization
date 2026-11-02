@@ -162,8 +162,9 @@ baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和�
 - Prefill路径`_convert_request_to_physical_indices → flaggems_vllm.convert_sparse_indices`：实际16worker最大`[32768,2176]`，请求/页表/逻辑索引整数，输出int32。旧remainder单张量544MiB OOM后，`operator/improve`用逐行有界scan融合映射/缺页过滤/稳定压缩，保留int64地址计算、顺序/重复/计数/-1尾部；不生成全尺寸int64工作区，无平台模型分支。
 - 独立同输入`8198×8320`对照额外峰值约3.88GiB→260.22MiB、逐位相等；不是实际模型shape/总峰值。CPU420、FGV设备145、原cache设备2通过，3宽度各2次更新输入graph replay；原C1/C8、三16K边界、11答案及P4096/D16/C64/N64全部通过（64唯一响应），实际shape输出272MiB+128KiB长度，未见OOM/RPC。原argv/MBT/生产DB不变，完整当前审计通过。首次CPU fixture边界失败/精确回退保留，不加生产Torch fallback来满足CPU单测。
 - 知识差量`refined`：早期“索引局部提速未兑现E2E”不能用来否定新公共路径中的索引**内存正确性**修复；H4存储问题消除后，原被掩盖的O(MK)整数中间量可成为下一独立OOM。下一首查实际M/K/dtype与活跃中间量，不从单次544MiB分配反猜shape或把一个修复扩成全峰值根因。
-- 后续真实生产验证：原脚本/MBT不变、无任何MM/vendor/观测hook，默认`glm5.flaggems`的C64 64/64、C1/C8/三16K/11答案/FULL于12:15:49通过，16worker前后无hook，生产DB正常调参写入保留。同实例198题/C64正式GPQA已启动，score/gate待定；先前临时策略与本生产范围分开。
-- 边界：仍无当前198题gate、稳态三臂、非PPU硬件或完整allocator峰值证据；冷请求诊断和转换微基准不代表E2E收益。完整证据与SHA：[点52](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261022-sparse-physical-index-fusion-52.md)，远端`index-conversion-repair-08/validation-recovery-01`及`production-no-mm-02`，正式在后者`formal-gpqa-01`。
+- 后续真实生产验证：原脚本/MBT不变、无任何MM/vendor/观测hook，默认`glm5.flaggems`的C64 64/64、C1/C8/三16K/11答案/FULL于12:15:49通过，16worker前后无hook。原生单次198题/C64正式GPQA为173/198＝87.3737%≥86%，题目/filter/provenance复验通过、5题60K仅诊断；当前同实例健康且无OOM/RPC。但正式期间调参DB SHA变化，严格当前绑定incomplete、无gate；原DB和manifest保留，不改绑/重跑或将分数达标误作模型失败。先前临时策略与本生产范围分开。
+- 后续绑定修正：用户明确正常调参DB属于可变运行状态后，[点53](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261022-steady-p1k-phase-baseline-53.md)新增显式同实例缓存更新gate并经原生check通过，保留173/198及原始DB前后SHA，不重跑或改写旧manifest；源码、参数、URL/策略及实例仍严格一致。当前P1K稳态三阶段入口基线已启动。
+- 边界：仍无稳态三臂、非PPU硬件或完整allocator峰值证据；缓存绑定不豁免性能的预热/缓存可比性，冷请求诊断和转换微基准不代表E2E收益。完整证据与SHA：[点52](../../../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261022-sparse-physical-index-fusion-52.md)，远端`index-conversion-repair-08/validation-recovery-01`及`production-no-mm-02`，正式在后者`formal-gpqa-01`。
 
 ### 适用限制
 
