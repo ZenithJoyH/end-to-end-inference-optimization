@@ -171,3 +171,18 @@ E2E_LM_EVAL_WHEEL=/external/lm_eval-0.4.9-py3-none-any.whl \
 2. 用同一案例配置执行两次 `--capture-provenance`，输出到不同新文件，确认任务 metadata、实际 dataset path/name/split、原始/处理后题目指纹和 filter 集合一致。采集不会查询模型服务或生成答案；不得为让采集通过而自动改写数据集路径。
 3. 根据采集内容冻结契约，确认源码/schema 与适配器匹配后，再核验服务身份并执行 `--preflight-only`。这是服务 `/v1/models` 预检，不能代替精度评测。
 4. 当精度评测 Skill 的 `formal-gate` 触发条件满足，或用户明确恢复此前暂缓的正式评测后，才执行完整 GPQA 和 gate 签发；核对真实 metadata 与多 filter 样本是为了确认分数属于当前候选。
+
+
+### 已有原生 API 产物的 CPU 观察
+
+`response_observations.py` 可在不调用模型的情况下核验返回 token/prompt/usage，
+并通过完整原生 prompt 将日志对象映射到样本。原生 `lm_eval` 的 JSON 聊天参数先按
+role/content 结构解码，再唯一匹配返回的完整 prompt；不按返回顺序、问题片段或模糊文本猜身份。
+重复 doc、多轮歧义、残缺对象及未映射记录必须显式处理。其输出是完整解析 API 对象，
+不是 HTTP wire，也不替代 native score、正式 acceptance 或服务身份绑定。
+已有正式审计需要修正时另存新输出和 SHA，保留原失败回执、样本与分数。
+
+公共观察器不预设模型词表或生成长度：`thinkend_token_id`、`eos_token_ids`、
+`max_completion_tokens` 由调用方显式传入；未配置时相关观察为 `None`／空映射。
+案例中已经冻结的旧观察器副本及模型专用字段保持原样，新审计记录各自代码SHA，不能
+在已执行的评测中静默替换冻结工具。
