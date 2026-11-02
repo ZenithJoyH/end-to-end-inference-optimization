@@ -1,5 +1,7 @@
 # Qwen3-VL / MetaX / P64K opt3
 
+2026-10-22后续：[PR943最新上游刷新](../../../models/Qwen3-VL-30B-A3B-Instruct/metax/20261022-qwen3vl-metax-pr977/optimize/pr-002-refresh943-upstream977.md)已发布316f036，保留保护及调优、兼容977；新63GPU/TP2graph与CI通过。以下090ef1d记录为10月19日历史验证，不作新head证据。
+
 2026-10-19 [pr029 收敛与正式评审](../../../models/Qwen3-VL-30B-A3B-Instruct/metax/20261015-qwen3vl-metax-p64k-opt3/optimize/pr-029-moe-scope-cleanup.md)：PR943 Ready/head090ef1d；现有stage入口+完整shape/dtype/C550边界+正确pair内存估算，marker1处。55GPU/37参考/23capture+46replay、TP2双worker各>=16replay和11HTTP/C8、两套MetaX CI通过。8111/opt9已按原配置恢复，原运行源码/采样/gems-opt未回写。无新E2E/正式精度结论。
 
 op024: [inline MoE tuning](../../../models/Qwen3-VL-30B-A3B-Instruct/metax/20261015-qwen3vl-metax-p64k-opt3/optimize/op-024-moe-inline-config.md) saved; external JSON/helper and Plugin assets removed;393240CPU selector comparisons exact, kernels unchanged; no service restart.

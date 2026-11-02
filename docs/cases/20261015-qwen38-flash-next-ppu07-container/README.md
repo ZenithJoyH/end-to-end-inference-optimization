@@ -1,5 +1,21 @@
 # Qwen3.8-Flash-Next 优化容器复刻至 PPU-07
 
+2026-10-23 16:53+08 用户要求基于当前修复版本继续优化。新核对8010已停／8–15空闲及三库source后，仅单次启动op068/BF16当前版本，正在加载／编译，模型请求尚0。固定2C1＋8C8最小回归和CPU审计通过后，已交付的[acc020](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/acc-020-full-gpqa-op068-layout.md)后继控制器才会同实例运行一次198题/C64正式GPQA；原acc019低分阻塞尚未解除，新gate后再做P1K阶段稳态基线。源码／选参／现有修复不变，0访问8035／额外重启／提交推送。30分钟只读monitor已启用，以下停服快照为上一阶段。
+
+2026-10-23 [op068已发布PR #989](https://github.com/flagos-ai/FlagGems-vllm/pull/989)：thead MoE直接读取原权重，移除自动转置／缓存／显存策略，保留kernel与选参；仅2文件，独立于#959／#982。既有PPU 50passed／16capture／64replay与提交CPU／格式检查核验；CI marker问题已仅补显式测试标记，新head rule-check与basic ci均成功、设备jobs跳过。本轮无容器／服务变更或重测，模型收益与11题超时恢复仍未验收。[同一实验记录](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-068-thead-moe-weight-layout-fix.md#2026-10-23-独立pr发布)保存head与证据。
+
+2026-10-23 15:25+08 [op068最终MoE原布局修复](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-068-thead-moe-weight-layout-fix.md)：删除thead隐式转置／4项缓存／显存查询，仅两文件且选参／kernel及已有修复不变，原件有备份。新授权后原8010单次SIGTERM自然排空，独占物理15最终补丁50项数值／边界／权重生命周期测试、16capture／64replay／110检查通过；945新产物与110份CPU重建oracle独立核验通过。**当前8010保持关闭，未重启**。仅算子级通过，模型minimal／端到端性能／GPQA未测，无新gate，不称11题超时已解决；不访问8035或提交推送，细节与完整证据SHA在同一实验记录。
+
+2026-10-23 [op067转置策略算子/graph单变量对照](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-067-moe-transpose-ab.md)完成：原选参与全部修复不变，两独立B/C/R验证关闭自动转置显著减少冷缓存完整MoE graph成本，重新开启回退复现；126数值/30capture/120变化replay、2015产物及CPU审计通过。仅单rank单层合成张量，无线上部署/请求/重启/GPQA，不能把算子倍数称模型加速或旧11超时修复。实际数据表与完整证据SHA见同一实验记录。
+
+2026-10-23 [完整MoE入口超时及转置缓存分析](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/acc-019-full-gpqa-thead-full-moe.md#阶段结果首要嫌疑收敛至4项全局转置缓存选参是第二独立变量)：eng066已真实命中完整入口并通过短护栏，后续acc019全量174/198 failed-score伴11题真实超时。已有证据定位优先级收敛为4项全局转置缓存与48层96权重不匹配，CPU机制复现；选参/布局差异也已核验。无新设备实验或修复，具体耗时贡献未证实，服务和BF16/现有修复保持。以下早期“尚未重载”快照保留为历史。
+
+2026-10-22 [eng066磁盘候选已开放thead完整MoE入口](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/eng-066-thead-full-moe-entry.md)：仅扩展原平台条件＋原路由测试，126 CPU AST/mock通过，2原件备份及24证据SHA核验通过，BF16和现有修复/HEAD/index保留。8010未重载，同实例健康/计数不变，运行仍下述env065旧分步路径；新完整API的graph、数值、模型和性能均未测，不继承旧gate。无8035访问/提交推送。
+
+2026-10-22 [env065当前MoE调用链只读复核](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/env-065-flaggems-vllm-routing-cleanup.md#moe-pr必要性与当前plugin调用链只读复核)：纠正库内thead fused_experts→no_tle不能代替Plugin外层命中核验。当前PPU被NVIDIA-only is_cuda条件排除完整API，分步CachedOp进入FGVLLM通用alignment/invoke；现有19成功alignment/14generic GEMM模块及当前/启动SHA一致佐证。CPU对照支持PR982平台防护；空extent为公共零边界修复，当前普通M0走naive且未证实模型触发。不修改PR/容器/服务，无新推理/GPU或性能结论。
+
+2026-10-22 [env065规范源码收敛](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/env-065-flaggems-vllm-routing-cleanup.md)：Gems旧PLE/QSA/GDN模块及导出有备份移出，专用MoE host兼容修复落FGVLLM；仅新shell默认`VLLM_FL_USE_FLAGGEMS_VLLM=1`。CPU工程通过、设备/模型未测，原8010私有路径不变、不重启/访问8035，不继承旧gate或外推性能。
+
 2026-10-21 [op061 v2最小回归通过](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-061-ppu-moe-tle-capability.md#v2终态算子边界graph与10请求最小回归通过)：实际compact零buffer三处launch extent补max1、所有kernel及正参数保持。GPU68项＋15replay、10短doc2（2C1＋8C8，全部正常B）、83PT/完整raw-token及CPU终态审计通过；新8010 API3619570/start529063124健康空闲，capture/replay满足要求。原修复/安装Git/v1首错保留，不访问8035/全量GPQA/性能/提交推送。monitor PAUSED，未签新gate或宣称性能波动已修复。
 
 2026-10-21 [op061 TLE能力门禁受控验证](../../../models/Qwen3.8-Flash-Next/ppu/20261015-qwen38-flash-next-ppu07-master/optimize/op-061-ppu-moe-tle-capability.md#首失败零token直接算子边界已停止晋级)：私有Gems仅排除PPU不支持的TLE barrier，CPU7 dispatch通过；GPU第一项空输入触发原fallback `arange(0,0)`编译失败，候选与原版该路径AST相同。首PT/失败source/CPU审计已保全，未重试；8010已自然停止、0候选启动/0模型请求，非空/graph/模型/性能未测。整体incomplete，保留全部修复，不访问8035/全量GPQA/提交推送；监控PAUSED，等待方向。不能把旧acc017 gate或CPU dispatch当本候选验收。
