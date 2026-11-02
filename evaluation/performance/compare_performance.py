@@ -32,6 +32,9 @@ VARIABLE_ROOTS = {
     "launch_config",
     "mode",
 }
+# Isolated clone names may differ only when this exact path is predeclared.
+# Keep the field in stable identity so each role and baseline/revert still match.
+CONTAINER_NAME_VARIABLE_PATH = "/optimization_container_name"
 CACHE_VARIABLE_PATHS = {"/performance_context/prefix_cache_state", "/performance_context/cache_preparation"}
 REQUIRED_SCENARIOS = {f"p{p}-d1024-c64-n128": (p, 1024, 64, 128) for p in (1024, 4096, 16384, 32768)}
 
@@ -101,12 +104,15 @@ def validate_contract(value):
         parts = path.split("/")[1:]
         if not path.startswith("/") or not parts or any(not p or p in ("*", ".", "..") or "~" in p for p in parts):
             raise ValueError("use concrete JSON pointer paths; wildcard/escape paths are unsupported")
-        if path not in CACHE_VARIABLE_PATHS and (parts[0] not in VARIABLE_ROOTS or (parts[0] == "launch_config" and len(parts) < 2)):
-            raise ValueError("variable must be Plugin/FlagGems content, execution mode or a specific launch setting")
+        if (path != CONTAINER_NAME_VARIABLE_PATH and path not in CACHE_VARIABLE_PATHS
+                and (parts[0] not in VARIABLE_ROOTS or (parts[0] == "launch_config" and len(parts) < 2))):
+            raise ValueError("variable must be Plugin/FlagGems content, execution mode, a specific launch setting or the exact isolated container name")
     primary = value["primary"]
     fields(primary, ("metric", "direction", "min_improvement"), ("metric", "direction", "min_improvement"), "primary")
     validate_metric(primary)
-    number(primary["min_improvement"], "min_improvement", maximum=1)
+    # A negative signed-improvement floor expresses a pre-frozen regression
+    # tolerance; evidence, warmup, variability and revert checks stay unchanged.
+    number(primary["min_improvement"], "min_improvement", minimum=-1, maximum=1)
     if not isinstance(value["guardrails"], list):
         raise ValueError("guardrails must be an explicit list")
     names = set()
@@ -313,7 +319,7 @@ def check_run(path, contract_ref, contract):
         from acceptance import check_gate
         gate_path = verified(refs["accuracy_gate"])
         gate_service = verified(refs["service"])
-        if read_json(gate_path).get("schema_version") == 4:
+        if read_json(gate_path).get("schema_version") in (4, 5, 6):
             # Rebind evidence binds the original manifest's path and SHA.
             # The executor snapshots it; verify both before using that path.
             inputs = record.get("input_artifacts")

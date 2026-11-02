@@ -35,6 +35,11 @@ vllm serve <model> <其余冻结参数> \
 
 独立重复仍指不同服务实例；纯重启可以通过精度工具的显式 `rebind` 复用同一已评测候选的分数，
 而不是复用旧实例的 gate。代码、配置、设备或环境变化不能走该分支。
+同实例正常FlagGems调参DB写入可按精度工具的显式schema5 `cache-update`流程保存缓存更新绑定；
+不改分数或旧manifest，DB URL/策略和其他稳定身份仍严格相同。比较器如schema4一样核验其原始
+service路径与测量快照SHA，不把可变缓存绑定用于绕过预热或不同缓存条件的性能比较。
+重启同时发生正常调参写入时，可使用精度工具显式schema6 `cache-rebind`；它仍不允许性能比较
+忽略DB或逻辑配置变化，不覆盖源码/启动参数变化。比较器同样重验原manifest路径和绑定证据。
 比较器验证 schema4 rebind 时，要求 `run-record.input_artifacts.service` 的原始 manifest 仍可读取且 SHA 与测量快照一致，再用该原路径验证精确绑定；缺失或变更不能以相同内容副本绕过。测量快照、原始精度证据及 runtime/最小回归证据都继续做 SHA 校验。
 
 ## 配置执行与比较
@@ -88,7 +93,11 @@ python3 evaluation/performance/compare_performance.py \
   --output /external/comparison-result.json
 ```
 
+主指标 `primary.min_improvement` 是预冻结的有符号相对改善下限，取值范围为 [-1, 1]；正数要求改善，0要求不下降，负数表示允许的回退容差。例如 `direction=higher, min_improvement=-0.05` 允许主吞吐相对baseline最多下降5%；`direction=lower` 时同值允许主延迟最多上升5%。该容差不放宽守护项、预热、完整证据、独立重复、测量波动或baseline/revert漂移检查。迁移回归必须明确基线是迁移前已优化环境，不能据此签发相对未优化anchor的最终收益结论。
+
 比较契约必须在测量时已通过 `--comparison-contract` 绑定；不能测完再改门槛。`variable_paths` 指向服务 manifest 中声明的主要变量，例如 `/flaggems_sha256` 或 `/launch_config/max_num_seqs`；缓存实验可显式声明 `/performance_context/prefix_cache_state` 及相应的 `/performance_context/cache_preparation`。设备、模型/权重、客户端、workload、生成与测量条件不能混入未声明变化；base_url 的地址变化仅允许作为服务定位差异，每次均与本次计划核对。
+
+隔离 clone 对照可在测量前显式声明 `/optimization_container_name`，只允许候选容器名称与 baseline 不同；该字段仍属于稳定身份，同角色的独立服务实例、baseline 与 revert 必须保持各自名称一致。名称差异不放宽镜像、设备拓扑、模型内容、挂载一致性、服务实例独立性或原生证据检查；这些字段也不能借此加入允许变化列表。
 
 比较器重新核对原始 JSON、控制台输出、命令和 SHA，不只信 valid 标志或汇总表。重复引用同一轮产物、同一服务实例充当多个独立进程、缺轮、漂移超限和证据不足均为 incomplete。统计先取每进程的测量轮中位数，再取进程间中位数；保留所有轮和进程值，并检查两级波动以及 baseline/revert 漂移。这是预冻结的工程判断，不声称产生统计置信区间或总体请求 P99。
 

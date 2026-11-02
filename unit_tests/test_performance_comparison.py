@@ -115,6 +115,94 @@ class ComparisonTest(unittest.TestCase):
         record["rounds"][index]["raw_result"] = self.save(Path(ref["path"]), value)
         self.save(path, record)
 
+    def declare_isolated_container_name(self):
+        self.contract["variable_paths"].append("/optimization_container_name")
+        ref = self.save(self.contract_path, self.contract)
+        for path in self.paths:
+            record = compare.read_json(path)
+            record["artifacts"]["comparison_contract"] = ref
+            self.save(path, record)
+        for index in (2, 3):
+            self.mutate_artifact(index, "service", lambda service: service.update(
+                optimization_container_name="isolated-candidate"))
+
+    def test_isolated_container_name_requires_explicit_declaration(self):
+        for index in (2, 3):
+            self.mutate_artifact(index, "service", lambda service: service.update(
+                optimization_container_name="isolated-candidate"))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertIn("/optimization_container_name", " ".join(report["issues"]))
+        self.declare_isolated_container_name()
+        report = self.decision()
+        self.assertEqual(report["status"], "passed", report)
+        self.assertEqual(report["changed_paths"], ["/flaggems_sha256", "/optimization_container_name"])
+
+    def test_container_declaration_allows_only_exact_name_path(self):
+        self.declare_isolated_container_name()
+        for path in ("/optimization_container_name/child", "/performance_context/image_id",
+                     "/performance_context/device_ids", "/image_lineage", "/mount_parity",
+                     "/model_sha256", "/engine_sha256", "/service_instance_id"):
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                value = copy.deepcopy(self.contract)
+                value["variable_paths"].append(path)
+                compare.validate_contract(value)
+
+    def test_container_declaration_keeps_baseline_revert_identity(self):
+        self.declare_isolated_container_name()
+        for index in (4, 5):
+            self.mutate_artifact(index, "service", lambda service: service.update(
+                optimization_container_name="different-revert-container"))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertIn("revert: service/environment drift", " ".join(report["issues"]))
+
+    def test_container_declaration_keeps_candidate_role_identity(self):
+        self.declare_isolated_container_name()
+        self.mutate_artifact(3, "service", lambda service: service.update(
+            optimization_container_name="different-candidate-container"))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertIn("candidate: service/environment drift", " ".join(report["issues"]))
+
+    def test_container_declaration_does_not_allow_image_or_device_drift(self):
+        self.declare_isolated_container_name()
+        for key, value in (("image_id", "sha256:" + "d" * 64), ("device_ids", ["device-1"])):
+            with self.subTest(key=key):
+                for index in (2, 3):
+                    self.mutate_artifact(index, "service", lambda service: service["performance_context"].update({key: value}))
+                report = self.decision()
+                self.assertEqual(report["status"], "incomplete", report)
+                self.assertIn("/performance_context/" + key, " ".join(report["issues"]))
+                original = "sha256:" + "c" * 64 if key == "image_id" else ["device-0"]
+                for index in (2, 3):
+                    self.mutate_artifact(index, "service", lambda service: service["performance_context"].update({key: original}))
+
+    def test_container_declaration_keeps_lineage_and_mount_gates(self):
+        self.declare_isolated_container_name()
+        for key, original in (("image_lineage", "verified"), ("mount_parity", "passed")):
+            with self.subTest(key=key):
+                self.mutate_artifact(2, "service", lambda service: service.update({key: "unverified"}))
+                report = self.decision()
+                self.assertEqual(report["status"], "incomplete", report)
+                self.assertIn("image lineage/mount parity", " ".join(report["issues"]))
+                self.mutate_artifact(2, "service", lambda service: service.update({key: original}))
+
+    def test_container_declaration_keeps_independent_instances(self):
+        self.declare_isolated_container_name()
+        self.mutate_artifact(3, "service", lambda service: service.update(service_instance_id="candidate-boot-0"))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertIn("same service process", " ".join(report["issues"]))
+
+    def test_container_declaration_keeps_bound_runtime_evidence(self):
+        self.declare_isolated_container_name()
+        proofs = self.add_instance_observations()
+        self.save(proofs[2], {"observed_instance": "tampered"})
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertIn("artifact missing, relocated or changed", " ".join(report["issues"]))
+
     def test_complete_comparison_passes_and_keeps_process_units(self):
         report = self.decision()
         self.assertEqual(report["status"], "passed", report)
@@ -425,6 +513,136 @@ class ComparisonTest(unittest.TestCase):
             record["artifacts"]["comparison_contract"] = compare.artifact(self.contract_path)
             self.save(path, record)
         self.assertIn("formally admitted", " ".join(self.decision()["issues"]))
+
+
+    def freeze_primary_floor(self, floor, metric="output_throughput", direction="higher"):
+        # Synthesize a fully pre-bound contract, not a post-run threshold edit.
+        self.contract["primary"] = dict(metric=metric, direction=direction, min_improvement=floor)
+        ref = self.save(self.contract_path, self.contract)
+        for path in self.paths:
+            record = compare.read_json(path)
+            record["artifacts"]["comparison_contract"] = ref
+            self.save(path, record)
+
+    def set_candidate_throughput(self, rate):
+        # Change raw duration, all rate metrics, stdout, and SHA links together.
+        # The ordinary comparator still revalidates complete native evidence.
+        for run_index in (2, 3):
+            path = self.paths[run_index]
+            record = compare.read_json(path)
+            for round_record in record["rounds"]:
+                raw_path = Path(round_record["raw_result"]["path"])
+                raw = compare.read_json(raw_path)
+                raw["duration"] = 20 / rate
+                for key, count in (("request_throughput", 2), ("output_throughput", 20),
+                                   ("total_token_throughput", 40), ("request_goodput", 2)):
+                    raw[key] = count / raw["duration"]
+                round_record["raw_result"] = self.save(raw_path, raw)
+                validation_path = Path(round_record["validation"]["path"])
+                validation = compare.read_json(validation_path)
+                stdout = (f"Successful requests: 2\nBenchmark duration (s): {raw['duration']}\n"
+                          "Total input tokens: 20\nTotal generated tokens: 20\n")
+                validation["stdout_metrics"] = vllm_perf.extract_metrics(stdout)
+                validation["output"] = self.save(Path(validation["output"]["path"]),
+                                                  {"stdout": stdout, "stderr": ""})
+                round_record["validation"] = self.save(validation_path, validation)
+            self.save(path, record)
+
+    def test_primary_signed_floor_validation_preserves_finite_numeric_bounds(self):
+        for floor in (-1, -0.05, 0, 0.05, 1):
+            with self.subTest(floor=floor):
+                contract = copy.deepcopy(self.contract)
+                contract["primary"]["min_improvement"] = floor
+                compare.validate_contract(contract)
+        for floor in (-1.0001, 1.0001, float("nan"), float("inf"), -float("inf"), True, "-0.05"):
+            with self.subTest(invalid_floor=floor), self.assertRaises(ValueError):
+                contract = copy.deepcopy(self.contract)
+                contract["primary"]["min_improvement"] = floor
+                compare.validate_contract(contract)
+
+    def test_primary_throughput_noninferiority_uses_frozen_five_percent_boundary(self):
+        self.freeze_primary_floor(-0.05)
+        for rate, status in ((9.51, "passed"), (9.5, "passed"), (9.49, "failed")):
+            with self.subTest(rate=rate):
+                self.set_candidate_throughput(rate)
+                report = self.decision()
+                self.assertEqual(report["status"], status, report)
+                if status == "failed":
+                    self.assertTrue(any("primary improvement" in x for x in report["issues"]))
+
+    def test_primary_latency_noninferiority_keeps_lower_is_better_direction(self):
+        self.freeze_primary_floor(-0.05, "p99_tpot_ms", "lower")
+        for i in range(len(self.paths)):
+            for j in range(4):
+                self.mutate_round(i, j, lambda raw: raw.update(p99_tpot_ms=100))
+        for latency, status in ((104.9, "passed"), (105, "passed"), (105.1, "failed")):
+            with self.subTest(latency=latency):
+                for i in (2, 3):
+                    for j in range(4):
+                        self.mutate_round(i, j, lambda raw: raw.update(p99_tpot_ms=latency))
+                report = self.decision()
+                self.assertEqual(report["status"], status, report)
+
+    def test_noninferiority_does_not_bypass_warmup_guardrails_or_revert_drift(self):
+        self.freeze_primary_floor(-0.05)
+        self.set_candidate_throughput(9.5)
+        self.mutate_round(2, 0, lambda raw: raw.update(p99_ttft_ms=1))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertTrue(any("warmup" in x for x in report["issues"]))
+        self.mutate_round(2, 0, lambda raw: raw.update(p99_ttft_ms=49.1))
+        for i in (2, 3):
+            for j in (2, 3):
+                self.mutate_round(i, j, lambda raw: raw.update(p99_ttft_ms=60))
+        report = self.decision()
+        self.assertEqual(report["status"], "failed", report)
+        self.assertTrue(any("guardrail" in x for x in report["issues"]))
+        for i in (2, 3):
+            for j in (2, 3):
+                self.mutate_round(i, j, lambda raw: raw.update(p99_ttft_ms=49.1))
+        for i in (4, 5):
+            for j in (2, 3):
+                self.mutate_round(i, j, lambda raw: raw.update(p99_ttft_ms=60))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertTrue(any("baseline/revert drift" in x for x in report["issues"]))
+
+    def test_noninferiority_keeps_integrity_and_independent_process_requirements(self):
+        self.freeze_primary_floor(-0.05)
+        self.set_candidate_throughput(9.5)
+        report = self.decision(self.paths[:-1])
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertTrue(any("insufficient independent" in x for x in report["issues"]))
+        self.mutate_artifact(3, "service", lambda service: service.update(service_instance_id="candidate-boot-0"))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertTrue(any("same service process" in x for x in report["issues"]))
+        self.mutate_artifact(3, "service", lambda service: service.update(service_instance_id="candidate-boot-1"))
+        record = compare.read_json(self.paths[2])
+        Path(record["rounds"][2]["raw_result"]["path"]).write_text("{}")
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertTrue(any("artifact missing, relocated or changed" in x for x in report["issues"]))
+
+    def test_noninferiority_keeps_measurement_noise_checks(self):
+        self.freeze_primary_floor(-0.05)
+        self.set_candidate_throughput(9.5)
+        self.mutate_round(2, 2, lambda raw: raw.update(p99_ttft_ms=10))
+        report = self.decision()
+        self.assertEqual(report["status"], "incomplete", report)
+        self.assertTrue(any("spread" in x for x in report["issues"]))
+
+    def test_positive_and_zero_primary_floors_still_require_original_improvement(self):
+        self.freeze_primary_floor(0.05)
+        self.set_candidate_throughput(10.49)
+        self.assertEqual(self.decision()["status"], "failed")
+        self.set_candidate_throughput(10.51)
+        self.assertEqual(self.decision()["status"], "passed")
+        self.freeze_primary_floor(0)
+        self.set_candidate_throughput(9.99)
+        self.assertEqual(self.decision()["status"], "failed")
+        self.set_candidate_throughput(10)
+        self.assertEqual(self.decision()["status"], "passed")
 
 
 if __name__ == "__main__":
