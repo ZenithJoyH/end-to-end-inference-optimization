@@ -4,7 +4,7 @@
 - Service graph mode: `FULL_DECODE_ONLY`, TP16, `max-model-len=100000`,
   `max-num-batched-tokens=2048`, prefix caching explicitly disabled.
 - Source identities: Plugin `f7d1aaa`, FlagGems `0e02755`, FlagGems-vllm
-  `a26a902` plus `flaggems-vllm-hq4-graph-capture-gap.patch`.
+  `a26a902` plus `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20260914-hy4-preview-ppu-e2e/commands/formal-gate-20260918-f7d1aaa-a26a902-01/flaggems-vllm-hq4-graph-capture-gap.patch`.
 - Startup repair: the latest migrated FlagGems-vllm sparse MLA covered HQ4 only for
   `SQ<=64` and `SQ>=128`. Default graph capture includes `SQ=72..120`, which fell
   through to a generic HQ64/HQ128-only kernel and raised `Unsupported h_q`.

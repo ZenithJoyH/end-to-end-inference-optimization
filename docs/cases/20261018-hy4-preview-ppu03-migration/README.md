@@ -11,7 +11,7 @@
 
 下述为历史记录。
 
-当前env027已直接收敛容器安装Plugin的3项局部重复，614文件与CPU契约检查通过，两个gems-opt不变。服务未重启，不开始评测。[当前说明](plugin-cleanup-env027/README.md) · [完整diff](plugin-cleanup-env027/full-diff.md)。
+当前env027已直接收敛容器安装Plugin的3项局部重复，614文件与CPU契约检查通过，两个gems-opt不变。服务未重启，不开始评测。[当前说明](plugin-cleanup-env027/README.md) · 完整diff（本地文件 `docs/cases/20261018-hy4-preview-ppu03-migration/plugin-cleanup-env027/full-diff.md`）。
 
 历史服务验证（env021源码）：env022已重启当前env021/r15，新service08的51capture、16rank各2replay、smoke/C8和共享前缀分页均通过，实际prefix-hit 13184.0 tokens。两个Gems与源码未改，GPQA暂停。[验证说明](service-validation-env022/README.md)。下述为历史证据。
 
@@ -55,3 +55,11 @@ R04完整28文件补丁 `plugin-hy4-migration-r04.patch` SHA `029f2335b498281829
 同名API不保证dtype兼容；升级后应先核验真实INT8/FP8契约。TLE导入成功不保证目标编译器支持。对量化与算子库Python包装器，必须以实际fullgraph编译证明兼容，eager/graph replay不能代替。以上结论限本次固定revision和PPU SDK；没有新的端到端性能证据，不修订性能SOP或算子性能知识。
 
 2026-10-20：env031当前2048组合已按用户授权开始[acc006完整GPQA C64](../../../models/Hy4-preview/ppu/20261018-hy4-preview-ppu03-migration/optimize/acc-006.md)，阈值87%；新版FGV固定45e14232、FG3ba不变，8192无净吞吐收益未保留。运行中，尚无正式分数或gate。
+
+<!-- record-archive:start -->
+## 本地过程材料归档（2026-11-02）
+
+本案例 41 个过程文件已逐文件 SHA256 校验后移出记录目录。恢复副本：[归档目录](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261018-hy4-preview-ppu03-migration)；逐文件原路径、SHA 和恢复路径见[迁移清单](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json)。远端原始证据的位置保持不变。
+
+原文中未展开的 `commands/`、脚本文件名及历史命令属于执行时路径；查阅使用上述归档，重新执行前先核验环境和路径。该本地归档不随 Git 提交，也不能替代远端长期保存。
+<!-- record-archive:end -->

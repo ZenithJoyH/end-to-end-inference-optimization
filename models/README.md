@@ -1,11 +1,12 @@
 # 模型优化记录导航
 
-2026-11-02 案例快照（11-04 更新模型归类），覆盖 **9 个模型、47 个独立/旧布局案例**。MiniMax-M3.1 旧混合目录仅作为迁移索引，不计作第三个实验案例。
+2026-11-02 案例快照（11-04 更新模型归类），覆盖 **10 个模型、53 个独立/旧布局案例**。MiniMax-M3.1 旧混合目录仅作为迁移索引，不计作第三个实验案例。
 
 | 模型 | 案例数 | 维护边界 |
 |---|---:|---|
 | [DeepSeek-V4-Flash-W8A8](DeepSeek-V4-Flash-W8A8/README.md) | 2 | 已整理阶段入口、指标范围与实验导航 |
 | GLM-5.3-Flash-BF16 | 1 | 按用户要求保持文件不动 |
+| [Hy4-preview](Hy4-preview/README.md) | 6 | 已整理阶段入口、指标范围与实验导航 |
 | [MiniMax-M3](MiniMax-M3/README.md) | 3 | 已整理阶段入口、指标范围与实验导航 |
 | [MiniMax-M3.1-Flash-W8A8](MiniMax-M3.1-Flash-W8A8/README.md) | 13 | 已整理阶段入口、指标范围与实验导航 |
 | [Qwen3-VL-30B-A3B-Instruct](Qwen3-VL-30B-A3B-Instruct/README.md) | 17 | 已整理阶段入口、指标范围与实验导航 |
@@ -21,6 +22,12 @@
 | DeepSeek-V4-Flash-W8A8 / 20261020-env011-gpqa-metax59 | diagnosis_partial_formal_failed | — | — | [baseline](DeepSeek-V4-Flash-W8A8/metax/20261020-env011-gpqa-metax59/baseline/README.md) · [optimize](DeepSeek-V4-Flash-W8A8/metax/20261020-env011-gpqa-metax59/optimize/README.md) · [acceptance](DeepSeek-V4-Flash-W8A8/metax/20261020-env011-gpqa-metax59/acceptance/README.md) |
 | DeepSeek-V4-Flash-W8A8 / 20261022-thinking-gpqa-metax103 | fw006_paused_by_user_manual_performance | — | — | [baseline](DeepSeek-V4-Flash-W8A8/metax/20261022-thinking-gpqa-metax103/baseline/README.md) · [optimize](DeepSeek-V4-Flash-W8A8/metax/20261022-thinking-gpqa-metax103/optimize/README.md) · [acceptance](DeepSeek-V4-Flash-W8A8/metax/20261022-thinking-gpqa-metax103/acceptance/README.md) |
 | GLM-5.3-Flash-BF16 / legacy-platform-layout | point55_attribution_closed_point56_prefix_micro94_passed_unprofiled_ABR_baseline_active_follow_queued | — | — | [baseline](GLM-5.3-Flash-BF16/ppu/baseline/README.md) · [optimize](GLM-5.3-Flash-BF16/ppu/optimize/README.md) · [acceptance](GLM-5.3-Flash-BF16/ppu/acceptance/README.md) |
+| Hy4-preview / 20261015-hy4-preview-ppu13-clone | kept | — | — | [baseline](Hy4-preview/ppu/20261015-hy4-preview-ppu13-clone/baseline/README.md) · [optimize](Hy4-preview/ppu/20261015-hy4-preview-ppu13-clone/optimize/README.md) · [acceptance](Hy4-preview/ppu/20261015-hy4-preview-ppu13-clone/acceptance/README.md) |
+| Hy4-preview / 20261018-hy4-preview-ppu03-migration | env031_acc006_full198_accuracy_passed | — | — | [baseline](Hy4-preview/ppu/20261018-hy4-preview-ppu03-migration/baseline/README.md) · [optimize](Hy4-preview/ppu/20261018-hy4-preview-ppu03-migration/optimize/README.md) · [acceptance](Hy4-preview/ppu/20261018-hy4-preview-ppu03-migration/acceptance/README.md) |
+| Hy4-preview / 20261020-hy4-preview-ppu03-batched8192 | completed_8192_rejected_original2048_restored | full_not_run_no87percent_gate | incomplete_diagnostic_only | [baseline](Hy4-preview/ppu/20261020-hy4-preview-ppu03-batched8192/baseline/README.md) · [optimize](Hy4-preview/ppu/20261020-hy4-preview-ppu03-batched8192/optimize/README.md) · [acceptance](Hy4-preview/ppu/20261020-hy4-preview-ppu03-batched8192/acceptance/README.md) |
+| Hy4-preview / 20261020-hy4-preview-ppu03-initial-perf | completed_bounded_initial_probe_no_optimization_retained | not_run; existing current accuracy gate unavailable | incomplete comparison; negative targeted observation,512notretained | [baseline](Hy4-preview/ppu/20261020-hy4-preview-ppu03-initial-perf/baseline/README.md) · [optimize](Hy4-preview/ppu/20261020-hy4-preview-ppu03-initial-perf/optimize/README.md) · [acceptance](Hy4-preview/ppu/20261020-hy4-preview-ppu03-initial-perf/acceptance/README.md) |
+| Hy4-preview / 20261021-hy4-preview-ppu03-e2e | user_paused_multimodal_adaptation_separate_case | source_acc006_passed_clone10_fixed_sanity_passed_no_formal_clone_gate | 004 and006 bounded targeted BCR passed;006 all54rounds new, Mixed6.49748x/Prefill12.77954x, no formal C64 acceptance | [baseline](Hy4-preview/ppu/20261021-hy4-preview-ppu03-e2e/baseline/README.md) · [optimize](Hy4-preview/ppu/20261021-hy4-preview-ppu03-e2e/optimize/README.md) · [acceptance](Hy4-preview/ppu/20261021-hy4-preview-ppu03-e2e/acceptance/README.md) |
+| Hy4-preview / legacy-platform-layout | optimizing | — | — | [baseline](Hy4-preview/ppu/baseline/README.md) · [optimize](Hy4-preview/ppu/optimize/README.md) · [acceptance](Hy4-preview/ppu/acceptance/README.md) |
 | MiniMax-M3 / 20261015-minimax-m3-ppu13-clone | accformal005_full_gpqa_passed_183_of_198 | — | — | [baseline](MiniMax-M3/ppu/20261015-minimax-m3-ppu13-clone/baseline/README.md) · [optimize](MiniMax-M3/ppu/20261015-minimax-m3-ppu13-clone/optimize/README.md) · [acceptance](MiniMax-M3/ppu/20261015-minimax-m3-ppu13-clone/acceptance/README.md) |
 | MiniMax-M3 / 20261017-minimax-m3-ppu13-plugin-support | fp32_router_default_off_CPU629_passed_PPU_model_pending | — | — | [baseline](MiniMax-M3/ppu/20261017-minimax-m3-ppu13-plugin-support/baseline/README.md) · [optimize](MiniMax-M3/ppu/20261017-minimax-m3-ppu13-plugin-support/optimize/README.md) · [acceptance](MiniMax-M3/ppu/20261017-minimax-m3-ppu13-plugin-support/acceptance/README.md) |
 | MiniMax-M3 / legacy-platform-layout | op013_code_migrated_to_latest_runtime_validation_pending | — | — | [baseline](MiniMax-M3/ppu/baseline/README.md) · [optimize](MiniMax-M3/ppu/optimize/README.md) · [acceptance](MiniMax-M3/ppu/acceptance/README.md) |

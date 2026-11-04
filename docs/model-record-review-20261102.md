@@ -31,7 +31,7 @@
 
 从 9 份已有结构化状态中补齐 **212 条**指标，其中 208 条直接对应原字段，4 条按原有三轮 measured 数据计算中位数并保留全部来源指针。没有从 Markdown 猜测数值，也没有选取更快轮次或重算优化收益。主要修复包括：
 
-- MiniMax-M3 的历史性能数据明确标注诊断/历史范围。
+- Hy4-preview 的 P4K scout 与 MiniMax-M3 的历史性能数据明确标注诊断/历史范围。
 - MiniMax-M3.1 的 TP16 阶段代理、实验配置基线，以及 TP8 正式长度/缩减阶段的 scenario-entry 指标分别记录。
 - Qwen3.6-27B 的缩减三阶段 baseline/revert 和四场景回归数据补入指标表；保留 Mixed 漂移及 P1K TTFT 波动超限，整套结果仍为 incomplete。
 - Qwen3.6-35B 的 script19 场景入口补出吞吐及延迟，限定为该候选 baseline，不作为原 anchor 或最终累计收益。
