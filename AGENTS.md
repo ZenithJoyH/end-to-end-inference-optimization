@@ -42,7 +42,7 @@ Agent 的职责是：
 | [模型产物契约](docs/model-artifact-contract.md) | `baseline/`、`optimize/`、`acceptance/` 的双视图文件、外部产物和清理规则 | 创建模型目录、写回 Skill 结果和案例收尾时 |
 | [容器隔离流程](docs/container-isolation.md) | 容器复刻、挂载比较与共享源码隔离 | 创建优化环境和修改共享目录中的源码前 |
 | [Plugin 设计与 PR 准备](docs/plugin-change-review.md) | 扩展点选择、多模型/多平台兼容与最终补丁要求 | Plugin 修改前及形成最终候选时 |
-| [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 用户指定的 A1–G2 工程条款，保留【必须】/【应该】强度 | Plugin 修改前阅读综述并按任务索引读取适用条款；实现、验证与交付时逐项复核 |
+| [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 用户指定的 A1–H10 工程条款，保留【必须】/【应该】强度 | Plugin 修改前阅读综述并按任务索引读取适用条款；实现、验证与交付时逐项复核 |
 | [算子层开发规范](docs/operator-development-standard.md) | FlagGems / FlagGems-vllm 的 A1–F6 条款及最新职责边界：ATen 与 vLLM 融合算子分别归属 | 算子接入、实现、融合或调优前读第 0、1 节和适用条款，最终候选复核 |
 
 ### 2.2 执行工具：控制环境、评测与本地验证
@@ -294,7 +294,7 @@ Agent 的职责是：
 
 **Plugin 修改必须同时考虑端到端收益与上游可维护性。** 用户后续将基于优化代码提交 PR；修改前及形成最终候选前，必须按 [Plugin 优化设计与 PR 准备](docs/plugin-change-review.md) 核对目标 revision 的框架设计、现有扩展点、多模型/多平台影响和验证证据。
 
-同时遵循用户提供的 [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md)：先读第 1 节综述，再按任务索引读取适用的 A1–G2 原条款；【必须】为硬性要求，【应该】如有偏离需记录理由和验证方式。该规范约束端到端优化中的 Plugin 设计、实现和交付，旧文档中的宽泛实现建议不能削弱它。条款适用范围及证据写入既有实验的 `engineering_review`，不另建过程目录。规范也覆盖 SGLang Plugin，但仅在当前任务已涉及该仓库时应用，不因此扩大模型适配或源码修改范围。
+同时遵循用户提供的 [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md)：先读第 1 节综述，再按任务索引读取适用的 A1–H10 原条款；【必须】为硬性要求，【应该】如有偏离需记录理由和验证方式。涉及量化格式、层方法、数值后端或 KV Cache 量化时，同时读取任务索引对应的通用条款和 H 组专项条款。该规范约束端到端优化中的 Plugin 设计、实现和交付，旧文档中的宽泛实现建议不能削弱它。条款适用范围及证据写入既有实验的 `engineering_review`，不另建过程目录。规范也覆盖 SGLang Plugin，但仅在当前任务已涉及该仓库时应用，不因此扩大模型适配或源码修改范围。
 
 **后续 FlagGems 仅提供 ATen 算子能力，vLLM 融合算子能力由 FlagGems-vllm 提供。** 算子修改必须同时遵循 [算子层开发规范](docs/operator-development-standard.md) 的第 0、1 节及适用 A1–F6 条款；该职责边界优先于两份来源规范和历史分析中的宽泛归属描述。ATen 算子内部可以融合计算，但必须保持同一个 schema/overload 的完整语义；不得向 FlagGems 新增非 ATen 融合 API。历史路径按实际 revision 取证，不因此批量迁移无关实现。归属、公开 API、条款证据和未测范围写入 `engineering_review.operator_standard` 及同一优化点 Markdown；Plugin 联动改动同时复核两套规范，条款编号注明来源。
 

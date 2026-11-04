@@ -371,8 +371,8 @@ change:
 engineering_review:  # 涉及 Plugin 或算子接入/修改时填写；均不涉及才 not_applicable
   status: pending  # pending | passed | needs_revision | not_applicable
   standard: docs/plugin-development-standard-v1.md  # 以下兼容字段属于 Plugin；纯算子实验设 null
-  standard_sha256: 7fdc56acaf83688e5fee50c4e1400b44dca43032068ebfe235c28b57b36f67f1
-  applicable_clauses: []  # 按规范任务索引选择 A1–G2；跨类型取并集
+  standard_sha256: 09dcc59eea50b14c76fbf63e0d9ee8088cec01b0a164af4e4d15d9b60d23b787
+  applicable_clauses: []  # 按规范任务索引选择 A1–H10；跨类型取并集
   clause_checks: []  # 条目包含 clause、result、evidence、reason；未执行填 not_run，不适用说明原因
   recommendation_deviations: []  # 【应该】条款偏离时记录 clause、reason、alternative_validation
   operator_standard:  # 算子接入/修改填写；纯 Plugin 实验 status=not_applicable
@@ -431,7 +431,7 @@ notes: ""
 保留 `pending` 或按缺陷标为 `needs_revision`，不能直接判 `passed`。条款检查结果使用
 `executed_passed|executed_failed|not_run|not_applicable`，静态/人工检查的证据须标明类型。
 适用【必须】不满足时为 `needs_revision`，未测项不能当通过；【应该】的替代方案记录理由和验证。
-这些字段是记录契约，不表示已有工具能自动判定 Plugin A1–G2 或算子 A1–F6 合规，也不要求追溯改写所有历史案例。
+这些字段是记录契约，不表示已有工具能自动判定 Plugin A1–H10 或算子 A1–F6 合规，也不要求追溯改写所有历史案例。
 算子归属按本地执行版第 0 节：FlagGems 仅提供 ATen，vLLM 融合算子归 FlagGems-vllm；同一
 优化点 Markdown 记录设计、验证、性能效果及证据链接，复核结果不替代模型精度/性能门禁。
 

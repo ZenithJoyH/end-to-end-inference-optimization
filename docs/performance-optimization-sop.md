@@ -2,9 +2,9 @@
 
 ## 文档状态
 
-- 版本：`0.43`
+- 版本：`0.44`
 - 状态：已包含本项目实际案例与导入案例；导入案例的性能数字尚未在本项目复测
-- 最后更新：2026-11-02
+- 最后更新：2026-11-04
 - 维护方式：由已完成或明确失败的实际优化案例持续修订
 
 本 SOP 是工作入口，不是固定真理。它只保留能够提高诊断效率、实验可比性、正确性或交付质量的步骤。不同模型、平台和业务 workload 可以有不同分支，但任何删减都需要说明原因。
@@ -45,7 +45,7 @@ workload 可比性、指标决策、schema 与最终报告字段统一见 [实�
 | C：热点指向 vLLM 专用/融合算子 | [FlagGems-vllm 仓库讲解](flaggems-vllm-analysis.md) | 沿 Plugin 显式调用、包级导出和 vendor backend 证明命中 |
 | C/D：热点指向普通 `torch.*`、ATen 注册或通用算子 | [FlagGems 仓库讲解](flaggems-analysis.md) | 沿注册 key、最终函数对象和 profiler 区分通用/vendor 实现 |
 | C/D：已收敛到具体关键算子 | [关键算子技能](../skills/key-operator-analysis/SKILL.md) | 只加载相关算子材料，不套用历史硬件、shape 和 revision 结论 |
-| D：设计 Plugin 改动；D/E：整理最终候选 | [开发规范 v1](plugin-development-standard-v1.md)、[Plugin 设计与 PR 准备](plugin-change-review.md) | 先读综述，按任务索引读取适用 A1–G2 条款；设计、实现、验证和交付持续复核 |
+| D：设计 Plugin 改动；D/E：整理最终候选 | [开发规范 v1](plugin-development-standard-v1.md)、[Plugin 设计与 PR 准备](plugin-change-review.md) | 先读综述，按任务索引读取适用 A1–H10 条款；设计、实现、验证和交付持续复核 |
 | D：算子接入、实现、融合或调优；D/E：整理算子候选 | [算子层开发规范](operator-development-standard.md) | 先读第 0、1 节和适用 A1–F6 条款；FlagGems 仅提供 ATen，vLLM 融合能力由 FlagGems-vllm 提供 |
 
 FlagGems 和 FlagGems-vllm 可能存在同名或相近实现。不得按仓库名或文件名猜测服务来源；以目标代码 import、ATen 注册、运行中函数对象和 profiler 命中证据为准。静态分析只帮助缩短定位路径，不能代替目标环境测量。
@@ -365,6 +365,8 @@ Prefill 候选至少以 Decode 指标和 Mixed 端到端结果为守护，Decode
 
 ### D4. Plugin 与算子设计复核及 PR 准备
 
+量化性能优化按 H10 在固定 workload 下评估端到端收益与加载成本，说明量化、repack、编译和预热的计时范围。加载时间单列，稳态性能仍遵循本项目的预热与准入契约。
+
 Plugin 候选从修改前开始遵循 [开发规范 v1](plugin-development-standard-v1.md)，按 [Plugin 优化设计与 PR 准备](plugin-change-review.md) 完成设计归属、能力/shape 边界、共享调用方与可选依赖检查。新增数值计算落在对应算子库，metadata 与计算混合职责按 A3 拆分；执行前完成选择，执行开始后的错误不得切换后端重试。测试按影响范围覆盖目标、非目标和生命周期；涉及 graph 时按 F3 更新输入、填充独立输出哨兵、重置状态并对照独立 reference，保留至少两次 replay 的证据。复用目标仓库实际 CI 规范；无硬件项目记为未测，不扩大连接范围。
 
 在实验 `engineering_review` 中记录规范版本、适用条款、证据、未测/不适用原因及【应该】条款的偏离理由。最终补丁按相同条款重新复核；硬性条款未满足则标记 `needs_revision`。跨仓库按 D3 先交付公开算子接口及测试再接入并锁定可获取版本，交付文档按 G1/G2 区分长期用户信息与 PR/CI 验证材料。
@@ -584,6 +586,7 @@ baseline sanity 或必要的最小回归失败、完整 GPQA 分数低于预冻�
 | 2026-10-28 | 0.41 | 用户提供《推理框架插件开发规范v1》 | 将 A1–G2 原文及按任务阅读要求接入 Plugin 设计、实现、验证和交付；收紧数值算子归属、执行后禁止重试、workspace/graph 契约、公开固定依赖与 PR 文档边界，并在工程复核中记录条款证据 | 用户指定工程规范，非新增性能证据 |
 | 2026-10-28 | 0.42 | 用户提供《新模型适配算子层开发规范》并明确职责边界 | 导入 A1–F6 执行版；FlagGems 仅提供 ATen，vLLM 融合算子由 FlagGems-vllm 提供；将算子契约、注册/命中、autotune 状态恢复、graph、benchmark 和交付条款接入实验循环及工程复核 | 用户指定工程规范，非新增性能证据 |
 | 2026-11-02 | 0.43 | 用户要求结合 FlagTree 各平台特性定向优化特化算子 | 将平台编译器能力纳入算子候选与复盘；按实际版本逐原语核实，比较优化过的普通 Triton 路径，证明转换/命中并回到 Mixed 稳态端到端验证；保持现有算子归属、权限与验收边界 | 用户指定候选方向，非新增性能证据 |
+| 2026-11-04 | 0.44 | 用户更新 Plugin 开发规范 v1 | 量化候选按任务索引执行 H1–H10 中的适用条款；验证方法和后端命中，区分数值误差与模型质量，分别报告加载成本和稳态性能 | 工程规范更新 |
 
 ## 人工交接与最终结论的执行入口
 

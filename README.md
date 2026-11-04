@@ -24,7 +24,7 @@
 | 核验 vLLM 专用算子栈 | [FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) | Plugin 怎样调用 vLLM 专用算子、如何定位通用实现与 vendor backend |
 | 核验通用算子后端 | [FlagGems 仓库讲解](docs/flaggems-analysis.md) | ATen 注册、通用/vendor 实现选择、算子测试和调优入口在哪里 |
 | 设计与整理改动 | [Plugin 设计与 PR 准备](docs/plugin-change-review.md) | 改动放在哪个扩展点、影响哪些模型/平台、如何准备最终补丁 |
-| 修改 Plugin | [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 按任务读取 A1–G2：代码归属、分发、补丁、配置、状态/graph、验证与交付 |
+| 修改 Plugin | [推理框架插件开发规范 v1](docs/plugin-development-standard-v1.md) | 按任务读取 A1–H10：代码归属、分发、补丁、配置、状态/graph、验证与交付、量化接入 |
 | 修改或接入算子 | [算子层开发规范](docs/operator-development-standard.md) | 按任务读取 A1–F6；FlagGems 仅提供 ATen 能力，FlagGems-vllm 提供 vLLM 融合算子能力 |
 | 执行评测与验收 | [评测入口](evaluation/README.md) | 使用哪个 runner、怎样运行、如何核验精度与性能证据 |
 
