@@ -1,0 +1,111 @@
+schema_version: 2
+updated_at: "2026-09-18T11:00:00+08:00"
+status: incomplete
+model: GLM-5.3-Flash-BF16
+platform: ppu
+host: PPU-13
+artifact_policy:
+  layout: state_and_readme_only
+  local_history_directory: forbidden_by_user
+  raw_artifacts: remote_only
+accuracy:
+  status: passed
+  task: gpqa_diamond_generative_cot
+  dataset: Idavidrein/gpqa
+  dataset_name: gpqa_diamond
+  dataset_split: train
+  dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+  metric: strict_accuracy
+  correct: 172
+  total: 198
+  score: 0.8686868686868687
+  threshold: 0.86
+  threshold_policy: score_only
+  generation:
+    temperature: 1
+    top_p: 0.95
+    max_generation_tokens: 60000
+    concurrency: 32
+    seed: 42
+  formal_run:
+    run_id: 8eb6d30142e34d75b0daa0eae09a12e8
+    service_instance_id: PPU-13:glm5.3-flash-opt-20260911:1555858:181526796
+    result_json_sha256: 80fb6f3f7f477ac2cb8beea2416e50560f3ca47aec8d16d97784515072d288b7
+    samples_jsonl_sha256: a8e9c49c8dc05f28d6d6c9a2b1a4de9b0e23f64b18ca6c55c8557755f4b4c23f
+    service_manifest_sha256: 67b2cd7f8de5133b578976957583794f51e7799313df3d5ac9d49c6b061c765e
+    task_provenance_sha256: 8c7ec0f28b497e53a394800328a7805ac32a440d257bef1a55fb488383626e78
+    artifact_root: /mnt/nfs/users/jinghao/glm5.3-flash/optimize/e2e-opt-20260911/accuracy/results/GLM-5.3-Flash-BF16-index-mqa-fixed-config-c32-60k/8eb6d30142e34d75b0daa0eae09a12e8
+    decision_note: >-
+      The completed run was rejudged after the user corrected the threshold from
+      0.88 to 0.86; no inference rerun was needed for this decision.
+  sparse_mla_bound_run:
+    service_instance_id: PPU-13:glm5.3-flash-opt-20260911:2969405:183437497
+    original_correct: 169
+    timeout_or_length_samples: 13
+    timeout_doc_ids: [8, 15, 32, 59, 71, 94, 102, 115, 127, 130, 145, 147, 170]
+    rerun_normal_finish: 5
+    rerun_length_finish: 8
+    rerun_additional_correct: 3
+    merged_correct: 172
+    rerun_artifact_root: /mnt/nfs/users/jinghao/glm5.3-flash/optimize/e2e-opt-20260911/accuracy/timeout-rerun-01
+  note: timeout and truncation remain diagnostic observations, not extra gates
+formal_performance:
+  status: incomplete
+  required_scenarios:
+    - p1024-d1024-c64-n128
+    - p4096-d1024-c64-n128
+    - p16384-d1024-c64-n128
+    - p32768-d1024-c64-n128
+  completed_scenarios: []
+  note: >-
+    Current P1K result is a scenario-entry baseline for the retained combination,
+    not final four-scenario candidate acceptance.
+stability:
+  c8_status: passed
+  long_run_status: not_run
+final_candidate:
+  status: not_frozen
+  current_research_service_status: stopped
+  last_research_service_instance: PPU-13:glm5.3-flash-opt-20260911:1149579:209401389
+  current_service_source_identity: ../optimize/state.yml
+delivery:
+  pr_readiness: experimental
+  status: commits_pushed_validation_incomplete
+  plugin_head: 95b04f7f321d94b2a21425bfc93cb34adcc0b7d0
+  flaggems_head: 9c9bff3979a6f90ef0d0c78aa6a1da2262723f31
+  plugin_commit_count: 9
+  flaggems_commit_count: 0
+  pushed: true
+  pushed_at: "2026-09-18T10:59:00+08:00"
+  plugin_remote: https://github.com/ZenithJoyH/vllm-plugin-FL.git
+  flaggems_remote: https://github.com/ZenithJoyH/FlagGems.git
+  remote_heads_verified: true
+  flaggems_vllm_migration:
+    status: pushed_not_bound_to_runtime_candidate
+    branch: support-glm5.3-flash
+    base: 6e7ac61de4f76cb12a8ff739c395f295e693d3bc
+    head: 9117ae501e84ecf0776fa7f84dd7c1dfe4d3538d
+    remote: https://github.com/ZenithJoyH/FlagGems-vllm.git
+    remote_head_verified: true
+    commits_ahead_of_main: 7
+    runtime_source_remains: 255ab5601b8002b32044fa3632e63eb1b3d45f4e
+    operator_ownership: non_aten_vllm_operators_moved_to_flaggems_vllm
+    plugin_imports_adjusted: true
+    final_focused_validation:
+      public_exports: passed
+      plugin_import_resolution: passed
+      flaggems_vllm_tests: 23_passed
+      plugin_tests: 11_passed
+      upstream_flaggems_without_model_commits: passed
+      graph_service: not_run_service_stopped
+  flaggems_cleanup:
+    master: 9c9bff3979a6f90ef0d0c78aa6a1da2262723f31
+    support_branch: 9c9bff3979a6f90ef0d0c78aa6a1da2262723f31
+    removed_commits:
+      - 4a3cba029d87ec06b5222ed94542f1f1d2e267a0
+      - fec980772439c1e1562f5cfd4bdc1d5863a27cf4
+    runtime_worktree_unchanged: true
+external_evidence:
+  accuracy_root: /mnt/nfs/users/jinghao/glm5.3-flash/optimize/e2e-opt-20260911/accuracy
+  performance_root: /mnt/nfs/users/jinghao/glm5.3-flash/optimize/e2e-opt-20260911/full-scenarios
+  note: local runbook, copied manifests, and duplicate result summary were consolidated here

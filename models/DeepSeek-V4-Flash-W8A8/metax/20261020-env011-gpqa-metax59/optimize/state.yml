@@ -1,0 +1,328 @@
+schema_version: 4
+identity:
+  case_id: 20261020-env011-gpqa-metax59
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mx-59
+  baseline_id: env011-d85f8340751b
+  topology: TP8:device0-device7
+stage: optimize
+current:
+  status: diagnosis_partial_formal_failed
+  candidate: env011+acc001+acc003:5ea09be19685b023b68ec43eed537793c366e7fa1c2fe6f5004361b2f948b4a9
+  next_action: No performance promotion. Remaining answer errors require an independent
+    full thinking-mode diagnostic or a known-good same-weight reference; no claim
+    that clamp explains score failure.
+experiments:
+- experiment_id: acc-001
+  document: acc-001.md
+  scenario_id: gpqa-diamond-198
+  status: execution_fix_validated
+  direction: accuracy-diagnosis
+  evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-01/diagnosis-001
+- experiment_id: acc-002
+  document: acc-002.md
+  scenario_id: gpqa-diamond-198
+  status: failed
+  direction: accuracy-diagnosis
+  evidence: /opt/dsv4-accuracy/20261020-env011-gpqa-02/manifests/strict-format-boundary-proof.json
+- experiment_id: acc-003
+  document: acc-003.md
+  scenario_id: gpqa-diamond-198
+  status: semantic_fix_retained_formal_failed
+  direction: accuracy-contract-fix
+  evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01
+metrics:
+- scenario_id: gpqa-diamond-198
+  role: original
+  metric: exact_match,strict-match
+  value: 0.51010101010101
+  unit: fraction
+  scope: formal-failed
+- scenario_id: gpqa-diamond-198
+  role: acc003-candidate
+  metric: exact_match,strict-match
+  value: 0.5050505050505051
+  unit: fraction
+  scope: formal-failed
+task_scope: accuracy_only
+source_adaptation_record: docs/cases/20261020-deepseekv4-flash-metax59-container/README.md
+accuracy_diagnosis:
+  issue_id: acc001-prefill-topk-execution
+  classification: inherited source/runtime launch incompatibility
+  gate_blocking: true
+  last_known_good: attempt15 short C1/C8 graph regression passed
+  failing_candidate: env011:d85f8340751bdaf89b0da9c842a6efea9e4d202058536ad794c2c4c42a71ae54
+  status: execution_fix_validated
+  skill_source: skills/inference-accuracy-diagnosis/SKILL.md
+  skill_sha256: dae96b45b710eece923608299f41d09bc893883afedbab527af32f7b95183e54
+  interface_note: No interface.json exists; direct local diagnosis workflow, no fabricated
+    capability/bundle receipt
+  isolated_boundary: FlagGems MetaX prefill top-k _sort_cand_kernel launch
+  mechanism: 16 warps x warp64 = 1024 threads exceeds kernel limit512
+  root_cause_confidence: Top-k launch incompatibility confirmed; fixed instance completed
+    all198 without timeout or service exit
+  fix: MetaX top-k sort_warps16->8; numerical kernels unchanged
+  fix_evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-01/diagnosis-001/topk-proof-v2.json
+  remaining: Separate full-score blocker acc-002; no formal pass
+  FlagGems_patch_sha256: 6be5befa86f2568f94de51bc12be73a74f24acb53beb690cc7f988b905930c21
+  Plugin_patch_sha256: fc653169d482b61133db1783f22921a5432b7f7b4bf4e7a3eb67022f8c649223
+  model_regression_evidence: /opt/dsv4-upgrades/20261020-model-smoke-01/attempt16/verification-01/result.json
+  long_prefill_evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/analysis/long-prefill-probe
+formal_score_diagnosis:
+  issue_id: acc002-strict-score-below-80
+  status: partially_localized_after_clamp_revalidation
+  gate_blocking: true
+  classification: Strict output format mismatch plus unlocalized answer mismatches
+  score: 0.51010101010101
+  threshold: 0.8
+  last_known_good_formal: null
+  candidate: env011+acc001-topk-fix:fc653169d482b61133db1783f22921a5432b7f7b4bf4e7a3eb67022f8c649223
+  native_strict_invalid_docs: 61
+  bold_format_contribution_confirmed_docs: 61
+  validly_extracted_but_wrong_docs: 36
+  mechanism: Unchanged native RegexFilter rejects Markdown **letter** after answer
+    is; all61 invalid cases become extractable with offline bold removal only
+  proof: /opt/dsv4-accuracy/20261020-env011-gpqa-02/manifests/strict-format-boundary-proof.json
+  formal_metric_or_output_modified: false
+  root_cause_scope: Format penalty confirmed; MoE semantic omission fixed but full
+    score not improved. Default thinking=False proven; biased8-case thinking benefit
+    is not a full-score explanation.
+  performance_may_resume: false
+  next_action: Independent full thinking-mode diagnostic or trustworthy same-weight
+    reference; do not loosen original strict80 gate
+  bold_answer_gold_review:
+    date: '2026-10-21'
+    invalid_extraction_docs: 61
+    correct_after_bold_removal: 44
+    wrong_after_bold_removal: 17
+    diagnostic_correct: 145
+    total: 198
+    diagnostic_fraction: 0.7323232323232324
+    hypothetical_all_invalid_counted_correct: 0.8181818181818182
+    original_formal_score_unchanged: true
+    source: /opt/dsv4-accuracy/20261020-env011-gpqa-02/manifests/strict-format-boundary-proof.json
+    source_sha256: 3bd67c03608d392c17ff2ffb9b371f44c878dacb5a07ac59a7d0f76cd88b5cb7
+  active_diagnostic:
+    date: '2026-10-21'
+    source_unchanged: true
+    prompt_newlines: Actual sample0 message contains24 physical newlines and0 literal
+      slash-n; JSON logs were escaped display only
+    tokenizer: vLLM0.24 native deepseek_v4 auto-selected; thinking/enable_thinking
+      defaultFalse
+    reference: Read-only checkpoint README benchmark reproduction uses thinking=true;
+      not a same-task formal baseline
+    plan: A0 default, B chat_template_kwargs.thinking=true only, A1 default; C8, first3
+      wrong_valid, first3 wrong_bold, first2 correct controls; preserve prompts/seed42/temp1/top_p1/top_k-1/max30000/stop/7200
+      timeout
+    scope: Diagnostic subset only; no inference source edits or service restart; not
+      a new formal score
+    root: /opt/dsv4-accuracy/20261021-acc002-diagnosis-01
+    prepare_host_command: python3 /tmp/dsv4_acc002_prepare_host_20261021_v2.py
+    prepare_host_sha256: 2248e36d3675e06d8a454e1478397978d3929c94559e4c2a82199d941fe443ae
+    probe_sha256: ce1181e0fbeadbc48f5e5b7271566c7ae9091999b88e7af766f81848b6fcac5d
+    preparation_note: Initial host controller stopped before creating diagnostic root
+      due to a NUL in inline Python. Version2 uses raw string; failed command is preserved.
+      No model or evaluator run started by version1.
+    status: completed
+    sample_ids:
+    - 21
+    - 25
+    - 32
+    - 8
+    - 17
+    - 27
+    - 3
+    - 4
+    runtime_template_proof: 'Actual /tokenize endpoint: default suffix <Assistant></think>,
+      thinking=true suffix <Assistant><think>; no model source edits'
+    process_record: /opt/dsv4-accuracy/20261021-acc002-diagnosis-01/process.json
+    log: /opt/dsv4-accuracy/20261021-acc002-diagnosis-01/logs/probe.log
+    default_A0_strict: 4
+    default_A0_bold_diagnostic: 4
+    thinking_B_strict: 5
+    thinking_B_bold_diagnostic: 6
+    default_A1_strict: 1
+    default_A1_bold_diagnostic: 3
+    stable_wrong_correct_wrong_ids:
+    - 25
+    - 27
+    - 32
+    longest_thinking_completion_tokens: 29625
+    all_finish_reason: stop
+    scope_note: Biased8-case diagnosis, no full-score extrapolation; two controls
+      retain semantic correctness; default repeat varies in formatting and one answer
+  latest_diagnostic_candidate_score: 0.5050505050505051
+  latest_diagnostic_bold_only_score: 0.7070707070707071
+moe_clamp_diagnosis:
+  issue_id: acc003-moe-clamp-missing
+  status: semantic_omission_fixed_score_blocker_unresolved
+  model_swiglu_limit: 10
+  native_int8_quant_config_gemm1_clamp_limit: null
+  evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-contract-cpu.json
+  first_falsifier: Does the candidate actually propagate clamp and match native semantic
+    reference on target device and graph?
+  stage_script_sha256: 34500d3c40d7b8392ee71e827405f8fdf1c27ee659db706b1001666f285f142c
+  production_changed: true
+  full_score_causal_attribution: Not supported as principal cause by current clamp-only
+    full comparison
+  candidate_file_sha256: b135423e28f9cca16f33807cae38e940bcb726602a0416008770555a31d64e32
+  candidate_diff_sha256: ed1254660df704f3fe3e36cf8266859e575d095d969b8cb1e06b81b8c0d277f5
+  stage_evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01/analysis/stage.json
+  observation_plan:
+    order: Finish A-B-A, then device component proof, guarded own-service restart
+      attempt16->attempt17 for unchanged-math real-activation observation
+    observer_sha256: 1e1a6692ba7ad7f86acd0cb435b9f3aead69993f5f407a6e2245ccc19820563a
+    start_observer_sha256: 1bab384715ec105d134280fa671f5b6a0c8f54a3423697574ac3b2926c751fb4
+    host_controller: /tmp/dsv4_acc003_restart_observer_host_20261021_v2.py
+    commands_evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01/analysis/observer-plan-v2.json
+    source_unchanged: true
+    stop_containers: false
+    measurement: CPU stats of at most256 uniformly-strided real activation rows per
+      call; observe before original computation; skip graph capture
+    status: completed
+    candidate_applied: true
+    controller_preflight: passed; all24 diagnostic requests completed, dry-run passed
+      before execute
+    probe_teardown: Independent component probe and its identified compiler descendants
+      terminated; original inference process was not part of that teardown
+  component_status: numerical_passed_full_model_graph_passed
+  observed_numerical_cases_passed: 12
+  observed_bf16_max_error: 0
+  observed_fp32_max_error: 1.52587890625e-05
+  component_graph_replays: Standalone stream creation was not validated; full target
+    native graph C1x14/C8x2 passed
+  component_stop_plan: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01/analysis/component-stall-stop-plan.json
+  real_activation_observation:
+    attempt: attempt17
+    service_pid: 446033
+    starttime_ticks: '548794528'
+    workers: 8
+    calls: 688
+    model_limit: 10
+    quant_config_limit: null
+    sampled_gate_exceedances: 2966
+    sampled_up_exceedances: 2695
+    sampled_elements_per_half: 45088768
+    calls_with_difference: 182
+    max_unclamped_activation_abs: 2124
+    max_clipped_activation_abs: 99.9954605102539
+    max_activation_difference: 2024.0045166015625
+    evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01/analysis/real-activation-summary.json
+    sample_scope: At most256 uniformly-strided real activation rows per call; not
+      exhaustive tensor counts
+    capture_disabled_after_observation: true
+    candidate_not_applied: true
+  component_graph_investigation:
+    v2: Timed out at torch.cuda.Stream.__new__ before warmup/activation; graph correctness
+      not exercised
+    trace: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01/logs/graph-v2-trace.log
+    next_validation: Use full target model native graph lifecycle; a standalone stream-creation
+      failure is not proof of activation math failure
+    numerical_v3: passed durable12-case target-device receipt; full model graph required
+  new_Plugin_patch_sha256: 5ea09be19685b023b68ec43eed537793c366e7fa1c2fe6f5004361b2f948b4a9
+  observer_equivalence:
+    all_8_content_usage_finish_identical: true
+    evidence: /opt/dsv4-accuracy/20261021-acc002-diagnosis-01/O-observed-default/equivalence.json
+  component_numerical_evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/clamp-candidate-01/analysis/numerical-v3-proof.json
+  cpu_tests:
+    unittest_packaging: 19
+    unittest_layer_boundaries: 11
+    passed: true
+    pytest_note: 18passed/1failed because conftest imported Torch before no-Torch
+      dry-run assertion; raw failure retained, standalone unittest30passed
+  new_service:
+    attempt: attempt18
+    pid: 884324
+    starttime_ticks: '549020680'
+    observer: false
+    validation_root: /opt/dsv4-upgrades/20261021-formal-accuracy-03
+  minimal_regression:
+    mode: minimal-regression
+    status: passed
+    cpu_tests: 30
+    target_device_numerical_cases: 12
+    startup_workers: 8
+    graph_captures: 7
+    full_graph_C1_replays: 14
+    full_graph_C8_replays: 2
+    requests: 10
+    evidence: /opt/dsv4-upgrades/20261020-model-smoke-01/attempt18/verification-01/result.json
+    sha256: 5bdbf4f85d2c5c55ef4858b4f5abe12e7fdea2348a6829243d613bc0bc347f5e
+  same8_default_comparison:
+    candidate_bold_only_correct: 4
+    baseline_A0_bold_only_correct: 4
+    scope: biased diagnostic8, no score extrapolation
+    evidence: /opt/dsv4-accuracy/20261021-acc002-diagnosis-01/C-clamp-default/summary.json
+    candidate_strict_correct: 4
+    baseline_A0_strict_correct: 4
+    all_payloads_identical: true
+    content_changed_docs: 8
+    comparison: /opt/dsv4-accuracy/20261021-acc002-diagnosis-01/C-clamp-default/comparison.json
+  formal_revalidation:
+    mode: formal-gate
+    covered_experiment_ids:
+    - acc-001
+    - acc-002
+    - acc-003
+    status: failed
+    root: /opt/dsv4-accuracy/20261021-env011-gpqa-03
+    start_utc: '2026-10-21T02:56:52.964462+00:00'
+    threshold: 0.8
+    metric: exact_match,strict-match
+    contract_sha256: fa686ff19392ababa9b96ac4d4ec4c568d1699deac57d39a02c0158910f4c7e3
+    service_sha256: 4b85f9ffda3bec31fd42e9dd4e1c130251862c312365367cca25323c761fffc2
+    weights_same_as_original: true
+    tokenizer_same_as_original: true
+    task_provenance_same_as_original: true
+    monitor: foreground monitor completed normally; no automation created
+    default_chat_and_generation_unchanged: true
+    score: 0.5050505050505051
+    correct: 100
+    unique_docs: 198
+    filter_rows: 396
+    strict_invalid: 60
+    bold_only_diagnostic_correct: 140
+    bold_only_diagnostic_score: 0.7070707070707071
+    timeout_docs: 0
+    empty_outputs: 0
+    truncations: 0
+    garbled_outputs: 0
+    end_utc: '2026-10-21T03:13:36.538509+00:00'
+    native_metadata_and_docs_valid: true
+    run_record_exists: false
+    gate_issued: false
+    results_sha256: fb3c560dc42bee626d8e864de7041c1bb2dc6a3a0c09f24b27ef3559fdeb9da7
+    samples_sha256: 652f61e817b828a5a506e3c509dcdbdd4f3d23bc901477e005f0a03a3120b4d9
+    review: /opt/dsv4-accuracy/20261021-env011-gpqa-03/manifests/final-review.json
+    comparison: /opt/dsv4-accuracy/20261021-env011-gpqa-03/manifests/clamp-score-comparison.json
+    postservice: /opt/dsv4-upgrades/20261021-formal-accuracy-03/manifests/post-formal-service.json
+  decision: Retain narrow correction to required model activation semantics, not as
+    demonstrated accuracy improvement; formal blocker remains and no performance promotion
+  archive_parity:
+    status: passed
+    containers:
+    - deepseekV4-flash-gpqa-20261020-01
+    - deepseekV4-flash
+    same_absolute_paths: true
+    diagnostic_files: 149
+    diagnostic_bytes: 518163
+    formal_files: 58
+    formal_bytes: 8448264
+    manifest_root: /opt/dsv4-upgrades/20261021-formal-accuracy-03/manifests/
+  final_integrity:
+    evidence: /opt/dsv4-upgrades/20261021-formal-accuracy-03/manifests/final-integrity.json
+    installed_patch_unchanged: true
+    installed_staged_diff_empty: true
+    service_health: 200
+    service_idle: true
+    original_vscode_mirror_exists: false
+    note: Both copies matched at application; original shared mirror absent at final
+      host and container check, cause unknown, not recreated. Actual installed source
+      unaffected.
+sampler_rng_diagnosis:
+  status: primitive_invariant_passed
+  scope: Native Torch and actual FlagGems exponential_ on MetaX, FP32/FP64, vocab129280;
+    customseed42 invariant acrossglobal101/202 and state advances
+  evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/diagnosis-002-20261021/rng-generator-invariant.json
+  no_source_or_policy_change: true

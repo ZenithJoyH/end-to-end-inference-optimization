@@ -1,0 +1,44 @@
+schema_version: 4
+identity:
+  case_id: 20261020-env011-gpqa-metax59
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mx-59
+  baseline_id: env011-d85f8340751b
+  topology: TP8:device0-device7
+stage: baseline
+current:
+  status: not_run
+  candidate: env-011:d85f8340751bdaf89b0da9c842a6efea9e4d202058536ad794c2c4c42a71ae54
+  next_action: No performance optimization requested
+experiments: []
+metrics: []
+task_scope: accuracy_only
+source_adaptation_record: docs/cases/20261020-deepseekv4-flash-metax59-container/README.md
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: not_run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

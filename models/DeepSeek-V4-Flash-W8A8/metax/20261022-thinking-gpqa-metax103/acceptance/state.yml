@@ -1,0 +1,137 @@
+schema_version: 4
+identity:
+  case_id: 20261022-thinking-gpqa-metax103
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mx-103
+  baseline_id: mx59-acc003-5ea09be
+  topology: TP8:device0-device7
+stage: acceptance
+current:
+  status: three_p32_measures_complete_variability_incomplete_accuracy_historical
+  candidate: mx59-acc003-5ea09be+fw-001+op-001
+  next_action: 已完成本次32K三轮；稳态spread12.913%失败，精度与四场景gate未新增；不同源码的P16证据单列。
+experiments: []
+metrics:
+- scenario_id: gpqa-diamond-198-thinking
+  role: original_formal
+  metric: exact_match,strict-match
+  value: 0.7727272727272727
+  unit: fraction
+  scope: Historical frozen strict result; current acceptance uses user-confirmed170/198
+- scenario_id: gpqa-diamond-198-thinking
+  role: user_accepted
+  metric: bold_removed_exact_match
+  value: 0.8585858585858586
+  unit: fraction
+  scope: Same198 outputs; bold normalization explicitly accepted by user2026-10-22
+task_scope: historical_user_accepted_accuracy_and_diagnostic_partial_performance
+accuracy:
+  status: passed
+  method: user_confirmed_exact_match_after_markdown_bold_normalization
+  correct: 170
+  total: 198
+  score: 0.8585858585858586
+  threshold: 0.8
+  authorization: 那如果是可以达到85.86分那就说明精度通过了。你梳理下当前所有代码改动的性能优化点吧
+  decision_date: '2026-10-22'
+  service_instance_id: deepseekV4-flash:attempt01:82:1108491592
+  same_raw198_outputs: true
+  samples_sha256: abf1d2a9850e3ad23f10c607c01eb6fc9cbafa8dd533443b34bc67e10c6f6bf4
+  analysis_path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/accuracy/manifests/answer-audit-v2.json
+  analysis_sha256: 90bb45d4eb1dd797986412fbef505cdb55ec46a5fc1abc1ef0de081fef8b0808
+  original_strict_result_preserved:
+    correct: 153
+    score: 0.7727272727272727
+    status: failed
+  new_inference_run: false
+  observed_length_cap: 10
+  schema3_strict_gate_not_rewritten: true
+diagnostic_accuracy:
+  correct: 170
+  total: 198
+  score: 0.8585858585858586
+  method: remove Markdown bold markers from same raw outputs before frozen regex; not gate
+  evidence:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/accuracy/manifests/answer-audit-v2.json
+    sha256: 90bb45d4eb1dd797986412fbef505cdb55ec46a5fc1abc1ef0de081fef8b0808
+performance:
+  status: incomplete
+  scope: diagnostic_partial_current_code_baseline
+  formal_full_suite_passed: false
+  no_speedup_claim: true
+  baseline_record: ../baseline/state.yml
+  baseline_report: ../baseline/README.md
+  experiment_document: ../optimize/perf-001.md
+  summary:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/summary.json
+    sha256: 94a776834acea80de320369c18e1bdd46edba8715e785447053cc1a689a9953a
+  service_instance_id: deepseekV4-flash:perf001-restore02:1282425:1110226189
+  new_formal_accuracy_gate: null
+  historical_accuracy_unchanged: true
+  scenarios:
+  - id: p1024-d1024-c64-n128
+    status: completed
+    attempt: recovery-v2
+    scope: diagnostic; not final formal acceptance
+  - id: p4096-d1024-c64-n128
+    status: completed
+    attempt: recovery-v2
+    scope: diagnostic; not final formal acceptance
+  - id: p16384-d1024-c64-n128
+    status: failed_oom_incomplete
+    attempt: original
+    scope: diagnostic; not final formal acceptance
+  - id: p32768-d1024-c64-n128
+    status: not_run_incomplete
+    attempt: null
+    scope: diagnostic; not final formal acceptance
+  missing:
+  - P16K successful original-workload run
+  - P32K original-workload run
+  - formal four-scenario final performance acceptance
+source_and_target_retained: true
+original_formal_accuracy:
+  status: failed
+  correct: 153
+  total: 198
+  score: 0.7727272727272727
+  threshold: 0.8
+  metric: exact_match,strict-match
+  gate: null
+  service_instance_id: deepseekV4-flash:attempt01:82:1108491592
+  evidence:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/accuracy/manifests/final-review.json
+    sha256: a93b23723bda867ad05215cac4e914587a9321663f7c66f279470f3af17fb663
+code_audit:
+  status: completed
+  document: ../optimize/audit-001.md
+  production_files: 39
+  new_production_changes: false
+  performance_measured: false
+long_context_recovery:
+  status: requested_measurements_completed_variability_incomplete
+  p32_measured_stability:
+    status: failed
+    metric: output_throughput
+    values:
+    - 109.51668753346016
+    - 109.682346135487
+    - 95.54043128677371
+    relative_spread: 0.12913022816173622
+    max_relative_spread: 0.1
+  completed_at: '2026-10-23T18:14:35.467515+08:00'
+  p16_source: fw001 only
+  p16_evidence:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/mccl-oom-001/performance/rounds/p16384-d1024-c64-n128/scenario-result.json
+    sha256: 073a52ecc456d8203016a557006987e883833710e0f06d8ff3881e2eb206a211
+  p32_source: fw001+op001
+  p32_summary:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/indexer-gather-oob-001/performance-recovery01/summary.json
+    sha256: 851fd8ff600e3fb412af18298f409352527c5d01670f117ec1c21373eeae805d
+  p32_service_instance_id: deepseekV4-flash:op001-candidate01:1582007:1115758961
+  same_source_full_suite_passed: false
+  no_speedup_claim: true
+  summary_32k:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/indexer-gather-oob-001/performance-recovery01/summary.json
+    sha256: 851fd8ff600e3fb412af18298f409352527c5d01670f117ec1c21373eeae805d

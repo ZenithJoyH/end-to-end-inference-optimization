@@ -1,0 +1,195 @@
+# 点64 两个公开PR转Ready及CI修复
+
+用户授权：将FGV1044和Plugin669均转非Draft，保留依赖，触发CI并修复失败；当前容器服务/MBT/启动参数保持不变。
+
+范围：公开fork上的两个现有PR分支及其CI，生产PPU-13/glm5.3-flash-opt-20260911/8011只读取证，不更新安装、重启或请求模型。不降低CI门禁/数值容差，不把跳过算通过；必要代码/测试修复仅独立PR副本提交，先验证再推送。保留Plugin依赖1044合入及组合公共pin/最终安装回归条件，不因Ready状态宣称可合并或性能通过。
+
+当前head：FGV7dac5f76e085e2b6a860f7a80bb413d92ce39ff5，Plugin5a9f55936a1745231416b78624fcc9209c1c2e78，均已open Ready for review；当前生产Plugin45c95631…/FGVd6cbf04f…/FG121f177f…，实例3917036/start622443729、MBT32768、FULL/RPC300。已有FGV两形状性能未过门槛仍保留，不把转Ready视为性能验收。
+
+执行：先审计PR头及保存原正文；改正文消除过时Draft表述并保留merge-blocking依赖，按用户指令mark ready触发ready_for_review。核对实际CI任务/选择器，必要时按仓库机制触发适用检查。逐项读取原始失败日志区分源码、依赖、编排或runner权限；代码失败在独立副本修复/回归；基础设施仅在有依据时重试，不能修改门禁伪造通过。终态核验当前PR头/任务并归档至远端唯一resume-20261102-point64-pr-ci；本地只此md/state/README，不建history。不自动合并或部署。
+
+进展：两个PR已mark ready并更新正文，明确Plugin仍依赖FGV1044合入、组合公共固定pin及最终安装回归。Plugin的Ready事件启动CI41382208784和Code Scan41382208721，lint/build/discovery/Code Scan通过。平头哥功能job125075737564：unit1592pass/164skip，multi_gpu2skip；functional13pass/42skip。NVIDIA功能job125075725374：unit1768pass/89skip，multi_gpu2skip；functional54pass/21skip。均确认checkout本PR的merge69813d1。天数功能job也success；其余五平台排队，平头哥E2E运行中。跳过项不计作硬件通过，当前整体CI尚未结束。
+
+FGV的既有rule-check/basic CI/CLA通过，但硬件任务因fork需维护者授权标签而跳过；该workflow未订阅ready_for_review。请求添加ci/nvidia与单任务重启均返回GitHub403 Resource not accessible by integration。用户随后明确“算子库维护人员的问题，我们暂时不跟进”，因此停止追踪FGV硬件CI权限，不改workflow、不用空提交绕过，不虚构硬件通过。Plugin CI继续跟进。
+
+只读审计命令audit-v1.py SHA6e8ce0503165c5f217ad8eeb7d2a9e9e1041e48b4f80e38207d4a35073803347已先保存，目标产物根resume-20261102-point64-pr-ci；不调用模型端点、不重启或改装任何生产库。
+
+11:30只读审计通过：相同实例3917036/start622443729，三库/vLLM源码、原index、argv/env、模型/tokenizer/thead与正常DB均未变，health200空闲；service-before SHA b10bfcced5888068e43ffc0d6b81bc3064576e9d2b3d4c7da7a2fb7d2e0a0877，runtime-before SHA2687613637d27ed282314addd7d054f6aab88cff3e8fce8b040d66080ac22dec。没有新源修复提交，因为正常Ready CI尚无源码失败；不会为凑提交改无关代码。已建立同聊天heartbeat `plugin-pr669-ci`，每20分钟只跟进Plugin当前head的全部实际CI与真实失败；不重复触发或安装生产，未变/排队安静、实质结果才通知，最终通过及只读审计后删除。FGV硬件CI按用户追加指示不再追踪。
+
+checkpoint-v1.py SHA040298c861efb6572a0e5bce061699ce924380a5451c0251a2bc3a8573cbfa8c先保存并归档最新PR正文/CI jobs及执行当前只读身份复验；这是CI未结束的checkpoint，不伪称实验终态。
+
+11:34:28 checkpoint只读审计通过，同源/同index/同实例/原参数/DB与health200保持。CI快照SHA14a6de9878d86ab5c84ca0df3927d143dd6283f3eae2251bccdc68a62c6fbd7b、service-checkpoint SHAe65a4f8157db57e8362e611b75a20f700ff2a3fdaea9668f4f6644aac2afe05c、runtime-checkpoint SHAdd74516fb478c489acc42896d0b87de85dea1f0a7ac0eef56cfd228bc868a778均在同远端根。当前CI无新失败，仍有排队/运行项，heartbeat继续，不标完成。
+
+11:53跟进：head未变且依赖仍在，29个job未达默认30分页上限。昆仑芯functional125075734625失败：110failed/1549passed/92skipped，其中metadata映射结果不一致及illegal access，后续无关CUDA测试也受同进程device错误污染，不能直接当独立算子错误。平头哥inference/serving E2E均success；其他队列未结束。
+
+修复假设及证伪：当前kernel对无效token/page、散写和tail均依赖masked load/store。公开FlagGems昆仑芯nonzero/cumsum实现明确记录该后端partial-mask读取/离散masked scatter问题，并使用in-bounds unmasked访问及独立discard区；这是相关一手证据，不是本kernel已确认的唯一根因。候选仅在独立PR副本将越界地址规约为合法地址后用where屏蔽值、独立初始化输出、无效scatter重定向到每行每lane独占固定小tile scratch，无平台名分支；保留int64地址/精确整数/稳定顺序/连续int32 ABI，额外workspace为M*min(1024,nextpow2(K))*4字节，不恢复M*K int64链。所有已有case不删，先PPU/CPU/graph验证，再交昆仑芯CI证伪；未通过前不声称根因或跨平台修复已确认、不部署生产。
+
+portable-mask-01隔离验证命令validate-v1.py SHA06ed2eef4dd9a8145ed2b343d333c8c54b63ae70367adae9722bfc483f208bca；候选metadata SHAff21ee54f237f1241ce200c28903ab276eb9aecbcf7e712761b5325a03aff592，test_mla SHAdece6a7784f8660523f9bdf75253eb010ea5f9e73993f872d13c5c0f9e8e49ab。使用新唯一未安装副本/workspace/e2e-opt/glm64-portable-mask-validation-20261102，生产DB独立URL不触碰，运行CPU、GPU metadata/cache全量标记与原生wheel。增加4个带storage offset显式正/负request掩码测试并优先断言length定位计数/写回差异；无skip、容差或workflow调整。适用pre-commit/显式生产Ruff通过后派发，失败不盲重跑。
+
+隔离v1在pytest收集阶段失败：新增参数名request为pytest保留名，0个CPU测试执行、0个PPU测试/模型请求；原日志及失败回执保留。仅改测试参数名为request_id（test SHA c64e7a7b69d2afcfa42ca3f02e67e73df8ab9b8633c8d947550e8ae6a126b811），生产候选kernel未变；全适用pre-commit再次通过。保存validate-v2.py SHAb507d100b47955881ffa87d11a19549b7e19e6e70c916f6cd4823039f61434ea，复用未安装副本、以新-v2日志和证据接续，保留原collect失败，不补丢设备轮次。
+
+相关上游一手实现：[FlagGems昆仑芯nonzero](https://github.com/flagos-ai/FlagGems/blob/master/src/flag_gems/runtime/backend/_kunlunxin/ops/nonzero.py)记录partial mask读取越界及masked scatter限制；[昆仑芯cumsum](https://github.com/flagos-ai/FlagGems/blob/master/src/flag_gems/runtime/backend/_kunlunxin/ops/cumsum.py)说明部分lane掩码/布局限制。仅据此选择可证伪的合法地址/独立discard候选，不将其直接归因于本次编译器，实际昆仑芯CI仍为最终证据。
+
+12:05隔离v2完成：CPU477/PPU159均0失败0跳过（149 metadata+8原indexer+2原cache，含3capture/6变化输入replay），wheel exit0。新临时copy的正式测试字节均与待提交两文件SHA相同；前后生产同实例/三库/vLLM/index/argv/env/权重/tokenizer/DB/thead不变、health200空闲，DB仍eda5cc0b…。所有原生-v2日志/XML/失败收集证据完整保留。
+
+核对PR头仍5a9f5593且两原始文件hash一致后，以base tree97e542cd→新tree2bded66ba7e03c93a86c5523e993d42d8b2b9cf4，两个blob31893df5a0ffd19c930b47bd47e1d356d8dea29f/d674d9427ccfc310a387967d8baf55e21a487bf5，新增commit1c1551e502da054a51de2296e75962e733b193a2并expected_sha fast-forward更新原fork分支，无force。PR正文同步新源码和验证边界、保留FGV合入/pin阻塞与原昆仑芯110失败。新CI41386574541 pending、CodeScan41386574393运行中；旧CI并非通过，不能混合旧head平台结果证明新head。仅提交PR、未安装或动模型服务，新昆仑芯验证未出不能宣称root cause或修复已确认。
+
+原监控plugin-pr669-ci已更新到新头1c1551e5及新CI41386574541/CodeScan41386574393，保留旧失败和当前平台未确认边界；不得在下轮重复修复/推送初始5a9轮。新归档命令submit-checkpoint-v1.py SHA7a44ce855ed1650fe94742dadc76267c73c129e6a5b5f2218a3794706ee3ab63先保存，校验native XML与新wheel打包的metadata字节/原平台配置并存同PR回执；不执行模型或修改生产。
+
+最终本轮checkpoint归档/原生XML和wheel内容核验通过，产物portable-mask-01/submission-checkpoint-v1.json：PR receipt SHA036028e45f129cc04d57da41183d1a3e02e465ce909fb5d422cfa1f6936133db，native completion f95be51f0cc523a42f5b96528464e94dc97b61ac6d315c65d88a82071b06cc21，CPU XML a2b97f0c40248d474ca7a7c23618b8beba84f0b39e7372938241c9e5eda6fdd6，PPU XML570947edb3db5301ac29811cb0e7c953813609653ed89711ae3c3399644f877d，wheel c0b5a34c43a6ed36b61c84590a79f7e6cd23383aaac5f38781ad7b35489741dd（metadata精确/原平台配置、未安装）。新CodeScan已success，CI pending，不能报整体通过或停止跟进。
+
+12:33只读跟进：最新head1c1551e5、Ready及依赖未变。新CI41386574541已有20个job（低于首30上限），lint/build/discovery和8平台Setup成功，8平台functional均queued，Ascend既有禁用skip；CodeScan成功。未有新失败/设备结果，不将Setup当硬件验收，不重派发或改源码/生产。继续安静等runner。
+
+12:53只读跟进：最新head/Ready/依赖未变，新CI41386574541共有24job（未超过首30），最新头平头哥functional125094757705、摩尔线程functional125094759141为success；对应E2E排队，昆仑芯functional125094755465和其余五平台仍queued，无新失败。继续等待，不把部分平台成功或队列当作昆仑芯修复已确认/整体验收，无生产操作。
+
+13:53只读跟进：新头1c1551e5/依赖未变，CI共26job（首30可覆盖全部）。平头哥最新头functional、E2E inference125100518667、E2E serving125100518356及benchmark125113572840均success；摩尔线程serving在运行，其余排队，昆仑芯functional仍未执行，无新失败。仅记录该平台job成功，不宣称全CI或昆仑芯修复完成，不动生产或重复试验。
+
+14:33只读跟进：最新头/依赖未变，CI29job（未到首30限制），燧原functional125094755283也success；平头哥及摩尔线程两项E2E均success。新燧原E2E/摩尔线程benchmark和其余平台仍排队，昆仑芯尚无结果；无新失败，不扩大结论、不重试或触碰生产。
+
+15:13只读跟进：连接器已到首30上限，改用只读gh api --paginate/per_page100，确认total_count30、无遗漏后页失败。最新头平头哥/摩尔线程functional+两E2E+benchmark均success，燧原功能success但E2E排队；昆仑芯等五平台功能仍queued，无新失败，不算整体通过/昆仑芯修复确认。下一轮超过首30必须继续分页，生产不动。
+
+15:33分页完整35job：当前头1c1551e5仍Ready且依赖保留。昆仑芯functional125094755465真实success，日志checkout00583e1（1c1551e5合入当时main087f9b6），unit1663pass/92skip、multi_gpu2pass、functional7pass/42skip；旧110个失败在本套CI不再出现且新增4用例计数保留。确认该suite修复有效；三项访存调整组合证据不能唯一指认某条compiler指令。全模型/昆仑芯E2E仍待，不等于整体CI/新精度gate。
+
+天数functional125094766608在Check device availability阶段torch.ones((32,32),cuda:0)即CUDA OOM，发生于Install project/unit/functional之前，无测试XML。精确check.sh（merge00583e1，blobfead293493fa17111648d45bb5a217860312b8af）确认该分配；不将runner初始化OOM归为本补丁计算失败，不改源码/门禁或清理CI机器。当前main087f9b6的/rerun工作流blob e28df6648f031e1e3848d1ab11354e63e77e2ab6允许PR作者，但仅筛选整轮failure/cancelled，当前CI仍queued，故不提前发送会失败的命令；待本轮终态做一次有证据失败重试，再失败则定位/报告infra阻塞，不盲重试。其他海光running、NVIDIA/MetaX/燧原/昆仑芯E2E排队。生产零操作。
+
+追加连接门禁：本轮./scripts/connectivity-check --limit PPU-13虽rc0，却把“必须是唯一的资产 …”作为hostname响应，未返回已知真实hostname bm-aliyun-wlcb-zonea3-c-810e-96g-10-13；按AGENTS5不能用SSH成功码当连接验证，故未执行任何远端归档或runtime检查。focused CI证据/private/tmp/glm64-hardware-ci-checkpoint-02.json SHA09a49a1db4483ea282d5986384fdfa85b043969b9fddb1ddb55de196ff2ce3de、新零生成归档命令/private/tmp/glm64-archive-ci-v2.py SHA504771d39fac64d74e05deca0b329d9aaabbaf87622cd03034f5ea5f4e691b10已本地保存，尚未远端派发；不覆盖旧产物，不宣称当前host已health复验。GitHub CI跟进不受影响；下次有远端必要操作前须再次核验真实hostname，不能向歧义资产执行或盲重试。
+
+16:00新头完整分页38job，海光functional125094769842实际源码编译失败：106failed/1490passed/164skipped，多卡2skip。日志明确gfx936的TritonHCUGPUCanonicalizePointers发生ShapedType断言，metadata输出/Discard两个base指针select为当前窄化假设，并非已证明唯一原因；这是源码编译失败，不能按天数预检OOM重试处理。准备仅将pointer select改为uint64地址select再转回int32 pointer的单文件候选（SHA689e61f4…），保留合法访存/独立discard、输出ABI/内存上界及全部原测试，无平台分支或门禁变化。适用precommit及显式生产Ruff通过。原失败聚焦证据SHA33b3dfd6…在/private/tmp/glm64-hygon-compile-failure-01.json，patch SHA c8bdd62e…。
+
+已保存新唯一命令/private/tmp/glm64-validate-address-v1.py SHA24fb8289b2f79fd222c6517bc5aaeb23f95c51dea05eee99d41662ced0048537，计划远端portable-address-02/commands/validate-v1.py及未安装独立copy/workspace/e2e-opt/glm64-portable-address-validation-20261102，完整CPU/受影响PPU/真实graph/未安装wheel验证通过才expected_head推送；此刻未派发/未推送。16时连接检查已返回精确已知hostname，允许在已授权唯一目标执行；先归档前轮待存证据，不能重执行旧验证。生产实际库/服务/MBT/参数不改，FGV硬件仍不跟进。
+
+16:02连接恢复后先只读核对唯一根真实路径/owner/空间/目标不存在；前轮hardware-ci-checkpoint-02.json已按原SHA归档。新portable-address-02仅唯一派发一次，独立候选CPU/PPU/graph/wheel正在执行，不能重复命令。
+
+16:04 portable-address-02原生完成：CPU477/PPU159全部0fail0skip，包含原3capture/6变化输入replay，wheel成功；生产前后源/index/实例/原argv/env/模型/tokenizer/DB身份一致，RPC300、health空闲，零模型请求/安装/重启。候选字节SHA689e61f4…待推送前先用新验证命令verify-v1.py SHA79e13f638ae15ef15ad902e5741cb82575eb21e50215547faedb8f0f4b7ec355核对XML及wheel内metadata/原thead配置；此命令仅证据处理不重复测试。
+
+候选原生XML与wheel精确内容验证已通过：completion SHA f59da03d…、CPU XML90a8ae5f…、PPU XMLb6631dfa…、wheel b73ae831…；源未安装，原平台配置未改。核对最新head仍1c1551e5，单metadata blob76eb099b80d3ae5ec0ef73a83de63180dbd22dfd→treea53bdc83d787cf91c293a70e607bcdb2be179639→commite6172c0c50cae692685d08d29d2da0fb788ca02e，以expected_parent非force更新原fork分支。PR正文已记录海光失败、整数地址选择假设/验证范围，并保留FGV合入/组合pin/安装回归阻塞。
+
+新CI41410524289 pending，CodeScan41410524271执行中；旧1c头昆仑芯通过与海光/天数失败均为历史，不混为新头结果，不向被源码修复替代的旧CI发送/rerun。新头硬件结果待出才能确认海光修复及昆仑芯保持通过。公开提交回执/private/tmp/glm64-publish-address-receipt.json SHA4fc85bac…、新证据归档命令archive-address-publication-v1.py SHAffe0e8bb10eec6ab047e44f0dac09b919e826976a43ea11ce214955bb34d7d64先保存，计划归档portable-address-02/publication-v1.json与精确patch，不运行模型或重测。16:04当前生产只读审计确认同实例/三库+vllm/index/原启动参数/DB/权重/tokenizer/thead/health空闲均保持。
+
+提交回执与patch已远端精确SHA归档完成，原监控已更新e617新头/新CI，不再对旧轮发重试。当前新CodeScan41410524271 success、lint125162500952 success；build125162644915包构建与wheel验证success、上传中，后续硬件矩阵尚未出。仍非整体通过，不终止监控、不自动部署或合并。
+
+16:13只读跟进：最新head e6172c0c/Ready/依赖未变，CI41410524289共22job（低于首30上限）；lint/build/discover、8平台Setup及CodeScan均success。平头哥functional125163514603新头已success，对应inference125165052363/serving125165052378均queued；海光125163306220、昆仑芯125163490019、天数及其余平台functional均queued。Ascend既有禁用skip不算通过。无新失败/重试或生产操作，不能用Setup/旧头成功证明海光修复或整体通过；继续等待既有runner。
+
+16:33只读跟进：最新e617头/Ready/FGV依赖未变，CI25job（首30覆盖全部）无新失败。平头哥新头functional及inference125165052363/serving125165052378两E2E均success，benchmark125173096573执行中；天数functional125163261140 success，本正常源码更新轮未复现旧头设备预检OOM，未发送人工/rerun，不能据此把旧OOM归因于本源码。天数serving125170657680执行中、inference125170657762排队，其余六平台功能含海光/昆仑芯仍queued。非全CI通过/海光修复确认，零生产操作；继续既有跟进，不重复请求或测试。
+
+16:53完整分页32job（连接器首30已饱和，使用gh api --paginate/per_page100）确认当前head/Ready/依赖未变。新头昆仑芯functional125163490019成功，日志checkout26500cdf（e617合main087f9b6），unit1663pass/92skip、多卡2pass、functional7pass/42skip；整数地址选择未破坏该suite。PPU功能/两E2E/benchmark与天数功能/serving、MUSA功能也success。海光等4平台functional、MUSA与昆仑芯E2E尚queued；不能声称海光修复或整体通过。
+
+天数inference E2E125170657762新失败发生在Check device availability，项目安装/模型测试前的既有torch.ones32x32(cuda0)即CUDA OOM；精确merge26500cdf的check.sh blobfead2934已核对，未产生测试报告，不按候选数值/模型失败处理。与本头天数功能及serving成功分别记录；占用进程/runner原因未知，不连接或清理CI机器、不改库/门禁。整体CI仍queued，不提前发/rerun；待当前轮终态核对head/attempt/comments去重后才按仓库作者机制一次失败任务重试，当前尚未人工重试。PR正文已更新且依赖仍保留。聚焦原始日志/计数/精确source证据保存在/private/tmp/glm64-hardware-ci-checkpoint-03.json SHA01eb743be9c9a593c7bbc3963ca5e9135edd37ddae4cea9de5a6c15bd6f5118e，待下一次必要远端归档/终态审计合并归档；原生CI完整日志URL保留。本轮无远端操作/测试/模型请求/源修改，最后实际生产审计仍16:04，不冒充此刻复验。
+
+17:13只读分页核对仍32job，当前e617头/Ready/依赖未变；昆仑芯inference E2E125181061910已in_progress，海光等功能及其他既有队列仍等待。仅已知天数inference设备预检OOM一项失败，无新增失败，整体未终态，不提前/rerun或重复触发；本轮无远端操作/生产变更，继续现有监控。
+
+17:33完整分页仍32job，当前e617头/Ready/依赖未变。新失败昆仑芯inference E2E125181061910在09:12:03Z开始、09:22:03Z终止，job metadata steps=[]；GitHub check原始注解明确self-hosted runner lost communication with the server。没有E2E报告artifact，日志下载重定向BlobNotFound；借助check-runs/annotations只读取证，不能臆测模型/数值错误或宣称测试执行完成，也不推断具体网络/资源根因。原始注解/时序/日志可用性保存在/private/tmp/glm64-hardware-ci-checkpoint-04.json SHA9a891bd19a1d9d7bec00b185f4238771186d135bbe35c16a4f7bf73572133333，待必要归档同根；CI公开原始记录保留。
+
+整体仍queued，共两项基础设施失败（昆仑芯runner失联、天数安装前预检OOM），海光等排队；当前不满足作者/rerun终态筛选条件，不重复触发或修改源码/门禁。待本轮终态去重核对head/attempt/comments后，一次按仓库机制请求失败基础设施任务，保留两初次失败与重试结果；不连接/清理CI Host。PR正文已披露新增原始证据并保持FGV/pin依赖。生产零操作，最后实际runtime审计16:04，不以CI故障推断生产故障。
+
+17:53只读分页32job：最新e617头/Ready/依赖未变，海光functional125163306220已in_progress，尚无终态/编译测试结果，不能确认旧编译失败消失。两项既知基础设施失败不变，其余既定队列仍待，整轮未终态，不提前/rerun。零远端操作/生产变更，继续监控已派发任务。
+
+18:20完整分页38job：当前head e6172c0c/Ready/依赖不变；海光functional125163306220真实success。原始日志checkout26500cdf（e617合main087f9b6），unit1596pass/164skip、多卡2skip、functional13pass/42skip，0fail。对照父头106fail+1490pass/164skip，测试/门禁/容差未改，现1596pass/164skip，确认这次整数地址选择修复解决了该套CI中的海光metadata编译失败；不唯一归因编译器内部指令，不将跳过算通过，不冒充全模型验证。海光inference125214403510/serving125214403899 E2E均queued。MUSA两E2E/benchmark与昆仑芯serving本头成功，其他3平台功能仍queued，两个既有基础设施失败未重试；整体仍queued。
+
+PR正文已同步海光原生计数/前后边界，合入依赖保持。原始checkpoint05证据/private/tmp/glm64-hardware-ci-checkpoint-05.json SHAe69dd143719bd16a1d98405bcd84f26fabde584846a5ca650d5e93ae83bbea31；先保存唯一归档命令/private/tmp/glm64-archive-ci-v5.py SHA7027f17865dcf9098f13d7ee7bc008a3f02fe25ef56c42428253954d28d3ebbf，将03/04/05一次独占归档同远端根，原命令不重跑、不覆盖。已按项目inventory/connection精确核对hostname；仅保存证据、不进入容器/发请求或重测，生产最后实际runtime审计仍16:04。
+
+03/04/05三份CI聚焦证据已按各原SHA独占归档同根，归档命令v5只写产物、无容器/runtime/模型操作；原监控已收敛为e617海光suite修复已确认、剩余CI/两infra失败终态去重后一次作者重试，未重复已成功测试。生产最后实际审计仍16:04，最终当前审计待CI终态；本轮不是整体完成。
+
+19:36只读完整分页38job无实质变化：e617头/Ready/依赖保留，海光功能修复已验证，海光两E2E及NVIDIA/MetaX/燧原功能仍queued；仅既知两infra失败，整体未终态，不提前/rerun或重复测试。无远端/生产操作，继续现有监控。
+
+19:56只读完整分页38job仍无变化；当前e617头/Ready/依赖保持，海光suite修复已验证，三平台功能与海光E2E仍queued，仅两项既知infra失败。未达到作者重试的整轮终态条件，不重复触发/测试，不做远端或生产操作。
+
+20:36只读完整分页38job：e617头/Ready/依赖保持，NVIDIA功能125163427930已in_progress，另4项排队；28success/3skip/2既知infra failure，不把skip或Setup计硬件通过。无新失败，整体仍queued，不提前/rerun、不重复测试；零远端或生产操作。
+
+20:56新头完整分页43job：NVIDIA功能125163427930源码/测试断言失败，unit1fail/1771pass/89skip，多卡2skip；唯一失败test_hy_v4_selected_paths::test_registered_concat_compares_available_backends[flagos-1]预期default.flagos但得到vendor.cuda。metadata无失败，不能将本项按两infra问题盲重试。MetaX功能成功、两E2Equeued。原始失败聚焦证据/private/tmp/glm64-nvidia-dispatch-failure-01.json SHA68efbbcf…，完整GitHub日志与artifact13141313673 SHA8fa932d7…保留。
+
+静态核对显示新增GLM图能力测试临时monkeypatch共享capability查询后触发default manager首次注册，而mla_ops在模块导入时绑定该函数；存在mock被惰性import缓存或全局registry残留的可证伪假设，尚未定位确认。规范A3/B3/C1/F1/F2/F4/F6/F7适用，优先修隔离而不改生产分发/容差/断言。已保存唯一命令/private/tmp/glm64-reproduce-dispatch-v1.py SHAb2985566215c631f70eb67350becd8196111e26d8528cff8ee166be65ff861b3，计划同根dispatch-test-isolation-03独立未安装副本、只串行运行GLM能力测试→HY4两prefer的CPU合同复现，FL_TEST_PLATFORM=nvidia仅模拟接口、隐藏CUDA设备，不代表NVIDIA设备数值验证。先前CPU477未覆盖此NVIDIA专属HY4测试，不能冒称覆盖。连接已精确核对目标hostname；无额外模型请求/安装/服务或参数改动。
+
+首次CPU串行复现v1在收集时因CUDA_VISIBLE_DEVICES为空导致vLLM导入查询设备capability报driver shutting down，exit4、0用例执行，不能当原NVIDIA失败已复现；原XML/log保留。只将测试子进程设备可见改为0，允许导入设备属性查询但不运行GPU/模型用例；新命令reproduce-v2.py SHAaa4a8e0794bf36d565e4cbde2862ebf113689cb0b81b8614c895a1933c9d63f2复用原未改副本，以-v2日志/XML接续，XML同时记录error。无服务env或启动参数变化，不盲重发原命令。
+
+21:10串行CPU模拟平台原样复现5pass/1fail/0skip，精确命中原HY4断言。GLM capability mock经首次惰性导入绑定在mla_ops模块别名，后续mock回滚仍污染provider可用性；现仅test_mla添加自动fixture，先载provider再mock、每case前后reset default manager。全部原断言/参数/skip保持，生产分发字节不变。候选test SHAfddc611fe976b2c93f899cfe4b77541abac2a38ab57571d9d04c57e51dc05daf，patch SHAa3e234be56cef77653d08cf130daf3a0552c4b01efff52dd7bd8701209963502，适用precommit通过。新唯一validate-isolation-v1.py SHA06ba65cd82f04ce8f672f1507e208c43f4b5b36af8922d0827eaa7c2d3535864先落盘，计划复用未安装copy验证原6例串行→CPU477→PPU159/3capture6replay→wheel；各新日志保留，不覆盖原失败，零模型请求/安装/重启。
+
+原6例串行经隔离fixture后6pass/0fail/0skip；广回归仍执行中。另预存零生成verify-isolation-v1.py SHA41c6b3c886b98e26a918612f5eca3e9b2782b273a305a2f05212440a2050e769，核对全部原生XML、精确测试源与wheel内metadata/原thead配置，并独占归档原失败/patch；仅现有证据处理，不重复测试。
+
+21:19验证命令原生各项均成功且已完成after-fix-v1当前生产只读审计；收尾wheel核验错写glm5_sparse_mla_metadata.py而报StopIteration，保留原脚本/失败。仅证据工具错误，使用已保存verify-isolation-v1.py精确核对实际sparse_mla_metadata.py并恢复已有XML汇总，零模型请求、不重跑CPU/PPU/graph/build。before manifest ba54cd48e3fc8b1e97152947800385c83513e67ea8285bf5bd797e3341afd4e2，after 891e3f2d16eb606c5528fea924fb310d744d1e84e72e8b162d7bce9e05ddd9d0，稳定身份一致/RPC300。
+
+21:20原生XML/wheel精确核验与零生成恢复通过：6顺序/477CPU/159PPU均0fail0skip、3capture/6变化replay，wheel SHA74525476371b76168168acba803f876f41dab8a040c0685b32f68af3153d5e21；精确test blobf35cb47f06aeebc43a34337cfebab9ba31526f10。核对无并行head变动后，单test文件treead5e4ae191cf48ae5db709904022cb0463e5bae1→commitd86f808e51bc472c7d9d1eae230d23a6b66c263c expected_parent e617非force更新同PR。PR正文收敛保留全部失败/依赖/范围，新CI41452027210、CodeScan41452027084已实际触发，lint125299469746成功/build125299589143运行，不混旧平台成功为当前头，不重试旧e617。发布回执SHA776c1cd17f000bc496ad2120a8cd1f6d87a3d5e9509697a9fb5027a3bc0869d9；新唯一归档命令publication-isolation-v1.py SHAed37a44de1a92e85564ca94220a1a79c907776261b7ad42f8de2516bebb619b1先落盘，仅归档现有回执/验证，不进容器/模型。
+
+21:22发布与原生验证归档完成：verification SHA ccd56d82ff1ed550b43a572d4dee4aee77e4721aabd5b18869dfe59d51891282，publication SHA776c1cd17f000bc496ad2120a8cd1f6d87a3d5e9509697a9fb5027a3bc0869d9，patch SHAa3e234be56cef77653d08cf130daf3a0552c4b01efff52dd7bd8701209963502。当前头d86f808e新CI待平台，旧e617海光/昆仑芯已通过仅保留历史，旧两个infra失败与NVIDIA断言原日志不删，不再重试被新修复替代的旧轮。实际当前生产审计来自本次after-fix-v1（约21:19），全稳定身份/DB不变、RPC300/health空闲；21:22仅证据归档，不冒充更晚runtime审计。
+
+21:24发布后只读确认新头CI20job：CodeScan/lint/build/discovery及8平台Setup成功；天数/PPU/昆仑芯functional运行，NVIDIA/海光等5平台排队，暂无失败；Ascend既有skip不计通过。监控已更新到d86f新头与新CI，保留待平台跟进，不安装生产/不重复旧轮。
+
+21:26只读跟进当前d86f/CI41452027210共22job（首30可完整覆盖），PPU functional125300260577成功、两E2E已执行；天数/昆仑芯/摩尔功能运行，NVIDIA/海光等排队，暂无失败。CodeScan成功，未整体终态；不重复测试/派发/旧轮重试，无远端或生产操作。
+
+21:46只读跟进当前d86f/CI41452027210共28job（未达首30），PPU功能/两E2E/benchmark、天数功能/inference E2E及摩尔功能成功；昆仑芯功能和天数serving仍运行，NVIDIA/海光等排队，暂无失败。旧e617天数预检OOM不能算本轮失败，也不以本轮别job成功忽略未来实际失败；当前无需重试/修复，零远端生产操作。
+
+22:06当前d86f/CI41452027210连接器首30已饱和，gh api完整分页35job，新增昆仑芯125300263107失败。精确checkout b2b3e10f=d86f合main087f9b6，unit1663pass/92skip、多卡2pass；functional1fail/6pass/42skip、1231.91s，唯一test_silu_and_mul_dtypes在torch.allclose处报设备error299 wait for noc idle timeout，前有kl3 kernel exception。不是原metadata编译失败/数值误差断言，也不是预检失败；异步报错不能唯一归因silu算子，实际dtype/impl/dmesg/占用/根因未知。原生artifact13146073552 SHAbae7b8bf2c21a64001cbf7ab9a0788d845bebf3501faf585982f347d3a066c04与聚焦原始证据025d6c43346053bab8fd3b91359bbfbb8f3b2a5eb3ed883e6cc7db4a338fda27已本地保存，待必要归档；原GitHub日志保留。
+
+只读compare e617→d86f确认仅GLM单测文件11add1delete；当前功能测试blob929ad7e69f0c4f8e802803f33cfeb1e08e713f76、生产activation和CI无变化，但不据此排除所有PR相关原因或宣称纯infra。GLM单测进程后的功能测试单独pytest命令；现证据不足以修改数值实现/fixture或把设备故障当预检OOM盲重试。不访问/清理昆仑芯Host，不用PPU测试替代归因，未发/rerun。当前PPU与天数功能/两E2E/benchmark通过，燧原功能通过，摩尔E2E执行、海光/NVIDIA等排队；继续可推进CI，原失败不丢弃。PR正文同步原计数/报错和unknown；本轮零远端生产操作，最后实际生产审计仍after-fix-v1约21:19。
+
+22:26只读完整分页仍35job，d86f头/Ready/依赖不变；摩尔serving E2E成功，NVIDIA/海光/MetaX功能和其他E2E继续排队/执行，仅既知昆仑芯functional设备noc idle timeout一项失败。无新失败或可执行修复，不重复取证/盲重试，不做远端或生产操作，继续其余既定CI。
+
+22:46只读完整分页35job：d86f头/Ready/依赖不变，燧原inference E2E成功、摩尔inference执行，NVIDIA/海光/MetaX功能及燧原serving仍排队；仅已知昆仑芯noc idle timeout失败。整体未终态、无新可操作失败，不重试或改源码，不做远端生产操作。
+
+23:06只读完整分页37job，d86f头/Ready/依赖保留；摩尔功能/两E2E/benchmark均成功，PPU/天数既有当前头成功保持。NVIDIA/海光/MetaX功能及燧原serving四项仍queued，仅既知昆仑芯noc idle timeout一项失败。未终态不发重试，不重复已完成测试/证据核验，无远端生产操作。
+
+23:26只读完整分页37job：当前d86f/Ready/依赖未变，海光functional125300268516及燧原serving已in_progress，NVIDIA/MetaX功能仍queued；暂无新终态失败，昆仑芯既知设备故障原证据保持。整体仍active，不提前重试/改库，不做远端生产操作。
+
+23:46完整分页39job，当前d86f的海光functional125300268516真实success。日志最终checkout b2b3e10=d86f合main087f9b6（runner旧workspace首条HEAD为其他PR，不当当前checkout）；unit1596pass/164skip、多卡2skip、functional13pass/42skip，0fail，当前测试隔离提交保持原编译修复。海光inference E2E125368377634运行/serving125368377672排队，NVIDIA/MetaX功能仍queued；仅已知昆仑芯设备超时失败。部分suite通过不等于全CI/完整模型gate，不重试或变更生产。
+
+2026-11-03 00:06只读完整分页40job：d86f头/Ready/依赖保持，燧原功能/两E2E均成功、benchmark新queued；海光inference E2E仍运行/serving排队，NVIDIA/MetaX功能仍排队，仅已知昆仑芯设备超时一项失败。未终态、不重复测试/重试或归因，无远端生产操作。
+
+2026-11-03 00:26只读完整分页40job：当前d86f海光inference E2E125368377634成功，serving与NVIDIA/MetaX功能及燧原benchmark仍queued，仅既知昆仑芯functional设备noc idle timeout一项失败。头/Ready/依赖未变，整体未终态，不发重试/新测试/源码改动，无远端生产操作。
+
+2026-11-03 00:46只读完整分页40job，当前头/Ready/依赖不变，NVIDIA/MetaX功能及海光serving仍queued，燧原benchmark执行，新增失败0；仅保留既知昆仑芯设备超时。整体未终态，不重试/修改/重复测试，无远端生产操作。
+
+2026-11-03 01:06只读完整分页41job，燧原benchmark已success；剩NVIDIA/MetaX功能与海光serving queued，仅既知昆仑芯设备超时失败。当前头/Ready/依赖保持，未终态、不发/rerun/新测试，不更改源码或生产。
+
+2026-11-03 01:26只读完整分页41job，海光serving125368377672已in_progress，NVIDIA/MetaX功能仍queued，唯一既知昆仑芯设备故障未变。头/Ready/依赖保持，整体未终态、无新可操作结果，零远端生产操作/重试/新测试。
+
+2026-11-03 01:46只读完整分页41job无实质变化：NVIDIA/MetaX queued、海光serving执行，唯一已知昆仑芯设备故障保留。当前头/Ready/依赖未变，未终态，不重试/改源/测试，无远端生产操作。
+
+2026-11-03 02:06完整分页42job，海光serving E2E125368377672成功，当前海光功能及两E2E均success，benchmark125446944532新queued；NVIDIA/MetaX功能仍queued。唯一既知昆仑芯设备超时失败，其他无新增失败；当前头/Ready/依赖不变，不宣称全CI通过，无重试/改源/远端生产操作。
+
+2026-11-03 02:26只读完整分页42job，MetaX functional125300253739已in_progress，NVIDIA functional/海光benchmark仍queued，仅已知昆仑芯设备超时失败。当前头/Ready/依赖保持；无新终态失败，不重试/改源/新测试，无远端生产操作。
+
+2026-11-03 02:46只读完整分页44job，当前d86f MetaX功能125300253739成功，新两E2E125471719150/125471719530排队；NVIDIA功能和海光benchmark仍queued，仅既知昆仑芯设备超时失败。无新失败，当前头/Ready/依赖保持，未终态、不重试/新测试/改源，无远端生产操作。
+
+2026-11-03 03:06只读完整分页44job无变化：NVIDIA功能、海光benchmark、MetaX两E2E排队，唯一已知昆仑芯设备超时失败。当前头/Ready/依赖保持、未终态，不重复取证/重试/新测试，不做远端生产操作。
+
+2026-11-03 03:26只读完整分页44job仍无变化，NVIDIA功能/海光benchmark/MetaX两E2E均queued，唯一已知昆仑芯设备故障保持。头/Ready/依赖不变，未终态，无重复取证、测试、重试、改源或远端生产操作。
+
+2026-11-03 03:46当前d86f完整分页45job：NVIDIA functional125300258342真实success。原始日志最终checkout b2b3e10=d86f合main087f9b6，unit1772pass/89skip、多卡2skip、functional54pass/21skip，0fail；父e617的1771pass+1fail现1772pass，确认fixture隔离修复已通过真实NVIDIA suite，保留断言/测试/skip/容差。runner旧workspace首条HEAD非本PR，采用最终checkout，不混绑定。聚焦证据/private/tmp/glm64-nvidia-isolation-confirmed-01.json SHAd883177819170d90298d4460103ef939d374a88469e293ae166f2478ee9b1ce6待必要归档，PR正文已更新。
+
+当前仅已知昆仑芯functional设备noc idle timeout失败，NVIDIA inference E2E125508883408、MetaX两E2E及海光benchmark仍queued；海光当前功能与两E2E已通过，非全CI/full-model gate。没有新的源码/安装/模型请求/重启/远端生产操作，最后实际生产审计仍21:19。继续跟进现有矩阵，不重试旧头或昆仑芯未知设备故障。
+
+2026-11-03 04:06只读完整分页45job无实质变化，NVIDIA修复已获当前头functional确认；NVIDIA inference、MetaX两E2E及海光benchmark仍queued，仅已知昆仑芯设备超时失败。头/Ready/依赖保持，未终态、不重复修复/测试/重试，不做远端生产操作。
+
+2026-11-03 04:26只读完整分页45job仍无变化，NVIDIA inference、MetaX两E2E和海光benchmark queued，唯一已知昆仑芯设备故障保留。当前头/Ready/依赖保持，整体未终态，不重复测试/重试/改源或远端生产操作。
+
+2026-11-03 04:46只读完整分页45job，海光benchmark125446944532与NVIDIA inference125508883408已in_progress，MetaX两E2E仍queued，仅已知昆仑芯设备超时失败。当前头/Ready/依赖保持，未终态，不重复测试/修复/重试，无远端生产操作。
+
+2026-11-03 05:06只读完整分页47job：NVIDIA inference125508883408与海光benchmark125446944532成功，当前海光既定矩阵已成功；新NVIDIA benchmark125543889325和MetaX两E2E仍queued，唯一已知昆仑芯设备超时失败。当前头/Ready/依赖保持，未整体终态，不重试/改源/新测试，无远端生产操作。
+
+2026-11-03 05:26只读完整分页47job无变化，MetaX两E2E与NVIDIA benchmark仍queued，仅已知昆仑芯设备超时失败。当前头/Ready/依赖保持，未终态、不重复测试/修复/重试或远端生产操作。
+
+2026-11-03 05:46只读完整分页47job，MetaX serving125471719150已in_progress，inference与NVIDIA benchmark仍queued，仅既知昆仑芯设备故障失败。当前头/Ready/依赖保持，未终态、不重复测试/修复/重试，无远端生产操作。
+
+2026-11-03 06:06只读完整分页47job，MetaX serving及NVIDIA benchmark执行、MetaX inference仍queued，唯一既知昆仑芯设备超时失败未变。当前头/Ready/依赖保持，无新终态失败，不重复测试/修复/重试，无远端生产操作。
+
+2026-11-03 06:26只读完整分页48job，MetaX serving125471719150和NVIDIA benchmark125543889325成功，目前仅MetaX inference125471719530仍queued；唯一已知昆仑芯functional设备超时失败。整体尚未终态，头/Ready/依赖保持；不把其他成功冲掉失败、不盲重试/改源，不做远端生产操作。
+
+2026-11-03 06:46只读完整分页48job无变化，仅MetaX inference queued，唯一已知昆仑芯设备超时失败保留。当前头/Ready/依赖保持，未终态、不重复测试/改源/重试，无远端生产操作。
+
+2026-11-03 07:06只读完整分页48job，最后MetaX inference125471719530已in_progress，整体CI也in_progress；唯一既知昆仑芯设备超时失败保留。当前头/Ready/依赖保持，无新失败，不重试/改源/测试或远端生产操作。
+
+2026-11-03 07:26只读完整分页49job，MetaX inference125471719530成功，当前功能和两E2E均成功，新benchmark125618363287 queued；仅既知昆仑芯functional设备超时失败，整体仍未终态。当前头/Ready/依赖保持，不重复测试/修复/重试，无远端生产操作。
+
+2026-11-03 07:46只读完整分页49job无变化，MetaX benchmark125618363287 queued、唯一已知昆仑芯设备故障保留。当前头/Ready/依赖未变，未终态，不重复测试/修复/重试或远端生产操作。
+
+2026-11-03 08:14终态只读取证：当前d86f/CI41452027210 attempt1 completed failure，完整分页51job：46success/3skip/2failure、0pending。直接失败仅昆仑芯125300263107，ci-gate125639659294明确KUNLUNXIN_RESULT=failure，其余必跑结果success（Ascend既有skip），门禁是派生失败。CodeScan success，PR无comments/无人工retry，head未变。原terminal证据SHA79fd7898926257734dd3f62f78f2bba716aa90063a12afbff44e78ae5fc95622。
+
+不将Kunlunxin运行中noc idle timeout归为预检infra，因此不执行预检失败的作者/rerun流程，不无证据修改数值实现/skip/门禁。剩余需平台维护者诊断设备日志/实际dtype/impl/占用后决定最小复现；任务未CI通过，不合并部署。已inventory/connection核对唯一hostname。新唯一commands/audit-terminal-v1.py SHA8acfeef31c3fa6bc21cc1fd1f1631a9510c404f49cb245a3a69eaf94e6f89dde先保存，计划同根terminal-audit-20261103-01仅归档现有三份证据并读取当前生产身份/health；不安装/重启/发模型请求，原用户dirty/index保持。
+
+2026-11-03 09:02最终只读审计及归档完成：同服务实例3917036/start622443729、三库+vllm源码/index/argv/env/权重/tokenizer/DB/thead/挂载/唯一导入全稳定身份与after-fix-v1相同，RPC300、MBT32768、health空闲，零模型请求/安装/重启/改源。service-current SHA d14077f8c032cdc80c0ec24e7765fe931daf9c1530f2b1e501b562e4e96bd045、runtime-current SHA72425abcc3b36930031f11acc91b59e4c8f680e58c76dc8b60313ecf9724e5cf；DB eda5cc0b…保持。终态CI/昆仑芯失败/NVIDIA修复三份证据已按原SHA独占归档terminal-audit-20261103-01。
+
+审计后再次只读核对PR当前d86f/Ready、CI attempt1 completed failure，无新头或重试；当前51job 46success/3skip/2failure/0pending（Setup/notify不当设备通过）。直接失败昆仑芯，派生失败ci-gate；NVIDIA、HCU和MetaX原定其余矩阵均通过但不能抵销失败。首次PR终态正文更新回执isError，随后读取确认尚未写入，按最新正文幂等补写成功，未发CI重试/消息评论。PR最终状态/依赖/需要维护者设备日志已披露，保持Ready不合并部署。
+
+本轮在平台诊断证据处阻塞，不能宣称CI通过或提交任务完整成功。需要Kunlunxin维护者提供2026-11-02 13:47Z附近设备日志、实际dtype/provider与设备健康/占用事实后决定最小复现；不访问未授权Host、不清理runner、不无证据改算子或放宽门禁、不盲重试。其余工作已无可推进队列，停止自动轮询，待外部新证据再接续。
+
+自动跟进plugin-pr669-ci已通过automation_update mode=delete删除（回执deleted），保留所有失败/证据/同一state与文档；剩余平台诊断阻塞不作完成或通过。没有继续FGV1044硬件任务。

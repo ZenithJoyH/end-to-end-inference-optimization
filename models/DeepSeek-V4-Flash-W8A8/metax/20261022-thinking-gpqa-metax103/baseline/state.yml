@@ -1,0 +1,1597 @@
+schema_version: 4
+identity:
+  case_id: 20261022-thinking-gpqa-metax103
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mx-103
+  baseline_id: mx59-acc003-5ea09be
+  topology: TP8:device0-device7
+stage: baseline
+current:
+  status: three_p32_measurements_completed_variability_incomplete
+  candidate: mx59-acc003-5ea09be+fw-001+op-001
+  next_action: gather修复及32K三轮测量完成；第三轮变慢，spread12.913%超过10%，稳态结果incomplete。全部轮次保留；P16属于fw001-only，未做正式组合验收。
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: request_throughput
+  value: 0.6272371133550654
+  unit: request/s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: &id001
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/summary.json
+    sha256: 94a776834acea80de320369c18e1bdd46edba8715e785447053cc1a689a9953a
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: output_throughput
+  value: 642.290804075587
+  unit: token/s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: total_token_throughput
+  value: 1284.581608151174
+  unit: token/s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_ttft_ms
+  value: 6682.626925641671
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_ttft_ms
+  value: 4032.0440884679556
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_ttft_ms
+  value: 17145.268865209073
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_ttft_ms
+  value: 18101.15803470835
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_tpot_ms
+  value: 92.98437484808893
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_tpot_ms
+  value: 94.94581030734531
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_tpot_ms
+  value: 97.37471533567806
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_tpot_ms
+  value: 98.1835796869745
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_itl_ms
+  value: 92.98437502106184
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_itl_ms
+  value: 81.99385646730661
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_itl_ms
+  value: 87.17956515029073
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_itl_ms
+  value: 784.322493933141
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_e2el_ms
+  value: 101747.69324024965
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_e2el_ms
+  value: 101535.81806458533
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_e2el_ms
+  value: 114334.88282561302
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_e2el_ms
+  value: 115847.7112262696
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: benchmark_duration
+  value: 204.06955722905695
+  unit: s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: request_throughput
+  value: 0.4276101819376811
+  unit: request/s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: output_throughput
+  value: 437.8728263041854
+  unit: token/s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: total_token_throughput
+  value: 2189.364131520927
+  unit: token/s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_ttft_ms
+  value: 19049.124712357298
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_ttft_ms
+  value: 4365.717804990709
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_ttft_ms
+  value: 59620.5686694011
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_ttft_ms
+  value: 64984.39759889618
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_tpot_ms
+  value: 126.36681695622123
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_tpot_ms
+  value: 139.49585494604455
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_tpot_ms
+  value: 140.727292735745
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_tpot_ms
+  value: 142.10201382147238
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_itl_ms
+  value: 126.36681714909456
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_itl_ms
+  value: 83.01894180476665
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_itl_ms
+  value: 88.37300669401883
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_itl_ms
+  value: 1020.1140977256
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: mean_e2el_ms
+  value: 148586.3469212054
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: median_e2el_ms
+  value: 147306.15263525397
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p95_e2el_ms
+  value: 203199.22011969608
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: p99_e2el_ms
+  value: 208355.3481924348
+  unit: ms
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p4096-d1024-c64-n128
+  role: diagnostic_current_baseline
+  metric: benchmark_duration
+  value: 299.3380546271801
+  unit: s
+  scope: recovery-v2; all3 measured median; completed; no A/B or speedup claim
+  evidence: *id001
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: request_throughput
+  value: 0.18714453515933124
+  unit: request/s
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: &id002
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/mccl-oom-001/performance/rounds/p16384-d1024-c64-n128/scenario-result.json
+    sha256: 073a52ecc456d8203016a557006987e883833710e0f06d8ff3881e2eb206a211
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: output_throughput
+  value: 191.6360040031552
+  unit: token/s
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: total_token_throughput
+  value: 3257.812068053638
+  unit: token/s
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: mean_ttft_ms
+  value: 70752.14057367702
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: median_ttft_ms
+  value: 9754.533527418971
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p95_ttft_ms
+  value: 236470.8114918321
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p99_ttft_ms
+  value: 257340.93551166359
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: mean_tpot_ms
+  value: 260.9264776931275
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: median_tpot_ms
+  value: 315.95076265620145
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p95_tpot_ms
+  value: 318.2095663559205
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p99_tpot_ms
+  value: 318.6691467407162
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: mean_itl_ms
+  value: 260.9264778820036
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: median_itl_ms
+  value: 90.66702611744404
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p95_itl_ms
+  value: 988.6310052126646
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p99_itl_ms
+  value: 1472.7796279452741
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: mean_e2el_ms
+  value: 337507.6729493594
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: median_e2el_ms
+  value: 332586.70236263424
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p95_e2el_ms
+  value: 560984.7536621615
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: p99_e2el_ms
+  value: 581777.4182157033
+  unit: ms
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p16384-d1024-c64-n128
+  role: fw001_only_baseline
+  metric: benchmark_duration
+  value: 683.9633328914642
+  unit: s
+  scope: all3 measured per-metric median after declared fresh warmups; exact D1024/C64/N128; prefix disabled; source/service
+    not pooled
+  evidence: *id002
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: request_throughput
+  value: 0.10694989016939468
+  unit: request/s
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: &id003
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/indexer-gather-oob-001/performance-recovery01/summary.json
+    sha256: 851fd8ff600e3fb412af18298f409352527c5d01670f117ec1c21373eeae805d
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: output_throughput
+  value: 109.51668753346016
+  unit: token/s
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: total_token_throughput
+  value: 3614.0506886041853
+  unit: token/s
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: mean_ttft_ms
+  value: 140343.06927179568
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: median_ttft_ms
+  value: 15989.924564026296
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p95_ttft_ms
+  value: 473795.3542062081
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p99_ttft_ms
+  value: 516671.1899105273
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: mean_tpot_ms
+  value: 439.0424904395456
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: median_tpot_ms
+  value: 551.376257097223
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p95_tpot_ms
+  value: 555.4177873228055
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p99_tpot_ms
+  value: 556.1495798993
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: mean_itl_ms
+  value: 439.042490628877
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: median_itl_ms
+  value: 96.24035842716694
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p95_itl_ms
+  value: 1345.595386531204
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p99_itl_ms
+  value: 1537.668632157147
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: mean_e2el_ms
+  value: 589336.1018699215
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: median_e2el_ms
+  value: 579107.886461541
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p95_e2el_ms
+  value: 1041540.157169476
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: p99_e2el_ms
+  value: 1082963.0328418317
+  unit: ms
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+- scenario_id: p32768-d1024-c64-n128
+  role: fw001_op001_native_valid_unstable
+  metric: benchmark_duration
+  value: 1196.822173424065
+  unit: s
+  scope: All3 native-valid measured rounds retained; descriptive per-metric median, spread12.913% fails10%; not a steady-state
+    acceptance
+  evidence: *id003
+performance_evaluation:
+  experiment_id: perf-001
+  skill_mode: baseline
+  scope: diagnostic
+  test_scope: p1k-p4k-current-baseline-recovery-after-service-restart
+  baseline_kind: scenario-entry
+  baseline_parent_candidate: mx59-acc003-5ea09be
+  performance_objective: steady_state
+  cold_start_in_scope: false
+  one_current_service_instance: true
+  service_instance_id: deepseekV4-flash:perf001-restore02:1282425:1110226189
+  script:
+    path: /public-flash/jinghao/deepseekV4/test/perf_test/vllm_perf.py
+    sha256: f2491f44bcc8f4c5af0ff437845c299f22d3924c02b2db5d24f7a66b129bc351
+    entry: original run_once; unchanged source; COMMON_ARGS configured per frozen plan
+    override_reason: Explicit user-specified runner takes precedence over Skill maintained runner; maintained command builder/native
+      validators reused
+  warmup: 4 fresh full same-workload rounds; final3 throughput spread <=5%
+  measured_rounds: 3
+  measured_spread_limit: 0.1
+  aggregation: median over all3 admitted measured rounds; report each round and range, no outlier deletion
+  timeout_seconds: 3600
+  stop_rules:
+  - any invalid native result or request failure
+  - timeout stops only that benchmark client
+  - identity/config/code drift
+  - service OOM/unhealthy
+  - 'warmup instability: mark scenario incomplete; retain all warmups; no measured rounds for that scenario'
+  failure_scope: Stop recovery on invalid result, client timeout or identity/service failure. Warmup instability records scenario
+    incomplete; next recovery scenario allowed only if service and queue guard pass.
+  phase_views:
+    prefill: client TTFT/input throughput; includes network, queueing, scheduling
+    decode: client TPOT/ITL/output throughput; includes scheduling/interference
+    mixed: finite batch fill/drain throughput and native E2EL
+  accuracy_acceptance:
+    status: historical_user_accepted
+    score: 0.8585858585858586
+    basis: Explicit user acceptance remains recorded; prior score belongs to attempt01. New restored instance requires fresh
+      minimal/graph validation; no automatic accuracy gate or full re-evaluation claim.
+    historical_service_instance_id: deepseekV4-flash:attempt01:82:1108491592
+    new_formal_gate: null
+  performance_pass_threshold: null
+  new_production_changes: false
+  new_service_restart: true
+  native_warmup_probe: vLLM bench initial single request retained outside timed window; main warmup rounds4
+  seed_derivation: 42 + original_case_index*1000 + round_index; original indices P1K=0/P4K=1; round_index0..6
+  user_instruction: 请你使用/public-flash/jinghao/deepseekV4/test/perf_test/vllm_perf.py脚本，然后启动模型服务的时候关闭prefix cache跑下端到端的性能吧
+  attempt: recovery-v2
+  recovery_of: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/failure.json
+  execution_precondition: Expected initial P16K MCCL OOM/queue failure retained; original controller and benchmark clients
+    stopped; restored service has same original launch/config/source/cache and fresh 10-request C1/C8 + graph verification;
+    all14 rounds newly executed
+  fixed_warmup_rounds: 4
+  service_identity_binding: Frozen restored service identity; preflight verifies live process and verification-02 receipt
+    against this identity before dry-run
+  original_case_indices:
+    p1024-d1024-c64-n128: 0
+    p4096-d1024-c64-n128: 1
+  scope_limits:
+    p16384-d1024-c64-n128: initial warmup failed MCCL allocation OOM; preserved incomplete, excluded from recovery measurement
+    p32768-d1024-c64-n128: initial controller aborted before this scenario; not_run, excluded from recovery measurement
+    original_attempt: retained unchanged
+    new_service_instance_count_for_this_attempt: 1
+    cross_instance_results_not_pooled: true
+  verification:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/model-runs/perf001-restore02/verification-02/result.json
+    sha256: 298f28084c21cd470864962373c53fbe67ea030206d65be0958865e82180265a
+  one_current_service_instance_scope: recovery-v2 only; original and recovery instances are never pooled
+  warmup_rounds: 4
+  stability_window: 3
+  prefix_cache: false
+  initial_attempt:
+    status: incomplete
+    service_instance_id: deepseekV4-flash:attempt01:82:1108491592
+    warmup_rounds: 3
+    measured_rounds: 0
+    warmup_results_not_relabelled: true
+    scenarios:
+      p1024-d1024-c64-n128:
+        status: warmup_unstable_incomplete
+        warmup_output_tok_s:
+        - 280.7795910469519
+        - 629.0821568351413
+        - 635.7480007763581
+        warmup_relative_spread: 0.5642639929818103
+        measured_rounds: 0
+        all_warmup_native_valid: true
+      p4096-d1024-c64-n128:
+        status: warmup_unstable_incomplete
+        warmup_output_tok_s:
+        - 168.1147898233959
+        - 424.3005939239223
+        - 425.9613579219289
+        measured_rounds: 0
+        completed_warmups_native_valid: true
+        warmup_relative_spread: 0.6076978721947424
+      p16384-d1024-c64-n128:
+        status: failed_oom_incomplete
+        round: warmup1
+        first_visible_failure: MCCL internal calloc44MiB then512MiB failed; indexer query sharding all_gather DistBackendError
+        source_path: /opt/vllm-plugin-fl/vllm_fl/ops/deepseek_v4_indexer_prefill.py:249
+        server_log: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/failure-evidence/server-at-failure.log
+        server_log_sha256: 1a0d700d01da84a922a1813b7b845ac54c5cba1273aae1e90e46e0724d9b6aee
+        measured_rounds: 0
+      p32768-d1024-c64-n128:
+        status: not_run_incomplete
+        reason: Prior P16K crashed same service; preserve original workload without substitution
+    contract:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/contract.json
+      sha256: b45010e8f9bf0fb8946b77ccaa1f2344b85a641a9faff6d577ceea8356a0732d
+    plan:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/plan.json
+      sha256: ec468b6d26d7fd3d55a2e0749f34e8ea27bce09d4c7a9663bd3579217642d829
+    preflight:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/preflight.json
+      sha256: 86be67574c1620b05488d15799e4ce843463053683aeb6543272e0aa490d5f53
+    failure_references:
+      failure:
+        path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/failure.json
+        sha256: a1f0a52b723006adf94a39f0423019a13c62c3d7aa7bc55ea3fe263b8080d0d9
+      stop_client:
+        path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/failure-evidence/stop-client.json
+        sha256: 995ab5e2ce2db3ca5cce5fc1983ac2c1b21ba85105a933ff02d1f53b7af822c1
+      controller_launch:
+        path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/launch.json
+        sha256: 49abc97a75203da9edc0be3dcf6b5af44a508f140606d6a0ebe9c323ae08bde4
+  summary: *id001
+  frozen_files:
+    plan.json:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/plan.json
+      sha256: 569ed8ddf4be820db89a64dafac22266902d4a0c72cc0d52c872aad80845de0a
+    contract.json:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/contract.json
+      sha256: 8f88f7a07af557d803c0afc71568b8d664c778c1a53c56d378ad8e76dec6469b
+    preflight.json: &id004
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/preflight.json
+      sha256: 6b72116fda32444b67e97376ce3684231af7b694686617988013fbc09da76dd3
+  completed_at: '2026-10-23T00:23:00.354707+08:00'
+  graph_evidence: &id005
+    status: passed
+    service_instance_id: deepseekV4-flash:perf001-restore02:1282425:1110226189
+    capture_finished_7_of_7: true
+    native_full_padded64_max_logged_count: 124
+    count_semantics: maximum single actual logged row; no sum across ranks or cumulative snapshots
+    evidence:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/completion-runtime-evidence.json
+      sha256: 61f4dbd1439b1bb42f4aaa8231df7d216ffa557609963ee276bdba70bcd7cc13
+    raw_log:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/server-at-completion.log
+      sha256: 84c70353f245969188bdb887d6f2ae41c641b5427a943b496fcf03324e440d2e
+  formal_full_suite_passed: false
+  new_formal_accuracy_gate: null
+scenarios:
+- id: p1024-d1024-c64-n128
+  input_tokens: 1024
+  output_tokens: 1024
+  concurrency: 64
+  requests: 128
+  load_mode: finite_batch
+  stage: mixed
+  request_rate: null
+  burstiness: 1
+  status: completed
+  attempt: recovery-v2
+  measured_rounds: 3
+  scope: diagnostic_current_code_baseline
+  evidence: *id001
+  service_instance_id: deepseekV4-flash:perf001-restore02:1282425:1110226189
+  metrics:
+    request_throughput: 0.6272371133550654
+    output_throughput: 642.290804075587
+    total_token_throughput: 1284.581608151174
+    mean_ttft_ms: 6682.626925641671
+    median_ttft_ms: 4032.0440884679556
+    p95_ttft_ms: 17145.268865209073
+    p99_ttft_ms: 18101.15803470835
+    mean_tpot_ms: 92.98437484808893
+    median_tpot_ms: 94.94581030734531
+    p95_tpot_ms: 97.37471533567806
+    p99_tpot_ms: 98.1835796869745
+    mean_itl_ms: 92.98437502106184
+    median_itl_ms: 81.99385646730661
+    p95_itl_ms: 87.17956515029073
+    p99_itl_ms: 784.322493933141
+    mean_e2el_ms: 101747.69324024965
+    median_e2el_ms: 101535.81806458533
+    p95_e2el_ms: 114334.88282561302
+    p99_e2el_ms: 115847.7112262696
+    benchmark_duration: 204.06955722905695
+  metric_units:
+    request_throughput: request/s
+    output_throughput: token/s
+    total_token_throughput: token/s
+    mean_ttft_ms: ms
+    median_ttft_ms: ms
+    p95_ttft_ms: ms
+    p99_ttft_ms: ms
+    mean_tpot_ms: ms
+    median_tpot_ms: ms
+    p95_tpot_ms: ms
+    p99_tpot_ms: ms
+    mean_itl_ms: ms
+    median_itl_ms: ms
+    p95_itl_ms: ms
+    p99_itl_ms: ms
+    mean_e2el_ms: ms
+    median_e2el_ms: ms
+    p95_e2el_ms: ms
+    p99_e2el_ms: ms
+    benchmark_duration: s
+  ranges:
+    request_throughput:
+      min: 0.6259710083910491
+      max: 0.6272753599495021
+    output_throughput:
+      min: 640.9943125924343
+      max: 642.3299685882902
+    total_token_throughput:
+      min: 1281.9886251848686
+      max: 1284.6599371765803
+    mean_ttft_ms:
+      min: 6624.677770654671
+      max: 6763.438077265164
+    median_ttft_ms:
+      min: 4023.609422147274
+      max: 4082.1669828146696
+    p95_ttft_ms:
+      min: 17128.70511850342
+      max: 17204.49275523424
+    p99_ttft_ms:
+      min: 18041.092499047518
+      max: 18479.83715346083
+    mean_tpot_ms:
+      min: 92.92124913890348
+      max: 93.0524096807415
+    median_tpot_ms:
+      min: 94.70444789860954
+      max: 95.80633364880015
+    p95_tpot_ms:
+      min: 97.31494151110435
+      max: 97.53462413493416
+    p99_tpot_ms:
+      min: 98.0424071688347
+      max: 98.36370582123335
+    mean_itl_ms:
+      min: 92.9212493067555
+      max: 93.05240984357218
+    median_itl_ms:
+      min: 81.36725332587957
+      max: 82.04362448304892
+    p95_itl_ms:
+      min: 86.54852630570531
+      max: 87.39083111286163
+    p99_itl_ms:
+      min: 744.9934786185622
+      max: 820.9435533732176
+    mean_e2el_ms:
+      min: 101741.06479473994
+      max: 101956.05318066373
+    median_e2el_ms:
+      min: 101529.45948764682
+      max: 101746.94565217942
+    p95_e2el_ms:
+      min: 114117.06086043268
+      max: 115619.87384399399
+    p99_e2el_ms:
+      min: 115643.21100663394
+      max: 117126.55299296603
+    benchmark_duration:
+      min: 204.0571145825088
+      max: 204.48231353238225
+  warmup_stability:
+    status: passed
+    metric: output_throughput
+    values:
+    - 645.7845357353742
+    - 645.2452435394576
+    - 642.3755275014219
+    relative_spread: 0.005283275263297462
+    max_relative_spread: 0.05
+  measured_stability:
+    status: passed
+    metric: output_throughput
+    values:
+    - 642.290804075587
+    - 640.9943125924343
+    - 642.3299685882902
+    relative_spread: 0.0020795191015979026
+    max_relative_spread: 0.1
+  aggregation: median_all_admitted_measured_rounds_no_cross_instance_pooling
+  warmup_results:
+  - label: warmup1
+    role: warmup
+    seed: 42
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup1/native.json
+      sha256: 42b903d9538300ef2e3f79fb4ac60c53655c9c3401e42fec0eb202890852a76f
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup1/stdout-stderr.log
+      sha256: a9c5064a289ffc1e010653442ce97671f83a65278eec2066cd10c25a6cacbade
+    validation_errors: []
+    output_throughput: 626.630593455233
+    unit: token/s
+  - label: warmup2
+    role: warmup
+    seed: 43
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup2/native.json
+      sha256: 8725058599bda8cae9a8847d8b2d7be5c84f763d64a2141b80cc10b6002b8662
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup2/stdout-stderr.log
+      sha256: 3f19ec4350ee5e2e0292ede189ea70a65185517de66155c1dc2288964cefabdd
+    validation_errors: []
+    output_throughput: 645.7845357353742
+    unit: token/s
+  - label: warmup3
+    role: warmup
+    seed: 44
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup3/native.json
+      sha256: b9130bc504952fc5bf3a79068cac392962738cddb9481c6c78c6715d3180aab8
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup3/stdout-stderr.log
+      sha256: 5171ad8e31267ed1d1d2d98b4efe0a2f684bed1a4fe9a02484c8e295fad01917
+    validation_errors: []
+    output_throughput: 645.2452435394576
+    unit: token/s
+  - label: warmup4
+    role: warmup
+    seed: 45
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup4/native.json
+      sha256: 61a57a4529be893dd07345040f19494b418954e996a0569ee9f456489b8b97cf
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/warmup4/stdout-stderr.log
+      sha256: e54f00d2b9de37a73691e639d2dbac19a376a40bf8bd97daa2d0effd2beebedb
+    validation_errors: []
+    output_throughput: 642.3755275014219
+    unit: token/s
+  measured_results:
+  - label: measure1
+    role: measured
+    seed: 46
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/measure1/native.json
+      sha256: fe87326efca09d37123e00a0940ce252fe096ea367be7f6b9b92a9931f807b0e
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/measure1/stdout-stderr.log
+      sha256: 86d1dedda0ef4aaacd3bfd3f625ee5bce201a09050d6c26d2d73923bcad39d16
+    validation_errors: []
+    metrics:
+      failed_requests: 0
+      successful_requests: 128
+      benchmark_duration: 204.06955722905695
+      total_input_tokens: 131072
+      total_output_tokens: 131072
+      request_throughput: 0.6272371133550654
+      output_throughput: 642.290804075587
+      peak_output_throughput: 832.0
+      total_token_throughput: 1284.581608151174
+      mean_ttft_ms: 6624.677770654671
+      median_ttft_ms: 4032.0440884679556
+      p99_ttft_ms: 18041.092499047518
+      mean_tpot_ms: 92.98437484808893
+      median_tpot_ms: 94.94581030734531
+      p99_tpot_ms: 98.1835796869745
+      mean_itl_ms: 92.98437502106184
+      median_itl_ms: 81.99385646730661
+      p99_itl_ms: 744.9934786185622
+      p95_ttft_ms: 17145.268865209073
+      p95_tpot_ms: 97.37471533567806
+      p95_itl_ms: 87.17956515029073
+      mean_e2el_ms: 101747.69324024965
+      median_e2el_ms: 101535.81806458533
+      p95_e2el_ms: 114334.88282561302
+      p99_e2el_ms: 115847.7112262696
+  - label: measure2
+    role: measured
+    seed: 47
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/measure2/native.json
+      sha256: 25ed6d33e6995639f870d9e953cb4096df6aba89d4533c5e420aae8b8605e60c
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/measure2/stdout-stderr.log
+      sha256: 7c8da70fff095629d77140082e5986bef76b4add6b5114614e81746885e6b5fb
+    validation_errors: []
+    metrics:
+      failed_requests: 0
+      successful_requests: 128
+      benchmark_duration: 204.48231353238225
+      total_input_tokens: 131072
+      total_output_tokens: 131072
+      request_throughput: 0.6259710083910491
+      output_throughput: 640.9943125924343
+      peak_output_throughput: 832.0
+      total_token_throughput: 1281.9886251848686
+      mean_ttft_ms: 6763.438077265164
+      median_ttft_ms: 4082.1669828146696
+      p99_ttft_ms: 18479.83715346083
+      mean_tpot_ms: 93.0524096807415
+      median_tpot_ms: 95.80633364880015
+      p99_tpot_ms: 98.0424071688347
+      mean_itl_ms: 93.05240984357218
+      median_itl_ms: 81.36725332587957
+      p99_itl_ms: 820.9435533732176
+      p95_ttft_ms: 17128.70511850342
+      p95_tpot_ms: 97.31494151110435
+      p95_itl_ms: 86.54852630570531
+      mean_e2el_ms: 101956.05318066373
+      median_e2el_ms: 101746.94565217942
+      p95_e2el_ms: 115619.87384399399
+      p99_e2el_ms: 117126.55299296603
+  - label: measure3
+    role: measured
+    seed: 48
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/measure3/native.json
+      sha256: 0f4d93fd286d272f64e0d66fe217ec8a723c3db2032e7d16c0d378dfde893054
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p1024-d1024-c64-n128/measure3/stdout-stderr.log
+      sha256: 0dfc3d479c9e5f53cca4ba0f4b704269bde53a5291828d8d1722ac3abfab9c64
+    validation_errors: []
+    metrics:
+      failed_requests: 0
+      successful_requests: 128
+      benchmark_duration: 204.0571145825088
+      total_input_tokens: 131072
+      total_output_tokens: 131072
+      request_throughput: 0.6272753599495021
+      output_throughput: 642.3299685882902
+      peak_output_throughput: 832.0
+      total_token_throughput: 1284.6599371765803
+      mean_ttft_ms: 6682.626925641671
+      median_ttft_ms: 4023.609422147274
+      p99_ttft_ms: 18101.15803470835
+      mean_tpot_ms: 92.92124913890348
+      median_tpot_ms: 94.70444789860954
+      p99_tpot_ms: 98.36370582123335
+      mean_itl_ms: 92.9212493067555
+      median_itl_ms: 82.04362448304892
+      p99_itl_ms: 784.322493933141
+      p95_ttft_ms: 17204.49275523424
+      p95_tpot_ms: 97.53462413493416
+      p95_itl_ms: 87.39083111286163
+      mean_e2el_ms: 101741.06479473994
+      median_e2el_ms: 101529.45948764682
+      p95_e2el_ms: 114117.06086043268
+      p99_e2el_ms: 115643.21100663394
+  successful_measured_requests: 384
+  failed_measured_requests: 0
+- id: p4096-d1024-c64-n128
+  input_tokens: 4096
+  output_tokens: 1024
+  concurrency: 64
+  requests: 128
+  load_mode: finite_batch
+  stage: mixed
+  request_rate: null
+  burstiness: 1
+  status: completed
+  attempt: recovery-v2
+  measured_rounds: 3
+  scope: diagnostic_current_code_baseline
+  evidence: *id001
+  service_instance_id: deepseekV4-flash:perf001-restore02:1282425:1110226189
+  metrics:
+    request_throughput: 0.4276101819376811
+    output_throughput: 437.8728263041854
+    total_token_throughput: 2189.364131520927
+    mean_ttft_ms: 19049.124712357298
+    median_ttft_ms: 4365.717804990709
+    p95_ttft_ms: 59620.5686694011
+    p99_ttft_ms: 64984.39759889618
+    mean_tpot_ms: 126.36681695622123
+    median_tpot_ms: 139.49585494604455
+    p95_tpot_ms: 140.727292735745
+    p99_tpot_ms: 142.10201382147238
+    mean_itl_ms: 126.36681714909456
+    median_itl_ms: 83.01894180476665
+    p95_itl_ms: 88.37300669401883
+    p99_itl_ms: 1020.1140977256
+    mean_e2el_ms: 148586.3469212054
+    median_e2el_ms: 147306.15263525397
+    p95_e2el_ms: 203199.22011969608
+    p99_e2el_ms: 208355.3481924348
+    benchmark_duration: 299.3380546271801
+  metric_units:
+    request_throughput: request/s
+    output_throughput: token/s
+    total_token_throughput: token/s
+    mean_ttft_ms: ms
+    median_ttft_ms: ms
+    p95_ttft_ms: ms
+    p99_ttft_ms: ms
+    mean_tpot_ms: ms
+    median_tpot_ms: ms
+    p95_tpot_ms: ms
+    p99_tpot_ms: ms
+    mean_itl_ms: ms
+    median_itl_ms: ms
+    p95_itl_ms: ms
+    p99_itl_ms: ms
+    mean_e2el_ms: ms
+    median_e2el_ms: ms
+    p95_e2el_ms: ms
+    p99_e2el_ms: ms
+    benchmark_duration: s
+  ranges:
+    request_throughput:
+      min: 0.42752027580326374
+      max: 0.42938019456999116
+    output_throughput:
+      min: 437.78076242254207
+      max: 439.68531923967095
+    total_token_throughput:
+      min: 2188.9038121127105
+      max: 2198.4265961983547
+    mean_ttft_ms:
+      min: 18961.591767219943
+      max: 19346.9651449268
+    median_ttft_ms:
+      min: 4345.8983125165105
+      max: 4538.8681050390005
+    p95_ttft_ms:
+      min: 59597.66206154599
+      max: 60203.01931528373
+    p99_ttft_ms:
+      min: 64727.83060736954
+      max: 65053.340224865824
+    mean_tpot_ms:
+      min: 126.10696090170754
+      max: 126.62485064403528
+    median_tpot_ms:
+      min: 139.16615497335454
+      max: 139.8360148155998
+    p95_tpot_ms:
+      min: 140.3003067730444
+      max: 140.88704668701
+    p99_tpot_ms:
+      min: 141.09222650296718
+      max: 142.2464075059296
+    mean_itl_ms:
+      min: 126.10696109021386
+      max: 126.6248508418446
+    median_itl_ms:
+      min: 83.00878014415503
+      max: 83.12250394374132
+    p95_itl_ms:
+      min: 88.34631592035292
+      max: 88.53253060951828
+    p99_itl_ms:
+      min: 1004.7980868071318
+      max: 1035.3265072219074
+    mean_e2el_ms:
+      min: 147969.01276966673
+      max: 148620.21889114112
+    median_e2el_ms:
+      min: 146758.69725923985
+      max: 147347.0841133967
+    p95_e2el_ms:
+      min: 201989.2040969804
+      max: 203532.17892944813
+    p99_e2el_ms:
+      min: 207196.9524045661
+      max: 208860.30214734375
+    benchmark_duration:
+      min: 298.1041082441807
+      max: 299.401004454121
+  warmup_stability:
+    status: passed
+    metric: output_throughput
+    values:
+    - 439.60461823584103
+    - 441.5830998019349
+    - 441.6218656951147
+    relative_spread: 0.004568217081175617
+    max_relative_spread: 0.05
+  measured_stability:
+    status: passed
+    metric: output_throughput
+    values:
+    - 437.78076242254207
+    - 439.68531923967095
+    - 437.8728263041854
+    relative_spread: 0.004349566135912264
+    max_relative_spread: 0.1
+  aggregation: median_all_admitted_measured_rounds_no_cross_instance_pooling
+  warmup_results:
+  - label: warmup1
+    role: warmup
+    seed: 1042
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup1/native.json
+      sha256: d0704a0128ceacbdfa2f77a61d94d1bee181d7377e8bd1bcaa802b18bdf6368d
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup1/stdout-stderr.log
+      sha256: f09d452acf991a2b28f39830c5fb81fee1471d9ab642d985dc6093506e0bb392
+    validation_errors: []
+    output_throughput: 430.3420085025383
+    unit: token/s
+  - label: warmup2
+    role: warmup
+    seed: 1043
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup2/native.json
+      sha256: 983aca8b35f8deb7acdaf6e98fcc695ba1dd2ab8f9743544bfd7fc2b3d964975
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup2/stdout-stderr.log
+      sha256: d09be93a03db4f5695bb984d79b86efba942732c4c6acedad535603f35c136c2
+    validation_errors: []
+    output_throughput: 439.60461823584103
+    unit: token/s
+  - label: warmup3
+    role: warmup
+    seed: 1044
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup3/native.json
+      sha256: 7c5723f27010d068eb16610072f5338920b88deec85d8cb41b2ef3c4991b7586
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup3/stdout-stderr.log
+      sha256: af3bbe5f0d90732c35855702af4d330c71bfec502a462ee2dd07e77d52bf185f
+    validation_errors: []
+    output_throughput: 441.5830998019349
+    unit: token/s
+  - label: warmup4
+    role: warmup
+    seed: 1045
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup4/native.json
+      sha256: 5d0feee39d33c8c84410fcfd39ff38ea14dc9ef8014fe83c7edc6707fe0ff222
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/warmup4/stdout-stderr.log
+      sha256: 9e38afbacc403243539a91ed42089d6ec099c61fb2287d1adfa6b44ae6f8e7e3
+    validation_errors: []
+    output_throughput: 441.6218656951147
+    unit: token/s
+  measured_results:
+  - label: measure1
+    role: measured
+    seed: 1046
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/measure1/native.json
+      sha256: ce4abd98297fcd15aee191e1302cdb7fce46a8d590425a759ed8539507084d87
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/measure1/stdout-stderr.log
+      sha256: 485fef1e3d47bedac3cb4a3b37cc9fd090ad92f5a3d1a3c14b7ee1d1e8f055f4
+    validation_errors: []
+    metrics:
+      failed_requests: 0
+      successful_requests: 128
+      benchmark_duration: 299.401004454121
+      total_input_tokens: 524288
+      total_output_tokens: 131072
+      request_throughput: 0.42752027580326374
+      output_throughput: 437.78076242254207
+      peak_output_throughput: 832.0
+      total_token_throughput: 2188.9038121127105
+      mean_ttft_ms: 19346.9651449268
+      median_ttft_ms: 4538.8681050390005
+      p99_ttft_ms: 65053.340224865824
+      mean_tpot_ms: 126.36681695622123
+      median_tpot_ms: 139.49585494604455
+      p99_tpot_ms: 142.10201382147238
+      mean_itl_ms: 126.36681714909456
+      median_itl_ms: 83.00878014415503
+      p99_itl_ms: 1020.1140977256
+      p95_ttft_ms: 60203.01931528373
+      p95_tpot_ms: 140.727292735745
+      p95_itl_ms: 88.37300669401883
+      mean_e2el_ms: 148620.21889114112
+      median_e2el_ms: 147347.0841133967
+      p95_e2el_ms: 203532.17892944813
+      p99_e2el_ms: 208860.30214734375
+  - label: measure2
+    role: measured
+    seed: 1047
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/measure2/native.json
+      sha256: 0f80c9550bcc3ee74cd44c90923b0efb09db9f89f0adcbcf842c6468ca1cd8a5
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/measure2/stdout-stderr.log
+      sha256: dd8b7c0151ea95076f802a41d8be10c157e09392ff52b77171d4b8a29daf377f
+    validation_errors: []
+    metrics:
+      failed_requests: 0
+      successful_requests: 128
+      benchmark_duration: 298.1041082441807
+      total_input_tokens: 524288
+      total_output_tokens: 131072
+      request_throughput: 0.42938019456999116
+      output_throughput: 439.68531923967095
+      peak_output_throughput: 832.0
+      total_token_throughput: 2198.4265961983547
+      mean_ttft_ms: 18961.591767219943
+      median_ttft_ms: 4345.8983125165105
+      p99_ttft_ms: 64727.83060736954
+      mean_tpot_ms: 126.10696090170754
+      median_tpot_ms: 139.16615497335454
+      p99_tpot_ms: 141.09222650296718
+      mean_itl_ms: 126.10696109021386
+      median_itl_ms: 83.01894180476665
+      p99_itl_ms: 1004.7980868071318
+      p95_ttft_ms: 59620.5686694011
+      p95_tpot_ms: 140.3003067730444
+      p95_itl_ms: 88.34631592035292
+      mean_e2el_ms: 147969.01276966673
+      median_e2el_ms: 146758.69725923985
+      p95_e2el_ms: 201989.2040969804
+      p99_e2el_ms: 207196.9524045661
+  - label: measure3
+    role: measured
+    seed: 1048
+    status: passed
+    native_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/measure3/native.json
+      sha256: 92fbcc1758894627c9da13b4fd93148298ff541271eab3287343c359181822c9
+    stdout_artifact:
+      path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/recovery-v2/rounds/p4096-d1024-c64-n128/measure3/stdout-stderr.log
+      sha256: e36b5aeeda75df4e30c76417b0facc923f9da605639bacafebfddf421c3e784e
+    validation_errors: []
+    metrics:
+      failed_requests: 0
+      successful_requests: 128
+      benchmark_duration: 299.3380546271801
+      total_input_tokens: 524288
+      total_output_tokens: 131072
+      request_throughput: 0.4276101819376811
+      output_throughput: 437.8728263041854
+      peak_output_throughput: 832.0
+      total_token_throughput: 2189.364131520927
+      mean_ttft_ms: 19049.124712357298
+      median_ttft_ms: 4365.717804990709
+      p99_ttft_ms: 64984.39759889618
+      mean_tpot_ms: 126.62485064403528
+      median_tpot_ms: 139.8360148155998
+      p99_tpot_ms: 142.2464075059296
+      mean_itl_ms: 126.6248508418446
+      median_itl_ms: 83.12250394374132
+      p99_itl_ms: 1035.3265072219074
+      p95_ttft_ms: 59597.66206154599
+      p95_tpot_ms: 140.88704668701
+      p95_itl_ms: 88.53253060951828
+      mean_e2el_ms: 148586.3469212054
+      median_e2el_ms: 147306.15263525397
+      p95_e2el_ms: 203199.22011969608
+      p99_e2el_ms: 208355.3481924348
+  successful_measured_requests: 384
+  failed_measured_requests: 0
+- id: p16384-d1024-c64-n128
+  input_tokens: 16384
+  output_tokens: 1024
+  concurrency: 64
+  requests: 128
+  load_mode: finite_batch
+  stage: mixed
+  request_rate: null
+  burstiness: 1
+  status: failed_oom_incomplete
+  attempt: original
+  measured_rounds: 0
+  scope: diagnostic_current_code_baseline
+  evidence: *id001
+  metrics: null
+  reason: Initial warmup1 MCCL allocation OOM followed by indexer query-sharding all_gather DistBackendError
+  failure_evidence:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001/failure-evidence/server-at-failure.log
+    sha256: 1a0d700d01da84a922a1813b7b845ac54c5cba1273aae1e90e46e0724d9b6aee
+- id: p32768-d1024-c64-n128
+  input_tokens: 32768
+  output_tokens: 1024
+  concurrency: 64
+  requests: 128
+  load_mode: finite_batch
+  stage: mixed
+  request_rate: null
+  burstiness: 1
+  status: not_run_incomplete
+  attempt: null
+  measured_rounds: 0
+  scope: diagnostic_current_code_baseline
+  evidence: *id001
+  metrics: null
+  reason: P16K worker failure stopped original controller; no claim of demonstrated unsupported capability
+remote_evidence: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/performance-001
+environment:
+  host: mx-103
+  container: deepseekV4-flash
+  service_instance_id: deepseekV4-flash:perf001-restore02:1282425:1110226189
+  model_name: deepseek-v4-flash-w8a8-int8
+  image_lineage: verified
+  mount_parity: passed
+  image_id: sha256:80d8351984a4e03799af003cd70d80300b62f92206be9ad48e3683717f965c30
+  config_sha256: e96726adc97507698369af82b6f35ea82f933fc8e09dcbbcbbaa7dbc3a7d57fe
+  versions:
+    vllm: 0.24.0+empty
+    torch: 2.10.0+metax3.8.2.2
+    flagtree: 0.7.0+metax.git317a0249
+    vllm-plugin-fl: 0.3.0rc2.post1+ga696859b9.d20261020
+    flag-gems: 5.5.0.dev0+g8200f71f5.d20261020
+    flaggems-vllm: 0.3.0.dev1
+  repos:
+    Plugin:
+      head: a696859b9aa528dfd5b21f5da3403fdc16bac4cd
+      patch_sha256: 5ea09be19685b023b68ec43eed537793c366e7fa1c2fe6f5004361b2f948b4a9
+      source: /opt/vllm-plugin-fl
+    FlagGems:
+      head: 8200f71f51d784d54a5a51019cb955acb74d64c1
+      patch_sha256: 6be5befa86f2568f94de51bc12be73a74f24acb53beb690cc7f988b905930c21
+      source: /opt/dsv4-sources/FlagGems
+    FlagGems-vllm:
+      head: fa78ddee4c3e78ce5047213ff0ef02acff34b2d5
+      patch_sha256: 961849cb4f411f0bef0ad22c36f02361be8fe5babec603e30c73c5aad621e7ac
+      source: /opt/dsv4-sources/FlagGems-vllm
+    FlagTree:
+      head: 317a0249ec25c6756e0aee3a87e8e3c92f154335
+      patch_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      source: /opt/dsv4-sources/FlagTree
+  source_checks:
+    Plugin:
+      files: 330
+      status: passed
+      package_sha256: 40e651734d8611aac4a6e8a802275ee54159d2cd3dee4aafe692d94f194a22f2
+    FlagGems:
+      files: 3686
+      status: passed
+      package_sha256: dacb649d3fd8174ea49ce56befb0cd6cdf15381a701816c0b67c71a9830d5b93
+    FlagGems-vllm:
+      files: 403
+      status: passed
+      package_sha256: 1311a56993734155a8ec46d889b48264d331fcc978b16172a5705ae610b850cd
+  prefix_cache: false
+  preflight: *id004
+  minimal_regression:
+    path: /public-flash/jinghao/deepseekV4/20261022-thinking-gpqa-metax103/model-runs/perf001-restore02/verification-02/result.json
+    sha256: 298f28084c21cd470864962373c53fbe67ea030206d65be0958865e82180265a
+  graph: *id005
+  formal_accuracy_gate: null
+long_context_recovery:
+  status: requested_measurements_completed_variability_incomplete
+  p32_measured_stability:
+    status: failed
+    metric: output_throughput
+    values:
+    - 109.51668753346016
+    - 109.682346135487
+    - 95.54043128677371
+    relative_spread: 0.12913022816173622
+    max_relative_spread: 0.1
+  completed_at: '2026-10-23T18:14:35.467515+08:00'
+  p16_source: fw001 only
+  p16_evidence: *id002
+  p32_source: fw001+op001
+  p32_summary: *id003
+  p32_service_instance_id: deepseekV4-flash:op001-candidate01:1582007:1115758961
+  same_source_full_suite_passed: false
+  no_speedup_claim: true
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: three_p32_measurements_completed_variability_incomplete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 35
+    - 36
+    - 37
+    - 38
+    - 39
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 40
+    - 41
+    - 42
+    - 43
+    - 44
+    - 45
+    - 46
+    - 47
+    - 48
+    - 49
+    - 50
+    - 51
+    - 52
+    - 53
+    - 54
+    - 55
+    - 56
+    - 57
+    - 58
+    - 59
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 60
+    - 61
+    - 62
+    - 63
+    - 64
+    - 65
+    - 66
+    - 67
+    - 68
+    - 69
+    - 70
+    - 71
+    - 72
+    - 73
+    - 74
+    - 75
+    - 76
+    - 77
+    - 78
+    - 79
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

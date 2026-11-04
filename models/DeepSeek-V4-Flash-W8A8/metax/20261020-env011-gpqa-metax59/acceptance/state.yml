@@ -1,0 +1,101 @@
+schema_version: 4
+identity:
+  case_id: 20261020-env011-gpqa-metax59
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mx-59
+  baseline_id: env011-d85f8340751b
+  topology: TP8:device0-device7
+stage: acceptance
+current:
+  status: accuracy_failed
+  candidate: env011+acc001-topk-fix:fc653169d482b61133db1783f22921a5432b7f7b4bf4e7a3eb67022f8c649223
+  next_action: Accuracy diagnosis acc-002; no gate and no performance promotion
+experiments: []
+metrics:
+- scenario_id: gpqa-diamond-198
+  role: candidate
+  metric: exact_match,strict-match
+  value: 0.51010101010101
+  unit: fraction
+  scope: full
+task_scope: accuracy_only
+source_adaptation_record: docs/cases/20261020-deepseekv4-flash-metax59-container/README.md
+accuracy_evaluation:
+  skill: skills/inference-accuracy-evaluation/SKILL.md
+  capability_id: e2e/accuracy
+  mode: formal-gate
+  covered_experiment_ids:
+  - env-001-through-env-011
+  - acc-001
+  task: gpqa_diamond_generative_cot
+  expected_samples: 198
+  metric: exact_match,strict-match
+  threshold: 0.8
+  threshold_source: User explicitly selected 80% before evaluation
+  score: 0.51010101010101
+  result: failed
+  remote_evidence_root: /opt/dsv4-accuracy/20261020-env011-gpqa-02
+  progress_monitor:
+    kind: foreground
+    status: completed
+    automation_id: null
+    cleanup_evidence: /opt/dsv4-accuracy/20261020-env011-gpqa-02/formal-exit.json
+  config:
+    num_concurrent: 32
+    temperature: 1.0
+    top_p: 1.0
+    top_k: -1
+    max_gen_toks: 30000
+    seed: 42
+    reasoning_mode: native model default; no disabling chat template overrides
+  evaluator_image: harbor.baai.ac.cn/flageval/flageval-llmeval:v1
+  evaluator_image_id: sha256:62dac3397d7285a3ee6b30d196f951b677fc1e9ad9727e655200b92123f71a2c
+  evaluator_version: lm_eval 0.4.8 customized image
+  contract_sha256: 8f73eebff5e2de553c133e739034da8f3b36d7d570926efd3b83e2addaa59ae8
+  task_provenance_sha256: d5a444983da9b0cb1f85d1977166cdbf1b439f3c722fa5f3e9c5ce4bcd0c7bb5
+  dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+  model_payload_sha256: ea2aec14c01b9677a75fae402ce2b084667195287038f5d131a0e98feb7f61b3
+  model_full_shard_checksums: true
+  service_instance_id: deepseekV4-flash:attempt16:3456148:544417809
+  preflight: passed
+  start_utc: '2026-10-20T14:11:48.248731+00:00'
+  process_identity_record: /opt/dsv4-accuracy/20261020-env011-gpqa-02/supervisor-process.json
+  launch_command: /opt/dsv4-accuracy/20261020-env011-gpqa-02/commands/run-formal.json
+  observed_failed_run:
+    native_strict_score: 0.0
+    valid_model_accuracy: false
+    reason: Service exited; connection failures require diagnosis; no gate
+    run_dir: /opt/dsv4-accuracy/20261020-env011-gpqa-01/outputs/deepseekV4-flash-env011-gpqa-full-c32/aefa3e513102461f845264e535f7ffee
+  service_sha256: b2594ca42a264d04d69eca41ea41d3d61a7752041034a51d74abfac94de6e613
+  contract_change_note: Only new provenance artifact path changes serialized SHA;
+    semantic task/generation/data/metric/threshold unchanged
+  correct: 101
+  completed_samples: 198
+  unique_samples: 198
+  native_filter_rows: 396
+  end_utc: '2026-10-20T14:30:06.983729+00:00'
+  native_run_id: 15b9eb63f95c471d8d8c02dfb3d65256
+  gate_issued: false
+  run_record_issued: false
+  samples_sha256: bad72ffb7baa111d61cd3dc321e71a280df90be3e3d11e6a23f6e93421025177
+  results_sha256: ff2edc4c48650624dd969e667c542c437befce89a45a4b50bab5cc9b1ff521cc
+  evidence_review: /opt/dsv4-accuracy/20261020-env011-gpqa-02/manifests/final-review.json
+  post_service_review: /opt/dsv4-upgrades/20261020-formal-accuracy-02/manifests/post-formal-service.json
+  strict_format_boundary_proof: /opt/dsv4-accuracy/20261020-env011-gpqa-02/manifests/strict-format-boundary-proof.json
+  health_observations:
+    timeouts: 0
+    empty_outputs: 0
+    truncations: 0
+    garbled_outputs: 0
+    non_gating: true
+  archive:
+    containers:
+    - deepseekV4-flash-gpqa-20261020-01
+    - deepseekV4-flash
+    absolute_root: /opt/dsv4-accuracy
+    parity: passed
+    file_count: 119
+    total_bytes: 14664179
+    evidence: /opt/dsv4-upgrades/20261020-formal-accuracy-02/manifests/archive-parity.json
+performance_status: not_run

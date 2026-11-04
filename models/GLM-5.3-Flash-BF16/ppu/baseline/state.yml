@@ -1,0 +1,219 @@
+schema_version: 2
+updated_at: "2026-09-24T14:45:47+08:00"
+status: external_user_baseline_partially_failed
+model: GLM-5.3-Flash-BF16
+served_model_name: glm5.3-flash
+platform: ppu
+host: PPU-13
+artifact_policy:
+  layout: state_and_readme_only
+  local_history_directory: forbidden_by_user
+  raw_artifacts: remote_only
+source_adaptation_container: glm5.3-flash
+optimization_container: glm5.3-flash-opt-20260911
+remote_case_root: /mnt/nfs/users/jinghao/glm5.3-flash/optimize/e2e-opt-20260911
+environment:
+  device_model: PPU-ZW810E
+  device_count: 16
+  driver_version: 2.1.1-rbd225
+  ppu_smi_version: "1.28"
+  image_id: sha256:29a6712e24ca8e758ac8b33d3412892f0541bff108e2c057445fa671578237f6
+  image_lineage: verified
+  mount_parity: passed
+  normalized_mount:
+    type: bind
+    source: /mnt
+    destination: /mnt
+    read_write: true
+    propagation: rprivate
+  model_root: /mnt/cpfs/models/GLM-5.3-Flash-BF16
+  model_config_sha256: 33e63ec7fe607658be712bd6dd3c16c6549960d8e7f0483d34b939881b55f943
+  model_index_sha256: e6007bd58fb7e07f9fe69544257ee2713f252ef5855bbf685b48c991d524ef0f
+  weight_shards: 120
+  tokenizer_sha256: 19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d
+  source_identity:
+    vllm_revision: ee0da84ab9e04ac7610e28580af62c365e898389
+    vllm_content_sha256: 7d2812eb19543c03ef68100b1b1fc90d53e03933851694e8cded7733c682d353
+    plugin_revision: db09b64afdc222d1c32e4e80f30820a243358e34
+    flaggems_revision: 4a3cba029d87ec06b5222ed94542f1f1d2e267a0
+    flaggems_vllm_revision: 255ab5601b8002b32044fa3632e63eb1b3d45f4e
+    flaggems_vllm_content_sha256: b82b50749eeb5de198f75a1b30dd2a709a96daf575aac69c04013e9f210566e1
+baseline_service_contract:
+  endpoint: http://127.0.0.1:8011/v1/completions
+  tensor_parallel_size: 16
+  dtype: bfloat16
+  max_model_len: 65536
+  max_num_seqs: 32
+  max_num_batched_tokens: 8192
+  gpu_memory_utilization: 0.90
+  reasoning_parser: glm45
+  cudagraph_mode: FULL_DECODE_ONLY
+  enable_prefix_caching: false
+  generation:
+    temperature: 0
+    ignore_eos: true
+  measurement:
+    warmup_rounds: 2
+    measured_rounds: 3
+    independent_processes: 2
+    timeout_s: 3600
+comparison_gate:
+  scope: performance_only
+  primary_metric: output_throughput
+  minimum_improvement: 0.03
+  maximum_p99_ttft_regression: 0.05
+  maximum_p99_tpot_regression: 0.05
+  maximum_relative_spread: 0.10
+  maximum_baseline_drift: 0.10
+formal_catalog:
+  - scenario_id: p1024-d1024-c64-n128
+    input_tokens: 1024
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    anchor_baseline_status: not_run
+  - scenario_id: p4096-d1024-c64-n128
+    input_tokens: 4096
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    anchor_baseline_status: external_success_diagnostic_only
+    external_user_baseline_20260924: {successful_measured_rounds: 2, requests_per_round: 128, output_throughput_tok_s: 497.78, p99_ttft_ms: 87924.65, p99_tpot_ms: 63.30, p99_itl_ms: 1319.69}
+  - scenario_id: p16384-d1024-c64-n128
+    input_tokens: 16384
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    anchor_baseline_status: external_success_diagnostic_only
+    external_user_baseline_20260924: {successful_measured_rounds: 2, requests_per_round: 128, output_throughput_tok_s: 193.66, p99_ttft_ms: 288390.65, p99_tpot_ms: 161.57, p99_itl_ms: 2052.26}
+  - scenario_id: p32768-d1024-c64-n128
+    input_tokens: 32768
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    anchor_baseline_status: failed
+    external_user_baseline_20260924: {run1_successful_requests: 27, run2_successful_requests: 0, run3_successful_requests: 0, requests_per_round: 128, valid_output_throughput_tok_s: null}
+external_user_baseline_20260924:
+  skill_mode: null
+  skill_application: read_only_evidence_ingestion_not_a_new_performance_skill_run
+  ingestion_only: true
+  user_supplied_result_root: /mnt/nfs/users/jinghao/glm5.3-flash/test/benchmark_results/glm5.3-flash-base
+  runner_path: /mnt/nfs/users/jinghao/glm5.3-flash/test/vllm_perf.py
+  runner_sha256: 0d733162ff69c6b7a74262c1bf422a492115a2156ce10249fd56f82bf4424f36
+  runner_log: /mnt/nfs/users/jinghao/glm5.3-flash/test/perf.log
+  runner_log_sha256: 702dcc694f818052bc39a7bd28765cbd5e8d8ab9fbcc1bc0ff81d38ea68ed331
+  result_timestamp_from_filenames: "2026-09-24T07:20:46+08:00"
+  host: PPU-13
+  model_arg: glm5.3-flash-base
+  tokenizer_path: /mnt/cpfs/models/GLM-5.3-Flash-BF16
+  endpoint: http://127.0.0.1:8010/v1/completions
+  load_mode: finite_batch
+  request_rate: infinite
+  stage: mixed
+  input_distribution: random_fixed_length
+  random_range_ratio: 0.0
+  output_tokens: 1024
+  concurrency: 64
+  requests: 128
+  ignore_eos: true
+  seed_from_native_client: 0
+  temperature_from_native_client: null
+  rounds_per_scenario: 3
+  summary_rule: arithmetic_mean_of_run2_and_run3_skip_run1
+  service_manifest: null
+  effective_launch_config: unverified_for_this_run
+  prefix_cache_state: unverified_for_this_run
+  benchmark_client: direct_vllm_bench_serve_not_maintained_project_runner
+  performance_objective: steady_state
+  steady_state_admission: not_pre_frozen_or_verified_in_supplied_results
+  test_scope: user_external_matrix_four_cases_not_project_full_catalog
+  aggregate_status: failed_two_of_four_cases
+  conclusion_boundary: >-
+    P4K and P16K SUMMARY rows are user-script diagnostics from two successful
+    runs each, not a service-manifest-bound formal anchor. P32K and extra P64K
+    are actually failed, not zero-throughput measurements. Project-required
+    P1K was not present. No anchor-to-optimized percentage is licensed.
+  scenarios:
+    p4096-d1024-c64-n128:
+      status: success_diagnostic_only
+      csv: /mnt/nfs/users/jinghao/glm5.3-flash/test/benchmark_results/glm5.3-flash-base/glm5.3-flash-base_4096in_1024out_c64_n128_20260924_072046.csv
+      csv_sha256: 542d976c7619b02eb08d1e9ecc6ef24e3cfc7fc0a7a1b84bd319ed85fd7f0242
+      successful_requests_by_run: [128, 128, 128]
+      duration_s_by_run: [8136.95, 263.01, 263.61]
+      output_throughput_tok_s_by_run: [16.11, 498.35, 497.21]
+      summary_output_throughput_tok_s: 497.78
+      summary_request_throughput_req_s: 0.49
+      summary_total_token_throughput_tok_s: 2488.91
+      summary_p99_ttft_ms: 87924.65
+      summary_p99_tpot_ms: 63.30
+      summary_p99_itl_ms: 1319.69
+    p16384-d1024-c64-n128:
+      status: success_diagnostic_only
+      csv: /mnt/nfs/users/jinghao/glm5.3-flash/test/benchmark_results/glm5.3-flash-base/glm5.3-flash-base_16384in_1024out_c64_n128_20260924_072046.csv
+      csv_sha256: 59ddaea20cf2777e06c63f7bea5fd35d76f3f1a477a8e4edcd4795bedf86aab5
+      successful_requests_by_run: [128, 128, 128]
+      duration_s_by_run: [9793.53, 677.01, 676.56]
+      output_throughput_tok_s_by_run: [13.38, 193.60, 193.73]
+      summary_output_throughput_tok_s: 193.66
+      summary_request_throughput_req_s: 0.19
+      summary_total_token_throughput_tok_s: 3292.36
+      summary_p99_ttft_ms: 288390.65
+      summary_p99_tpot_ms: 161.57
+      summary_p99_itl_ms: 2052.26
+    p32768-d1024-c64-n128:
+      status: failed
+      csv: /mnt/nfs/users/jinghao/glm5.3-flash/test/benchmark_results/glm5.3-flash-base/glm5.3-flash-base_32768in_1024out_c64_n128_20260924_072046.csv
+      csv_sha256: e00938440bda2567c8063012909113819206011c6cf0484b33053349560503dc
+      successful_requests_by_run: [27, 0, 0]
+      requests_per_run: 128
+      run1_duration_s: 4859.65
+      run1_generated_tokens_partial: 1453
+      run1_error_log: /mnt/nfs/users/jinghao/glm5.3-flash/test/benchmark_results/glm5.3-flash-base/error_logs/error_in32768_out1024_c64_run1_20260924_141427.json
+      run1_error_sha256: df259ed702d486c48e05d90c6d994a66e70c0d74ada6df5fce909255bb95bda9
+      run2_error_sha256: 1bc8318c7eea078340c9ae046df1b06de097dabf87edbc3745452ccb7ac5ec97
+      run3_error_sha256: fd6257fd578ef2be5ba781c1ba022c1fe1b8661e90196a53dbfb7da1e4069c1d
+      later_failure_observation: connection_refused_127_0_0_1_8010
+      valid_output_throughput_tok_s: null
+    p65536-d1024-c64-n128:
+      status: failed_extra_non_catalog_case
+      csv: /mnt/nfs/users/jinghao/glm5.3-flash/test/benchmark_results/glm5.3-flash-base/glm5.3-flash-base_65536in_1024out_c64_n128_20260924_072046.csv
+      csv_sha256: e9f8e262bc20d18ea4c68884efa23230cae5b4d1f3fd3b1a6b271418347b2177
+      successful_requests_by_run: [0, 0, 0]
+      requests_per_run: 128
+      error_sha256_by_run: [e047a8703a1458b0d93210502c24d33654f6c7675b9c53eeb3702cec81743308, e0ee3f07959db5cb10703814f08539082b7f3ed4532be4b81068dc60a793f462, 360415a6acedddc8902de1816ba9d3565ffd714740febc8f6caf37e546b16d52]
+      failure_observation: connection_refused_127_0_0_1_8010
+      valid_output_throughput_tok_s: null
+historical_diagnostic_baselines:
+  - scenario_id: p4096-d128-c32
+    input_tokens: 4096
+    output_tokens: 128
+    concurrency: 32
+    requests: 32
+    output_throughput_tok_s: 157.4423354706842
+    scope: causal-conv checkpoint original path
+  - scenario_id: p1024-d512-c32
+    input_tokens: 1024
+    output_tokens: 512
+    concurrency: 32
+    requests: 32
+    output_throughput_tok_s: 691.8135468086844
+    scope: causal-conv checkpoint original path
+  - scenario_id: p4096-d512-c8
+    input_tokens: 4096
+    output_tokens: 512
+    concurrency: 8
+    requests: 16
+    output_throughput_tok_s: 207.60931635474495
+    scope: causal-conv checkpoint original path
+external_evidence:
+  environment_and_mount_root: /mnt/nfs/users/jinghao/glm5.3-flash/03-acceptance/e2e-opt-20260911
+  optimization_run_root: /mnt/nfs/users/jinghao/glm5.3-flash/04-runs/e2e-opt-20260911
+  note: >-
+    Local runtime snapshots and duplicated contracts were consolidated into this
+    state file; immutable or raw evidence remains at the remote paths.
+claim_boundary: >-
+  User-provided September 24 external results supply diagnostic numbers for
+  P4K and P16K, actual failures for P32K and extra P64K, and no P1K test.
+  Service identity, prefix-cache state and steady-state admission were not
+  bound by the maintained project runner, so formal four-scenario anchor
+  baseline and cumulative speedup remain unavailable.
