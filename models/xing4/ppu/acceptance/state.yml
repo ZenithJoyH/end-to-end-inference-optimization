@@ -1,0 +1,24 @@
+schema_version: 1
+record_kind: acceptance_state
+updated_at: "2026-09-14"
+model: xing4
+platform: ppu
+status: incomplete
+final_candidate_frozen: false
+accuracy:
+  status: incomplete
+  score: null
+  threshold: null
+performance:
+  status: performance_only_historical
+  primary_scenario:
+    scenario_id: p1024-d1024-c64-n128
+    baseline_output_throughput_tps: 809.12
+    candidate_output_throughput_tps: 1582.19
+    improvement: 0.955
+  final_four_scenario_status: incomplete
+rollback:
+  status: historical_revert_verified
+missing:
+  - formal accuracy gate
+  - current-environment four-scenario formal performance

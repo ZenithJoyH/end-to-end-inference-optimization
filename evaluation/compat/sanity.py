@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Compatibility-only: not the current GPQA/C8 accuracy workflow.
-"""Legacy XingChen4 fixed-answer smoke check.
+"""Legacy xing4 fixed-answer smoke check.
 
 This module is retained for historical contract tests. New optimization work
 uses the maintained evaluation and control entry points at the repository root.

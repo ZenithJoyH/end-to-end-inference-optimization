@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Historical results remain diagnostic; never upgrade them to formal gates.
-"""Validate and summarize historical XingChen4 three-round measurements.
+"""Validate and summarize historical xing4 three-round measurements.
 
 This compatibility tool never upgrades legacy results to formal acceptance.
 """

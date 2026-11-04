@@ -14,7 +14,7 @@
 |---|---|---|
 | P1 | 精度契约的 dataset revision 原来只是非空字符串；原始 runner 的 dataset_path 只用于预检，实际数据由 lm-eval task 决定。同名自定义 task 可能使记录和实际任务不一致 | 正式 wrapper 增加实际任务/数据来源采集与绑定；原始 runner 保持不变。需在规定评测镜像验证实际 API/结果结构，不能用本地测试宣布正式精度已跑通 |
 | P1 | results 只检查分数和 SHA；即使其中模型/endpoint 指向别处、有效样本数为 1，配上 198 行 samples 也可能签发 gate | 增加原生结果身份、任务、生成参数、seed、样本数和实际题目内容的交叉核验；不再仅依赖文件未变化 |
-| P2 | 性能结果强制依赖 failed 字段，旧客户端缺字段时误拒绝；另一方面只有计数而无性能指标时又可能通过 | 公共工具显式识别结构并核对指标、计数与时长；XingChen wrapper 已复用公共执行/校验，仅保留历史矩阵转换 |
+| P2 | 性能结果强制依赖 failed 字段，旧客户端缺字段时误拒绝；另一方面只有计数而无性能指标时又可能通过 | 公共工具显式识别结构并核对指标、计数与时长；xing4 wrapper 已复用公共执行/校验，仅保留历史矩阵转换 |
 | P2 | 有限批次、持续并发和到达率容量没有明确区分，短测可能被解释为服务容量 | 已实现参数化有限批次及有限请求 open-loop 速率/burst 扫描、原生联合 SLO goodput 和比较判定；持续 closed-loop/业务trace/队列与长稳未实现，不扩大 passed 的结论范围 |
 | P2 | 预热只写轮数，未明确缓存历史、稳定判据和进程间重复 | 已实现可配置预热窗口判据/预算、两级波动和回退漂移检查，比较器核对独立进程数量；缓存操作和服务重启仍按既定流程取证执行，不自动操作共享状态 |
 | P2 | 长稳是笼统要求，缺少持续时长、负载循环、idle/resume 和异常判定 | 验收模板与契约补充可执行长稳计划；按改动风险选择范围，未执行保持未完成。历史闲置退出根因仍未知，不能归因于算子改动或用 C8 代替排查 |
@@ -31,7 +31,7 @@
 
 - [公共性能计划](../evaluation/performance/performance_plan.py)支持配置校验、无请求 dry-run、客户端能力预检、超时、预热稳定性和逐轮失败证据；每次运行冻结服务/配置/比较契约及原始产物 SHA。
 - [性能比较器](../evaluation/performance/compare_performance.py)重验原生结果、控制台输出和命令；检查单一假设允许的字段变化、独立进程、缺轮、波动、回退漂移、主指标、守护指标及联合 SLO。禁止同一物理测量产物充当多个角色，返回 passed/failed/incomplete。
-- XingChen 历史模型 wrapper 已退出模型目录；历史 workload 与结果保留在模型状态和案例中，新运行统一使用公共性能入口，历史默认轮数和 workload 不被静默替换。
+- xing4 历史模型 wrapper 已退出模型目录；历史 workload 与结果保留在模型状态和案例中，新运行统一使用公共性能入口，历史默认轮数和 workload 不被静默替换。
 - 精度采集已按真实 CLI 注入任务 metadata；正式 samples 按冻结 filter 集合检查 198 个唯一题目，兼容同题多 filter 多行并拒绝内容冲突。通过固定官方 wheel 的未修改源码方法检查发现并修复，不称为完整镜像集成。详见[精度接口说明](../evaluation/accuracy/README.md#真实接口与镜像集成边界)。
 - [Plugin 工程文档](plugin-change-review.md)新增可填写的版本/模型/平台/shape/执行模式证据矩阵，区分 hardware、mock、static 和未测项，不新增审批或虚构跨平台通过。
 
@@ -51,7 +51,7 @@
 
 本次最终 `scripts/validate-local` 验证为 **141 项测试全部通过**，包含固定官方 wheel 的 3 项源码接口检查及真实本地虚拟环境的客户端探针检查；Python/Shell/Playbook、CLI 帮助入口和 11 份原始资产 SHA 检查通过。另检查 22 份文档中的 141 个本地文件链接，均可解析。首次综合验证暴露 macOS `/var` 与 `/private/var` 入口别名差异，修复探针入口记录后重新执行完整检查通过；没有把失败的一轮计作成功。
 
-代码入口与命令见[性能工具说明](../evaluation/performance/README.md)、[精度入口](../evaluation/accuracy/README.md)和[模型复现入口](../models/XingChen4-29B-A4B/ppu/optimize/history/reproduction.md)。本轮未连接远端；服务闲置退出根因、目标镜像集成、长稳和最终 PR 硬件证据继续保留为未完成项。
+代码入口与命令见[性能工具说明](../evaluation/performance/README.md)、[精度入口](../evaluation/accuracy/README.md)和[模型复现入口](../models/xing4/ppu/optimize/history/reproduction.md)。本轮未连接远端；服务闲置退出根因、目标镜像集成、长稳和最终 PR 硬件证据继续保留为未完成项。
 
 ## 外部资料如何进入流程
 

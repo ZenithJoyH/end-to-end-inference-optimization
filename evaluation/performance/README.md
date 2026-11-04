@@ -139,7 +139,7 @@ python3 evaluation/performance/vllm_perf.py \
 
 ShareGPT 原始文件没有迁入。需要真实数据时在目标环境显式配置，记录来源、revision 和 checksum。
 
-XingChen 的历史模型 wrapper 已退出模型目录；其历史矩阵和结果语义保留在模型 `state.yml`、README 与案例文档中。新测试直接使用本目录公共计划入口并显式配置 workload、预热和重复，不能让历史 1 轮预热自动满足正式比较。性能研究和 dry-run 仍须提供 service manifest。
+xing4 的历史模型 wrapper 已退出模型目录；其历史矩阵和结果语义保留在模型 `state.yml`、README 与案例文档中。新测试直接使用本目录公共计划入口并显式配置 workload、预热和重复，不能让历史 1 轮预热自动满足正式比较。性能研究和 dry-run 仍须提供 service manifest。
 
 ## Profiling 与 SGLang 诊断
 

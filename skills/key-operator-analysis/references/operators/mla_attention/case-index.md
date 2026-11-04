@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | [20260914-hy4-preview-ppu-e2e](../../../../../docs/cases/20260914-hy4-preview-ppu-e2e/README.md) | SQ2048 精确 tile kept；后续 tile/Split-K rejected；Indexer row-range candidate 待端到端复测 | sparse MLA；SQ2048/H4；DQK576/DV512；topk2048；BF16；PPU；TP16；blocked prefill Indexer | 单 kernel grid 已充足时 Split-K 的 merge/workspace 会反噬；Indexer 可直接用 row-range TopK 去掉 dense causal mask | `reproduced`（MLA），Indexer 仅 `microbenchmark` |
 | [20260911-glm53-flash-ppu-e2e](../../../../../docs/cases/20260911-glm53-flash-ppu-e2e/README.md) | sparse-index candidate rejected；原 native MLA kept | sparse prefill；H4；DQK512/DV512；topk2048；BF16；PPU；TP16 | 辅助索引 kernel 的 3.55x–4.54x 不足以预测端到端收益；必须测完整服务关键路径 | `reproduced`，限当前模型/平台/shape |
-| [20260904-xingchen4-ppu-isolated-e2e](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md) | kept；正式模型精度暂缓 | dense decode；per-rank H8；DQK576/DV512；BF16；page16/64；PPU；graph | tile 判断必须使用 TP 后每 rank 有效 head 数；先检查 head padding ratio | `reproduced`，限当前模型/平台/shape |
+| [20260904-xing4-ppu-isolated-e2e](../../../../../docs/cases/20260904-xing4-ppu-isolated-e2e/README.md) | kept；正式模型精度暂缓 | dense decode；per-rank H8；DQK576/DV512；BF16；page16/64；PPU；graph | tile 判断必须使用 TP 后每 rank 有效 head 数；先检查 head padding ratio | `reproduced`，限当前模型/平台/shape |
 | [20260903-imported-deepseek-v4-flash-w8a8](../../../../../docs/cases/20260903-imported-deepseek-v4-flash-w8a8/README.md) | 原案例 kept；本项目未复测 | sparse prefill HKV1；sparse decode low-grid；KV FP8；MetaX；TP8 | Prefill 的 KV 重读与 Decode 的 grid 不足是不同机制；split 数必须包含 merge 和服务成本 | `observation` |
 | [20260903-imported-glm-5-2-w8a8](../../../../../docs/cases/20260903-imported-glm-5-2-w8a8/README.md) | 原案例 kept；本项目未复测 | mixed prefill；per-rank H4；TP16；节点内 8 rank packing；MetaX | low-grid 时通信换计算粒度可能有净收益，但阈值由拓扑、M 和完整通信成本共同决定 | `observation` |
 
@@ -63,15 +63,15 @@ MLA 结论仅覆盖上述 PPU、BF16、TP16 和精确 shape；父场景 P4K/C64 
 baseline/acceptance 尚未完整闭环。Indexer 目前只有算子微基准和单元测试证据，
 服务 graph、模型级正确性及端到端收益均待用户复测。
 
-## Case：20260904-xingchen4-ppu-isolated-e2e
+## Case：20260904-xing4-ppu-isolated-e2e
 
 ### 环境与路径
 
-- 模型/平台：XingChen4-29B-A4B，PPU-ZW810E，TP4/BF16。
+- 模型/平台：xing4，PPU-ZW810E，TP4/BF16。
 - revision：vLLM 0.24.0+empty；Plugin `f91f4ed08e1cfef0e0efe1380a7721928eccc033`；FlagGems `5941cd2225798bdfa611626f34e459c42cdf2904`。
 - 阶段和实现：单 token dense decode；Plugin `forward_mqa` 实际进入 FlagGems `_dense_decode_kernel`。
 - 有效 shape：每 rank H8、DQK576、DV512、SQ1、page16/64、最后一维连续。
-- 完整证据：[案例摘要](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/README.md)、[瓶颈观测](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-observation.md)、[单变量实验](../../../../../docs/cases/20260904-xingchen4-ppu-isolated-e2e/mla-tile-experiment.md)、[补丁](../../../../../models/XingChen4-29B-A4B/ppu/optimize/history/patch-mla-tile16-pr.md)。
+- 完整证据：[案例摘要](../../../../../docs/cases/20260904-xing4-ppu-isolated-e2e/README.md)、[瓶颈观测](../../../../../docs/cases/20260904-xing4-ppu-isolated-e2e/mla-observation.md)、[单变量实验](../../../../../docs/cases/20260904-xing4-ppu-isolated-e2e/mla-tile-experiment.md)、[补丁](../../../../../models/xing4/ppu/optimize/history/patch-mla-tile16-pr.md)。
 
 ### 瓶颈、改动和结果摘要
 

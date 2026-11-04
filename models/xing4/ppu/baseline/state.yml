@@ -1,0 +1,134 @@
+schema_version: 1
+experiment_id: 20260904-fresh-revert-throughput
+status: historical_revert_reference_verified
+historical_status_label: closed_loop_reference_verified
+status_note: The old closed_loop label described candidate/revert verification, not a sustained closed-loop workload.
+evidence_scope: historical_measurement_20260904_20260905
+target:
+  model: xing4
+  model_path: /mnt/cpfs/models/XingChen4-29B-A4B/
+  weight_revision: null
+  platform: ppu
+  host: PPU-01
+  container_name: xingchen4-e2e-20260904
+  container_image: sha256:f222f9a173b320d799ada39791979828f6abc5218063616b7efdf05873c52c1f
+runtime:
+  engine: vLLM
+  engine_revision: null
+  plugin_revision: f91f4ed08e1cfef0e0efe1380a7721928eccc033
+  flaggems_revision: 5941cd2225798bdfa611626f34e459c42cdf2904
+  mode: graph
+  dtype: bfloat16
+  tensor_parallel: 4
+  launch_args_source: models/xing4/ppu/optimize/history/reproduction.md
+  requested_port: 8000
+  actual_port: 18000
+  max_model_len: 100000
+  gpu_memory_utilization: 0.8
+  reasoning_parser: xingchen4
+  served_model_name: teleai-flagos
+  env:
+    CUDA_VISIBLE_DEVICES: 0,1,2,3
+    XINGCHEN4_MLA_TILE16: '0'
+    VLLM_FL_USE_FLAGGEMS_ATTN: '1'
+    VLLM_FL_FLAGOS_BLACKLIST: pad,bmm_out,to,index,linear
+workload:
+  load_mode: finite_batch
+  dataset: random_fixed_length_performance_only
+  requests: 128
+  concurrency: 64
+  input_tokens: 1024
+  output_tokens: 1024
+  seeds:
+  - 74283
+  - 74284
+  - 74285
+  warmup_rounds: 1
+  measured_rounds: 2
+  runner: test/perf_test/vllm_perf.py
+  endpoint: /v1/completions
+  ignore_eos: true
+  temperature: 0
+results:
+  correctness: eager_and_graph_c8_passed_gpqa_deferred_by_user
+  output_throughput_tps: 809.123308
+  total_throughput_tps: 1618.246616
+  ttft_p50_ms: 1906.949755
+  successful_requests_including_warmup: 384
+  failed_requests_including_warmup: 0
+artifacts:
+  raw_results: /workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64
+  compact_results: models/xing4/ppu/optimize/performance-measurements.json
+decision: retained_as_original_path_reference
+notes: Runtime image, graph mode and device isolation verified. Metrics are medians of two measured rounds after one warmup.
+  Earlier P1K/D256/C32 exploration is preserved in README.md and is not directly comparable. Weight and installed vLLM wheel
+  revisions remain unknown. GPQA was explicitly deferred by the user; this is performance-only evaluation. Fresh revert is
+  the preselected final primary reference. Initial baseline and both candidate phases remain in the case throughput record;
+  final candidate is kept running separately with switch=1.
+policy_review:
+  reviewed_on: '2026-09-06'
+  policy_version_at_execution: null
+  current_policy_version: '0.12'
+  acceptance_scope: performance_only
+  retroactive_acceptance: false
+  missing_evidence_for_current_policy:
+  - schema_v2_source_and_optimization_image_lineage
+  - normalized_source_and_optimization_mount_diff
+  - formal_gpqa_and_service_bound_accuracy_gate
+  note: Historical schema and measurements are retained. This local review did not inspect the current remote service or reconstruct
+    missing evidence.
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: output_throughput_tps
+  value: 809.123308
+  unit: token/s
+  scope: 历史 revert 参考；GPQA deferred，稳态/身份按旧契约；不追认当前正式 baseline
+  source_pointer: /results/output_throughput_tps
+  evidence: /workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64
+- scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: total_throughput_tps
+  value: 1618.246616
+  unit: token/s
+  scope: 历史 revert 参考；GPQA deferred，稳态/身份按旧契约；不追认当前正式 baseline
+  source_pointer: /results/total_throughput_tps
+  evidence: /workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64
+- scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: ttft_p50_ms
+  value: 1906.949755
+  unit: ms
+  scope: 历史 revert 参考；GPQA deferred，稳态/身份按旧契约；不追认当前正式 baseline
+  source_pointer: /results/ttft_p50_ms
+  evidence: /workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: historical_revert_reference_verified
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

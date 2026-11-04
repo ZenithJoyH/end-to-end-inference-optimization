@@ -2,7 +2,7 @@
   "schema_version": 1,
   "snapshot_date": "2026-09-21",
   "legacy_history_roots": [
-    "models/XingChen4-29B-A4B/ppu/optimize/history"
+    "models/xing4/ppu/optimize/history"
   ],
   "public_script_files": [
     "scripts/accelerator-check",
@@ -26,8 +26,8 @@
   "policy": "Existing paths only; do not add new exceptions automatically. Verify external copy, SHA and references before migration. Existing history is excluded.",
   "files": {
     "models/Hy4-preview/ppu/baseline/workload.yml": "pending-active-task-review",
-    "models/XingChen4-29B-A4B/ppu/acceptance/accuracy-config.yml": "pending-active-task-review",
-    "models/XingChen4-29B-A4B/ppu/acceptance/performance-config.yml": "pending-active-task-review",
+    "models/xing4/ppu/acceptance/accuracy-config.yml": "pending-active-task-review",
+    "models/xing4/ppu/acceptance/performance-config.yml": "pending-active-task-review",
     "docs/cases/20260914-hy4-preview-ppu-e2e/analyze-hy4-p4k-d64-c16-sparse-shapes-20260916.sh": "pending-active-task-review",
     "docs/cases/20260914-hy4-preview-ppu-e2e/analyze_hy4_scaled_mm_shapes_20260916.py": "pending-active-task-review",
     "docs/cases/20260914-hy4-preview-ppu-e2e/analyze_hy4_sparse_mla_kernel_grids_20260916.py": "pending-active-task-review",
@@ -517,6 +517,6 @@
     "models/Hy4-preview/ppu/baseline/performance-plan-p4k-scout.json": "pending-active-task-review",
     "models/Hy4-preview/ppu/baseline/performance-plan-targeted-p4k.json": "pending-active-task-review",
     "models/Hy4-preview/ppu/optimize/performance-measurements.json": "pending-active-task-review",
-    "models/XingChen4-29B-A4B/ppu/optimize/performance-measurements.json": "pending-active-task-review"
+    "models/xing4/ppu/optimize/performance-measurements.json": "pending-active-task-review"
   }
 }

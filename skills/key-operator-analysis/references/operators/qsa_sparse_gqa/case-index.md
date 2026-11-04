@@ -125,7 +125,7 @@ limits: no Mixed timing, no installed implementation, no endpoint result, and fo
 
 ```yaml
 case_id: 20261010-minimax-m31-w8a8-ppu-tp8-e2e
-case_link: ../../../../../models/MiniMax-M3.1-W8A8/ppu/optimize/diag-003.md
+case_link: ../../../../../models/MiniMax-M3.1-Flash-W8A8/ppu/optimize/diag-003.md
 status: kept
 evidence_level: reproduced
 environment:

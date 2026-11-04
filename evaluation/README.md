@@ -68,7 +68,7 @@ python3 evaluation/accuracy/acceptance.py check \
 
 核验服务身份不等于自动远程采集。工具检测的是文件一致性，执行者必须根据当前进程、实际导入路径与源码内容重新确认 manifest；不能将旧快照当成当前事实。服务重启改变 `service_instance_id`，旧 gate 不再直接有效；仅纯重启可按 [rebind 流程](accuracy/README.md#服务身份与重启复用) 生成新绑定回执。权重、代码、tokenizer、启动配置或环境变化仍须重新评测。证据文件在消费端必须可访问；不能仅复制一个 `passed=true`。
 
-XingChen 历史模型 wrapper 已退出模型目录；新测试统一使用 `evaluation/performance/` 的公共计划入口，正式模式要求 accuracy gate 和 service manifest，纯性能研究不得生成正式精度达标声明。候选与 baseline/revert 的服务身份分别记录，不能为原路径伪造候选 gate。
+xing4 历史模型 wrapper 已退出模型目录；新测试统一使用 `evaluation/performance/` 的公共计划入口，正式模式要求 accuracy gate 和 service manifest，纯性能研究不得生成正式精度达标声明。候选与 baseline/revert 的服务身份分别记录，不能为原路径伪造候选 gate。
 
 [evaluation/performance](performance/README.md) 提供维护版诊断客户端，检查失败退出与完整轮次；[test/perf_test](../test/IMPORT_MANIFEST.md) 保留原始性能资产。直接运行诊断客户端不会自动成为正式验收。正式性能需同一候选 graph 配置、固定 workload、预热与多轮稳态，并完成 baseline/candidate/revert 对比。
 

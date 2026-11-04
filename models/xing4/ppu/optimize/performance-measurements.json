@@ -1,0 +1,1010 @@
+[
+  {
+    "directory": "/workspace/e2e-artifacts/baseline-throughput-p1024-d1024-c64",
+    "case": [
+      1024,
+      1024,
+      64,
+      128
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 197.50855886703357,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 0.6480731809003375,
+        "output_throughput": 663.6269372419456,
+        "total_token_throughput": 1327.2538744838912,
+        "mean_ttft_ms": 8382.180158752817,
+        "p50_ttft_ms": 6548.779512522742,
+        "p95_ttft_ms": 18211.873916559853,
+        "p99_ttft_ms": 25960.435111457482,
+        "p50_tpot_ms": 86.34844807239261,
+        "p95_tpot_ms": 96.29204686887459,
+        "p99_tpot_ms": 97.45814111109237,
+        "p50_itl_ms": 73.04923702031374,
+        "p95_itl_ms": 86.89116076566279,
+        "p99_itl_ms": 88.5808849823661,
+        "p50_e2el_ms": 97852.42806654423,
+        "p95_e2el_ms": 111756.48065350251,
+        "p99_e2el_ms": 112606.84350160183,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/baseline-throughput-p1024-d1024-c64/p1024-d1024-c64-r1.json",
+        "raw_sha256": "16a407473e83674bf3152c7d655bc73f57c380e370cb454941067b3c2b9a54f2"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 178.77536247391254,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 0.7159823268079133,
+        "output_throughput": 733.1659026513032,
+        "total_token_throughput": 1466.3318053026064,
+        "mean_ttft_ms": 5179.27592749038,
+        "p50_ttft_ms": 3581.541426014155,
+        "p95_ttft_ms": 9759.20294112293,
+        "p99_ttft_ms": 15884.323878453579,
+        "p50_tpot_ms": 82.67547234012959,
+        "p95_tpot_ms": 86.43057608839493,
+        "p99_tpot_ms": 87.51432727877585,
+        "p50_itl_ms": 72.86910456605256,
+        "p95_itl_ms": 86.99642152059823,
+        "p99_itl_ms": 87.98339648172258,
+        "p50_e2el_ms": 88901.42706152983,
+        "p95_e2el_ms": 94800.58598271571,
+        "p99_e2el_ms": 95658.87614210602,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/baseline-throughput-p1024-d1024-c64/p1024-d1024-c64-r2.json",
+        "raw_sha256": "6aff7580ae2ed8ff0f1e2a062d05df36a995ce21a318e6bed6041511835de0e1"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 167.85708225495182,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 0.7625534667973414,
+        "output_throughput": 780.8547500004776,
+        "total_token_throughput": 1561.7095000009551,
+        "mean_ttft_ms": 2982.011237016195,
+        "p50_ttft_ms": 2264.07594664488,
+        "p95_ttft_ms": 7650.513266632303,
+        "p99_ttft_ms": 8889.448925838806,
+        "p50_tpot_ms": 76.54904896431655,
+        "p95_tpot_ms": 83.73892055269066,
+        "p99_tpot_ms": 84.44002359554732,
+        "p50_itl_ms": 73.30411800649017,
+        "p95_itl_ms": 87.18348146649078,
+        "p99_itl_ms": 88.14427649602294,
+        "p50_e2el_ms": 83921.98819259647,
+        "p95_e2el_ms": 87387.1378582553,
+        "p99_e2el_ms": 87387.86732662236,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/baseline-throughput-p1024-d1024-c64/p1024-d1024-c64-r3.json",
+        "raw_sha256": "ba152191a7a6648aec8e6c0db25c26e0e6bec53e4f991c441bbac23941273c47"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 757.0103263258904,
+        "min_round": 733.1659026513032,
+        "max_round": 780.8547500004776
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 1514.020652651781,
+        "min_round": 1466.3318053026064,
+        "max_round": 1561.7095000009551
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 4080.6435822532876,
+        "min_round": 2982.011237016195,
+        "max_round": 5179.27592749038
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 12386.886402146192,
+        "min_round": 8889.448925838806,
+        "max_round": 15884.323878453579
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 85.97717543716158,
+        "min_round": 84.44002359554732,
+        "max_round": 87.51432727877585
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 91523.37173436419,
+        "min_round": 87387.86732662236,
+        "max_round": 95658.87614210602
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/tile16-throughput-p1024-d1024-c64",
+    "case": [
+      1024,
+      1024,
+      64,
+      128
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 86.87395987915806,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 1.473398935400762,
+        "output_throughput": 1508.7605098503802,
+        "total_token_throughput": 3017.5210197007605,
+        "mean_ttft_ms": 3108.3454716972483,
+        "p50_ttft_ms": 2881.0376034816727,
+        "p95_ttft_ms": 8931.842820392922,
+        "p99_ttft_ms": 8932.960309206974,
+        "p50_tpot_ms": 37.93040245456415,
+        "p95_tpot_ms": 44.62420413803622,
+        "p99_tpot_ms": 44.915830701337406,
+        "p50_itl_ms": 33.78264338243753,
+        "p95_itl_ms": 36.676674673799425,
+        "p99_itl_ms": 37.383136639837176,
+        "p50_e2el_ms": 43430.18028209917,
+        "p95_e2el_ms": 46652.00660834089,
+        "p99_e2el_ms": 47184.50545928674,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/tile16-throughput-p1024-d1024-c64/p1024-d1024-c64-r1.json",
+        "raw_sha256": "d70a960ee2cb8a319294d58d9707eb99d88ac662ef157622843b4e19dcd5be2b"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 96.13171840691939,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 1.3315064176652311,
+        "output_throughput": 1363.4625716891967,
+        "total_token_throughput": 2726.9251433783934,
+        "mean_ttft_ms": 5568.355104671355,
+        "p50_ttft_ms": 5804.117065970786,
+        "p95_ttft_ms": 11372.866780427285,
+        "p99_ttft_ms": 11374.275894868188,
+        "p50_tpot_ms": 41.860982073327115,
+        "p95_tpot_ms": 43.40171144778166,
+        "p99_tpot_ms": 44.70621181612803,
+        "p50_itl_ms": 33.90319482423365,
+        "p95_itl_ms": 36.88525459729135,
+        "p99_itl_ms": 37.9691564058885,
+        "p50_e2el_ms": 47970.04928160459,
+        "p95_e2el_ms": 54254.06218236312,
+        "p99_e2el_ms": 54256.04648416396,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-throughput-p1024-d1024-c64/p1024-d1024-c64-r2.json",
+        "raw_sha256": "d14ec8e553a2e23b1c19cf65c45a612b5236e894a6679756ba1d048cbcd19c37"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 99.92378238891251,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 1.2809763295569845,
+        "output_throughput": 1311.719761466352,
+        "total_token_throughput": 2623.439522932704,
+        "mean_ttft_ms": 4813.579404199118,
+        "p50_ttft_ms": 4694.406053982675,
+        "p95_ttft_ms": 8579.933913191779,
+        "p99_ttft_ms": 13513.0440332531,
+        "p50_tpot_ms": 43.668563947680596,
+        "p95_tpot_ms": 49.193604376050075,
+        "p99_tpot_ms": 49.193946072194024,
+        "p50_itl_ms": 34.1130499728024,
+        "p95_itl_ms": 37.04910036176443,
+        "p99_itl_ms": 37.76488384697588,
+        "p50_e2el_ms": 49924.86992303748,
+        "p95_e2el_ms": 55852.031532267574,
+        "p99_e2el_ms": 56379.21244872734,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-throughput-p1024-d1024-c64/p1024-d1024-c64-r3.json",
+        "raw_sha256": "bb635464c48ae4fa27e0f7a33795779fa8022efa795924bcbe1b1338a802e9fb"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 1337.5911665777744,
+        "min_round": 1311.719761466352,
+        "max_round": 1363.4625716891967
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 2675.182333155549,
+        "min_round": 2623.439522932704,
+        "max_round": 2726.9251433783934
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 5190.967254435236,
+        "min_round": 4813.579404199118,
+        "max_round": 5568.355104671355
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 12443.659964060644,
+        "min_round": 11374.275894868188,
+        "max_round": 13513.0440332531
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 46.95007894416103,
+        "min_round": 44.70621181612803,
+        "max_round": 49.193946072194024
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 55317.62946644565,
+        "min_round": 54256.04648416396,
+        "max_round": 56379.21244872734
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/tile16-length-p4096-d256-c64",
+    "case": [
+      4096,
+      256,
+      64,
+      64
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 64,
+        "failed": 0,
+        "duration": 72.36766478489153,
+        "total_input_tokens": 262144,
+        "total_output_tokens": 16384,
+        "request_throughput": 0.8843728782770053,
+        "output_throughput": 226.39945683891335,
+        "total_token_throughput": 3848.790766261527,
+        "mean_ttft_ms": 28215.561680346582,
+        "p50_ttft_ms": 26555.700807017274,
+        "p95_ttft_ms": 52457.15426570967,
+        "p99_ttft_ms": 59391.473806251306,
+        "p50_tpot_ms": 177.7145539255192,
+        "p95_tpot_ms": 250.86795829473897,
+        "p99_tpot_ms": 255.58762801413005,
+        "p50_itl_ms": 52.44392447639257,
+        "p95_itl_ms": 1778.2886137720197,
+        "p99_itl_ms": 1805.1813456602395,
+        "p50_e2el_ms": 71872.89714103099,
+        "p95_e2el_ms": 72322.47305366909,
+        "p99_e2el_ms": 72354.88864348968,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/tile16-length-p4096-d256-c64/p4096-d256-c64-r1.json",
+        "raw_sha256": "6b9f541e8db35acd697a59dbf71aa1a9a7cc90e28f1e80856bdad65d101ea78a"
+      },
+      {
+        "completed": 64,
+        "failed": 0,
+        "duration": 40.91808507684618,
+        "total_input_tokens": 262144,
+        "total_output_tokens": 16384,
+        "request_throughput": 1.56410056530761,
+        "output_throughput": 400.4097447187482,
+        "total_token_throughput": 6806.96566021872,
+        "mean_ttft_ms": 14715.472636555205,
+        "p50_ttft_ms": 14735.38132745307,
+        "p95_ttft_ms": 27290.15977901872,
+        "p99_ttft_ms": 28072.062124684453,
+        "p50_tpot_ms": 100.75095097086958,
+        "p95_tpot_ms": 147.15670929336005,
+        "p99_tpot_ms": 151.53538559878461,
+        "p50_itl_ms": 51.812153425998986,
+        "p95_itl_ms": 860.105094849132,
+        "p99_itl_ms": 885.3510233038105,
+        "p50_e2el_ms": 40426.82549485471,
+        "p95_e2el_ms": 40874.909487506375,
+        "p99_e2el_ms": 40905.41104004718,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-length-p4096-d256-c64/p4096-d256-c64-r2.json",
+        "raw_sha256": "92a7551ab6a4357a72e080d59df35a6c1ba9054fba288dc876f603517ec1a766"
+      },
+      {
+        "completed": 64,
+        "failed": 0,
+        "duration": 40.96641146810725,
+        "total_input_tokens": 262144,
+        "total_output_tokens": 16384,
+        "request_throughput": 1.5622554601792402,
+        "output_throughput": 399.9373978058855,
+        "total_token_throughput": 6798.935762700054,
+        "mean_ttft_ms": 14808.671546437836,
+        "p50_ttft_ms": 14825.671176542528,
+        "p95_ttft_ms": 27383.838984544847,
+        "p99_ttft_ms": 28162.769051955547,
+        "p50_tpot_ms": 100.58510971173425,
+        "p95_tpot_ms": 147.06970436247428,
+        "p99_tpot_ms": 151.06014302276148,
+        "p50_itl_ms": 51.65158701129258,
+        "p95_itl_ms": 861.5016727941111,
+        "p99_itl_ms": 888.7905904976651,
+        "p50_e2el_ms": 40474.87415303476,
+        "p95_e2el_ms": 40923.26720071724,
+        "p99_e2el_ms": 40950.839478555135,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-length-p4096-d256-c64/p4096-d256-c64-r3.json",
+        "raw_sha256": "fb49b013f49d66e5d6cc52a1c381cd297e4cdbc0a0068b82b09880247acb7082"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 400.17357126231684,
+        "min_round": 399.9373978058855,
+        "max_round": 400.4097447187482
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 6802.950711459387,
+        "min_round": 6798.935762700054,
+        "max_round": 6806.96566021872
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 14762.07209149652,
+        "min_round": 14715.472636555205,
+        "max_round": 14808.671546437836
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 28117.41558832,
+        "min_round": 28072.062124684453,
+        "max_round": 28162.769051955547
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 151.29776431077306,
+        "min_round": 151.06014302276148,
+        "max_round": 151.53538559878461
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 40928.12525930116,
+        "min_round": 40905.41104004718,
+        "max_round": 40950.839478555135
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/tile16-length-p16384-d256-c32",
+    "case": [
+      16384,
+      256,
+      32,
+      32
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 32,
+        "failed": 0,
+        "duration": 195.25507754902355,
+        "total_input_tokens": 524288,
+        "total_output_tokens": 8192,
+        "request_throughput": 0.16388818360928728,
+        "output_throughput": 41.955375003977544,
+        "total_token_throughput": 2727.0993752585405,
+        "mean_ttft_ms": 85473.87695756333,
+        "p50_ttft_ms": 82454.31351545267,
+        "p95_ttft_ms": 166509.6205093665,
+        "p99_ttft_ms": 173952.1407509572,
+        "p50_tpot_ms": 434.9620878121213,
+        "p95_tpot_ms": 698.6651160577586,
+        "p99_tpot_ms": 722.7335496451706,
+        "p50_itl_ms": 78.9743575733155,
+        "p95_itl_ms": 3348.084413690958,
+        "p99_itl_ms": 3440.580344835762,
+        "p50_e2el_ms": 193369.6459075436,
+        "p95_e2el_ms": 195069.38787999097,
+        "p99_e2el_ms": 195204.62590019684,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/tile16-length-p16384-d256-c32/p16384-d256-c32-r1.json",
+        "raw_sha256": "c970cca778573317eadabee8479d305d7266d99451d31e4b9c6b1e3b0886e7bf"
+      },
+      {
+        "completed": 32,
+        "failed": 0,
+        "duration": 149.3436920531094,
+        "total_input_tokens": 524288,
+        "total_output_tokens": 8192,
+        "request_throughput": 0.21427085108234906,
+        "output_throughput": 54.85333787708136,
+        "total_token_throughput": 3565.466962010288,
+        "mean_ttft_ms": 67734.97545444116,
+        "p50_ttft_ms": 67680.83976441994,
+        "p95_ttft_ms": 124531.30308946129,
+        "p99_ttft_ms": 128939.1989893606,
+        "p50_tpot_ms": 312.89817494495463,
+        "p95_tpot_ms": 525.5113278964863,
+        "p99_tpot_ms": 547.3014330542098,
+        "p50_itl_ms": 78.99809943046421,
+        "p95_itl_ms": 2420.657938462682,
+        "p99_itl_ms": 2518.8743852544576,
+        "p50_e2el_ms": 147469.87437538337,
+        "p95_e2el_ms": 149158.048124169,
+        "p99_e2el_ms": 149292.89418293163,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-length-p16384-d256-c32/p16384-d256-c32-r2.json",
+        "raw_sha256": "cdadb4f49013bad631af93038558ab1a17eef70b70fa90c0d5daf89e89e3de3f"
+      },
+      {
+        "completed": 32,
+        "failed": 0,
+        "duration": 149.29485551919788,
+        "total_input_tokens": 524288,
+        "total_output_tokens": 8192,
+        "request_throughput": 0.21434094221609068,
+        "output_throughput": 54.871281207319214,
+        "total_token_throughput": 3566.6332784757487,
+        "mean_ttft_ms": 67738.33319614641,
+        "p50_ttft_ms": 67686.41081254464,
+        "p95_ttft_ms": 124526.75476322183,
+        "p99_ttft_ms": 128931.82695656549,
+        "p50_tpot_ms": 312.6437085119131,
+        "p95_tpot_ms": 525.2191070603279,
+        "p99_tpot_ms": 546.9903607865175,
+        "p50_itl_ms": 78.68093496654183,
+        "p95_itl_ms": 2418.505242629908,
+        "p99_itl_ms": 2518.265346584376,
+        "p50_e2el_ms": 147410.55648308247,
+        "p95_e2el_ms": 149110.1225149585,
+        "p99_e2el_ms": 149245.18362764502,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-length-p16384-d256-c32/p16384-d256-c32-r3.json",
+        "raw_sha256": "ffac9b84ff53fd20b7005b739a00dc75f963eeb0a29aaf0604ee3bc7966467db"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 54.862309542200286,
+        "min_round": 54.85333787708136,
+        "max_round": 54.871281207319214
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 3566.0501202430187,
+        "min_round": 3565.466962010288,
+        "max_round": 3566.6332784757487
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 67736.65432529378,
+        "min_round": 67734.97545444116,
+        "max_round": 67738.33319614641
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 128935.51297296304,
+        "min_round": 128931.82695656549,
+        "max_round": 128939.1989893606
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 547.1458969203636,
+        "min_round": 546.9903607865175,
+        "max_round": 547.3014330542098
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 149269.03890528833,
+        "min_round": 149245.18362764502,
+        "max_round": 149292.89418293163
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64",
+    "case": [
+      1024,
+      1024,
+      64,
+      128
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 164.57038599485531,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 0.7777827051095417,
+        "output_throughput": 796.4494900321707,
+        "total_token_throughput": 1592.8989800643415,
+        "mean_ttft_ms": 2790.9379088032438,
+        "p50_ttft_ms": 2544.5419480092824,
+        "p95_ttft_ms": 4928.6520915455185,
+        "p99_ttft_ms": 8158.008364888375,
+        "p50_tpot_ms": 76.16679254795933,
+        "p95_tpot_ms": 82.27555356385598,
+        "p99_tpot_ms": 82.5427092696501,
+        "p50_itl_ms": 72.60785799007863,
+        "p95_itl_ms": 86.84162311255932,
+        "p99_itl_ms": 87.48359554447232,
+        "p50_e2el_ms": 82264.91790846922,
+        "p95_e2el_ms": 84960.50259956392,
+        "p99_e2el_ms": 84961.88567987643,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64/p1024-d1024-c64-r1.json",
+        "raw_sha256": "1ef60a6442bc9af8248d57538ccc30b2a9a408b942d1325122029cbcd3d13d87"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 159.3001019328367,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 0.8035148656337127,
+        "output_throughput": 822.7992224089218,
+        "total_token_throughput": 1645.5984448178435,
+        "mean_ttft_ms": 2360.7952137263055,
+        "p50_ttft_ms": 1640.1845690561458,
+        "p95_ttft_ms": 4738.321013620589,
+        "p99_ttft_ms": 5126.542515587062,
+        "p50_tpot_ms": 76.04509547743346,
+        "p95_tpot_ms": 76.6027672568387,
+        "p99_tpot_ms": 77.02653801961749,
+        "p50_itl_ms": 72.96417350880802,
+        "p95_itl_ms": 86.98810894275084,
+        "p99_itl_ms": 87.91690631303932,
+        "p50_e2el_ms": 79131.51556055527,
+        "p95_e2el_ms": 82532.73931354051,
+        "p99_e2el_ms": 83072.3285117955,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64/p1024-d1024-c64-r2.json",
+        "raw_sha256": "3f90af87122cfcb2e7c0d461be01585b1ebb7e595cff0a5290e771d3b7d42193"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 164.7777100119274,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 0.7768040955948152,
+        "output_throughput": 795.4473938890908,
+        "total_token_throughput": 1590.8947877781816,
+        "mean_ttft_ms": 4862.089413018111,
+        "p50_ttft_ms": 2173.714941018261,
+        "p95_ttft_ms": 10235.91156648472,
+        "p99_ttft_ms": 10237.44939987082,
+        "p50_tpot_ms": 75.91461383190028,
+        "p95_tpot_ms": 76.88011070448252,
+        "p99_tpot_ms": 77.24085847917718,
+        "p50_itl_ms": 72.93619099073112,
+        "p95_itl_ms": 87.1670486172661,
+        "p99_itl_ms": 87.82782020512968,
+        "p50_e2el_ms": 82059.73011197057,
+        "p95_e2el_ms": 87922.53700402798,
+        "p99_e2el_ms": 87923.68014080683,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64/p1024-d1024-c64-r3.json",
+        "raw_sha256": "94c9e85977df2a9289456f9ffaaf280adc5fbfabd7b7e5b18739904143b140f5"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 809.1233081490063,
+        "min_round": 795.4473938890908,
+        "max_round": 822.7992224089218
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 1618.2466162980127,
+        "min_round": 1590.8947877781816,
+        "max_round": 1645.5984448178435
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 3611.4423133722084,
+        "min_round": 2360.7952137263055,
+        "max_round": 4862.089413018111
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 7681.995957728941,
+        "min_round": 5126.542515587062,
+        "max_round": 10237.44939987082
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 77.13369824939733,
+        "min_round": 77.02653801961749,
+        "max_round": 77.24085847917718
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 85498.00432630116,
+        "min_round": 83072.3285117955,
+        "max_round": 87923.68014080683
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/revert-length-p4096-d256-c64",
+    "case": [
+      4096,
+      256,
+      64,
+      64
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 64,
+        "failed": 0,
+        "duration": 65.67799272504635,
+        "total_input_tokens": 262144,
+        "total_output_tokens": 16384,
+        "request_throughput": 0.974451217897735,
+        "output_throughput": 249.45951178182017,
+        "total_token_throughput": 4240.811700290943,
+        "mean_ttft_ms": 15425.788777076377,
+        "p50_ttft_ms": 15353.326932527125,
+        "p95_ttft_ms": 28785.198725899674,
+        "p99_ttft_ms": 29672.504177107476,
+        "p50_tpot_ms": 193.55562511128466,
+        "p95_tpot_ms": 238.22333731574423,
+        "p99_tpot_ms": 241.74273974912276,
+        "p50_itl_ms": 148.42962101101875,
+        "p95_itl_ms": 899.3689969414845,
+        "p99_itl_ms": 954.0035378886387,
+        "p50_e2el_ms": 64710.054662893526,
+        "p95_e2el_ms": 65611.5148000652,
+        "p99_e2el_ms": 65664.2202651035,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/revert-length-p4096-d256-c64/p4096-d256-c64-r1.json",
+        "raw_sha256": "9f5dc2e619df3b3aaf8bf8495cc1b153ca5a089d67e31637e221e5647172a539"
+      },
+      {
+        "completed": 64,
+        "failed": 0,
+        "duration": 65.54900304903276,
+        "total_input_tokens": 262144,
+        "total_output_tokens": 16384,
+        "request_throughput": 0.9763687779069034,
+        "output_throughput": 249.95040714416726,
+        "total_token_throughput": 4249.156921450844,
+        "mean_ttft_ms": 15397.945739387069,
+        "p50_ttft_ms": 15327.244064072147,
+        "p95_ttft_ms": 28760.367529198986,
+        "p99_ttft_ms": 29647.348167200107,
+        "p50_tpot_ms": 193.1645572135298,
+        "p95_tpot_ms": 237.86152528165198,
+        "p99_tpot_ms": 241.32683050599604,
+        "p50_itl_ms": 148.01437896676362,
+        "p95_itl_ms": 901.7659917939454,
+        "p99_itl_ms": 954.9875444732606,
+        "p50_e2el_ms": 64584.21359991189,
+        "p95_e2el_ms": 65482.336914842024,
+        "p99_e2el_ms": 65535.45112474123,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/revert-length-p4096-d256-c64/p4096-d256-c64-r2.json",
+        "raw_sha256": "8b1ef86190c29ff321aeb3c1f25371609363966691076d24af802d9f62b3720e"
+      },
+      {
+        "completed": 64,
+        "failed": 0,
+        "duration": 77.23504131706432,
+        "total_input_tokens": 262144,
+        "total_output_tokens": 16384,
+        "request_throughput": 0.8286394220632058,
+        "output_throughput": 212.1316920481807,
+        "total_token_throughput": 3606.238764819072,
+        "mean_ttft_ms": 20555.448024631914,
+        "p50_ttft_ms": 19508.60327249393,
+        "p95_ttft_ms": 38164.14418807253,
+        "p99_ttft_ms": 40516.554265387815,
+        "p50_tpot_ms": 222.46512238840188,
+        "p95_tpot_ms": 268.44897199947127,
+        "p99_tpot_ms": 287.42520832894,
+        "p50_itl_ms": 148.21939961984754,
+        "p95_itl_ms": 913.1656694924459,
+        "p99_itl_ms": 1874.3261358095333,
+        "p50_e2el_ms": 76237.20948153641,
+        "p95_e2el_ms": 77132.82832104014,
+        "p99_e2el_ms": 77192.92093710043,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/revert-length-p4096-d256-c64/p4096-d256-c64-r3.json",
+        "raw_sha256": "017ac126a84f172b6fc77609357282d3a7c80a9b54209f215a2c8d102729a233"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 231.041049596174,
+        "min_round": 212.1316920481807,
+        "max_round": 249.95040714416726
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 3927.697843134958,
+        "min_round": 3606.238764819072,
+        "max_round": 4249.156921450844
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 17976.69688200949,
+        "min_round": 15397.945739387069,
+        "max_round": 20555.448024631914
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 35081.951216293965,
+        "min_round": 29647.348167200107,
+        "max_round": 40516.554265387815
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 264.376019417468,
+        "min_round": 241.32683050599604,
+        "max_round": 287.42520832894
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 71364.18603092083,
+        "min_round": 65535.45112474123,
+        "max_round": 77192.92093710043
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/revert-length-p16384-d256-c32",
+    "case": [
+      16384,
+      256,
+      32,
+      32
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 32,
+        "failed": 0,
+        "duration": 197.01708602299914,
+        "total_input_tokens": 524288,
+        "total_output_tokens": 8192,
+        "request_throughput": 0.1624224611476815,
+        "output_throughput": 41.58015005380646,
+        "total_token_throughput": 2702.70975349742,
+        "mean_ttft_ms": 70615.82455297321,
+        "p50_ttft_ms": 70119.24322403502,
+        "p95_ttft_ms": 131114.8631578195,
+        "p99_ttft_ms": 135962.07084368684,
+        "p50_tpot_ms": 481.3842588528881,
+        "p95_tpot_ms": 686.7509601238713,
+        "p99_tpot_ms": 707.3120302236457,
+        "p50_itl_ms": 253.9363045943901,
+        "p95_itl_ms": 2579.586008260958,
+        "p99_itl_ms": 2645.1474723313004,
+        "p50_e2el_ms": 192872.2292315215,
+        "p95_e2el_ms": 196607.24220053526,
+        "p99_e2el_ms": 196924.04044810915,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/revert-length-p16384-d256-c32/p16384-d256-c32-r1.json",
+        "raw_sha256": "d87507561c73a0721b21cb2d1ceaba8b4250d8c215e96fb3f106550ee1f1e256"
+      },
+      {
+        "completed": 32,
+        "failed": 0,
+        "duration": 196.9210632829927,
+        "total_input_tokens": 524288,
+        "total_output_tokens": 8192,
+        "request_throughput": 0.16250166166334992,
+        "output_throughput": 41.60042538581758,
+        "total_token_throughput": 2704.027650078143,
+        "mean_ttft_ms": 70694.43503834191,
+        "p50_ttft_ms": 70210.98419500049,
+        "p95_ttft_ms": 131192.11043311516,
+        "p99_ttft_ms": 136039.20524011133,
+        "p50_tpot_ms": 480.6779056157479,
+        "p95_tpot_ms": 686.2743911902219,
+        "p99_tpot_ms": 706.905203106311,
+        "p50_itl_ms": 253.2177200773731,
+        "p95_itl_ms": 2581.2238841550425,
+        "p99_itl_ms": 2643.9409426390193,
+        "p50_e2el_ms": 192783.8501270162,
+        "p95_e2el_ms": 196511.53592934133,
+        "p99_e2el_ms": 196826.70854843687,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/revert-length-p16384-d256-c32/p16384-d256-c32-r2.json",
+        "raw_sha256": "0a5b5b0d69292b66e9b89594e0b1510449af52260b228aabd7af33c54f949ceb"
+      },
+      {
+        "completed": 32,
+        "failed": 0,
+        "duration": 196.98959341598675,
+        "total_input_tokens": 524288,
+        "total_output_tokens": 8192,
+        "request_throughput": 0.16244512943597472,
+        "output_throughput": 41.58595313560953,
+        "total_token_throughput": 2703.0869538146194,
+        "mean_ttft_ms": 70672.37390067021,
+        "p50_ttft_ms": 70182.37404408865,
+        "p95_ttft_ms": 131178.06621222987,
+        "p99_ttft_ms": 136026.52851391118,
+        "p50_tpot_ms": 481.0418085528392,
+        "p95_tpot_ms": 686.5690009966127,
+        "p99_tpot_ms": 707.0721771413753,
+        "p50_itl_ms": 253.54364642407745,
+        "p95_itl_ms": 2583.2578824833035,
+        "p99_itl_ms": 2643.19086516276,
+        "p50_e2el_ms": 192848.03522506263,
+        "p95_e2el_ms": 196578.80023965845,
+        "p99_e2el_ms": 196894.40932430327,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/revert-length-p16384-d256-c32/p16384-d256-c32-r3.json",
+        "raw_sha256": "dd0c4dda372ed01b1ead5663167dc278268d947c84bf53ebe7bba3fd270ebc7c"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 41.59318926071356,
+        "min_round": 41.58595313560953,
+        "max_round": 41.60042538581758
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 2703.557301946381,
+        "min_round": 2703.0869538146194,
+        "max_round": 2704.027650078143
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 70683.40446950606,
+        "min_round": 70672.37390067021,
+        "max_round": 70694.43503834191
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 136032.86687701126,
+        "min_round": 136026.52851391118,
+        "max_round": 136039.20524011133
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 706.9886901238431,
+        "min_round": 706.905203106311,
+        "max_round": 707.0721771413753
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 196860.55893637007,
+        "min_round": 196826.70854843687,
+        "max_round": 196894.40932430327
+      }
+    }
+  },
+  {
+    "directory": "/workspace/e2e-artifacts/tile16-final-throughput-p1024-d1024-c64",
+    "case": [
+      1024,
+      1024,
+      64,
+      128
+    ],
+    "warmup_rounds": 1,
+    "measured_rounds": 2,
+    "rounds": [
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 78.38092716201209,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 1.6330503431711916,
+        "output_throughput": 1672.2435514073002,
+        "total_token_throughput": 3344.4871028146003,
+        "mean_ttft_ms": 2321.25202336465,
+        "p50_ttft_ms": 2093.374483520165,
+        "p95_ttft_ms": 4663.551886903584,
+        "p99_ttft_ms": 4815.217398605309,
+        "p50_tpot_ms": 36.22372596632081,
+        "p95_tpot_ms": 37.49429187079653,
+        "p99_tpot_ms": 37.69554889382419,
+        "p50_itl_ms": 33.77699991688132,
+        "p95_itl_ms": 36.78992839995771,
+        "p99_itl_ms": 37.69808231387287,
+        "p50_e2el_ms": 38886.98765891604,
+        "p95_e2el_ms": 41764.57977393874,
+        "p99_e2el_ms": 41951.66268804576,
+        "round": 1,
+        "warmup": true,
+        "raw_path": "/workspace/e2e-artifacts/tile16-final-throughput-p1024-d1024-c64/p1024-d1024-c64-r1.json",
+        "raw_sha256": "ecde5924bb0ca7460304793e82e9fc76a04ba94b6779c9b1828b57ad913fe69b"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 86.75715891993605,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 1.47538256892581,
+        "output_throughput": 1510.7917505800294,
+        "total_token_throughput": 3021.583501160059,
+        "mean_ttft_ms": 3803.5407243150985,
+        "p50_ttft_ms": 3398.911635042168,
+        "p95_ttft_ms": 6918.060075433458,
+        "p99_ttft_ms": 7242.169993380086,
+        "p50_tpot_ms": 38.561404575839575,
+        "p95_tpot_ms": 42.67829307670207,
+        "p99_tpot_ms": 43.12668966324927,
+        "p50_itl_ms": 33.97884615696967,
+        "p95_itl_ms": 36.91959287971258,
+        "p99_itl_ms": 37.862721411511316,
+        "p50_e2el_ms": 43349.13386893459,
+        "p95_e2el_ms": 49170.84760307334,
+        "p99_e2el_ms": 49695.52357432665,
+        "round": 2,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-final-throughput-p1024-d1024-c64/p1024-d1024-c64-r2.json",
+        "raw_sha256": "453e194668c555d930179c7d26d358621d6e0dedeed6abe14b3b7740d4e9261d"
+      },
+      {
+        "completed": 128,
+        "failed": 0,
+        "duration": 79.26499479799531,
+        "total_input_tokens": 131072,
+        "total_output_tokens": 131072,
+        "request_throughput": 1.6148364145636358,
+        "output_throughput": 1653.592488513163,
+        "total_token_throughput": 3307.184977026326,
+        "mean_ttft_ms": 2273.2993846730096,
+        "p50_ttft_ms": 1575.0884844455868,
+        "p95_ttft_ms": 4575.261138682254,
+        "p99_ttft_ms": 4943.40787560679,
+        "p50_tpot_ms": 36.70624617800364,
+        "p95_tpot_ms": 37.611386340424666,
+        "p99_tpot_ms": 38.20918266277738,
+        "p50_itl_ms": 34.046921879053116,
+        "p95_itl_ms": 37.08896047901362,
+        "p99_itl_ms": 39.299356820993125,
+        "p50_e2el_ms": 39531.09897905961,
+        "p95_e2el_ms": 42126.4233957394,
+        "p99_e2el_ms": 42646.02424897719,
+        "round": 3,
+        "warmup": false,
+        "raw_path": "/workspace/e2e-artifacts/tile16-final-throughput-p1024-d1024-c64/p1024-d1024-c64-r3.json",
+        "raw_sha256": "26395878d16ad595fa4f0c08c898642a89324c6a207826fa99f1ca16f5c1b043"
+      }
+    ],
+    "steady": {
+      "output_throughput": {
+        "median_of_rounds": 1582.1921195465961,
+        "min_round": 1510.7917505800294,
+        "max_round": 1653.592488513163
+      },
+      "total_token_throughput": {
+        "median_of_rounds": 3164.3842390931923,
+        "min_round": 3021.583501160059,
+        "max_round": 3307.184977026326
+      },
+      "mean_ttft_ms": {
+        "median_of_rounds": 3038.420054494054,
+        "min_round": 2273.2993846730096,
+        "max_round": 3803.5407243150985
+      },
+      "p99_ttft_ms": {
+        "median_of_rounds": 6092.788934493438,
+        "min_round": 4943.40787560679,
+        "max_round": 7242.169993380086
+      },
+      "p99_tpot_ms": {
+        "median_of_rounds": 40.66793616301332,
+        "min_round": 38.20918266277738,
+        "max_round": 43.12668966324927
+      },
+      "p99_e2el_ms": {
+        "median_of_rounds": 46170.77391165192,
+        "min_round": 42646.02424897719,
+        "max_round": 49695.52357432665
+      }
+    }
+  }
+]

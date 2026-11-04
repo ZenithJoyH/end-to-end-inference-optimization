@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Compatibility-only: not the current container creation workflow.
-"""Legacy isolated XingChen4 vLLM launcher with fail-closed preflight checks.
+"""Legacy isolated xing4 vLLM launcher with fail-closed preflight checks.
 
 Retained for historical contract tests; new tasks use the repository control
 plane and freshly generated service manifests.

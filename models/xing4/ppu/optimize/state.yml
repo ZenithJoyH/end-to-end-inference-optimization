@@ -1,0 +1,129 @@
+schema_version: 1
+record_kind: current_optimization_state
+updated_at: '2026-09-14'
+model: xing4
+platform: ppu
+host: PPU-01
+status: historical_candidate_retained_acceptance_incomplete
+current_candidate:
+  retained_changes:
+  - MLA dense-decode BLOCK_H 64 to 16 with shape-gated fallback
+  classification: operator/improve
+  pr_readiness: ready_for_review
+  accuracy_status: incomplete
+performance:
+  ledger: performance-measurements.json
+  measured_scenarios:
+  - p1024-d1024-c64-n128
+  - p4096-d256-c64-n64
+  - p16384-d256-c32-n32
+  primary_scenario_output_throughput_improvement: 0.955
+  current_formal_catalog_status: incomplete
+  conclusion_boundary: historical performance-only workloads
+history:
+  directory: history
+  format: markdown_summaries
+external_artifacts:
+  root: /workspace/e2e-artifacts
+next_actions:
+- rebuild from the current adapted container before further optimization
+- establish the current formal target sequence
+- separate Prefill, Decode, and Mixed evidence
+local_record_archive:
+  archived_at: '2026-11-02'
+  manifest: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json
+  scope: local verified archival; remote evidence not revalidated
+  files:
+  - original_path: models/XingChen4-29B-A4B/ppu/acceptance/accuracy-config.yml
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/XingChen4-29B-A4B/ppu/acceptance/accuracy-config.yml
+    sha256: abf401de9608ac09d698b9966c28d61634e538a8fe5acb88e9b72aab084c8661
+  - original_path: models/XingChen4-29B-A4B/ppu/acceptance/performance-config.yml
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/XingChen4-29B-A4B/ppu/acceptance/performance-config.yml
+    sha256: 1871d52da4ed6ac33da4f1ba1031480e300fa23595eba8dc1920394479361f68
+experiments:
+- experiment_id: op-001-mla-decode-head-tile
+  document: op-001-mla-decode-head-tile.md
+  direction: operator/improve
+  phase: decode
+  scenario_id: p1024-d1024-c64-n128
+  status: retained
+  scope: Historical TP4 performance only, GPQA deferred and final four-scenario acceptance
+    incomplete
+  primary_variable: BLOCK_H 64 to 16
+  evidence_file: performance-measurements.json
+  evidence_sha256: ce06383410d39313f2659bae405c964d105c25b42c1e40cbc632a88a6069c578
+  historical_measurements:
+  - scenario_id: p1024-d1024-c64-n128
+    role: baseline
+    measured_rounds: 2
+    output_throughput: 757.0103263258904
+    total_token_throughput: 1514.020652651781
+    mean_ttft_ms: 4080.6435822532876
+    p99_tpot_ms: 85.97717543716158
+    evidence: /workspace/e2e-artifacts/baseline-throughput-p1024-d1024-c64
+    ledger_pointer: /0/steady
+  - scenario_id: p1024-d1024-c64-n128
+    role: candidate
+    measured_rounds: 2
+    output_throughput: 1337.5911665777744
+    total_token_throughput: 2675.182333155549
+    mean_ttft_ms: 5190.967254435236
+    p99_tpot_ms: 46.95007894416103
+    evidence: /workspace/e2e-artifacts/tile16-throughput-p1024-d1024-c64
+    ledger_pointer: /1/steady
+  - scenario_id: p4096-d256-c64-n64
+    role: candidate
+    measured_rounds: 2
+    output_throughput: 400.17357126231684
+    total_token_throughput: 6802.950711459387
+    mean_ttft_ms: 14762.07209149652
+    p99_tpot_ms: 151.29776431077306
+    evidence: /workspace/e2e-artifacts/tile16-length-p4096-d256-c64
+    ledger_pointer: /2/steady
+  - scenario_id: p16384-d256-c32-n32
+    role: candidate
+    measured_rounds: 2
+    output_throughput: 54.862309542200286
+    total_token_throughput: 3566.0501202430187
+    mean_ttft_ms: 67736.65432529378
+    p99_tpot_ms: 547.1458969203636
+    evidence: /workspace/e2e-artifacts/tile16-length-p16384-d256-c32
+    ledger_pointer: /3/steady
+  - scenario_id: p1024-d1024-c64-n128
+    role: revert
+    measured_rounds: 2
+    output_throughput: 809.1233081490063
+    total_token_throughput: 1618.2466162980127
+    mean_ttft_ms: 3611.4423133722084
+    p99_tpot_ms: 77.13369824939733
+    evidence: /workspace/e2e-artifacts/revert-throughput-p1024-d1024-c64
+    ledger_pointer: /4/steady
+  - scenario_id: p4096-d256-c64-n64
+    role: revert
+    measured_rounds: 2
+    output_throughput: 231.041049596174
+    total_token_throughput: 3927.697843134958
+    mean_ttft_ms: 17976.69688200949
+    p99_tpot_ms: 264.376019417468
+    evidence: /workspace/e2e-artifacts/revert-length-p4096-d256-c64
+    ledger_pointer: /5/steady
+  - scenario_id: p16384-d256-c32-n32
+    role: revert
+    measured_rounds: 2
+    output_throughput: 41.59318926071356
+    total_token_throughput: 2703.557301946381
+    mean_ttft_ms: 70683.40446950606
+    p99_tpot_ms: 706.9886901238431
+    evidence: /workspace/e2e-artifacts/revert-length-p16384-d256-c32
+    ledger_pointer: /6/steady
+  - scenario_id: p1024-d1024-c64-n128
+    role: fresh-candidate
+    measured_rounds: 2
+    output_throughput: 1582.1921195465961
+    total_token_throughput: 3164.3842390931923
+    mean_ttft_ms: 3038.420054494054
+    p99_tpot_ms: 40.66793616301332
+    evidence: /workspace/e2e-artifacts/tile16-final-throughput-p1024-d1024-c64
+    ledger_pointer: /7/steady
+  statistic: median_of_measured_rounds
+  units: {output_throughput: token/s, total_token_throughput: token/s, mean_ttft_ms: ms, p99_tpot_ms: ms}

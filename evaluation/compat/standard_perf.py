@@ -203,7 +203,7 @@ def main(argv=None) -> int:
     except ValueError as exc:
         argument_parser.error(str(exc))
 
-    with tempfile.TemporaryDirectory(prefix="xingchen4-perf-plan-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="xing4-perf-plan-") as temporary:
         config = Path(temporary) / "plan.json"
         config.write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         preflight = subprocess.run(_command(args, config, dry_run=True), capture_output=True, text=True)
