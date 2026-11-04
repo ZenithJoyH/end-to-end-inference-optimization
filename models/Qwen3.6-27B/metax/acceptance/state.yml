@@ -1,0 +1,18 @@
+schema_version: 3
+case_id: 20261012-qwen36-27b-metax-flash-attention
+policy_version: "0.40"
+policy_date: "2026-09-22"
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+status: investigating
+target:
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-59
+  source_container_name: qwen3.6-27B
+  model_path: /public-flash/models/Qwen3.6-27B
+  remote_work_root: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention
+  remote_case_dir: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention
+  image_lineage: unverified
+  mount_parity: unverified

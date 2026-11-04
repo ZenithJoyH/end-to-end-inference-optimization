@@ -1,0 +1,438 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen3vl-metax-flaggems-e2e-opt1
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: qwen3vl-opt1-current-flaggems
+  topology: TP2:device0-device1
+stage: baseline
+current:
+  status: imported-and-profiled-formal-anchor-incomplete
+  candidate: null
+  next_action: Optimization/diagnostic results in optimize; user defers model accuracy; retained op002 private, ATen temporary
+    blacklist reverted
+experiments: []
+metrics:
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: output_throughput
+  value: 977.8944082636442
+  unit: token/s
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/0/value
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: p99_ttft_ms
+  value: 3750.2232788782567
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/3/value
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: p99_tpot_ms
+  value: 63.411635457958084
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/6/value
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: p99_itl_ms
+  value: 443.4572266507894
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/9/value
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 1133.5905555746235
+  unit: token/s
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/12/value
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 3705.6466626096517
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/15/value
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 56.08798338772177
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/18/value
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 56.57907929271458
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+  source_record: ../optimize/state.yml
+  source_pointer: /metrics/21/value
+historical_input:
+  directory: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1
+  files:
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_16384in_1024out_c64_n128_20261013_213146.csv
+    size: 925
+    mtime: 1791900168.6802084
+    sha256: cfb6320928b13d821b88839ac224d070685bade1491ef6634e1bee260010007b
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_4096in_1024out_c64_n128_20261013_213146.csv
+    size: 904
+    mtime: 1791898753.1021326
+    sha256: 947275be895016d45c0c13e877e3041c37a7a9009065396de76f42aa55480267
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_65536in_1024out_c64_n128_20261013_213146.csv
+    size: 936
+    mtime: 1791906392.8281984
+    sha256: b613c5653810485dab753602b9a7ff59ce8db39e42d7c83e3956b357d7d52444
+  rows:
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_16384in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 16384
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run1(SUCCESS)
+    output_tps: 313.77
+    duration_s: 417.73
+    mean_ttft_ms: 88848.93
+    p99_ttft_ms: 185569.74
+    mean_tpot_ms: 86.86
+    p99_tpot_ms: 118.91
+    p99_itl_ms: 665.47
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_16384in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 16384
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run2(SUCCESS)
+    output_tps: 321.43
+    duration_s: 407.77
+    mean_ttft_ms: 87090.13
+    p99_ttft_ms: 181775
+    mean_tpot_ms: 85.25
+    p99_tpot_ms: 118.04
+    p99_itl_ms: 664.48
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_16384in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 16384
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run3(SUCCESS)
+    output_tps: 321.78
+    duration_s: 407.34
+    mean_ttft_ms: 86814.88
+    p99_ttft_ms: 181347.58
+    mean_tpot_ms: 84.82
+    p99_tpot_ms: 116.54
+    p99_itl_ms: 665.54
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_16384in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 16384
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: SUMMARY
+    output_tps: 321.61
+    duration_s: 407.55
+    mean_ttft_ms: 86952.51
+    p99_ttft_ms: 181561.29
+    mean_tpot_ms: 85.03
+    p99_tpot_ms: 117.29
+    p99_itl_ms: 665.01
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_4096in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 4096
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run1(SUCCESS)
+    output_tps: 748.89
+    duration_s: 175.02
+    mean_ttft_ms: 12140.03
+    p99_ttft_ms: 30995.56
+    mean_tpot_ms: 73.25
+    p99_tpot_ms: 79.17
+    p99_itl_ms: 496.2
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_4096in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 4096
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run2(SUCCESS)
+    output_tps: 827.29
+    duration_s: 158.44
+    mean_ttft_ms: 4946.99
+    p99_ttft_ms: 15507.74
+    mean_tpot_ms: 72.31
+    p99_tpot_ms: 76.47
+    p99_itl_ms: 493.06
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_4096in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 4096
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run3(SUCCESS)
+    output_tps: 828.48
+    duration_s: 158.21
+    mean_ttft_ms: 4928.89
+    p99_ttft_ms: 15457.83
+    mean_tpot_ms: 72.22
+    p99_tpot_ms: 76.48
+    p99_itl_ms: 496.74
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_4096in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 4096
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: SUMMARY
+    output_tps: 827.88
+    duration_s: 158.32
+    mean_ttft_ms: 4937.94
+    p99_ttft_ms: 15482.78
+    mean_tpot_ms: 72.27
+    p99_tpot_ms: 76.47
+    p99_itl_ms: 494.9
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_65536in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 65536
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run1(SUCCESS)
+    output_tps: 66.05
+    duration_s: 1984.58
+    mean_ttft_ms: 680644.35
+    p99_ttft_ms: 957547.67
+    mean_tpot_ms: 99.96
+    p99_tpot_ms: 121.06
+    p99_itl_ms: 1566.47
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_65536in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 65536
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run2(SUCCESS)
+    output_tps: 66.56
+    duration_s: 1969.22
+    mean_ttft_ms: 675206.06
+    p99_ttft_ms: 948206.66
+    mean_tpot_ms: 99.16
+    p99_tpot_ms: 120.13
+    p99_itl_ms: 1562.22
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_65536in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 65536
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: Run3(SUCCESS)
+    output_tps: 66.72
+    duration_s: 1964.58
+    mean_ttft_ms: 674194.41
+    p99_ttft_ms: 948191.84
+    mean_tpot_ms: 98.92
+    p99_tpot_ms: 120.21
+    p99_itl_ms: 1559.92
+  - path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_65536in_1024out_c64_n128_20261013_213146.csv
+    input_tokens: 65536
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    run: SUMMARY
+    output_tps: 66.64
+    duration_s: 1966.9
+    mean_ttft_ms: 674700.24
+    p99_ttft_ms: 948199.25
+    mean_tpot_ms: 99.04
+    p99_tpot_ms: 120.17
+    p99_itl_ms: 1561.07
+  status: imported-observation; no original native JSON/service manifest/revert binding
+  aggregation: source script predeclares RUNS=3, SKIP_FIRST=1; SUMMARY averages Run2 and Run3; retain all raw rows
+  in_progress: source live P65536 benchmark still running at observation time
+  completion: all three CSVs contain 3 runs and original summary; historical observation only
+source_container: qwen-vl
+source_image: sha256:523407e0ae3b39329801f19ce96594e40aef3369e57e627aa42008d9fc32881b
+repos:
+  /workspace/vllm:
+    head: ee0da84ab9e04ac7610e28580af62c365e898389
+    branch: ''
+    status: ''
+  /workspace/vllm-plugin-FL:
+    head: 4d4645b33627f0859e4b2d0be319bedc4562932d
+    branch: v0.3.0-dev
+    status: " M vllm_fl/dispatch/backends/flaggems/impl/fused_moe.py\n M vllm_fl/ops/fused_moe/fused_moe_utils.py\n"
+  /workspace/FlagGems:
+    head: 9beec73856969aec8268a7a22788a17a119211fb
+    branch: master
+    status: ''
+  /workspace/FlagGems-vllm:
+    head: f6fdb9b120787e12892ac67e54979cbf829c7d64
+    branch: main
+    status: " M src/flaggems_vllm/__init__.py\n M src/flaggems_vllm/ops/__init__.py\n M src/flaggems_vllm/runtime/backend/_metax/ops/__init__.py\n\
+      \ M src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py\n?? benchmark/test_top_k_top_p_perf.py\n?? src/flaggems_vllm/ops/top_k_top_p.py\n\
+      ?? src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py\n?? tests/test_top_k_top_p.py\n"
+source_service:
+  pid: 218700
+  args:
+  - /opt/conda/bin/python3.12
+  - /opt/conda/bin/vllm
+  - serve
+  - /public-flash/models/Qwen3-VL-30B-A3B-Instruct/
+  - --host
+  - 0.0.0.0
+  - --port
+  - '8000'
+  - --served-model-name
+  - qwen3vl-opt1
+  - --tensor-parallel-size
+  - '2'
+  - --trust-remote-code
+  - --dtype
+  - bfloat16
+  - --max-num-batched-tokens
+  - '8192'
+  - --max-num-seqs
+  - '64'
+  - --gpu-memory-utilization
+  - '0.90'
+  - --no-enable-prefix-caching
+  - --distributed-executor-backend
+  - mp
+  - --max-num-partial-prefills
+  - '1'
+  - --max-long-partial-prefills
+  - '1'
+  - --long-prefill-token-threshold
+  - '0'
+  - --compilation-config
+  - '{"cudagraph_mode":"FULL_AND_PIECEWISE","max_cudagraph_capture_size":64}'
+  - ''
+constraints:
+  keep_flaggems_enabled: true
+  no_added_blacklists: true
+  no_switch_to_native_or_vendor_for_speed: true
+  preserve_existing_blacklist: mm,mm_out,layer_norm,log_softmax
+  restore_plugin_sampler: preserve op012 original sampler; library sampler is present but unused
+current_target_scenario: p1024-d1024-c64-n128
+accuracy_threshold: null
+source_untouched: true
+image_lineage: verified
+mount_parity: passed
+remote_case_dir: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1
+optimization_container: qwen3vl-flaggems-e2e-20261013
+optimization_image: sha256:95b9a569b220bdefefd8d56763bd8e723619915a7e3c21c234cb8276ee777878
+imports:
+  vllm: /workspace/vllm/vllm/__init__.py
+  vllm_fl: /workspace/vllm-plugin-FL/vllm_fl/__init__.py
+  flag_gems: /workspace/FlagGems/src/flag_gems/__init__.py
+  flaggems_vllm: /workspace/FlagGems-vllm/src/flaggems_vllm/__init__.py
+  triton: /opt/conda/lib/python3.12/site-packages/triton/__init__.py
+versions:
+  vllm: 0.24.0+empty
+  vllm-plugin-FL: 0.2.0+g4d4645b33
+  flag_gems: 5.5.0.dev0+g9beec7385
+  flaggems_vllm: 0.3.0.dev1
+  torch: 2.8.0+metax3.7.0.7
+  flagtree: 0.7.0.post2+metax3.6
+content_fingerprints:
+  /workspace/vllm: d7c6c260ab43b4ca43206ad084c0ee74772e6fc4548d9e949206ab55527a2208
+  /workspace/vllm-plugin-FL: 28c8baaf3a57befaccb47e3c0df8454a6883c60460dd828f556276a9b948a303
+  /workspace/FlagGems: f5114796e13547df4d9c06ad56ee5e1496ac77195d4dccd4f05eecd41c382e09
+  /workspace/FlagGems-vllm: efdf2e567b6a732f7fe26904754e0b8ff9f0333a2b9c9774f8b35245e3ae42b7
+accuracy:
+  mode: baseline-sanity
+  status: passed
+  fixed_real_gpqa_questions: 10
+  concurrency: 8
+  nonempty: 10
+  length_limited: 10
+  formal_score: null
+  threshold: null
+  evidence: results/baseline-sanity.json
+environment_evidence:
+- results/environment-gates.json
+- manifests/source-fingerprint.json
+- manifests/optimization-fingerprint.json
+- manifests/mount-comparison.json
+current_service:
+  manifest: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/manifests/baseline-v2-service.json
+  manifest_sha256: 0dcffdb4b637297dd940521b070375a390cb6dd92c4573073636c3b283870d69
+  service_instance_id: baseline-e08c8ba2e3ab4bce88a5dd17aa36e3c3
+  api_pid: 21501
+  sanity_status: passed
+  workers:
+  - pid: 21990
+    device: 1
+    w1_shape:
+    - 128
+    - 768
+    - 2048
+    w2_shape:
+    - 128
+    - 2048
+    - 384
+    python_profile: false
+    apply_hook_restored: true
+    import_hook_restored: true
+  - pid: 21989
+    device: 0
+    w1_shape:
+    - 128
+    - 768
+    - 2048
+    w2_shape:
+    - 128
+    - 2048
+    - 384
+    python_profile: false
+    apply_hook_restored: true
+    import_hook_restored: true
+  sample_sha256: 93cefe802c0c81659956736d25f3797c11c7cbc2a7a85132d946e02aab186ac6
+  replay_hooks_restored:
+  - 21989
+  - 21990
+accuracy_evaluation: deferred by explicit user instruction20261014
+performance_primary: steady output throughput, D1024/C64/N128
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: imported-and-profiled-formal-anchor-incomplete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 4
+    - 5
+    - 6
+    - 7
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

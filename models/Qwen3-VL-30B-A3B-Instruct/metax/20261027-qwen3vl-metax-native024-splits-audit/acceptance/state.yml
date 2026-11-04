@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-native024-splits-audit
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: vendor-image-d080f0f3aa71-original
+  topology: CPU-static-then-single-GPU-native-replay
+stage: acceptance
+current:
+  status: not_requested-full-model-acceptance
+  candidate: Original official image d080f0f3; vendor native component only
+  next_action: No GPQA/ERQA or performance acceptance claimed
+experiments: []
+metrics: []

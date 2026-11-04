@@ -1,0 +1,94 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen3vl-metax-opt10-results
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt10-user-import-no-anchor
+  topology: TP2:GPU6,7
+stage: acceptance
+current:
+  status: incomplete-not-formal-acceptance
+  candidate: opt10 current production result snapshot
+  next_action: Accuracy complete; full same-contract performance anchor/candidate/revert and native timing evidence
+    remain separate
+experiments: []
+metrics: []
+formal_accuracy: 'passed: GPQA and ERQA meet user frozen64%/40% thresholds'
+performance_coverage:
+  human_CSV_completed_scenarios:
+  - p1024-d1024-c64-n128
+  - p4096-d1024-c64-n128
+  - p16384-d1024-c64-n128
+  - p32768-d1024-c64-n128
+  - p65536-d1024-c64-n128
+  formal_catalog_covered_by_completed_CSV: true
+  formal_acceptance_passed: false
+  today_P1K_retest: complete4rounds;user-confirmedsteady
+source_results:
+  path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/opt10-full-import.json
+  sha256: ef8e4e33bcfe3bf2bcb16377fb6e1cc38fb509e0178d9fc009ddb484e7574b50
+missing:
+- native per-round JSON/request timing
+- same-contract full-scenario anchor/candidate/revert
+no_new_service_or_source_changes: true
+P1K_steady_state_confirmation:
+  path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/opt10-p1k-confirmed.json
+  sha256: b995ae48fa803b2236fe87ac3cbe839ea6d62f1873e7eb38f92d04dfa38c693e
+steady_state_scope: UserconfirmedP1K;no added stability rerun required solely forrecord
+accuracy_thresholds_percent:
+  GPQA: 64
+  ERQA: 40
+accuracy_evidence_root: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy
+accuracy_results:
+  GPQA:
+    status: passed
+    correct: 130
+    samples: 198
+    score_percent: 65.65656565656566
+    threshold_percent: 64
+    metric: exact_match,strict-match
+    gate:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/gpqa/accuracy-gate.json
+      sha256: 27366079435553c581a85ad5e037f75e5954680cc043d7c56a711c7f4ffcad6b
+    run_record:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/gpqa/qwen3vl-opt10-gpqa-20261022/b333ab6b50b947188e0bce9432c8bf96/run-record.json
+      sha256: 5c797987b354ac7a4c6be227484bca94a579812b22518c961c66acf545df05fb
+    samples_artifact:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/gpqa/qwen3vl-opt10-gpqa-20261022/b333ab6b50b947188e0bce9432c8bf96/gpqa_diamond_generative_cot/qwen3vl-opt10/samples_gpqa_diamond_generative_cot_2026-10-22T02-06-44.844023.jsonl
+      sha256: 1849faf4c5b4ed170b054487cd1f1f4cc4b7b9d9632c7dae64138d53cf9b2306
+  ERQA:
+    status: passed
+    correct: 162
+    samples: 400
+    score_percent: 40.5
+    threshold_percent: 40
+    metric: native accuracy
+    results:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/erqa/native-output/erqa/erqa_result.json
+      sha256: 1d59c5745efa2f44f1d6f12ca621e4ff7fc032a8980ae9949d2a55e941ac85cb
+    evaluated:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/erqa/native-output/erqa/erqa_evaluated.json
+      sha256: 7ea43c0dc951c7c118ebea3c61242632938a77fe86bd727558ca6e38eb9cde34
+    raw:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/erqa/native-output/erqa/erqa.json
+      sha256: 1b0f6bf4aec4967221aac014c7afa4080626006991e0dd9b74f5dd2ce800e74f
+    contract:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/configs/erqa-contract.json
+      sha256: 6783cb02970469196a26a21b16de1472f6be99427fc4980f6bc242263834cc5d
+    preparation:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/manifests/erqa-prepared.json
+      sha256: f520ed33b8954c1371d093ec7d20ad4e214cb0db90fe87929a6b465316fee4e1
+    data_images_source_postcheck: passed
+    output_health:
+      raw_records: 400
+      evaluated_records: 400
+      empty_responses: 0
+      nul_only_responses: 0
+      explicit_error_strings: 0
+      diagnostic_only: true
+accuracy_summary:
+  path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/results.json
+  sha256: e77875aff907b077bb7f7699c31ae72e4010e5224615a9af70ab926c7a69b3bd
+accuracy_service_instance_id: qwen3vl-p64k-opt-20261015:1592858:557237509
+accuracy_prefix_cache: enabled-user-started; no changes

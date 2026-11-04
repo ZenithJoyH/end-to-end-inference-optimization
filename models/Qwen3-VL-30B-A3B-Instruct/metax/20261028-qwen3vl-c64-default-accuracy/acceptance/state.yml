@@ -1,0 +1,56 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: opt14-rollback-pr638-user-service
+  topology: TP2:GPU0,1
+stage: acceptance
+current:
+  status: accuracy-failed;GPQA-below64;ERQA-passed
+  candidate: qwen3vl-opt14:1597993:1146418910
+  next_action: User-requested evaluation complete;GPQA diagnosis unresolved,do not
+    claim formal performance acceptance
+experiments:
+- experiment_id: acc-001-opt14-c64-default
+  document: acc-001-opt14-c64-default.md
+  scenario_id: GPQA198-C64;ERQA400-C64
+  decision: accuracy-failed;GPQA59.60<64;ERQA45.25>=40
+  reference: ../optimize/acc-001-opt14-c64-default.md
+metrics:
+- scenario_id: GPQA198-C64-model-defaults
+  role: current-opt14
+  metric: strict-match
+  value: 59.59595959595959
+  unit: percent
+  scope: 198unique;118correct;threshold64;valid failure
+- scenario_id: ERQA400-C64-model-defaults
+  role: current-opt14
+  metric: native-accuracy
+  value: 45.25
+  unit: percent
+  scope: 181/400,0native rejects;threshold40;passed
+- scenario_id: ERQA400-C64-model-defaults
+  role: current-opt14
+  metric: all400-accuracy
+  value: 45.25
+  unit: percent
+  scope: 181/400,all questions counted;passed
+service_preserved:
+  completed_sha256: 4716b66595148dce51ecc86a6d941cd62883e0a20353ba818b962b7b9324e577
+  user_service_final_sha256: c91c399e23c543bef30447307a664ac6607749eed17309442d984f191139296e
+  adapter_stopped_sha256: 4d029a681e0881d30a397fbae3d81670391556dc830328710cb7bad1c5c3cf15
+  independent_readonly_audit: passed;GPQA118/198;ERQA181/400;all native provenance;sampling
+    fields;source before/final/current exact;controller+adapter exited;userPID1597993/ticks1146418910;models200
+  source_unchanged: true
+  user_model_left_running: true
+  new_audit_generation_requests: 0
+progress_monitor:
+  kind: heartbeat
+  automation_id: qwen3-vl-opt14-c64
+  interval_minutes: 30
+  status: deleted
+  last_notification_at: '2026-10-28T11:17:55+08:00'
+  cleanup_evidence: automation_update mode=delete returned deleteStatus=deleted after
+    both native results and user model retention were independently verified

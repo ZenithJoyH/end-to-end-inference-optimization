@@ -1,0 +1,105 @@
+schema_version: 3
+policy_version: "0.38"
+policy_date: "2026-09-14"
+record_kind: baseline_state
+updated_at: "2026-09-19T12:09:56+08:00"
+status: baseline_measurement_in_progress
+accuracy_status: failed_baseline_sanity_output_health
+performance_status: in_progress
+target:
+  model: Qwen3.8-Flash-Next
+  model_path: /mnt/cpfs/models/Qwen3.8-Flash-Next
+  platform: ppu
+  host: PPU-01
+  remote_work_root: /mnt/nfs/users/jinghao/qwen3.8-flash
+  remote_case_dir: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e
+  source_container_name: qwen3.8-flash
+  optimization_container_name: qwen3.8-flash-opt-20260919
+  source_image_ref: glm5.3-flash-ppu13-snapshot:20260904-215131
+  source_image_id: sha256:7755ef5656bd33703eb7c3c81fb6b2099b154284ba582488861f5ec99e3f7b30
+  adapted_snapshot_image_ref: qwen3.8-flash-adapted:20260919-e2e-source
+  optimization_image_id: sha256:d87b7b26da3623b18863d47fa623135d0dfc3ba3288293be18aa6f928cb9bbe6
+  image_lineage: verified
+  source_mount_manifest: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/source-container.inspect.json
+  optimization_mount_manifest: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/optimization-container.inspect.json
+  mount_diff: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/mount-comparison.json
+  mount_parity: passed
+runtime:
+  engine: vLLM
+  engine_revision: "0.24.0"
+  plugin_revision: 939600b323c02c21916f1f76bfb4cd8c2b02578d
+  flaggems_vllm_revision: 5865ed53b183e6d3aff69ad1823622a11679d257
+  flaggems_revision: 2b1e5cfdbd22d453933b2c6589a29daf31315ccd
+  mode: graph
+  dtype: bfloat16
+  tensor_parallel: 8
+  total_devices: 8
+  launch_args:
+    - --no-enable-prefix-caching
+    - --max-num-seqs=32
+    - --max-num-batched-tokens=4096
+    - --max-model-len=80000
+    - --compilation-config={"cudagraph_mode":"FULL_AND_PIECEWISE"}
+  prefix_cache_cli_support: verified
+  prefix_cache_cli_evidence: vllm serve --help=enable-prefix-caching lists both --enable-prefix-caching and --no-enable-prefix-caching
+required_scenarios:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+current_target_scenario_id: p1024-d1024-c64-n128
+phase_analysis:
+  prefill:
+    status: complete_clean_baseline
+    workload: p1024-d1-c32-n64-prefill-milestone
+    device_ids: [8, 9, 10, 11, 12, 13, 14, 15]
+    measured_total_token_throughput: [5433.49, 5415.82, 5424.73]
+    measured_p99_ttft_ms: [6315.30, 6344.22, 6347.56]
+    evidence: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/performance/candidate-group-prefill-baseline-clean-01/run-record.json
+  decode:
+    status: complete_clean_baseline
+    workload: p32-d1024-c32-n64-decode-milestone
+    device_ids: [8, 9, 10, 11, 12, 13, 14, 15]
+    measured_output_throughput: [355.12, 355.86, 355.98]
+    measured_p99_ttft_ms: [650.68, 652.20, 657.11]
+    measured_p99_tpot_ms: [90.15, 90.54, 90.00]
+    measured_p99_itl_ms: [92.04, 92.28, 92.43]
+    evidence: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/performance/candidate-group-decode-baseline-clean-01/run-record.json
+  mixed:
+    status: complete_clean_baseline
+    workload: p1024-d1024-c64-n128
+    device_ids: [8, 9, 10, 11, 12, 13, 14, 15]
+    measured_output_throughput: [331.40, 330.73, 330.72]
+    measured_total_token_throughput: [662.80, 661.46, 661.44]
+    measured_p99_ttft_ms: [104896.73, 104483.12, 105367.42]
+    measured_p99_tpot_ms: [96.06, 96.47, 96.51]
+    measured_p99_itl_ms: [95.23, 94.00, 94.96]
+    measured_p99_e2el_ms: [201608.32, 202070.34, 203186.96]
+    evidence: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/performance/candidate-group-mixed-baseline-clean-01/run-record.json
+artifacts:
+  remote_manifest: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/SHA256SUMS
+  image_lineage: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/image-lineage.json
+  baseline_service_manifest: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/baseline-service.json
+  screening_service_manifest: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/candidate-service.json
+  baseline_sanity_root: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/accuracy/baseline-sanity
+resource_gate:
+  status: passed
+  authorization: User explicitly authorized releasing all cards and parallel optimization.
+  evidence: /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/manifests/host-ppu-smi.after-release.txt
+  action: Gracefully stopped both TP8 model-service process trees inside source container; source container remains running and unchanged.
+services:
+  baseline:
+    container: qwen3.8-flash-opt-20260919
+    port: 8020
+    device_ids: [0, 1, 2, 3, 4, 5, 6, 7]
+    service_instance_id: 2eafbddebde1-8020-1355-249835791
+  screening:
+    container: qwen3.8-flash-opt-candidate-20260919
+    port: 8030
+    device_ids: [8, 9, 10, 11, 12, 13, 14, 15]
+    service_instance_id: 9b65cc77d73c-8030-199-249835795
+notes: The fixed-10 baseline-sanity attempts at 2048, 8192, and the adapted model's standard 30000-token generation cap were rejected because 3, 1, and 1 responses respectively hit the cap. The final run completed all 10 requests with strict-match 0.9 but timeouts=1, so it is an output-health failure and does not issue a formal accuracy gate.

@@ -1,0 +1,62 @@
+schema_version: 4
+identity:
+  case_id: 20261024-qwen3vl-metax-fixed-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: mx104-source-split1-20261023
+  topology: TP2-C550-GPU4-5
+stage: baseline
+current:
+  status: preparing-independent-validation
+  candidate: Fixed explicit native KV-cache splits2/4/8/16 vs reference1; not yet applied
+  next_action: Clone exact source without pausing it, verify image/mount/content/import parity; component minimal-regression
+    before any model patch or GPQA
+experiments: []
+metrics: []
+remote_workdir:
+  user_provided_root: /public-flash/jinghao/qwen3-VL
+  case_dir: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits
+  host: mx-104
+source:
+  container: qwen3vl-pr943-split1-mx104-20261023
+  previous_case: 20261023-qwen3vl-metax-mx104-migration
+  preserve_service: true
+  optimization_container: qwen3vl-fixed-splits-mx104-20261024
+  image_lineage: unverified
+  mount_parity: pending
+  device_difference: IndependentGPU2/3; no numeric comparison against historicalGPU4/5
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: preparing-independent-validation
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: split 数值与精度有限验证；无性能控制器或正式基线。
+    evidence_pointer: ../optimize/state.yml#/current/next_action
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: split 数值与精度有限验证；无性能控制器或正式基线。
+    evidence_pointer: ../optimize/state.yml#/current/next_action
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: split 数值与精度有限验证；无性能控制器或正式基线。
+    evidence_pointer: ../optimize/state.yml#/current/next_action
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: split 数值与精度有限验证；无性能控制器或正式基线。
+    evidence_pointer: ../optimize/state.yml#/current/next_action
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: ../optimize/state.yml#/current/next_action
+    reason: split 数值与精度有限验证；无性能控制器或正式基线。

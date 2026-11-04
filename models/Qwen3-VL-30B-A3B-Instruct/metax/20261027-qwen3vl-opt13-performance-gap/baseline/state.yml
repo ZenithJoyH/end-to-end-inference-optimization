@@ -1,0 +1,49 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-opt13-performance-gap
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: historical-opt10-observation
+  topology: TP2:GPU0,1-current;TP2:GPU6,7-mx59-historical
+stage: baseline
+current:
+  status: historical-observation-only
+  candidate: null
+  next_action: Use opt10 original CSV; no same-host scenario-entry baseline established.
+experiments: []
+metrics: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: historical-reference-only
+  original_status: historical-observation-only
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 只有跨 Host 历史观测；未建立同机同配置 scenario-entry baseline。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 只有跨 Host 历史观测；未建立同机同配置 scenario-entry baseline。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 只有跨 Host 历史观测；未建立同机同配置 scenario-entry baseline。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 只有跨 Host 历史观测；未建立同机同配置 scenario-entry baseline。
+    evidence_pointer: state.yml#/current/next_action
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: state.yml#/current/next_action
+    reason: 只有跨 Host 历史观测；未建立同机同配置 scenario-entry baseline。

@@ -17,7 +17,7 @@
 
 已读取目标仓库 `AGENTS.md`、`workflow.md` 和项目 Plugin 设计约束。本次是已存在实现的原字节回收，不新增算子或改变算法；按用户“逻辑不变”的要求不重排格式、不改 autotune、fallback 或 dispatch，不执行该仓库 workflow 中与当前任务无关的 conv1d 开发内容。
 
-变更方案：执行前保存原文件与安装文件、源码差异和哈希清单；以 HEAD、两个 MoE SHA 和已有 GDN SHA 为硬性前置检查；原子替换源码单文件，保持 mode；不重装包。远端可执行副本为 `commands/reconcile-moe-001.py`，先保存再执行，SHA 由本轮回执记录。
+变更方案：执行前保存原文件与安装文件、源码差异和哈希清单；以 HEAD、两个 MoE SHA 和已有 GDN SHA 为硬性前置检查；原子替换源码单文件，保持 mode；不重装包。远端可执行副本为 `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261022-qwen36-35b-mx104-code-audit/commands/reconcile-moe-001.py`，先保存再执行，SHA 由本轮回执记录。
 
 验证方案：比较整棵包的 `.py/.json/.yaml/.yml` 文件清单和 SHA；确认 GDN 与安装文件未变；AST/compile 检查；使用 `/opt/conda/bin/python` 的登录 shell 重新导入包，核对实际模块/函数来源、文件 SHA，以及内存函数 code object 与源码编译结果。没有在运行的模型 worker，因此此处核验范围为新解释器导入，不能称为现存 worker 内存验证。
 
@@ -64,7 +64,7 @@
 
 `/opt/qwen36-final-moe/patches/vllm_metax_contiguous_single_prefill_ly.diff` 虽带 vllm 名称，其实际 diff 目标也是 `vllm_fl/.../flash_attn.py`。没有为“迁移”重复实现这些 Plugin 补丁，也没有修改 vLLM 或 Plugin。
 
-上述结论基于当前容器和本地 HEAD；未联网拉取上游进行历史审计，不推断过去从未修改 vLLM。逐项哈希、入口和位置见本地 `vllm-source-audit.json` 及远端同名回执。
+上述结论基于当前容器和本地 HEAD；未联网拉取上游进行历史审计，不推断过去从未修改 vLLM。逐项哈希、入口和位置见本地 `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261022-qwen36-35b-mx104-code-audit/vllm-source-audit.json` 及远端同名回执。
 
 ## 产物与回退
 
@@ -80,7 +80,7 @@
 | `reconcile-001/import-verification.json` | 31 个函数的源码/加载 code object 指纹和实际导入来源 |
 | `reconcile-001/vllm-source-audit.json` | vLLM 文件、安装、导入和已有 Plugin patch 的复核 |
 | `reconcile-001/README.md` | 本记录的远端副本 |
-| `commands/rollback-moe-001.py` | 已准备、未执行的带 SHA 防覆盖检查的单文件回退脚本 |
+| `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261022-qwen36-35b-mx104-code-audit/commands/rollback-moe-001.py` | 已准备、未执行的带 SHA 防覆盖检查的单文件回退脚本 |
 
 回退入口为在 `mx-104` 上运行 `python3 /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-code-audit/commands/rollback-moe-001.py`。它只在源文件仍等于本轮结果且备份校验通过时恢复源文件，不影响安装版与此前 GDN 修改；回退后会重新出现源码/安装不一致。
 
@@ -88,9 +88,9 @@
 
 | 脚本 | SHA256 |
 |---|---|
-| `commands/reconcile-moe-001.py` | `13a191ba46bc6eb66e568ac11a03d06d480d78b36f685f2d21bc04bc2c54f2aa` |
-| `commands/verify-moe-import-001.py`（首次未完成） | `ad3826471f6910f8c64a8baaff2074b314a96cc5e3f477dcb09e03e06ee47ed1` |
-| `commands/verify-moe-import-002.py`（通过） | `4ad7b6e6162bad2fe22badbfdbd80c554d2a38463aa779ed42a9b55f519f24d8` |
+| `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261022-qwen36-35b-mx104-code-audit/commands/reconcile-moe-001.py` | `13a191ba46bc6eb66e568ac11a03d06d480d78b36f685f2d21bc04bc2c54f2aa` |
+| `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261022-qwen36-35b-mx104-code-audit/commands/verify-moe-import-001.py`（首次未完成） | `ad3826471f6910f8c64a8baaff2074b314a96cc5e3f477dcb09e03e06ee47ed1` |
+| `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261022-qwen36-35b-mx104-code-audit/commands/verify-moe-import-002.py`（通过） | `4ad7b6e6162bad2fe22badbfdbd80c554d2a38463aa779ed42a9b55f519f24d8` |
 
 首次函数核验未识别 `PointwiseDynamicFunction._scalar_fn`，在读取 `_silu_and_mul_kernel` 时停止；补充包装层读取后重跑，31 个函数全部通过。这是核验脚本修正，执行源码未因此变化。发布脚本及备份/结果的独立 SHA 清单保存为 `reconcile-001/publication.json`。
 

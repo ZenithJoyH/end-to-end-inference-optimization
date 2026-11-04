@@ -1,0 +1,49 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-plugin0240-splits-audit
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: image-a5d8d34d437e-original
+  topology: CPU-only-static-audit
+stage: baseline
+current:
+  status: original-image-identity-verified-component-only
+  candidate: Harbor latest manifest a5d8d34d437e verified against local image; Torch2.10 MetaX3.8.2.2
+  next_action: No end-to-end baseline requested or measured
+experiments: []
+metrics: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: original-image-identity-verified-component-only
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 镜像及组件路径审查；未请求或测量 E2E baseline。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 镜像及组件路径审查；未请求或测量 E2E baseline。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 镜像及组件路径审查；未请求或测量 E2E baseline。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 镜像及组件路径审查；未请求或测量 E2E baseline。
+    evidence_pointer: state.yml#/current/next_action
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: state.yml#/current/next_action
+    reason: 镜像及组件路径审查；未请求或测量 E2E baseline。

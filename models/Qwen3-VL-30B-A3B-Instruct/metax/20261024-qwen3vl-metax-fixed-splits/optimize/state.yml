@@ -1,0 +1,1843 @@
+schema_version: 4
+identity:
+  case_id: 20261024-qwen3vl-metax-fixed-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: mx104-source-split1-20261023
+  topology: TP2-C550-GPU4-5
+stage: optimize
+current:
+  status: split0-full-evaluation-completed-source1-restored
+  candidate: Originalsplit1 retained;split0 GPQA126/198=63.6364<64 rejected;ERQA176/400=44>=40 passed
+  next_action: Requested finitevalidation complete;no active evaluation/diagnostic/performance controllers. No automaticrerun/newsplit
+    or performance;keep originalsource1 and failedGPQA incident for any separately planned follow-up.
+experiments:
+- experiment_id: op-001-fixed-kvcache-splits
+  document: op-001-fixed-kvcache-splits.md
+  status: formal16-failedtwice-parameter-effect-reproduced-localizing-native
+  direction: operator/improve through existing MetaX native parameter; configuration diagnostic
+  scenario_id: p1024-d1024-c64-n128
+  correctness: Both1runs131/198passed,both16runs120/198failed,eachpair198exactresponses;component90/graphnotformalpass
+  performance: operator-only positive;no E2E claim
+  decision: Rejectcandidate16;no morefullrepeatseries;onlynecessarysameprefixnativeboundarydiagnosis
+- experiment_id: op-002-auto-kvcache-formal
+  document: op-002-auto-kvcache-formal.md
+  status: completed-GPQA-failed-ERQA-passed-restored
+  direction: operator native parameter rollback/accuracy validation
+  scenario_id: accuracy-only-gpqa198-erqa400
+  correctness: minimal72+graph/C8passed;GPQA126/198=63.6364<64 validfailed;ERQA176/400=44>=40 passed zero rejects
+  performance: not requested;no new performance measurement
+  decision: Rejectsplit0promotion;originalsplit1 restored and current graph16/C8/source/launchverified;no score gate transfer/no
+    performance claim
+- experiment_id: maint-003-zombie-cleanup
+  document: maint-003-zombie-cleanup.md
+  status: completed-81to0-no-restart
+  direction: maintenance/reap orphaned zombies in idle validation container
+  scenario_id: maintenance-no-performance-measurement
+  correctness: Disposableparent4Zselftestpassed;81targetZreaped;exactcontainer/PID1/livebashpreserved;source1snapshotidentical/HTTP200
+  performance: not measured
+  decision: One-timecleanupcompleted;no model/container restart or source/config/precision/performance changes
+metrics: []
+remote_workdir:
+  user_provided_root: /public-flash/jinghao/qwen3-VL
+  case_dir: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits
+  host: mx-104
+source:
+  container: qwen3vl-pr943-split1-mx104-20261023
+  previous_case: 20261023-qwen3vl-metax-mx104-migration
+  preserve_service: temporarily stop authorized 18977 only; finally restore exact split1
+  optimization_container: qwen3vl-fixed-splits-mx104-20261024
+  image_lineage: verified
+  mount_parity: passed
+  device_difference: Pre-measurement resource revision GPU2/3 -> GPU4/5 after explicit source-service stop authorization;
+    no GPU2/3 numerical or measured cases
+  snapshot_image_id: sha256:d732c2abda1a0187436eaf91e6d925439da680e288c2cd13621e476d688c7a26
+  current_service_instance: qwen3vl-pr943-split1-mx104-20261023:1108035:1121036731
+  current_restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-formal20.json
+  current_restore_sha256: 92e50b30522fef93adf05a1d99574e9a900e0ac9415ae8749d866670a587cbd1
+  current_source_normal_helper_unchanged: true
+  current_graph16_C8_source_launch_passed: true
+  current_source_status: running originalsplit1/prefixON;currentcontainerPIDticks+models200+source/argv/env+graph16/C8 verified
+    after completeERQA;helpercfa unchanged
+commands:
+  prepare_isolated:
+    local_path: /private/tmp/qwen3vl-fixed-splits-20261024/prepare_isolated.py
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_isolated.py
+    sha256: 620e3fea676a648aae8af76e3e87ae5b9ba815fd7c28b9c46b5a40fee729f330
+    source_container_pause: false
+  component_check:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/check_fixed_splits.py
+    sha256: 17acf7ea5fc0437c36c1ab4693fe4613fb4a67cf722c875fb79aec13d9b27119
+    scope: component-only;no service source mutation
+  resume_isolated:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/resume_isolated.py
+    sha256: d404c274ef17303b5cf5faf807b3981a7ebbe7078fce7b6f7341e9debe6c451e
+  check_fixed_splits_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/check_fixed_splits_v2.py
+    sha256: f2985a84380e998f41a2cdbcb6857b16c6fdd847620c1bfd42fac46173aece77
+  start_component.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_component.py
+    sha256: abcb7564d23ea4f2496f92637ca523d99600e7f890dc5ac9740e02038fea7fe2
+  stop_source_for_validation:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/stop_source_for_validation.py
+    sha256: c76d302dc5b52be06879ce58d700e7436619806712d378c01b115377c75fd49c
+  check_fixed_splits_gpu4.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/check_fixed_splits_gpu4.py
+    sha256: add15b110e0d1ecebabca069eee6fbf6b1b7dbf87e161bc2c7064f5015a1c513
+  component_then_restore.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/component_then_restore.py
+    sha256: 3753d37fd557de3294f4d71d088b6b22dddcb735f494ce048db620967ba5a492
+  launch_component_restore.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_component_restore.py
+    sha256: c7558e6b329e9f34ed62820432b5079b90d3190c02166c50077bb508e5908027
+  probe_layout.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/probe_layout.py
+    sha256: b325d304a350292a7b686617a15899e5395720bf9af80117a3fcb3c72ce118d0
+    scope: tiny layout construction diagnosis;no model or throughput requests
+  check_fixed_splits_layout_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/check_fixed_splits_layout_v3.py
+    sha256: 8d870ca7e56c4e1991419b13032933204f8c8e8941d500dd0464bc39385c6a8b
+  component_then_restore_layout_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/component_then_restore_layout_v3.py
+    sha256: 5c89b5f0b4c78715665fa38908778502f55c672f38ca8413df2a67dac8a97352
+  launch_component_restore_layout_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_component_restore_layout_v3.py
+    sha256: ee93afa86fe6eed99106839698eeaaf25cde108bf46c45e7471b10a4265b4619
+  prepare_model_split16.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_model_split16.py
+    sha256: add611e67855e06410769410086a4e6fb6770da052732ebf92640ddfa72500d2
+  prepare_model_split16_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_model_split16_v2.py
+    sha256: fc8d23a5b2a50a199c22ce299be32d5ade9180df6efa50bee70bfbe6454f8054
+  prepare_evaluator_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_evaluator_v3.py
+    sha256: 7cfdeaa3a9359c3294872eff2d153e40db94b1b78bbb856058141222415210ef
+  freeze_gpqa_provenance.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/freeze_gpqa_provenance.py
+    sha256: f3cc90cf3511cebdbcb91c584068e69f6dfd722274077b500c8e72801901ec69
+  model_split16_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/model_split16_controller.py
+    sha256: 604a4616da42224ef5b7f7a3211364c8d7fccb41cd2fa03c068e08a759a3c61f
+  align_gpqa_task.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/align_gpqa_task.py
+    sha256: d211d2a26a1b1b73b9f09649b1d5478ce4adbc19692529f58e815618cf1bff0e
+  freeze_gpqa_provenance_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/freeze_gpqa_provenance_v2.py
+    sha256: ef7b4481c1c3f9673aeb117f772f616421e20dc43519d7b7ac71977f9d049c4b
+  launch_model_split16.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_model_split16.py
+    sha256: 7ca54da6a8158d4212e995349a7f81f0138de65cd96240cf38604808ca1983be
+  model_split16_controller_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/model_split16_controller_v2.py
+    sha256: 03c763b9a264c7e0ba76902b8b9c23a4052431cb0be9c3d2f4d6e3e25f84f5ac
+  launch_model_split16_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_model_split16_v2.py
+    sha256: 2b5f35b7a22fe76c57189ffa78dbb5b3622704e095909367e24bbc35560b26fc
+  analyze_prefix_fragments.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_prefix_fragments.py
+    sha256: 7b80ce84ff7b11c1243e4129ff7d0111edcd8052a71dd5275b965db1058b78d6
+  prepare_cohort_trace.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_cohort_trace.py
+    sha256: 7e1f8365711ea26596afd41a9d98c6d51662e65e5c45ee6f6b1143fe8b7c2a4d
+  model_split16_controller_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/model_split16_controller_v3.py
+    sha256: 5d1e5a57eabc29080f0ed2bf02143efb99509abf1fbc4dfa50a73681ccc46cd3
+  launch_model_split16_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_model_split16_v3.py
+    sha256: e88a67ede4d1abb072a0c0785642337817a0787771ea261bfc1b8c50b5b915df
+  audit_cohort_all_repeats.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/audit_cohort_all_repeats.py
+    sha256: ba20ee780fb14920cb091d8f8dc5a10d5696009f25b43f48b1c09b0298f08484
+  launch_cohort_audit.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_cohort_audit.py
+    sha256: c546cc7cb1778049df96594ebe5852701d1be8ab772670944d770dd123f091b6
+  restore_after_audit_interrupt.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/restore_after_audit_interrupt.py
+    sha256: 3df9fad3b0862806c3f9fb17fe3c93f86bc0ed34ddf00c727d587ccbf6a3c46f
+  launch_restore_after_audit.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_restore_after_audit.py
+    sha256: ef08169e856c12172ce8225039a916e967e49a21e25446abe9e36bf55fd8f469
+  prepare_split1_cohort_control.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_split1_cohort_control.py
+    sha256: 5147edebfcf9ad9ea03087b103aa79ddcd1c52d96c10736a22850a18282296fb
+  baseline1_control_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/baseline1_control_controller.py
+    sha256: 6ad170a8f4aae0655b482873274dd7a477e6100f04c2f5506ca173a0c5bf378c
+  launch_baseline1_control.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_baseline1_control.py
+    sha256: e94e4debb8debd06fbbd8c170a44d6ec5390dc4684723cf2923cdd498c7445d0
+  compare_split1_split16_prefix0.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/compare_split1_split16_prefix0.py
+    sha256: 3090a858eed910e80e2febb9f7a86a3fe2c2b020e8b0e5fb2a13a108126daaa5
+  native_layers_probe.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_layers_probe.py
+    sha256: b2a7585064f26fd7fa6a88a6435088d016d3f55745eb1f5f16308629871d054d
+  prepare_native_trace1.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_native_trace1.py
+    sha256: b4c7b17bb8c8446318eff54f67fe066c9cb8f366d8ab4ae57dc7efe6f2720286
+  analyze_native_trace1.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_native_trace1.py
+    sha256: 09667a4cd8b6ae6a191125d373a0d3b9f869c2cf48b1f6c2acf49f7b822e4352
+  native_trace1_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_trace1_controller.py
+    sha256: c097a6031948825d5c8cabafbcf8bf86343f32630bb3dca81edf524faebc8677
+  launch_native_trace1.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_native_trace1.py
+    sha256: aa98863e535f63557ab97a76c5968ed4d181c112910e2230c4cf658da1c80216
+  replay_o_proj_shapes.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_o_proj_shapes.py
+    sha256: 276f5c991bffee932b18490228b924883169ae30239a49e52ea2000853b99e9a
+  finish_o_proj_probe_wait.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/finish_o_proj_probe_wait.py
+    sha256: ddc51f003a10330b7e7bb24f98c83d492245eb8df4a5a262e3cc6edee593be1d
+  replay_o_proj_shapes_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_o_proj_shapes_v2.py
+    sha256: e75358b9c4ee2cd4f3a7ba92f419698ce3d31176d698579ff8326a1332a971d4
+  native_layers_probe2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_layers_probe2.py
+    sha256: 91e30d4c4c4c1de5b7d300728e2fbc5a3c3fa33eede96533fd72c8333108b9e9
+  native_trace2_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_trace2_controller.py
+    sha256: dd813e050df18706f6980a68e1e9b5f16db2310166f7ede53158eeb824562c43
+  launch_native_trace2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_native_trace2.py
+    sha256: 0be85ab3804a7b0ffd3ad054f2d603819ab9d73cd090069a6397584e7f0f4102
+  analyze_native_trace2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_native_trace2.py
+    sha256: a72fa1adea7455c9026b357221bbf86dd3c9a2367b749c8143161a4e1224c75d
+  prepare_native_trace2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_native_trace2.py
+    sha256: 36cf4bc4e48745715a98b137583959940c7af5e6c19246552c0afb7a76b28237
+  finish_o_proj_probe_v2_wait.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/finish_o_proj_probe_v2_wait.py
+    sha256: 7e2eeea8b1aef075356e1748ee16b96c2a61f5bcd59913c672587c7e2e93c2a7
+  replay_o_proj_shapes_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_o_proj_shapes_v3.py
+    sha256: 78fbb7e8aeae15425e57b84ee891b9b8bfa5c0d489886d198bf8cd689c978778
+  prepare_native_trace2_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_native_trace2_v2.py
+    sha256: 2007b09f2cc5a21af2b3ee786381f294e8208409b657be608973e731a76ca0b1
+  native_moe_probe3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_moe_probe3.py
+    sha256: 764cfac7f86f380f8cdc469332d104edc98826ee1952939cdc832cf80ba95273
+  moe_trace3_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/moe_trace3_controller.py
+    sha256: 1dc28e468b98e76d8883c120911af02df2813c865edc9c5744229a93abed0844
+  launch_moe_trace3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_moe_trace3.py
+    sha256: a27f41bcfdce4f427c8e1dc546c58c44d25c71a1add9e3f03127ff619e85367a
+  analyze_moe_trace3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_moe_trace3.py
+    sha256: 1f3ff156b88cd7267bc83707e284e289dda8c2794332d1f5e51d1fcdc77f7982
+  prepare_moe_trace3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_moe_trace3.py
+    sha256: ebe2afcd7fe9b8a184eeeb7b16532a6acf58fbc8a5f3a31c2889949d31548be5
+  native_moe_probe4.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_moe_probe4.py
+    sha256: c8e60f6720c4ab659b637547ccbc43c582ee6215ce00c9022847ed566babe4c8
+  moe_trace4_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/moe_trace4_controller.py
+    sha256: 0f7e229ad5dadcc1df2b039bd3ba947d5996be836d0faf1e2dc5dbf8060dee14
+  launch_moe_trace4.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_moe_trace4.py
+    sha256: 1384a296f1b701f2f6f73ee762d990b656ce582f0bd89d6a55ce62bc95538a44
+  analyze_moe_trace4.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_moe_trace4.py
+    sha256: 84f17231736abc0ebac1707a386771a93db0fd155f3e1fd52cba862f30987137
+  prepare_moe_trace4.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_moe_trace4.py
+    sha256: 022992af24352e3df4a5c8ea3fec91c31d09d75109fcafbbe18ec32473fe76e7
+  prepare_moe_trace4_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_moe_trace4_v2.py
+    sha256: 854cf573862a4935a6129b5c359276fea894f5383125f1615e22bd23ed7d2ce3
+  prepare_moe_trace4_v3.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_moe_trace4_v3.py
+    sha256: b5db135be1e8796b94e633ee4a592b1af87117512a4f65782885e0770cfef357
+  native_moe_probe5.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_moe_probe5.py
+    sha256: 95bac3cbcc78526c430ba20e76650910c77cfdf1886eb3eba8f07e32cdb721e0
+  moe_trace5_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/moe_trace5_controller.py
+    sha256: c3bdea7cc3f8a743192d6a3aaae5e6912292fe22287ab509dc049e3d53f220e6
+  launch_moe_trace5.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_moe_trace5.py
+    sha256: ea90539945ff9c196a986b35f483e45669e5b72b8b531159c6e9ffecdddb3522
+  analyze_moe_trace5.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_moe_trace5.py
+    sha256: fec0328509a4dc99dba11c21b3ba1fad9167925de861bbe998270bfa5e1e8e6a
+  prepare_moe_trace5.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_moe_trace5.py
+    sha256: 682aa4fd8289deda9361634ce71aaa3aa739983e6ff31192abf4aee5cacdbbea
+  replay_gemm1_crossover_v6.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_gemm1_crossover_v6.py
+    sha256: e445097771d3c3cf6dad62daf5e9637ea4044a73d15f9e89f13820290e2b6bd8
+  gemm1_crossover6_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/gemm1_crossover6_controller.py
+    sha256: af92a7aef722885a338e18597c01cf5b438b65490fa79f27e438e5aea7d01cbd
+  launch_gemm1_crossover6.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_gemm1_crossover6.py
+    sha256: eef6842cfd630484dda4a013103eb2fa272c6226a023f3c9d9bd5e6f3e1f9011
+  replay_gemm2_crossover_v7.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_gemm2_crossover_v7.py
+    sha256: 1cb1fce38d01056a101ad40fe6757d21d49161f6cf36210231b1928d0b2987da
+  gemm2_crossover7_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/gemm2_crossover7_controller.py
+    sha256: b1fb11fe49d43e4d64e021e4778df6679b9e8905a47c044f5cb6d1cd1a607aad
+  launch_gemm2_crossover7.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_gemm2_crossover7.py
+    sha256: cec6b21b4db7b703184305dff5840fd97028a1b9f47242e7cf3924e4e03fe2a2
+  replay_fv_versions_v8.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_fv_versions_v8.py
+    sha256: cab45a66950b718530feaf53ba928bd9794560928398977eb5844a8dd378ec03
+  fv_versions8_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/fv_versions8_controller.py
+    sha256: 069400ea902b7474f503408f989b03ca843c1d71ab25906397de87d40d2d8147
+  launch_fv_versions8.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/launch_fv_versions8.py
+    sha256: 68c8de0d84a530d362e9fcfb15626aaa19c898fa49a43d0032440f6bb7610aba
+  prepare_validation_proposal_v9.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_validation_proposal_v9.py
+    sha256: 5db8e6537c96b2cadd499dbdd22709632c468bc02a294853817c757f1acb3b3a
+  prepare_formal9.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_formal9.py
+    sha256: 7ba0bfd436e2054322ece32fa8598bb169c7a9df1a48a5e2f3c84cee9e64e001
+  formal9_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/formal9_controller.py
+    sha256: 569b988abd068316c96f5dd3a570f29214954a0951bd2396ab22fe58c6a69219
+  start_formal9.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_formal9.py
+    sha256: e334f191ca4e693cd640a828a23ea7f7eea84cdddc3febc5284c79246cb0061e
+  formal9v2_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/formal9v2_controller.py
+    sha256: 6b42c4cd6a28da0a4ef21caa363e8d200b8025d6d5b84f4971cf04f1a23d7673
+  start_formal9v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_formal9v2.py
+    sha256: 8be5b4107706439a404d476867a5a70e1d51919b7994261dcd10b00bb21ba2ec
+  analyze_formal9_pairs.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_formal9_pairs.py
+    sha256: f02ff89bbe69be03095da927892f8a600c6cd780aca81b00fb94fa9c9d8b6db4
+  formal10v1_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/formal10v1_controller.py
+    sha256: ede136b43a2aa0c356fcafefc723595e895637244ff8cad5955f967f91890fe3
+  start_formal10v1.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_formal10v1.py
+    sha256: b0dc0efec8e0f1d863ab2a49f687b2675b2d53d8fc444fb7673cfd0d5b34f55b
+  prepare_formal10.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_formal10.py
+    sha256: a782c30468d1391b18e8bce9feec7d4ce79cd1634f21d259d189d22b10edca79
+  analyze_formal_four_runs.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_formal_four_runs.py
+    sha256: dc9f45c8a013f3f67a34b49be8d998cc324e95bcdf6578f8361258bf6e58a22c
+  native_trace11_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_trace11_controller.py
+    sha256: 78f4cffa138aab813c1dcfc6b172a712538c20deb1623c988b8627582f6a86f9
+  start_native_trace11.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_native_trace11.py
+    sha256: 467c4f3c7568321ce49f101d5d1f880a73f659819f1417a8f38b260d25fd46ad
+  prepare_native_trace11.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_native_trace11.py
+    sha256: eb97fa293ac6a731b6978c3c358dfd471e53ba0112b5ece8b0d374e46327f7ff
+  analyze_native_trace11.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_native_trace11.py
+    sha256: af941cb0c447d9c44526e8794775033e19ab4149588568b0497a02327c8bde46
+  native_trace11v2_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native_trace11v2_controller.py
+    sha256: 70dad3f002ccfd1578552e98fea157f0c5e78545d12bb104b3757c86c3abdffd
+  start_native_trace11v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_native_trace11v2.py
+    sha256: 15f0406f22d0751b499a77317f16b909f1649fe9d37596ea43ac7d0fb8574be1
+  prepare_native_trace11v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_native_trace11v2.py
+    sha256: aad7c59f007be8ec7a4139f02fabe4f148ca67387fbfa247600c523d04c3fb7c
+  replay_native12.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/replay_native12.py
+    sha256: 75e958d178b2647ac15606d26deb9609ae5f60a63c0c57b92ec1a871161255a4
+  native12_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/native12_controller.py
+    sha256: a14ae31688e4476818e78e8970bc595d88def201009e551a830f75859996d880
+  start_native12.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_native12.py
+    sha256: c72600e0790c5f67f60914c62c29bc886b3bcafea43fd5e9c20292df808bb174
+  prepare_doc20_v13.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_doc20_v13.py
+    sha256: afa9691caf7e1a42e767e8e5d66bb5ded4fa33436d5b605204b08cd3d7514b22
+  doc20_v13_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/doc20_v13_controller.py
+    sha256: 1b5ee2a0915a6449a140b07f83f9d059c2774a1f0a87b9d51d6a14fd7753ac05
+  prepare_doc20_execution_v13.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_doc20_execution_v13.py
+    sha256: 754b8af82e235ff256871365be80744cae5e7d27a15e78a1f74dbfae79c8604b
+  start_doc20_v13.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_doc20_v13.py
+    sha256: 5ec0909229edf706e20d4e44c46df347147ddc4744fce652bd2c344bcebe4d41
+  doc20_v13v2_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/doc20_v13v2_controller.py
+    sha256: ef8f3854e2ce6722031dded845f8e3047d78478a950e3b044dbc8dc1f8c89740
+  prepare_doc20_execution_v13v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_doc20_execution_v13v2.py
+    sha256: 8f1b9481f67748e8d35a009de568646f83b6bce7554d4da20b2d593c68f897a6
+  start_doc20_v13v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_doc20_v13v2.py
+    sha256: 9c1c2d0f014711787c1617d0531a80da747ec4d5be8119a9145b91e37a69fe49
+  prepare_doc20_v14.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_doc20_v14.py
+    sha256: 3a80fc76a6f6e7dd695517f5f2a3c26fa370a510bc69ab29565efa60af06b2f6
+  doc20_v14_client.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/doc20_v14_client.py
+    sha256: efad328458a1b673741f1f26f7ff4c9be6b9482dc50987dbac86c87de7dc90e0
+  doc20_v14_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/doc20_v14_controller.py
+    sha256: c9b7b085e25ff6dd274f55e8798dfece6a94278b1dd0b719aeaa9be389af2079
+  start_doc20_v14.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_doc20_v14.py
+    sha256: 519a25302ab87d1bbd0f57f4388531a077557bd8519be83069cdb99fd2ce12aa
+  analyze_doc20_v14.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_doc20_v14.py
+    sha256: b72e7de1122794dbfc1897a97c4b33a8d210b2cbfa0e88b9a38782118c3512a4
+  analyze_doc20_v14_v2.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_doc20_v14_v2.py
+    sha256: 7b3a7ee1fcea2ad44f5e59171f0eaa370ea806ebe752acd945363af5e39c77d2
+  sampler_static_audit_v15.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_static_audit_v15.py
+    sha256: 9c9100b95cb7cece7a226c23d9e1e08f0c0f4abec43303d219c3ce0c76cddba1
+  sampler_runtime_log_audit_v15.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_runtime_log_audit_v15.py
+    sha256: 6f8e1c38a44f2406ed29ab33809916a092129bd7bb3c8c841b3cb7018346a3b4
+  rng_stageA15_probe.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/rng_stageA15_probe.py
+    sha256: 2a8493dda288244f511c9ea2a41b00890c8e836c15d31d02a53e2f685f6333b4
+  rng_stageA15_controller.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/rng_stageA15_controller.py
+    sha256: d71785a08c3c1e626de377df82f1078e79aff10bca7bf4bbaa906d222ab1d475
+  start_rng_stageA15.py:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_rng_stageA15.py
+    sha256: b7a92f549888de9bc65bd56371e6bc678d7584a7f3ffaa1ab14c3ef9901fd40b
+validation_contract:
+  accuracy_skill: minimal-regression initially;formal-gate if candidate promoted
+  formal_thresholds:
+    GPQA: 64
+    ERQA: 40
+  primary_variable: native kvcache num_splits only
+  candidate_splits:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  auto_split0: diagnostic reference only;known batch divergence retained
+  must_pass: Exact same-sequence output acrossB1/8/32/64;finiteoutputs;FP64 tolerance frozen before running;representative
+    BF16/FP16/page/length/stride/graph checks
+  performance_boundary: Operator measurements cannot prove E2E gain or formal model accuracy;newHost/device does not inherit
+    GPQA gate
+  stop: No valid fixed candidate or split1 reference failure ->retain evidence and diagnose;never patchsourceorrelaxcorrectness
+  batch_sizes:
+  - 1
+  - 8
+  - 32
+  - 64
+  KV_lengths:
+  - 1
+  - 233
+  - 1024
+  - 8192
+  - 65536
+  query_lengths:
+  - 1
+  - 9
+  dtype:
+  - BF16
+  - FP16
+  page_size: 16
+  heads_per_rank: 16
+  kv_heads_per_rank: 2
+  head_dim: 128
+  neighbor_cases:
+  - identical
+  - heterogeneous q and lengths
+  reference_tolerances:
+    BF16:
+      atol: 0.002
+      rtol: 0.02
+    FP16:
+      atol: 0.0005
+      rtol: 0.005
+  graph: B8/KV1024,65536/Q1,9/bothdtype/eachsplit;capture+3replay,changeQ+2replay
+  timing: Only global-correct explicit candidates;5 CUDA-event rounds20 fullAPI graphreplays;10warmup;split1 bracket all retained;noE2Eclaim
+  micro_promotion: Complete numerical/batch/graph matrix plus >=1.05 local speedup in relevantshape;formalGPQA beforeE2Epromotion
+  unused_block_table_padding: zero, matching valid VLLM metadata;old unexecuted v1script retained
+preparation_incident:
+  status: resolved;reuse valid snapshot,source health200;fullsource/import/mount parity passed
+  failure: CLI stdout mixed informational warning and imageID;dockercreate rejected invalid reference before target existed
+  existing_snapshot: reuse after imageinspect exactID validation;no duplicatecommit
+  component_tests_started: false
+resource_revision:
+  initial_GPU2_3: Externally occupied after preflight;component script stopped before test/contract creation,0 numerical or
+    measured cases
+  user_authorization: 允许暂时停止本任务的18977服务，验证后恢复原split1配置
+  new_devices:
+  - '4'
+  - '5'
+  component_device: '4'
+  source_stop_identity:
+    pid: 902026
+    startticks: '1110336333'
+  other_services: do not touch
+  restore: original sourcecontainer18977 split1,prefixON and all original args
+runtime:
+  controller_pid: null
+  controller_startticks: null
+  controller_manifest: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/rng-stageA15-controller.json
+  source_service: 1083269:1117053588 restored16:40:03UTC originalsplit1/prefixON;currentgraph16/C8/source/argv/envpassed;containerPIDticks+models200verified
+  component_device: '4'
+  candidate_service: null
+  evidence_audit:
+    pid: 3016716
+    startticks: '1112262578'
+    manifest: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/cohort-all-repeats-audit.json
+    scope: historical;exited;do not restart interruption auditor
+    status: historical exited,do not restart interruptionwatcher
+  clone_service: null
+  last_native_restore_at_utc: '2026-10-24T16:40:03.185323Z'
+input_layout_incident:
+  status: test-harness-corrected-before-matrix
+  failed_result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/component-fixed-splits-gpu4.json
+  matrix_cases: 0
+  faithful_replay: bothranks allfixed1/2/4/8/16 C1/C8 exact;auto0 mismatch reproduced
+  cause: MACA rank4 .to(cuda) chooses channels-last;stride[-1]=16 before and after FlagGems enable
+  probe: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/test-input-layout-probe.json
+  fix: flatten H2D and view declared contiguous layout,assert exactCPU bytes/strides;no native/model/library change;identical
+    matrix/tolerances
+  first_restore: passed original split1/prefixON graph16/C8 at2026-10-24T02:49:33.661280+00:00;source instance910910:1112070172
+candidate_selection:
+  split: 16
+  basis: all explicit candidates pass full matrix;split16 strongest measured longKV recovery and >1.05 improvement at all
+    four measured shapes vs split1
+  scope: experimental single fixed constant independent of batch;no shape/GPQA special cases
+  formal_plan: minimal-regression fixed prefixes0..64 C1/C8 repeated;remove logits hook and restart candidate with ordinary
+    observer/fresh KV, graph16/C8;full GPQA198 threshold64,prefixON;restore original source split1 finally
+  ERQA: threshold40;newcandidate remains unqualified until its own required evaluation
+evaluation_image_note: mx104 cached official flageval:v1 actualimage1396e5d...;old mx59 pin62dac absent,old assert rejected
+  before creating evaluator;new actualimage pinned;native task/dataset provenance must be captured twice andchecked
+evaluation_task_note: Official mx104 image strict regex differs;all198 raw/processed docs match. Preserve existing prior formal
+  strict-match task exactly by copying task include from own old mx104 evaluator into new dedicated evaluator;no score seen,no
+  requests sent,threshold64 unchanged. Archive before/after and recapture provenance twice under v2.
+monitor:
+  automation_id: qwen3-vl-gpqa-erqa
+  status: DELETED
+  cadence_minutes: 30
+  active_controller: null
+  scope: Requested GPQA/ERQA complete and originalsource1 restored
+  pending_work: null
+component_result:
+  path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/component-fixed-splits-layout-v3.json
+  sha256: 29c1e06ca2d24eda27c8d6abe49a874ef1c1ffcaa01011a82269c081c3f014bc
+  fixed_rows_passed: 90
+  total_rows: 108
+  auto_rows_failed_batch_consistency: 16
+  graph_cases: 48
+  all_FP64_reference_tolerances_passed: true
+  valid_fixed_splits:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+candidate_patch:
+  file: /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py
+  sha256: 1dfc3aa858c9e795f9a796dcc51c9efb929911d36f0be8136f3827b9bba4b778
+  change: one kvcache num_splits constant1->16 in optimization container only
+  source_container_untouched: true
+  PR_readiness: experimental;model/fullscore/E2E pending
+formal_contract:
+  path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/contract.json
+  sha256: 030a778da1a66461875e75de7a425c38a78782d6b5cdf429f4ef79c65ab38109
+  mode: formal-gate
+  GPQA_threshold: 64
+  samples: 198
+  provenance_comparison: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/gpqa-provenance-v2-comparison.json
+  same_198_raw_processed_and_task_config: true
+  source_host_gate_reused: false
+model_preflight_incident:
+  status: resolved;filename pointer corrected in newv2 controller
+  previous_controller: 2977371:1112189165 exited before any source stop,candidate launch ormodel requests
+  reason: v2 provenance comparison actual filename gpqa-provenance-v2-comparison.json;controller expected alternate ordering
+  old_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/model-controller-failure.json
+  source_service: 919089:1112105886 still running originalsplit1
+skill_binding:
+  capability_id: e2e/accuracy
+  selections:
+  - minimal-regression
+  - formal-gate
+  bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  receipt_local: /private/tmp/qwen3vl-fixed-splits-20261024/accuracy-skill-bundle.json
+  receipt_sha256: 40605374230efd02ad9b4ba62f379c2b7038d5f9c00025d3c00de3194a34c538
+  user_override: prefix cache remains ON by explicit instruction;preserve threshold64/full198 and prior frozen strict-match
+model_prefix_incident:
+  classification: measurement-invalid;exactC8 batch not formed
+  model_graph_C8_smoke: passed in both ranks,capture+16replay,native split16 observed;not a full accuracy gate
+  observed_batches:
+  - 1
+  - 2
+  - 5
+  - 6
+  all_observed_logits_equal: true
+  fragment_diagnosis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/prefix-fragment-diagnosis.json
+  first_prefix_rows_valid_C8: 0
+  formal_GPQA_requests: 0
+  resolution: Controlled diagnostic cohort admission barrier with same token budget;fresh formal interpreter removes both
+    admission/logit hooks;no production scheduler patch
+  stop_condition: Any exactC8/rawlogits failure -> no formalGPQA orE2E;retain andrestore
+  prior_restore:
+    status: passed
+    service_instance: 927418:1112227059
+    at_utc: '2026-10-24T03:15:37.669699+00:00'
+    evidence: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-model.json
+restoration_incident:
+  status: resolved;single-controller-only recovery passed
+  reason: Independent CPU auditor SIGINT landed in modelcontroller finally while stopping its candidate;both controllers exited,candidate
+    was terminated,source launch not executed
+  action: Separate serial original-config recovery with bothcontainers noactive service verified;no further interruptwatcher
+  evidence: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-model-v3-failure.json
+  recovery_evidence: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-audit-recovery.json
+  recovered_service: 935632:1112296896
+  at_utc: '2026-10-24T03:27:11.287623+00:00'
+next_control_contract:
+  variable: split1 vs16 only,identicalcohorthelper,prefix0,metadata,GPU4/5,originalMoE/sampling/prefixON
+  mode: minimal-regression diagnosis;no formal GPQA/E2E
+  reference: current source split1 code exact in independentclone
+  goal: Distinguish inherited batch numeric mismatch from fixed16 regression;then localize operator;no baseline control yet
+    means no attribution
+  restore: Source original1 in single controller finally;no independent interrupt process
+model_split16_strict_result:
+  status: failed-minimal-exact-logits
+  scope: true C8 firstfixedprefix0,2repeats,cohort_at_release8,KV224/query9 identical
+  max_abs_logits: 1.375
+  hidden_equal: false
+  rank_graph: bothranks graph16/C8 passed andnative split16 probe removed
+  baseline1_same_harness: completed;baseline1 alsohasmodelbatchdrift,see baseline1_control_result
+  formal_GPQA_requests: 0
+  evidence: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/split16-cohort/results/fixed-prefix-n8-scan-summary.json
+next_native_boundary_contract:
+  reference: same observed split1 baseline1 control;allbatch outputs must be byte-neutral
+  scope: nativeAttention actualQ/K/V/output across availablelayers,bothranks,C1/C8two repeats,prefix0
+  method: read after original native API inside existing opaqueAttention;no forward hooks/new math ops
+  stop: observer changes logits/hidden,missing captured native calls or mismatchedmetadata ->incomplete,no attribution
+  restore: single controller finally originalsplit1,prefixON;no GPQA/E2E
+baseline1_control_result:
+  status: completed;batch drift reproduced in baseline
+  path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/split1-cohort-control-completed.json
+  raw_logits_max_abs_C1_C8: 1.5625
+  mismatched_logits: 146102
+  hidden_max_abs: 0.9375
+  both_repeats_identical: true
+  both_ranks_identical_observation: true
+  argmax_unchanged: 565
+  scope: truecohort8,prefix0,KV224/query9;noformalaccuracyclaim
+cross_split_comparison:
+  path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/split1-split16-prefix0-comparison.json
+  sha256: 3485903493e9595fea2f45071fb4f88f08b55bee9cba88f587936c9a2cce3258
+  conclusion: Model batch difference already exists with split1;fixed16 changes numeric results but not proof it creates the
+    batch issue or causes score/perf regression
+  split1_C1_C8_RMS: 0.1286463737487793
+  split16_C1_C8_RMS: 0.19869187474250793
+  split_effect_C1_max_abs: 0.51171875
+  split_effect_C8_max_abs: 0.6875
+  no_cherrypicking: Smaller maxabs16 does not establish better accuracy;RMS16 larger in this oneprefix;argmaxsame not aGPQAgate
+narrowed_boundary:
+  native_trace: passed exact observer neutrality;192 layer/rank/repeat rows
+  L0: Q/K/V/output all exact bothranks
+  L1: cachedKV224 exact;Q and newKV9 differ before nativeAPI
+  confidence: boundary localized,not yet concrete operator/rootcause
+  possible_interval: L0o_proj/postnorm/MoE through L1inputnorm/qkv/rope
+  next: isolated o_proj actualinput/currentcheckpoint sameTPW shape sweep;actualpaddedM must beobserved before assigning firstoperator
+next_padded_boundary_contract:
+  scope: same split1/native trace1 fixture2ranks2repeats;actual L0 opaqueAttention full return shapes/values and graph runtime
+    mode
+  neutrality: all final logits+hidden bitwise equal unobserved split1 baseline before use
+  not_proof: F.linear shape replay alone not model firstop proof;capture true padding first
+  restore: single finally source split1,prefixON originalargv/env
+native_trace1_result:
+  status: completed
+  analysis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace1-analysis.json
+  sha256: cc095ef8ee22da077d667dd3800155c4363dec2807dc708e587dd9ddc8e56bbd
+  observer_neutrality: exact logits/hidden against unobserved split1,2ranks/2batch/2repeats
+  rows: 192
+  first_boundary: Layer0Q/K/V/outputexact;layer1incomingQ/newKV alreadydifferent,cached224KVexact
+  not_rootcause: Do not blame layer1Attention for alreadydifferentinput;intervalL0o_proj/postnorm/MoE toL1norm/qkv/rope
+  source_restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-native-trace1.json
+o_proj_shape_replay:
+  path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/o-proj-shape-replay-v3.json
+  sha256: 71cf1eece5b3de7d910a30b2ce0d795017e271ffcdf7115a6f062fd1520c7abb
+  status: completed numerical-only;graphsetupincidentretained
+  rank0_M64_72_vs9: 2 BF16 elements,max9.5367431640625e-7
+  rank1: exact allM
+  BF16_CPU_TPsum: exact allM;not actualPYNCCL
+  interpretation: does not explain current fullmodeldrift;actualpaddedM stillneedcapture
+native_trace2:
+  status: completed;observerneutralitypassed
+  controller_sha256: dd813e050df18706f6980a68e1e9b5f16db2310166f7ede53158eeb824562c43
+  trial: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/split1-native-return-trace
+  results:
+  - /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace2-capture-completed.json
+  - /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace2-analysis.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace2-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-native-trace2.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-native-trace2-failure.json
+  preflight_incident: docker top requiresPID;fixedbeforeanymutation in prepare_native_trace2_v2.py;retainedoriginalfailure
+  next: Require all neutrality before using truepaddedreturn;then locate first postAttention op with actualinput/impl and
+    neutralobservation;noformalaccuracy/E2E
+  analysis_sha256: fdbb85342dc778b10c96364cdcaac6bd003c2d351e0187d9376ba9de0fba4596
+  actual_path:
+    C1:
+      M: 16
+      actual_tokens: 9
+      mode: PIECEWISE
+    C8:
+      M: 72
+      actual_tokens: 72
+      mode: NONE
+    L0_first9_return: exact bothranks/repeats
+next_moe_boundary_contract:
+  scope: actualL0opaqueMoE runner input/gate logits/expertstopk,input,output/runnerfinal sameprefix2ranks2repeats
+  method: diagnostic copy nodes only inside opaqueop,retain buffers forgraphreplay;resetstampafterL0native andrequireonefreshbundleafterL1
+  safety: no mathreplacement/configchange;allfinalrawlogits+hidden must equalunobserved split1 baseline orrejecttrace
+  stop: missingcapture,ambiguous/stalecopy,neutralityfail => incomplete;restore finally;noGPQA/E2E
+  v4: Separate install_moe atfirstverifiedMoE beforeanycapture(assertnc0/notcapturing);native wrappersstillafteroriginalnativehit;modeagnosticMselect
+    + exactlyonefresh stamp,recordentrykeys
+moe_trace3:
+  status: incomplete;no liveC1copies,not numericalfailure
+  controller_sha256: 1dc28e468b98e76d8883c120911af02df2813c865edc9c5744229a93abed0844
+  trial: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/split1-moe-boundary-trace
+  analysis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/moe-trace3-analysis.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/moe-trace3-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-moe-trace3.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-moe-trace3-failure.json
+  observation_incident: MoE diagnostic install afterfirstcapture;M16 PIECEWISE candidates0;new4 installs at original MoE hit
+    beforeanycapture,recordsallentrykeys andrequireslivecanary
+moe_trace4_preparation_incident: V1/V2 exited before helper/probe/source mutation (SHA verified);actual helper indentation3,not4;v3
+  locates single exactcall line and derives indentation,keepsunique backups
+moe_trace4:
+  status: completed;allfreshness+neutralitypassed;sourcefinallyrestored
+  controller_sha256: 0f7e229ad5dadcc1df2b039bd3ba947d5996be836d0faf1e2dc5dbf8060dee14
+  trial: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/split1-moe-boundary-trace-v4
+  analysis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/moe-trace4-analysis.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/moe-trace4-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-moe-trace4.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-moe-trace4-failure.json
+  install_proof: graph/moe-copies-installed-pid*.json hardnc0/notcapturing;graph/moe-entry-pid*.jsonl actualkeys
+  neutrality: unchanged exactallperbatchlogits/hidden vsunobserved baseline before usingcopiedvalues
+  analysis_sha256: 73fdd982247f1e5b513e4aa6058b1962ca9b75da19ec42da407830eabf9cbdbc
+  first_difference:
+    all_runner_inputs_gate_expert_inputs_topk: exact bothranks/repeats
+    expert_output_rank0:
+      mismatch: 22
+      max_abs: 0.0001220703125
+    expert_output_rank1:
+      mismatch: 20
+      max_abs: 1.52587890625e-05
+    scope: TritonExpertsFL.apply boundary inclFV return andPlugin copy;not yetinternalstage/update attribution
+next_FV_internal_contract:
+  scope: same0prefix2ranks2repeats;copy GEMM1/GEMM2 actualinputs/outputs/config/fusion/routeweight flags,activation/sum,FVreturn
+    beforePlugincopy
+  invariants: sameoriginalmath/selector/config;install beforecapture;actualfreshcanaryandallfinalneutralitymustpass
+  stop: incomplete ifanyproof fails;source finallyrestore;noGPQA/E2E orkernelchanges
+  replay_weights: Save only actualL0TP w1/w2 onceperrank in remote stage5-actual-weights for faithfulreference/replay,not
+    local/git;diskgate>8GB;no weightmutation
+moe_trace5:
+  status: completed;allneutrality+freshnesspassed;sourcefinallyrestored
+  controller_sha256: c3bdea7cc3f8a743192d6a3aaae5e6912292fe22287ab509dc049e3d53f220e6
+  trial: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/split1-moe-internal-trace-v5
+  analysis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/moe-trace5-analysis.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/moe-trace5-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-moe-trace5.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-moe-trace5-failure.json
+  weights: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/stage5-actual-weights
+  scope: first expertoutput difference localized;needinternalstageandcopydistinction,not latestFVupdate attribution
+  analysis_sha256: ccceb4dba70cd75df4a6d737094735b83308b8f4d8d9009b18597485ddf06f4b
+  first_difference:
+    GEMM1_input: exact bothranks/repeats
+    GEMM1_fused_silu_output:
+      rank0_mismatch: 9
+      rank0_max: 6.103515625e-05
+      rank1_mismatch: 4
+      rank1_max: 3.0517578125e-05
+    Plugin_copy: FV return vsPluginout exact allbatches/ranks/repeats
+    C1_config: BM16 BN64 BK128 group1 w4 stage3;GEMM2stage1
+    C8_config: BM16 BN128 BK32 group4 w2 stage3 bothGEMMs
+    fusion: both GEMM1FUSE_SILU true;GEMM2mulrouter true;no directsum;GEMM2inputalreadydifferent
+    interpretation: actualfirstdifferenceGEMM1+SiLU notPluginCopy;controlledconfigcross/reference stillneeded,not versionregressionclaim
+next_gemm1_crossover_contract:
+  scope: actual12 rows2ranksxM16,72xSnative,Lnative,SonlyBK32;no codemutation orperformanceclaim
+  faithful: nativeS/M16,L/M72 mustexact modelcapturedfirst9;2repeat+3graphreplayallrows
+  reference: CPUFP64 dot+SiLU fused ideal withactualTPweights;reporterrors/roundedBF16/midpoint not afterthefact tolerancegate
+  isolation: temporarily stop ownsource,exclusiveGPU4 tosequentiallyreplayranks,finallyrestoreoriginalsource;otherdevices/servicesuntouched
+  stop: exactreplayfail orgraphfail ->incomplete,evidencepreserved,no attribution;900sec budget
+gemm1_crossover6:
+  status: completed;12rowsnativeexact+graph3passed;originalsourcefinallyrestored
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/gemm1-crossover-v6.json
+  sha256: 8271ac6220e0841a47cfc8272a6a7e413bf4ced22785b5014d1681a6b0658f6e
+  cause: sameconfig acrossM16/72 exact;SonlyBK128to32 reproduces nativeS/L differences bothranks/bothM;S_BK32 equals L exactly
+  reference: maxabsnativevsFP64 .00217/.00359 mainlyBF16rounding;9/4differentcoords inclnearzero6ULP onecoord;not all1ULP/no
+    formalgate
+  scope: firstGEMM1batchdifference caused by Ktiling;not newversion regression/modelscore attribution
+next_GEMM2_contract:
+  faithful: 4actualM/ranknativecalls mustexactcapture +graph3
+  commoninput: 12 rows use C1samefirst72activatedrows underM16/72 withS,L,SonlyBK32,retainneighbors/IDs/weights;FP64weightedGEMM2
+    reference reportonly
+  restore: startonlyaftercomponent6restorepassed;singlefinally originalsourceSplit1/prefixON;no modelconfig/kernelchange
+gemm2_crossover7:
+  status: completed;16rows nativeexact+graph3passed;sourcefinallyrestored
+  path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/gemm2-crossover-v7.json
+  sha256: 8c8727dd055edb0ca99c5563d167c6824a9ba5a9c672ae18a52e42ee8843c379
+  independent_cause: withidenticalactivatedinput,SvsL givesrank0 22elemmax3.8146973e-6/rank1 16elemmax3.0517578e-5;SonlyBK32reproducesL
+    exactly,bothM;holdingconfigacrossMexact
+  meaning: GEMM2 has independent Ktiling numericdifference,not just G1propagation;not modelscore claim
+next_operator_version_contract:
+  old_source: /workspace/FlagGems-vllm/src,MoESHAfaeeead6990fb078e4ab625dba092eec47e1680a16f869659bd7743c0803ca3d confirmedreadonly
+  current: runtimeMoESHA bbc2eddedc93a608a899653c5acca0b1cb4f5293436a5d6136a06401ce50e462
+  method: two fresh interpreters,actualsavedTPweights/currentidenticalinputs,ranks0/1,M16/72,nativeselectionandexactcommonSconfigs;graph3allcases
+  proof: currentnative configs+output exactmodelcapture,no mixedimports;reportbothcode/YAML identities;not oldhistoricalfullmodel
+    score binding
+  restore: after7restorepassed,singlecontrollerownsource stop,exclusiveGPU4sequentialflavors,finallyrestoreoriginalsplit1/prefixON
+  no_mutation: old/currentlibrarysource/config files readonly;switchonlycomponent importnamespace;serveractualMoEconfig unchanged
+fv_versions8:
+  status: completed;16graphcasespassed;sourcefinallyrestored
+  controller_sha256: 069400ea902b7474f503408f989b03ca843c1d71ab25906397de87d40d2d8147
+  comparison: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/fv-versions8-comparison.json
+  variants:
+  - /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/fv-version8-old.json
+  - /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/fv-version8-current.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/fv-versions8-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-fv-versions8.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-fv-versions8-failure.json
+  comparison_sha256: d9986d5b88cb54a279397519113135232b82a131d4c6bfbf753fb72130879fc6
+  conclusion: Both versions sameactual configs/GEMM1/GEMM2/FVoutputs atsameM;both inherited sameBK128vs32batchdrift,notlatestupdate
+    forfirstboundary;notfullmodelscoreattribution
+formal9:
+  status: completed;split1passed131/198;split16failed120/198;sourceoriginalrestored
+  scope: minimal-regression+formal-gate op001;GPQA198 strict-match64;prefixON;C32 taskseed42 requestseed1234;fresh1/16;MoE/sampling/gemsopt
+    unchanged
+  admission_correction: Earlier agent-added wholemodelC1/C8bitwisegate superseded byoriginalprojectformal scorecriterion;priorfailurespreserved
+    asdiagnosis
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal9v2-completed.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal9v2-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-formal9v2.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-formal9v2-failure.json
+  skill_bundle: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/accuracy-bundle-formal9.json
+  preflight_incident: Firstcontroller exitedbefore source stop/helpermutation due transposed provenance filename;0evaluation
+    requests; preserveformal9-failure;v2 fixes exactevidencepath only,unusedpreparedroles reused
+  controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/formal9v2-controller.json
+  plan_sha256: d9d1fff151216c1fc3db4a7803d3521f0d36bcbf7309ba319d185dba759b1a1a
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  events: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/logs/formal9v2-events.jsonl
+  split1:
+    service_instance_id: qwen3vl-fixed-splits-mx104-20261024:103178:1113596207
+    service: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal9-split1/manifests/service.json
+    service_sha256: 7ec2cb76621b94e4011e2e609838338c87054c1014a477eec2c9beaf89412f61
+    runtime_sha256: 8595e4086fb3a11729f7af1e5b5c88b0122d1b65b8ddc0d10130189c87093c68
+    minimal_sha256: 2212d27da1ae95bb3ae0c759552bb1f735592dc46929f47b61c37662d67da9be
+    full_started_sha256: ad94d67baf6479ae98ffa69b7c9cb414cf19fa45fbdac94d8a3f4658332e9f25
+    run_id: 019285f132234ef3b7ab546e1a923a49
+    status: completed
+    correct: 131
+    samples: 198
+    score_percent: 66.16161616161617
+    threshold_percent: 64
+    threshold_status: passed
+    completed_at_utc: '2026-10-24T07:47:47Z'
+    completed_sha256: acf7bc4b4d80afce907aa38a6950a2ae2e8acf6791899bff81f4d70999c7d3c2
+    gate_sha256: b016efd0d54f8d4db7285c07019b28ca81f220fe1f85f4ae44d0672a54da99b8
+    gate: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal9-split1/results/accuracy-gate.json
+    binding: Only measured clone103178:1113596207;nowstopped;notcurrent16 nor restoredsourcegate
+    source_unchanged_during_eval: true
+  split16:
+    service_instance_id: qwen3vl-fixed-splits-mx104-20261024:144806:1113884096
+    service_sha256: 3ba2055336b6763373c150fc1cb4e4e1e0a4ea23c4d9720955f4f8d54b00a4de
+    runtime_sha256: fddf7bf41b50fa1244e6c1648db8d2758b779c93f6974e1c52ef0fb1ef5ee5ff
+    minimal_sha256: 005b4ce6003a1d001345dcdc36acd8cef918b2e4e9498af1f809e5d9ed4356fd
+    full_started_sha256: 348949f6f1e06eccc9e5687d38c57f0232bd07e0d7ac9105f85196c10c9b7a69
+    run_id: e457fddd4ee840b1af1221ad6516db1c
+    status: completed;failedthreshold
+    correct: 120
+    samples: 198
+    score_percent: 60.60606060606061
+    threshold_percent: 64
+    gate_issued: false
+    completed_sha256: 6b3141bc42fe8775c6ab1d76d5bb80670c69968edfc3fb6172cf2be07a680944
+accuracy_incident:
+  issue_id: accdiag-fixed16-gpqa-001
+  trigger: split16formal-GPQA120/198=60.606<64
+  classification: Reproducible formal-scorefailure follows fixedsplit constant in1/16/1/16;within-split repeated responseidentical198
+  gate_blocking: true
+  rollback: source1050751:1115988182 split1/prefixON restored13:42:23graph16/C8/source/launchpassed;no current16service
+  source_instance: 1018035:1114019911
+  formal_score_for_restored_instance: none;do not reuse oldmeasuredclonegate
+  paired_counts:
+    both_correct: 111
+    both_incorrect: 58
+    split1_to16_wrong: 20
+    split1_to16_correct: 9
+  same_questions_and_arguments: 198
+  same_response_hash: 4
+  confidence: Fixedsplit formalregression reproducible;L0native sameQKVoutputdifferencefaithfully reproduced;smallFP64errorboth/no
+    grossoperatorerror evidence;doc20samplecausalchainstillpending
+  analysis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal9-paired-analysis.json
+  analysis_sha256: def810f0a39e6c9c4cb268dc58cdcedb3798bcb60e542c6c53d2f57cd39b7406
+  next_reproduction: Native11 sameprefix0 C1/C8x2 sameactualnativeinputs/outputs vsneutral1;strictfinalneutrality vsunobserved16;not
+    scoreflip fixture
+  reproduction_status: Formal1/16/1/16 reproduces exactlyall198withinvariant;vendor/kernelmechanism still unconfirmed
+formal10:
+  status: completed;split1 131/198passed;split16 120/198failed;sourcefinallyrestored
+  scope: Exactlyone secondpair freshsplit1then16/full198;all4runsreport;noadditionalrepeats/cherrypick;sameoriginalcontract
+  purpose: Diagnosis samplingvariance vs fixed-split effect;not E2E promotion
+  controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/formal10v1-controller.json
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal10v1-completed.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal10v1-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-formal10v1.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-formal10v1-failure.json
+  plan_sha256: f0827b0a095d978d67fdc0e069c0bf83d97d8d80b749229ca37107a937b51c5b
+  started_at_utc: '2026-10-24T08:38:36Z'
+  events: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/logs/formal10v1-events.jsonl
+  split1:
+    service_instance_id: qwen3vl-fixed-splits-mx104-20261024:186652:1114188870
+    service_sha256: 386cc258d5ef85d16261fc959724bfaa9b67a93dbb6c6ae7fee1135382f29d1c
+    runtime_sha256: 27ad2e64bf0f04ec4ab4ff14c7e7493345f539bb210ecc6048f3f1b038ec6852
+    minimal_sha256: 7c5d52316c5ef6add3ab773a29ead39626e7569889c70cbb0e73799288073236
+    full_started_sha256: 66d745bf2c63c27432d51b09f4bd289ba9ec0233912ac4de5cea91aa03050fa4
+    run_id: 47911a4ae78a4c689cd64425ab5daeb0
+    partial_at_utc: '2026-10-24T09:02:55Z'
+    partial_completed: 180
+    partial_correct: 125
+    timeouts_so_far: 0
+    final_result_written: false
+    status: completed;thresholdpassed
+    correct: 131
+    samples: 198
+    score_percent: 66.16161616161617
+    threshold_status: passed
+    completed_at_utc: '2026-10-24T09:26:33Z'
+    completed_sha256: c599c8fd6a3663e3ac67703499d652b6ddcff8299871624fea43b59fbfa4292f
+    gate_sha256: 62ff746ef2bec9cdb3d09d3a0949ebd3357245dc2ad883ba5b79961ce1df863a
+    binding: Measured186652:1114188870 only,nowstopped;not current16/source
+  split1_repeat_comparison:
+    same_question_hash: 198
+    same_request_arguments_hash: 198
+    same_response_hash: 198
+    same_correctness: 198
+    same_native_samples_sha256: 58027b2c0dd97fe364d42afed1e799e9f25d4f23975d787c8a11082af4b6ddb1
+    independent_zero_response_cache_hits: true
+    actual_full_log_cache_proof:
+    - 2026-10-24T07:04:11Z 0cached198remaining
+    - 2026-10-24T08:43:02Z 0cached198remaining
+    meaning: split1 exactreproduced undercurrentcontrols,not just equal aggregate score;does not conclude split16repro untilsecond16completed
+  split16:
+    status: completed;thresholdfailed
+    service_instance_id: qwen3vl-fixed-splits-mx104-20261024:228286:1114476698
+    service_sha256: 4237dd637ea7bc60bf1c6f974a6e4dbde0ab5fabbcbdd734ee940c708692c41f
+    runtime_sha256: 3708d31ef548401e5e81328f35f11c99ab96690fad770964fc2c7da5897cdf15
+    minimal_sha256: e2d9a00edfcd61ddcfdacf5928f73b15b437a4cadfb8f7bd66e031593d0b40eb
+    full_started_sha256: 970230afacb6c847119489a234c2b80869f3ab8b30c142d5ce0d19baac66249f
+    run_id: bdce16fa1311431c8ff58f70ed24dd7b
+    correct: 120
+    samples: 198
+    score_percent: 60.60606060606061
+    threshold_status: failed
+    gate_issued: false
+formal_four_runs:
+  status: completed;both1runs131/198passed,both16runs120/198failed
+  analysis: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal-four-runs-analysis.json
+  sha256: c0e440a3051ecd31ee37319ddc3855516fd294a053e0ba6b2f2b2daff913db8e
+  within_each_split_all_198_responses_and_judgments_exact: true
+  all_four_independent_cache_hits: 0
+  net_correct_loss_per_pair: 11
+  no_more_formal_repeats: true
+planning_review:
+  review_id: plan-op001-nucleus-boundary8-20261024
+  evidence_cutoff_utc: '2026-10-24T18:38:59.572980Z'
+  trigger: Actualsamplercapture+CPU32/64reference+top-pboundary completed;candidate16decisionunchanged,diagnosticserieshasfiniteend
+  current_candidate: Originalsource1/prefixON restored1099814:1117753486;16rejectedtwice;no production math/source modifications
+    ornewgate
+  ledger:
+  - id: op-001-fixed-kvcache-splits
+    strategy: operator/improve/nativeparameter
+    variable: 1->16
+    correctness: formal1 131/198twice;16 120/198twice;16failed
+    performance: componentonly;no admitted16E2E
+    decision: 16rejected;source1restored
+    diagnostic11_12: native sameinputsplitoutputrounding reproduced,FP64small;doc0notwronganswercase
+    diagnostic13: C1stableactualIDs,bothcorrect,notformalresponsefaithful
+    diagnostic14: all64complete;strictdoc20 1correctC/16wrongB sameformalflip;fulltextnotfaithful;actualcommon6tokens
+  - id: op-001/v15-diagnostic
+    variable: read-onlyhostcontract+existinglog
+    result: actualPlugin/vllmrewind4vsGemsMetaXceilN/4rounded;CPUcounterexample37984-4=37980;runtimeentryobservedbutactualGPUdelta/targetdiscardunknown
+    decision: notfix/notperformance;conditionalhypothesistoppriority
+  - id: op-001/v15-StageA
+    strategy: operator/componentdiagnostic,no productionchange
+    result: ActualFP32N151936advances37984;originalrewind4failsrestoration;N16controlpassed;6calls/no extraRNG;sourcefinallyrestored
+    decision: Confirmedindependentcomponentcontractissue;do notapplyfix asdoc20cause without model evidence
+  - id: op-001/v16-StageB
+    strategy: framework/metadata diagnostic,no productionchange
+    result: Bothsplits/bothranks first7targetsamplesnodiscard;seed1234 andalloffsetsequal;firstacceptedrow20,numcomputed16+scheduled346;firstdifferentAPIid279/892
+    correctness: All64complete;bothrankfirst7mapped;all32fullresponses/targetactualIDs exactpriorv14 forbothroles;sourcebefore/after+currentfinallyrestorepassed
+    decision: Directtargetrewindexplanationcontradictedinobservedwindow;noise/probsnotcaptured
+    evidence: &id001
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/rng-stageB16-joint-analysis.json
+      sha256: 91b167ade163270b86ba5f36478701fd049f36e53dbf73fa683c06cfc76a14af
+  - id: op-001/window17
+    strategy: operator/samplerdiagnostic,no productionchange
+    result: Actualnoiseexact;sameactualprefix/offsetmetadata;rawlogitsmaxdiff.53125,filteredprobs2elementsdiff.255131;support2->1;selected279/892;CPUcross-noiseargmaxdependsonprobs
+    correctness: Bothranksactualentryonce/copies/selectedAPIjoinpassed;targetfullIDs/text exactprior;global32responses1=32/32,16=15/32
+      soonlytargetwindowfidelity
+    decision: Diagnosticcomplete;no wholeformalneutralityclaim;source1finallyrestored
+  - id: op-001/window18
+    strategy: CPUmathematicalreference-only
+    result: ActualvLLM PyTorchfilterAST oncapturedrawlogits,T.7/K20/P.8 givesFP32probsexactboth;CPU32/64selectionmatchesactual
+    decision: No samplingfilterbug evidencedattheseinputs;no GPU/modelrequests
+  - id: op-001/window19
+    strategy: CPUthresholddiagnostic-only
+    result: TopKdominantmass below.8 for1,atleast.8 for16;candidate279retainedonly1;pretruncationnoisewinnerremovedby16topPmask
+    decision: Explainsobservedfirsttokenflip via deterministiclogit+maskdiscontinuity;notallformalwronganswers/vendorbug
+  cumulative_result: No newacceptedE2Eimprovement;candidate16operator-microbench speed notacceptedperformance. Existingformal1passed
+    twice/16failed twice;currentrestoredsourcehasgraph/C8 only,notnewformal gate.
+  phases:
+    prefill: Targetcomputed16+scheduled346/nodiscard,firstprefilllogits27rows;nativeparameterreductionchangedmodelnumerics
+      without evidenceofgrosscomputeerror onoldcomponent/FP64scope
+    decode: Exactsameprefix6/noise;rawlogitschange crossesP.8 supportboundary producing279/892 atacceptedindex6;actualGPU
+      probabilities matchCPUreference
+    mixed: doc20fullresponse/IDs retainedunderobservation,global16only15/32responsesexact;fullformalreplenishmenttrajectorynotfaithful.
+      GPQAdurationnotthroughput.
+  priorities:
+  - rank: 1
+    direction: Retainoriginalsplit1 andclose finitecurrentdiagnosticseries
+    expected_main_metric: No newperformanceclaim;preserve known passing1config andreadyservice
+    first_falsifier: Alreadyformal16failedtwice;no moreunchangedrepeats. Actualsameprefixnoise+referenceexplainedtargetfirstflip.
+    decision: retained1/rejected16;no currentGPUtask
+  - rank: 2
+    direction: Futurebalancednativeparametercandidate orprecision-preservingnativeimplementation
+    scope: Deferred becausecurrentinstructionforbidsnewsplit/productionfix/performance. Requiresnewfrozen singlevariableexperiment
+      andformalGPQA64/ERQA40 beforeperformance.
+    risk: LegalroundingcanbeamplifiedbytopP;componentFP64closenesscannotreplaceformal modelscore
+    expected_main_metric: Unknown;no measuredE2Ebenefit claimed
+  - rank: 3
+    direction: Separate generalRNGdiscardstatecontractrepair
+    scope: Independentconfirmedcomponentbug;notdoc20directcause;no fix now. Needsdynamicrow/async/spec/backend compatibility
+      plusownfinitecontract.
+    decision: Deferred,not an active pendingGPUdiagnostic
+  required_skills:
+  - inference-accuracy-diagnosis completedcurrentmechanism
+  - inference-accuracy-evaluation iffuturejustifiedcandidate
+  - inference-performance-evaluation onlyafterfuturevalidgate
+  immediate_experiment: None;allcurrentcontrollers/CPUanalyses terminal,source1restored. Do notautoappendGPUrequests/newsplit/fullGPQA/performance.
+    Stopheartbeat.
+  next_review_trigger: Onlynew user-scopedcandidate ornewruntimeevidence;no automaticthirdseries
+  superseded_decisions: 'Supersedes plan-op001-sampler-window7-20261024: actualnoiseequalityandCPUreference nowverified;targetprobabilitysupportmechanismconfirmed,currentfiniteinvestigationcomplete.
+    PreserveindependentRNGbugandallaccuracy/fidelityfailures.'
+native_trace11:
+  status: v1toolincidentfinallyrestored;v2currentrunning
+  trial: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/split16-native-cross-trace-v11
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace11-analysis.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace11-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-native-trace11.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-native-trace11-failure.json
+  controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/native-trace11-controller.json
+  scope: Sameexistingprefix0fixture,2ranks,C1/C8x2;read actualnativeafteroriginal;noforwardhooks/newmathops;finalneutralityrequiredbeforecrosssplit
+    attribution;no GPQA/E2E/newsplit
+  bundles:
+    diagnosis: 796f57d730fa08a05afa0417af3107087e8513d3de2c989d6a14b80ee8aece2e
+    planning: 9c7ebe3fb775d9d0b5ad92420e1d449a3d760f2af022f333f2c40759d006b276
+  incident: Controller T remainedold model/split1-native-trace;FileExists protectedoldlog;no candidate launched;finallyrestore
+    mustpass beforev2
+  v2:
+    status: completed;neutrality8of8passed;384nativeboundaryrows;sourcefinallyrestored
+    controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/native-trace11v2-controller.json
+    result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace11-analysis.json
+    capture: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace11v2-capture-completed.json
+    failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native-trace11v2-failure.json
+    restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-native-trace11v2.json
+    restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-native-trace11v2-failure.json
+    controller_pid: 4180766
+    controller_startticks: '1115905576'
+    clone_instance: 269935:1115908162
+    started_at_utc: '2026-10-24T13:25:09Z'
+    controller_sha256: 70dad3f002ccfd1578552e98fea157f0c5e78545d12bb104b3757c86c3abdffd
+    analysis_sha256: dd0b2eb48a51a4e44962aa6233b3c1dd63fd2143178c80413e98f6854d45516a
+    restore_sha256: 64a530f56855bde5fc60829d9e45049010475c11f271e459feb3a7a62181618d
+    first_difference:
+      layer: 0
+      all_QKV_exact: true
+      only_other_argument_difference: num_splits
+      rank0_output_mismatch: 3573
+      rank0_max_abs: 0.0001220703125
+      rank1_output_mismatch: 3197
+      rank1_max_abs: 0.000244140625
+      both_batches_and_repeats_same: true
+native12:
+  status: completed;8fullnativeexact+repeat+graph3;sourcefinallyrestored
+  mode: accuracy-diagnosis+operatorreference;no timing/performance
+  scope: 4actualL0rank/batchinputs x splits1/16=8 rows;reconstructoriginalKVshape/stride/page/table andstoredcontiguousQ;exactcapturedfulloutputmatch+repeat+graph3required;CPUFP64causalGQAoracle
+  reference: report maxabs/RMS/relL2/roundedBF16mismatches;priorcomponenttol2e-3/2e-2 diagnostic only,no new accuracygate
+  stop: Failedexactreplay/graph/params/memory=>incomplete,no attribution;900sec;singlefinallysource1restore
+  controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/native12-controller.json
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native12-replay-reference.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/native12-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-native12.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-native12-failure.json
+  result_sha256: 9a6ec7e37e2751520c4d313ef69a405c6a08bd8a3e86ad708424d3ea2799ce66
+  controller_pid: 24089
+  controller_startticks: '1115981517'
+  controller_sha256: a14ae31688e4476818e78e8970bc595d88def201009e551a830f75859996d880
+  reference_results:
+    rank0_maxabs_both: 0.00012620193582053157
+    rank0_RMS_split1: 4.594601240245838e-06
+    rank0_RMS_split16: 4.538269959786949e-06
+    rank1_maxabs_both: 0.0001762685948508147
+    rank1_RMS_split1: 7.2094037064626e-06
+    rank1_RMS_split16: 7.14113969173756e-06
+    prior_diagnostic_tolerance_passed_all8: true
+  interpretation: Sameinputsplit arithmetic reproduced exactlymodel;bothsmallreferenceerror,16RMSslightlylower;not evidenceoflargeoperatorerror,doesnotrescueGPQAorprovethereisnoimplementationbug/scorecausalchain
+doc20_v13:
+  status: v1API404before0targetrequests;finallyrestored14:12:33;incidentresolved
+  plan: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/doc20-v13-plan.json
+  plan_sha256: c1c34ff7411c7e1e282953d34534bcd6c4b0bca9188e083cd46994f922d44147
+  request: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/requests/doc20-original-payload-v13.json
+  request_sha256: f68c7f5d9989571e62d3b76c1bf7e10046040b637e47c760429eaf3d9cc2e36c
+  factory: Actual registered OpenAIChatCompletion._create_payload SHA83cb3d92,method3670e613;seed1234/max_completion_tokens18000/T.7/P.8/K20/stop
+    fromoriginalfactory
+  old_formal_outputs: 1529/1470chars,20commonchars;not actualgeneratedtokenIDproof
+  next_first_falsifier: Reproduce shortoriginaldoc20 underC1without alteringseed/T/budget;return_token_ids metadatamustnotchangeoutput;compare
+    frozenprefixcachepreparation;not faithful=>diagnosebatch/cache notclaimscorerootcause
+  constraints: Must freezecontroller+identity/cachepreparation/neutrality/budget/finallyrestore before GPU;no fullGPQA/newsplit/E2E
+  execution_contract: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/doc20-v13-execution-contract.json
+  controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/doc20-v13-controller.json
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v13-completed.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v13-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-doc20-v13.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-doc20-v13-failure.json
+  budget: Exactly3requests perrole1/16=6total;180secHTTP/600secrole, no automaticC8 ormore
+  cache_policy: PrefixON,privatecloneonlyidlePOSTresetfalse,false;requireactualqueriesdelta>0,hitsdelta0 foreachrequest;HTTP200aloneinsufficient
+  observation: plain1+return_token_idsTrue2;fulltext+usagecountsneutral;actualprompt/generatedIDs repeatedexact;oldtextretokenizationforbiddenasIDproof
+  first_falsifier: If notoriginalformaltext markreduced-reproducer-not-faithful;do notchangeT/seed/threshold;preserve all
+    requests
+  controller_pid: 69051
+  controller_startticks: '1116143024'
+  controller_sha256: 1b5ee2a0915a6449a140b07f83f9d059c2774a1f0a87b9d51d6a14fd7753ac05
+  contract_sha256: c571c33c55034c4dd34a0bfde5247dce02eb550888662713a5dda95eb1f93d21
+  incident: reset_prefix_cache definedinsource butunregisteredinactualservice;404 atreset beforedoc20bodycall;modelgraph16/C8passed;donot
+    mislabelmodelaccuracyfailure
+  v2:
+    status: completed;bothroles3texts/IDsconsistent,butformalnotfaithful;sourcefinallyrestored
+    controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/doc20-v13v2-controller.json
+    contract: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/doc20-v13v2-execution-contract.json
+    result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v13v2-completed.json
+    failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v13v2-failure.json
+    restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-doc20-v13v2.json
+    restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-doc20-v13v2-failure.json
+    budget: Same6requests total;freshserviceprocessperrequest,6instances;onehourdiagnosticcheckedbeforelaunch,180secHTTP
+    cache: prefixON;identicalgraph16/C8perfreshprocess;one targetperinstance requirequeriesdelta>0/hits0;no unavailable reset
+      route/devmode/source changes
+    consistency: All3text/usagecounts andactualIDsrepeats exact;instance identitydiff explicit,ifnotconsistent no metadata-onlyattribution
+    formal_faithfulness: Compareoriginalfulltext perrole;nonfaithful => diagnosebatch/cache,notresolvedformalissue
+    controller_pid: 97218
+    controller_startticks: '1116195790'
+    controller_sha256: ef8f3854e2ce6722031dded845f8e3047d78478a950e3b044dbc8dc1f8c89740
+    contract_sha256: 1e73fa2acc57b3d336b5895e81d011e62afd2cf959dbdcb3e0274adaaae66f58
+    started_at_utc: '2026-10-24T14:13:31.350973Z'
+    events: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/logs/doc20-v13v2-events.jsonl
+    split1_result:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v13v2-split1-completed.json
+      sha256: 8ce11cdd3925c2c4e92d664bfbec23d3eabc3c22e4b3515847a2136b06e41c9c
+      three_text_and_usage_equal: true
+      two_actual_ids_exact: true
+      prompt_tokens: 362
+      completion_tokens: 262
+      cache_queries_each: 362
+      cache_hits_each: 0
+      formal_full_response_reproduced: false
+      reduced_text_chars: 930
+      formal_text_chars: 1529
+      common_characters: 20
+      answer_reduced_and_formal: C
+      interpretation: reduced-reproducer-not-faithful; metadata consistency valid only tested C1 freshcache; doesnotexplain
+        C32 scoreflip or invalidateformalresult
+    split16_plain_partial:
+      prompt_tokens: 362
+      completion_tokens: 389
+      cache_queries: 362
+      cache_hits: 0
+      text_chars: 1362
+      answer: C
+      scope: onlyfirstplaincall; waitall3; originalformalanswerB, cannotcallformalreproduced
+    result_sha256: 3b735255d1eb59009af10cbd2b82e77515241c528acdde1bb83af807ac31da09
+    restore_sha256: 68e59fb4522c2b60e4f66168064712a29971c14397a3a09fb162d8c09fe99567
+    split16_result_sha256: 0d2fdcd119a548e14a5085dca6cd4aceeae5bb74773d8e159ab8531440cbf753
+    actual_common_generated_tokens: 55
+    first_different_generated_index: 55
+    next_token_ids:
+      split1: 26160
+      split16: 892
+    actual_prefix:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/requests/doc20-v13v2-actual-prefix.json
+      sha256: 3eca5e26314fa29b518001848a36d4142e3ed4d357af76df2906cfa7179479c2
+  sampling_static_read: CurrentvLLM source random_sample usesprobabilities/exponentialnoise,notCDF;thisisstaticpathread notactualper-requestkernelhit/noisestatesproof
+doc20_v14:
+  status: completed64requests;bothsourceaudits passed;sourcefinallyrestored;no additionalGPU
+  reason: C1 bothsplitreducedreproducer-notfaithful; firstcheck actualinitialneighbors,notblindC8
+  scope: Originalfirst32doc0..31,HTTPconcurrency32,onecohortperrole1/16;64requestmax/no retries/no replenishdoc32+;notfullGPQA
+  budget: 600secHTTP/660secclient,30minbeforeeachrole;incomplete=>finallyrestoreandCPUreview,noautomaticexpand
+  invariants: prefixON,originalseed1234/T.7/P.8/K20/max18000/stops;onlydoc20APIactualIDmetadata;normalhelper,no mathobs;sampling/gemsopt/MoE/argv/envunchanged
+  plan: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/doc20-v14-plan.json
+  controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/doc20-v14-controller.json
+  result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v14-completed.json
+  failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v14-failure.json
+  restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-doc20-v14.json
+  restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-doc20-v14-failure.json
+  limits: HTTP32doesnotproveGPUbatch32;nooriginalreplenishment;actualformalperrequestcachehitsunreported;nonfaithful=>notcausalreproducer
+  plan_sha256: e719f1b84c72097cad7d21edcd0671672e4c7cf4e61c2bff4c3575a6c3ad3612
+  order_audit_sha256: 940c33ad31cd8c05a1e4ba1879cc0ce9585f102ee58abb0641a2da9a445d21ed
+  payloads_sha256: 22d33ca329e7ad50bd5d356c873bf2ee1f2f02431fb0ab9501882f2781fffda3
+  verified_actual_doc20_queue_position_zero_based: 20
+  controller_pid: 218801
+  controller_startticks: '1116521734'
+  controller_sha256: c9b7b085e25ff6dd274f55e8798dfece6a94278b1dd0b719aeaa9be389af2079
+  started_at_utc: '2026-10-24T15:07:50.786725Z'
+  partial_targets:
+    split1:
+      full_formal_text_reproduced: false
+      common_formal_characters: 1195
+      chars: 1575
+      completion_tokens: 431
+      answer_observation: C
+      source_after_passed: true
+    split16:
+      full_formal_text_reproduced: false
+      common_formal_characters: 873
+      chars: 1752
+      answer_observation: B
+      all32and_source_after_pending: true
+    limits: Answerfliponlypreliminary;frozenstrictfilterCPUcrosscheckandfinalsourceauditpending;notformal gate/fullfaithfultrace
+  analysis_preflight: CPUdryselftestfoundnativefiltered_respslistandtarget(C);v1notexecuted;v2 usesoriginalget_metric exact_match
+    ignorepunct/case and64originalchecks;nomodel/evaluationfailure
+  result_sha256: 9b798e2da38d7215d8783fce3201c899ed0960cb7785836ce14d199a192c0279
+  restore_sha256: f8c310ebccd0bfc972f87ac002b5cfcc0a0b8c65cf754904ce346828fd3c4cac
+  joint_analysis:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/doc20-v14-joint-analysis.json
+    sha256: b0e65820ef342c42f8d8dd23ef50655924bf372eaec2ae36adde2f70bfca983d
+  actual_prefix:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/requests/doc20-v14-actual-prefix.json
+    sha256: ee7e245b3a157e426edd8e2ab8b46e0c731955f059d697fa20372e878abffc07
+  full_formal_response_reproduced_both: false
+  score_flip_observed: true
+  strict_rule_and_metric_original64_samples_crosschecked: true
+  common_generated_tokens: 6
+  first_different_generated_index: 6
+  next_ids:
+    split1: 279
+    split16: 892
+  aggregate_cache_each:
+    queries: 10610
+    hits: 496
+    not_target_cache_proof: true
+  roles:
+    split1:
+      formal_fulltext_matches_of32: 8
+      target_strict_answer: C
+      target_correct: true
+      target_chars: 1575
+      target_completion_tokens: 431
+      common_formal_chars: 1195
+    split16:
+      formal_fulltext_matches_of32: 7
+      target_strict_answer: B
+      target_correct: false
+      target_chars: 1752
+      target_completion_tokens: 484
+      common_formal_chars: 873
+  conclusion: Observed originaldoc20correctnessflip in scopedcohort,but fullformaltrajectory notfaithful;upstreambatch/cache
+    andactualsamplingprobs/noise notisolated;no rootcause/gate/performance claim
+sampler_v15:
+  status: Currentdiagnosticseriesclosed;AindependentRNGbugrecorded,Bdirectrewindrefuted,Cactualsame-noise+top-p-boundaryexplainsobservedtargetfirstflip
+  audit: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/sampler-static-audit-v15.json
+  design: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/sampler-observer-design-v15.json
+  hypothesis: Conditional actualGemsmetax exponential_ increments byroundedceilN/4 whilePlugin/vLLMdiscardrewind4;unknownactualhit/targetdiscard;notformalrootcause
+  scope: Execute realhostAST onprivateCPUfakeGenerator+stubkernels only;recordactualsourceSHA;no inferenceenvironment codechanges
+  controller: null
+  audit_sha256: 4affee808d016f14ef2724f4751666dbb79471d562e365ad812f209a3289e55a
+  design_sha256: a3685bda6ffea4fa57841ce37ac5cc8ac4801cd07866fd2063314087bc381cf2
+  real_host_AST_CPU_case:
+    N: 151936
+    dtype: float32
+    increment: 37984
+    fixed_rewind: 4
+    offset_left: 37980
+    scope: actualhostAST/privateCPUGenerator/kernelstub;notGPUruntime
+  expected_source_service: 1075030:1116670822
+  runtime_log_audit_pending: false
+  runtime_log_audit:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/sampler-existing-runtime-log-v15.json
+    sha256: 9337d23c1121c1b8b80175ad20692e66fa86524120514c6a729b278acdc6964b
+  protocol:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/sampler-rng-validation-protocol-v15.json
+    sha256: 1250e989a78e62c7d1b833541fd06a8f5fcbb076d15bca08890c27182bb2e611
+  operator:
+    impl: FlagGems._metax.ops.exponential_.exponential_
+    impl_sha256: fa6de6cd812dd1c972499a434d30228f24cc947b3a8c2107259fce71d8fa02c9
+    runtime_entry_line: METAX GEMS EXPONENTIAL_
+    actual_log_path: /tmp/qwen-vl/oplist.txt
+    log_mtime_utc: '2026-10-24T15:36:08.904760Z'
+    meaning: currentservicefunctionentryatstartupobserved,notmereregistration;notboundtodoc20/seededGenerator/discard
+  actual_GPU_tests: 2
+  actual_HTTP_model_requests: 0diagnosticdatasetrequests;restorationexistingsingle/C8smokeperformed
+  source_configuration_changes: 0
+  mechanism_confidence: Confirmed actualcomponent statecontract incompatibility;doc20discard/firstdivergence/formalcausality
+    remainunconfirmed
+  runtime_gaps:
+  - Thisdiagnosisexplainsobserveddoc20firstflip only;fullformaltrajectory/all29scorechanges notcausallytraced
+  - Window17split16globalcohortresponseonly15/32exact;hosttimingneutralitynotestablishedglobally
+  - No candidateprovedcompatiblewithbothformalaccuracy64 andbalancedsteady-stateperformance;fixed16rejected;newsplit/fix/performance
+    deferred undercurrentfreeze
+  runner:
+    class: Plugin ModelRunnerFL standalone copy,notvLLMGPUModelRunner subclass
+    _sample_and_bookkeeping_AST_equal_to_vllm: true
+    row_mapping: dynamicreq_ids,rowidmap,requeststateandgeneratoridentity;rowcanmove
+    async: output_token_ids mayhold-1 placeholders;lenacceptedcountonly,actualIDproofviaAPIorselectedtensor
+    compiled_noise_function: sample_with_exponential_noise currentAST hasnodecorators;actualbound/aliasstillneedruntimeproof
+  stage_A:
+    status: completed6calls;singlefinallysource1restoredpassed
+    execution_contract:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/rng-stageA15-execution-contract.json
+      sha256: 108fbbb37a033dc9f28869a3d539411c574def63521b2ed0b21faf439a85271a
+    controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/rng-stageA15-controller.json
+    result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/rng-stageA15-component.json
+    failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/rng-stageA15-controller-failure.json
+    restore: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-rng-stageA15.json
+    restore_failure: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restore-rng-stageA15-failure.json
+    events: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/logs/rng-stageA15-events.jsonl
+    hard_calls: 6
+    timeout_s: 180
+    controller_pid: 346771
+    controller_startticks: '1117047348'
+    controller_sha256: d71785a08c3c1e626de377df82f1078e79aff10bca7bf4bbaa906d222ab1d475
+    started_at_utc: '2026-10-24T16:35:26.932147Z'
+    component_completed_at_utc: '2026-10-24T16:36:19.968519Z'
+    result_sha256: 7cf247dcd99c37612d2999ed8305dcca9a1344b0feb3a076fbadc25f3bcbcff6
+    actual_ATen_MetaX_entry_observed: true
+    actual_calls: 6
+    private_process_default_RNG_unchanged: true
+    rows:
+    - N: 16
+      actual_offset_delta: 4
+      offset_after_rewind: 0
+      prestate_restored: true
+      accepted_noise_matches: true
+      noise_mismatches: 0
+    - N: 151936
+      actual_offset_delta: 37984
+      offset_after_rewind: 37980
+      prestate_restored: false
+      accepted_noise_matches: false
+      noise_mismatches: 151936
+    interpretation: ActualGPUcomponentcontractmismatch confirmed forseededMetaXGemsFP32wideN;not yetdoc20discard/formalscorecause;no
+      fix/no blacklist
+    restored_at_utc: '2026-10-24T16:40:03.185323Z'
+    restored_service_instance: qwen3vl-pr943-split1-mx104-20261023:1083269:1117053588
+    restore_sha256: 2b1c3f4cf3495b8445b4cc4db7257d23058e766102a4bf6b55572ca1c055e7ce
+    restored_service_sha256: 9b3cc827ac1f77e2f0ae59dda2318cb08b858f6143232e74028779325a3f4f0c
+    restored_minimal_sha256: b3a56e26d36c28d6cedf675c8e58079cf24a29be1b36ae044874445bfd3a8dc8
+    current_graph16_C8_source_launch_passed: true
+    controller_exited: true
+  explicit_GPU_exponential_calls: 6
+  diagnostic_dataset_HTTP_requests: 64
+  restoration_smoke: Originalsingle/C8 guardpassed;notGPQA/evaluation
+  stage_B_design_pending:
+    status: historical-design-superseded-by-completed-StageB16
+    reason: Apositivejustifies metadataonlymodelstate tracing;no mathfix fromcomponentalone
+    install_boundary: Privateclone normalobserver one-shot TritonExpertsFL.apply currentlycallsinstall_split1_probe; atthatpointModelRunnerFLmodulealreadyloaded.
+      Addidempotentmetadataobserver install there onlyafter archiving newhelperSHA;source cfa unchanged
+    hooks:
+    - PluginModelRunnerFL.sample_tokens context before execute_model_state clear
+    - PluginModelRunnerFL._sample before/after original,once
+    - PluginModelRunnerFL._bookkeeping_sync before/after original,once
+    data: Dynamictargetrow viaactualprompt362IDs fixture,reqid_to_index+requests+Generatoridentity;acceptedindexlenoutputIDs(placeholderaware),discardmask,numcomputed/scheduled/logitsrows,spec/async
+      flag,actualsamplerforwarddescriptors,seed/get_offsetpre/postsample/postbookkeeping
+    window: First7acceptedtargetoutputs plus earlierdiscardcalls;otherdiscardrowsmetadata aroundtargetfirstwindow ifnecessary;no
+      GPUtensorclones/RNGcalls/setoffset inobserver
+    neutrality_limits: Callsoriginalmethodsunchangedonce,metadata-onlydoesnotprovehosttimingneutrality. Validate actualprompt/APIIDs
+      andwindow/outcome,recordbatch/cache;do notclaimfullformaltrajectory orallmodelneutrality fromfewtokens
+    tests: CPU fakeRunner/gen rowmove,discardedprefill,async-1 placeholders,offsetread-no-consumption,flushonce/indempotentinstall
+      before GPU
+    stop: Missingmapping/window/implementationproof orcoverage=>incomplete+restore;no targetdiscard/offsetdifference=>counterevidence
+      fordirectexplanationinobservedrun,notuniversalformalclaim
+    scope: No new modelcontroller/payloadbudget frozen yet;must freezeindependentfinitepurposefulobservedcohort versusblindrepetition;no
+      fullGPQA/newsplit/performance
+  stage_B:
+    status: completed64requests+CPUjointanalysis+singlefinallyrestoredpassed;controllerexited
+    experiment_id: op-001-fixed-kvcache-splits
+    purpose: Actual target discard/offset first7 metadata only;not kernel/noise or fullformal proof
+    artifacts:
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/rng_stageB16_observer.py
+      sha256: bf1e521bbb4ae5341eea8133be30ccc65eb95a9f5b4e8ffeea31e676e16bcd0e
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/test_rng_stageB16_cpu.py
+      sha256: cb2705ed33f3f7d150ebcad17a21ababda1463f6823402911cfc22437d7d9033
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/rng_stageB16_controller.py
+      sha256: b182dd573c90c0de30dc1a6ce3e1d04d72c3eb866c4f852ab0a83f4a8d978656
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_rng_stageB16.py
+      sha256: b2066946c58829e6b12dad90f980b883d133d0b06f0f92a4ce2d7a2e08e54b1c
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_rng_stageB16.py
+      sha256: 817258d26463c41881a4eaa5c0720910e1bd21996437bbd26f56905b530c15a1
+    hard_model_request_budget: 64
+    roles:
+    - 1
+    - 16
+    temporary_source_service: qwen3vl-pr943-split1-mx104-20261023:1083269:1117053588
+    restore:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-rng-stageB16.json
+      sha256: cd27d6cffa488c3c9e2ca62741b088d66bbd792f61c5b9d3a0c9696b72530e9a
+    remote_contract: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/rng-stageB16-execution-contract.json
+    CPU_checks: rowmove/discard/async-1/offsetread/originalonce/return/idempotent/flushonce/failurediagnostic-only
+    scope: Privateclone metadata-only helper;no inference source/math/RNG mutations;all original parameters/FG/MoE unchanged
+    limits: Hosttiming neutrality unproven;matchactualAPIprefix/outcome and report all differences;no newgate/formal/performance/fix
+    next: No activeGPUcontroller. New single-stepcapturedesignonly;implementCPUtestedobserver+finitecontract before GPU.
+    contract_sha256: be5359db6063a586c5d94db18179e093a206115089dceb1e7685f09668050876
+    variants_sha256: 0122ebf49f232d4cf4efa39a58f4ce24737fd8fb340372ba3f0eef7533b41286
+    cpu_tests_sha256: 6c5f118242c8f2497fc9cfb1ff4838a53e25bba8a97d913d619013b07e152237
+    helper_sha256:
+      '1': 592cd3218f840f5a6c2832f57bcbb218302d4a9d8fbbcffb8f52927b5b1d173a
+      '16': 0d8cdac9f6ba54d889b06f32fb72e0dba44b56153f40d4416413beb8a675dd0b
+    controller_pid: 368736
+    controller_startticks: '1117242849'
+    started_at_utc: '2026-10-24T17:08:01.937019Z'
+    controller_manifest: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/rng-stageB16-controller.json
+    source_stopped_at_utc: '2026-10-24T17:08:28.270738Z'
+    split1_service: 428133:1117245497
+    joint_analysis_command:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/analyze_rng_stageB16.py
+      sha256: c90831f495fe66c5ca50e8f0ef37ce816c717ab1eb9bdadc81373d145aba7cbc
+    partial_finding:
+      actual_prompt_tokens: 362
+      first_accepted_sample_row: 20
+      prefill_num_computed: 16
+      prefill_scheduled: 346
+      first_logits_shape:
+      - 27
+      - 151936
+      subsequent_logits_shape:
+      - 32
+      - 151936
+      target_discard_count_bothsplits_bothranks: 0
+      offsets_pre:
+      - 0
+      - 37984
+      - 75968
+      - 113952
+      - 151936
+      - 189920
+      - 227904
+      offsets_equal_bothsplits: true
+      first_difference_generated_index: 6
+      ids:
+      - 279
+      - 892
+      interpretation: Directtargetrewind hypothesis contradicted forobservedwindow;not noise equality/fullformal proof
+    result_sha256: 1569edbe3b86125fb5426f6ec75fdc69d5d1739dc7dad3c59ca5e6083a104ead
+    completed_at_utc: '2026-10-24T17:32:47.740364Z'
+    result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/rng-stageB16-completed.json
+    joint_analysis: *id001
+    restored_service: 1091594:1117391436
+    restored_at_utc: '2026-10-24T17:36:16.488724Z'
+    restored_service_sha256: 781fcf5311939c729afc11eaef2eada0f723de241ce07a9d3ccbad1a1f3229cf
+    restored_minimal_sha256: 7f8b54b39cecdccd0075bc3eb0f403f3b4219c3b470412c57d126b70406ce5eb
+    controller_exited: true
+    current_source_PID_namespace_ticks_and_HTTP200_verified: true
+    clone_only_sleep: true
+    all32_responses_exact_prior_v14:
+      '1': 32
+      '16': 32
+    target_actual_IDs_all_exact_prior_v14: true
+    formal_full_response_faithful: false
+    interpretation: Directtargetdiscardrewind contradicted forfirst7 observedwindow;componentbug stillvalid;offsetequalitynotactualnoiseproof.
+      All32responses/targetIDs exactpriorreducedv14,notwholeformalneutrality.
+  next_window17_design:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/sampler-window17-design.json
+    sha256: f217decf13e872d16aba09eec7a4210549051573e20ee4a2c52d4cfd2932cb8e
+    status: CPUdesignonly;notexecutable;noGPUrequest
+    prerequisite: StageBcomplete+restorepassed+jointanalysis,then implementCPUtests+newfiniteexecutioncontract
+  window17:
+    status: completed64requests+CPUjoint+singlefinallyrestoredpassed;controllerexited
+    artifacts:
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_window17_observer.py
+      sha256: c2084c1fa062d5f2828841680f62f4ee97de74db6a8fd54c08fcaac066bc046b
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/test_sampler_window17_cpu.py
+      sha256: 7c9ef5dfbeb5d2072f29a6a7e30fbaeb83f1bb69bee35524d41398d9ba5a19f3
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_window17_cpu_analysis.py
+      sha256: 063158eabc4807bf7537f0807a7c0ffd9bf928e22cd01c12382ff320b73acc44
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_window17_controller.py
+      sha256: 352c44e3fdeade545501a8be8abfd685cbb1c117ea0baa979cdd09b88b8f81bb
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_sampler_window17.py
+      sha256: b294e5065e4f005d7f30f66c86e307fa8b7f6d07062539b8eeb5c69df44461ed
+    - path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/start_sampler_window17.py
+      sha256: 38d42878e14178c1bab3f037f0cc4fac32e67adf831c4c6da45df06bced11f8f
+    reuse_host_base_sha256: bf1e521bbb4ae5341eea8133be30ccc65eb95a9f5b4e8ffeea31e676e16bcd0e
+    source_temporarily_stop: 1091594:1117391436
+    hard_model_request_budget: 64
+    roles:
+    - 1
+    - 16
+    captures_per_rank_per_role: 1
+    target_accepted_index: 6
+    source_restore: Singlefinally exactoriginalsource split1/prefixON/argv/env/source/currentgraph16+C8
+    CPUtests: pre-inplace raw/probs/q copies including qmutation,originalonce/return,noextraRNG,dynamicrow,kwargs,async-1,noearlier/nontargetclone,CPUtransferafteroriginalsample,flushonce/restorehook,mappingerrorisolated
+    finite_contract_pending: false
+    next: Launch archived uniquecontroller only;singlefinally exactsource restore;no duplicate or concurrent interrupt audit
+    contract:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/sampler-window17-execution-contract.json
+      sha256: 0db555512e60e715e40f5d89b4d64da2081d16cd35168ca73686a1495440abec
+    cpu_tests_sha256: 15e09e29cafe1440696513162887961b8df2a43ba1fb19c6e938cbc07b5696a2
+    variants_sha256: 46ec14ef70fbf426088653b08cbcb546a6b6fc8007e9bf1863db1554aa2caa67
+    helpers:
+      '1': 43b24ddc46bf2c7c32e295de5943a6995ea6045c4db389e85ed48b6569997580
+      '16': 8e2748d2ae7acb4581e2f786861e185e11fbfa771edce2a078f2cb25c7221e06
+    controller_pid: 483594
+    controller_startticks: '1117601973'
+    started_at_utc: '2026-10-24T18:07:53.176919Z'
+    source_stopped_at_utc: '2026-10-24T18:08:19.921713Z'
+    split1_service: 510277:1117604662
+    controller_manifest: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/manifests/sampler-window17-controller.json
+    split1_observer_installed_bothrank_PIDs:
+    - 510764
+    - 510765
+    split1_observer_installation_checked_at_utc: '2026-10-24T18:11:21.583454Z'
+    split1_all32_text_exact_prior_StageB: 32
+    split16_service: 551695:1117681063
+    split16_capture_pids:
+    - 552182
+    - 552183
+    capture_hashes:
+      '1': ebfc877c2c5668ebf139267dca98df82941ef289fd9604409d6dc9e4349c7c5a
+      '16': 826fe3c3a8f7c49671a2dca0da564614db761eb37d35fa814d8909aa672e6cd1
+    result_sha256: 25fc09a5d3f83fa39ddb21c376da1693fcc1253b351b0ab721e01ebdbd2d050a
+    actual_noise_equal: true
+    raw_logits_equal: false
+    raw_logits_crosssplit:
+      different_elements: 139351
+      maxabs: 0.53125
+      rms: 0.08157490428228246
+    filtered_probs_crosssplit:
+      different_elements: 2
+      maxabs: 0.25513121485710144
+    support_masks_equal: false
+    positive_probability_count:
+      '1': 2
+      '16': 1
+    actual_selected_ids:
+      '1': 279
+      '16': 892
+    CPU64_cross_noise_argmax:
+      p1_q1: 279
+      p16_q1: 892
+      p1_q16: 279
+      p16_q16: 892
+    all32_text_exact_prior_StageB:
+      '1': 32
+      '16': 15
+    target_actual_IDs_and_fulltext_exact_prior_StageB_both: true
+    interpretation: Actualnoiseequal,changedprobs/support explainobserved279/892choice;targetprefix/IDs/fulltext faithful
+      reducedbaseline;globalcohort16only15/32fulltextmatchso no wholemodelneutrality claim;notallformalcausality/vendorbug
+    completed_at_utc: '2026-10-24T18:33:01.488127Z'
+    restore:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-sampler-window17.json
+      sha256: 71fcde58fc9e7920676f562faa5c737fa7bbdb12e6c5a6439f81330657689eb5
+    restored_service_instance: 1099814:1117753486
+    restored_at_utc: '2026-10-24T18:36:36.850698Z'
+    restored_service_sha256: ff3fd952d12546f74750fad10f005acd2e21b143fec8a0a14ce017c6f6701416
+    restored_minimal_sha256: b16e97b75c6394463b0fa60a33ecf0226ead6b27a0d5f818cce995be6a841b33
+    sourcePID_namespace_ticks_HTTP200_and_normalhelper_verified: true
+    controller_exited: true
+    clone_only_sleep: true
+  window18_reference:
+    status: completed;actualCPU32probs-exact-bothrows;selectionreproduced32and64
+    command:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_window18_reference.py
+      sha256: 0427d3f30b9fc6f4e6d985e72b0e16363952511d3ba428431ef1d818712e718b
+    purpose: Actualcapturedsameprefixrawlogits→CPUreferenceT/K/P/softmax→actualsavednoise→selection;twoinputs only
+    scope: No newGPU/modelrequests/no inference source changes;run onlyafterWindow17fullcomplete+currentrestorepassed
+    export: Onlyaggregates/errors/booleans and resultSHA;rawtensor/candidatevalues remainremote
+    approval_incident: Proposedrawcandidatevalueslocaloutputrejectedbeforeexecution;cancelled. Resolvedbyremote-onlydetailedresults
+      andaggregate-onlysummary. No approvalblock remains.
+    self_test: passed actualfunctionASTpin+CPUtopk/topp masks+probnormalization;0GPU/modelrequests
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/sampler-window18-reference.json
+      sha256: 51766f45aa0ede97d96ef69ded71aee6cfd2bd004e34625fb04999511946d9d2
+    reference_selected_ids_match_actual:
+    - true
+    - true
+    support_masks_match:
+    - true
+    - true
+    CPU32_max_probability_error:
+    - 0.0
+    - 0.0
+    completed_at_utc: '2026-10-24T18:36:56.294880Z'
+  window19_threshold:
+    status: completedCPUonly;top-p-boundary-crossing-and-winnerremovalconfirmed
+    command:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/sampler_window19_threshold.py
+      sha256: b3f89f67b6f1e227deb273b8a8e983a4fde5f0a024bd59a2e7460cd4789ec2d0
+    scope: No newGPU/modelrequests/configchanges;derive top-p boundary flags fromactualsameprefixcaptures;onlyaggregates exported
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/sampler-window19-threshold.json
+      sha256: a128fabc1898c7548a86bf5a89cc2533f35e2ad99f7e097d46a4be3240a07cf3
+    completed_at_utc: '2026-10-24T18:38:59.572980Z'
+    dominant_mass_at_least_p:
+      '1': false
+      '16': true
+    post_top_p_support_count:
+      '1': 2
+      '16': 1
+    candidate279_retained:
+      '1': true
+      '16': false
+    pre_top_p_noise_winner_removed:
+      '1': false
+      '16': true
+    interpretation: Atfixedsameactualprefix/noise,changedlogitscrosstopp.8boundary;actualpretruncationwinner279removedonly16;originalvLLMCPU32filteredprobs
+      exactactual. Legalfiltersemanticsamplifylogitdifferences;not evidence samplerbug/vendorbug orallformalerrors.
+monitoring:
+  automation_id: qwen3-vl-gpqa-erqa
+  action: Deleted after both requested datasets terminal and originalsource1 current restoration verified
+  status: DELETED
+  reason: No active or requested remaining evaluation/controller;GPQA failed result preserved,not promoted
+  app_update_confirmed: true
+split0_formal20:
+  authorization: Latest human request explicitly allows independent split0 full GPQA/ERQA;supersedes prior no-new-split/full-run
+    freeze for this experiment only
+  host: mx-104
+  devices:
+  - 4
+  - 5
+  endpoint: http://127.0.0.1:18977
+  source_container: qwen3vl-pr943-split1-mx104-20261023
+  independent_container: qwen3vl-fixed-splits-mx104-20261024
+  prefix_cache_enabled: true
+  preserve:
+  - sampling parameters and implementation
+  - gems-opt
+  - MoE
+  - blacklist
+  - weights/tokenizer
+  - launch argv/env except diagnostic trial identity
+  GPQA:
+    samples: 198
+    threshold_percent: 64
+    contract: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/contract.json
+    concurrency: 32
+  ERQA:
+    samples: 400
+    threshold_percent: 40
+    contract: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/formal20-erqa-contract.json
+    concurrency: 8
+  execution_policy: Both datasets once even when one valid score fails;invalid/minimal failure restores before diagnosis;no
+    retries of complete evaluation;no performance
+  minimal: FP64 reference with existing dtype tolerances;actual paged QKV short/long/query1,9 plus graph replay and service
+    C1/C8;crossbatch bitwise equality not formal gate
+  skill:
+    path: skills/inference-accuracy-evaluation/SKILL.md
+    modes:
+    - minimal-regression
+    - formal-gate
+    bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  remote_controller: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/formal20_controller.py
+  status: completed-GPQA-failed-ERQA-passed-source1-restored
+  controller_sha256: 15eb1c4f877a990a28efc4ec0202a1ef34d50d525a4a7d10f24018366870da82
+  execution_contract:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/configs/formal20-execution-contract.json
+    sha256: 103323e1be4b906535530f7db64442dd599172d4c4d6c028f6ab42aeb5e6be7f
+  automation:
+    id: qwen3-vl-gpqa-erqa
+    status: DELETED
+    interval_minutes: 30
+    notify: critical changes/terminal/intervention only
+  controller_pid: 853560
+  controller_startticks: '1120621371'
+  controller_started_at_utc: '2026-10-25T02:31:07.161619+00:00'
+  current_phase: terminal
+  source_temporarily_stopped_at_utc: '2026-10-25T02:31:39.808000+00:00'
+  minimal_component:
+    status: passed
+    cases: 72
+    graph_cases: 8
+    replays_per_graph: 5
+    result: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal20-component.json
+    sha256: 8249ca1b3a7488b33c9a193e7b83200c4e45b8bd537114b332c7ecc6be94275c
+  candidate_service_instance: qwen3vl-fixed-splits-mx104-20261024:597820:1120630424
+  GPQA_started_at_utc: '2026-10-25T02:36:19.363710+00:00'
+  GPQA_run_uuid: 7f5bc6c9c8184d49abd3afc79a834742
+  model_minimal:
+    status: passed
+    num_splits: 0
+    graph_replays_per_rank: 16
+    C8: passed
+    FlagOS_MoE_native0_hits_per_rank: passed
+    source_argv_env: passed
+    minimal:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal20-split0/results/minimal.json
+      sha256: ee4fe8cf4fd246cab7bf12e956f61cd51df6f5710146a4cc69c73f9f90f74136
+    service:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal20-split0/manifests/service.json
+      sha256: c912546540d26cb6087321e968c74807caa86bc0eaf92f10ff5a2d0044c74b22
+    runtime:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal20-split0/manifests/runtime.json
+      sha256: 32f53e9c56d3fcc39f6a57167c25eb0af43d132c364597fe31ef0d64ee452aa7
+  GPQA_completed_at_utc: '2026-10-25T02:54:43.513313+00:00'
+  ERQA_started_at_utc: '2026-10-25T02:54:48.572895+00:00'
+  last_readonly_monitor_at_utc: '2026-10-25T03:32:58.865070+00:00'
+  GPQA_result:
+    status: failed
+    score_percent: 63.63636363636363
+    correct: 126
+    samples: 198
+    threshold_percent: 64
+    metric: exact_match,strict-match
+    native_score: 0.6363636363636364
+    native_and_per_doc_crosscheck: passed198unique/sum126
+    source_unchanged: passed
+    gate_issued: false
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal20-split0/results/formal-completed.json
+      sha256: dd4da943a892de47b2a5be17dd1cd4ac94fa01727e09284dae18e6c7c8ea9d78
+    native_results:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal20-split0/gpqa/qwen3vl-mx104-auto0-20261025/7f5bc6c9c8184d49abd3afc79a834742/gpqa_diamond_generative_cot/qwen3vl-pr977/results_2026-10-25T02-54-36.598361.json
+      sha256: f3537c29dc069fedabef37471af23ca6be46b004ee84c5e14f897940dc33e9ce
+    samples_sha256: ba378da3ddd5c5b8478b23eb8706c4052295e5999b8b18220ce451a14ccb6368
+    source_after_sha256: 22161465be22801850fd00d253b9b40c9d8b8969d3b54d002ca8633219152f4d
+  pair_with_formal9_split1:
+    same198docs_and_arguments: true
+    split1_correct: 131
+    split0_correct: 126
+    both_correct: 114
+    both_incorrect: 55
+    split1_only_correct: 17
+    split0_only_correct: 12
+    same_response_sha256: 4
+    interpretation: Descriptive comparison only;single split0run does not prove deterministic root cause or latestFVregression
+  incident:
+    issue_id: accdiag-auto0-gpqa-002
+    trigger: formal-gate score63.6364<64
+    classification: Valid formal threshold failure;mechanism notlocalized
+    gate_blocking: true
+    skill: skills/inference-accuracy-diagnosis/SKILL.md
+    skill_sha256: dae96b45b710eece923608299f41d09bc893883afedbab527af32f7b95183e54
+    reproduction: Fullsplit0 once,198allvalid;no rerun authorized under this finiteplan
+    isolated_variable: Plugin nativekvcache num_splits1->0;others unchanged
+    root_cause_confidence: unconfirmed
+    current_action: User requested evaluations complete;split0notqualified;originalsource1restored;retainfailedGPQA evidence,no
+      furtherinference oroptimization under currentfinite scope
+    last_known_good: formal9/10 measured split1 131/198,oldgate only its stoppedinstance
+    revalidation: Any future fixedcandidate requires originalfullcontract;not schedulednow
+  monitor_observation:
+    current_phase: terminal
+    controller_alive: false
+    ERQA_runner_alive: false
+    clone_model_alive: false
+    source1_running_and_currently_verified: true
+    all_requested_evaluations_completed: true
+  collector_incident:
+    issue_id: op002-erqa-zero-reject-schema
+    status: resolved-no-inference-rerun
+    classification: collector schema mismatch after native ERQA completed returncode0
+    root_cause: Native filter omits reject_info for zero rejects;collector accessed missing field unconditionally
+    confidence: confirmed
+    native_counts_observed:
+      raw: 400
+      evaluated: 400
+      scored: 400
+      rejected: 0
+      correct: 176
+      native_accuracy: 44.0
+    no_new_inference: true
+    script:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/formal20_finalize_existing.py
+      sha256: db061c7200c8832a1bfa5ca0f3662c2ebb21d70338e66bee9becf20c86ff0e20
+    original_failure_sha256: 0141ab82569641c0f5cac4e01365738d1a0e687417f9f0ca7f88c05d545d0124
+    recovery:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal20-collector-recovery.json
+      sha256: c53744575739e80ece2e105fcd6148e9fccb0ffbf4c07885d10093aab36e2a54
+  source_restoration:
+    status: passed-currently-reverified
+    service_instance_id: qwen3vl-pr943-split1-mx104-20261023:1108035:1121036731
+    at_utc: '2026-10-25T03:43:49.178519+00:00'
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/source-restored-formal20.json
+      sha256: 92e50b30522fef93adf05a1d99574e9a900e0ac9415ae8749d866670a587cbd1
+    current_check:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal20-restored-current-check.json
+      sha256: 40950973b9de4152258dec99f00d134f56d948ca1a5eb34874b0d25c885af00c
+    graph16_C8_source_argv_env: passed
+    models_HTTP: 200
+    normal_helper_unchanged: true
+  overall_accuracy_status: failed
+  split0_promoted: false
+  no_new_performance_measurement: true
+  completed_at_utc: '2026-10-25T04:05:59.293160+00:00'
+  controller_alive: false
+  ERQA_result:
+    status: passed
+    correct: 176
+    samples: 400
+    scored_samples: 400
+    native_rejected_samples: 0
+    score_percent: 44.0
+    all400_accuracy_counting_rejects_incorrect_percent: 44.0
+    threshold_percent: 40
+    metric: native accuracy
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/model/formal20-split0/results/erqa-completed.json
+      sha256: 8d6beb46142d020ebe0bb4aff9e9a4075d86fc9737cdce841d03fbf0fb703c6f
+    source_data_images_postcheck: passed
+    postrun_identity: offline stationarycontents matched;liveafterGPQA+exactPIDticksstopproof;no retroactive liveERQA snapshot
+    inference_rerun: false
+  final_result:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/formal20-completed-recovered.json
+    sha256: c3f34f2decec73654812247b35859d8d61c67216533cb98fe9cb50b38508b46e
+zombie_cleanup_maint003:
+  authorization: User explicitly requests cleaning listed defunct Worker_TP/python3.12 processes
+  host: mx-104
+  container: qwen3vl-fixed-splits-mx104-20261024
+  specified_namespace_pids:
+  - 228774
+  - 269935
+  observed_zombies: 81
+  parent: namespacePID1 sleep infinity
+  live_workload: none;only sleep and existingbash
+  method: Reuse prior project maintained guarded exactwait4 reaper,copy to currentcase;disposableparent selftest beforeapply
+  source_service_protected: qwen3vl-pr943-split1-mx104-20261023/18977
+  no_model_or_container_restart: true
+  remote_commands_dir: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/maint003-zombies-20261026
+  status: completed
+  commands:
+    prepare:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/prepare_maint003.py
+      sha256: 134740bef467b99c5e13c591d76df66729db646b47d5d814979acf180303a065
+    run:
+      path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/maint003_run_cleanup.py
+      sha256: 6bcae38c2675a1254f14eafe380659869245fe17b8066eb2ab6d4535f4a5a4e4
+  reaper:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/commands/maint003-zombies-20261026/reap_zombies.py
+    sha256: 6dea31e01f0bd03fa2913e2a73188e34d45548eae736de9da9431681c6d9e907
+  before_zombies: 81
+  after_zombies: 0
+  specified_pids_reaped: true
+  source_service_unchanged: true
+  source_models_HTTP: 200
+  container_restart: false
+  live_processes_preserved: true
+  disposable_selftest: passed4reaped/registersrestored/no text changes
+  current_independent_check: zeroZ/specified228774and269935absent
+  completed_at_utc: '2026-10-26T03:21:21.371028+00:00'
+  cleanup_receipt:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/maint003-zombie-cleanup.json
+    sha256: 1d2aa8df27ee0f91dd2ad6fd1992ced4d29166bb34ef603d5dc713181fdb0a1c
+  independent_receipt:
+    path: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits/results/maint003-independent-check.json
+    sha256: b8370a89fd64e64c4ec7a50c5893da5e4c195867a9c858e14a771454fef14a30
+  protected_source_snapshot_sha256_before_and_after: 9ad39da54777d16736937fcd727ae016ce79413e616ca6a276570f8293314fad

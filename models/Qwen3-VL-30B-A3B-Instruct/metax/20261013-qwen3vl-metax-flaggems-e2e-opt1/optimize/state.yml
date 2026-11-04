@@ -1,0 +1,2385 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen3vl-metax-flaggems-e2e-opt1
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: qwen3vl-opt1-current-flaggems
+  topology: TP2:device0-device1
+stage: optimize
+current:
+  status: resumed-new-linked-p64k-case
+  candidate: op002 current MoE JSON + op005 sort int32 in qwen3vl-flaggems-e2e-20261013
+  next_action: Explicit user resume prioritizes P64K; linked new case 20261015-qwen3vl-metax-p64k-opt3;
+    user source protected.
+experiments:
+- experiment_id: op-001-flaggems-baseline-profile
+  document: op-001-flaggems-baseline-profile.md
+  scenario_id: p1024-d1024-c64-n128
+  status: diagnosis-complete
+  direction: operator/improve
+  scope: baseline and phase attribution; no operator selected before evidence
+  environment_gates: passed
+  baseline_sanity: passed; 10/10 nonempty, all length-limited at256; no formal score
+  milestone_plan: commands/milestone-phases-plan-v2.json
+  target_plan: commands/target-p1k-plan-v2.json
+  comparison: commands/comparison-diagnostic.json
+  profile_plan: commands/experiment-contract-v2.json
+  formal_gpqa_threshold: pending user answer
+  warmup_revision:
+    warmup_rounds: 5
+    measured_rounds: 3
+    stable_window: 3
+    max_relative_spread: 0.05
+    applies_to:
+    - baseline
+    - candidate
+    - revert
+    prior_attempt: 'baseline-milestone-phases-02: failed warmup stability; no measured
+      round admitted'
+    prefill_warmup_output_tps:
+    - 20.396665512594538
+    - 35.248688562735694
+    - 35.40037568831737
+  observer_revision:
+    old: sys.setprofile stopped only in MoE workers, persistent callback in API/Engine
+      was possible
+    new: one first-apply wrapper plus import observer auto-restored; graph replay
+      hook restored after16; no sys.setprofile installed
+    old_attempt: 'baseline-milestone-phases-03: Prefill measured3, Decode warmup5
+      unstable, Mixed not run; diagnostic only'
+    old_prefill_measured_output_tps:
+    - 35.45
+    - 35.62
+    - 35.36
+    old_decode_final_warmup_output_tps:
+    - 1692.52
+    - 1609.62
+    - 1606.41
+  bounded_service:
+    manifest: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/manifests/baseline-v2-service.json
+    manifest_sha256: 0dcffdb4b637297dd940521b070375a390cb6dd92c4573073636c3b283870d69
+    service_instance_id: baseline-e08c8ba2e3ab4bce88a5dd17aa36e3c3
+    api_pid: 21501
+    sanity_status: passed
+    workers:
+    - pid: 21990
+      device: 1
+      w1_shape:
+      - 128
+      - 768
+      - 2048
+      w2_shape:
+      - 128
+      - 2048
+      - 384
+      python_profile: false
+      apply_hook_restored: true
+      import_hook_restored: true
+    - pid: 21989
+      device: 0
+      w1_shape:
+      - 128
+      - 768
+      - 2048
+      w2_shape:
+      - 128
+      - 2048
+      - 384
+      python_profile: false
+      apply_hook_restored: true
+      import_hook_restored: true
+    sample_sha256: 93cefe802c0c81659956736d25f3797c11c7cbc2a7a85132d946e02aab186ac6
+    replay_hooks_restored:
+    - 21989
+    - 21990
+  phase_profile:
+    result: passed
+    artifact: results/phase-profile-analysis.json
+    native_diagnostic: results/profiling/qwen3vl-fg-e2e-baseline/diagnostic-105f6ce10e344b9dbde4e1f55314058d/diagnostic.json
+    worker_ranks:
+    - 0
+    - 1
+    unmapped_moe_count: 0
+    prefill_moe_activity_share_rank0: 0.5569
+    decode_moe_activity_share_rank0: 0.6457
+    mixed_moe_activity_share_rank0: 0.554
+    boundary: actual Plugin new/cached annotations linked through launch correlation;
+      new-only prefill; cached-only full-model graph uniform decode; new+cached includes
+      mixed/partial-prefill ambiguity; initial client probe excluded
+    not_performance_gain: true
+- experiment_id: op-002-metax-moe-decode-stages
+  document: op-002-metax-moe-decode-stages.md
+  scenario_id: p1024-d1024-c64-n128
+  status: retained-by-user-performance-only
+  direction: operator/improve
+  scope: FlagGems-vllm MetaX vendor config only; plain BF16, E128/H2048/I384/top8,
+    effective M8..64 on C550; all implementation selections unchanged
+  hypothesis: 3-stage small-M GEMM uses40KiB shared/block and one256-thread CTA/SM;
+    fewer stages may increase resident CTAs without altering math/padding
+  first_experiment: 9 pairs of GEMM1/GEMM2 num_stages(1,2,3), all tiles/padding unchanged;
+    complete public fused_experts graph includes align/activation/GEMMs/reduction
+  micro_contract:
+    warmup_calls: 5
+    warmup_replays: 200
+    replays_per_block: 200
+    measured_blocks: 3
+    max_seconds: 600
+    seeds:
+    - 20261013
+    - 20261014
+    routing:
+    - uniform
+    - concentrated
+    primary_M: 64
+    verification_M:
+    - 8
+    - 16
+    - 32
+    - 48
+    - 64
+    boundary_M:
+    - 4
+    - 7
+    - 65
+    - 128
+    - 8192
+    min_complete_transaction_improvement: 0.05
+    max_regression: 0.03
+    max_drift: 0.05
+    reference: original FlagGems full call plus independent CPU FP64 oracle; stage-only
+      candidate expected bitwise-identical
+    oracle_atol: 0.002
+    oracle_rtol: 0.02
+    normalized_rmse_max: 0.015
+    graph_changed_input_replays: 2
+    max_block_relative_spread: 0.1
+  formal_accuracy_threshold: deferred by user; no gate
+  pr_readiness: experimental
+  micro_attempts:
+  - attempt: op002-stage-scan
+    status: incomplete-timeout
+    elapsed_s: 784.0756
+    first_result: none
+    evidence: results/op002-stage-scan-stop.json; logs/op002-stage-scan.log
+    observation: GPU0 idle; CPU threads futex wait; no gdb/py-spy available; stopped
+      only PID33221, no production source changes
+  - attempt: op002-stage-scan-v2
+    status: passed-after-exclusive-GPU-isolation
+    changes: step logs, faulthandler90s repeats and600s host watchdog; identical numerical/timing/config
+      contract
+  micro_result:
+    artifact: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op002-stage-scan-v2.json
+    sha256: 6efc541f530e1eb40862fd1e433e4a7ac193df6bc16b1d6d38362da1b5cbc411
+    status: passed
+    selected_stages:
+    - 3
+    - 1
+    min_scan_speedup: 1.152812190379887
+    elapsed_s: 411.0510540846735
+    source_sha256: 56f01e6cba00f4c9db2091edfce17c9760efce5a46695bf1a74e5384a2a49f04
+    source_unchanged: true
+    max_oracle_normalized_rmse: 0.0028955496938811044
+    max_oracle_absolute_error: 0.0004903508335711154
+    scan_rows: 40
+    failed_scan_rows: 0
+    verification:
+    - M: 8
+      route: uniform
+      baseline_ms: 0.23523839950561523
+      candidate_ms: 0.20810367584228515
+      speedup: 1.1303904102294406
+      drift: 0.000326515269636213
+    - M: 8
+      route: concentrated
+      baseline_ms: 0.10927488327026368
+      candidate_ms: 0.09638784408569336
+      speedup: 1.1336998384683563
+      drift: 0.00046856855404930263
+    - M: 16
+      route: uniform
+      baseline_ms: 0.35225982666015626
+      candidate_ms: 0.30427391052246094
+      speedup: 1.1577063115772888
+      drift: 0.00030516726804913396
+    - M: 16
+      route: concentrated
+      baseline_ms: 0.12112383842468262
+      candidate_ms: 0.10351872444152832
+      speedup: 1.1700669524101255
+      drift: 0.0007291692501745021
+    - M: 32
+      route: uniform
+      baseline_ms: 0.4582988739013672
+      candidate_ms: 0.39954944610595705
+      speedup: 1.1470391921900709
+      drift: 5.868139167292665e-05
+    - M: 32
+      route: concentrated
+      baseline_ms: 0.14805503845214843
+      candidate_ms: 0.12412544250488282
+      speedup: 1.1927855841990194
+      drift: 8.631408949949858e-06
+    - M: 48
+      route: uniform
+      baseline_ms: 0.520555534362793
+      candidate_ms: 0.452435188293457
+      speedup: 1.1505637665502533
+      drift: 0.00011065472348011759
+    - M: 48
+      route: concentrated
+      baseline_ms: 0.16104320526123048
+      candidate_ms: 0.13239423751831056
+      speedup: 1.2163913496533991
+      drift: 0.000580223234938069
+    - M: 64
+      route: uniform
+      baseline_ms: 0.5343027114868164
+      candidate_ms: 0.4641241455078125
+      speedup: 1.1512064533988409
+      drift: 6.946811909541855e-05
+    - M: 64
+      route: concentrated
+      baseline_ms: 0.19394304275512694
+      candidate_ms: 0.15897343635559083
+      speedup: 1.219971381390513
+      drift: 0.0006269545615787887
+  candidate_patch:
+    path: patches/op002-moe-decode-stages.patch
+    source_before_sha256: 56f01e6cba00f4c9db2091edfce17c9760efce5a46695bf1a74e5384a2a49f04
+    source_after_sha256: 4bac1ee1100fcaeb28f9204715e32fcbcd6807c1da4bf128c8f9d69735ead7f1
+    change: GEMM2 num_stages3->1 only, C550/BF16/E128/N2048/K384/top8/M8..64; all
+      tiles/padding/math/impl choices unchanged
+    applied_scope: private clone only; qwen-vl untouched
+    historically_applied_in_private_clone: true
+    currently_applied: false
+  static_config_boundaries:
+    status: passed
+    evidence: static/mocked config evaluation, not non-target hardware test
+    cases: 1008
+    changed: 6
+    unchanged: 1002
+    source_sha256: 56f01e6cba00f4c9db2091edfce17c9760efce5a46695bf1a74e5384a2a49f04
+    candidate_sha256: 4bac1ee1100fcaeb28f9204715e32fcbcd6807c1da4bf128c8f9d69735ead7f1
+  model_baseline_run: results/performance/baseline03-target-p1k-01/run-record.json
+  final_source_verification:
+    status: passed
+    artifact: results/op002-final-moe-verification.json
+    cases: 10
+    graph_changed_input_replays_per_case: 2
+    bitwise_equal: true
+    covers:
+    - strided weights
+    - bias
+    - router-on-input
+    - expert map
+    - inplace
+    non_target_hardware: not_run
+  model_baseline:
+    scope: diagnostic performance_only; no formal gate
+    status: complete
+    artifact: results/performance/baseline03-target-p1k-01/run-record.json
+    sha256: 02196204bebc4a63a3606aed9054c259c43ee50a13d998721766052f6a27364e
+    measured_output_tps:
+    - 1761.87
+    - 1838.39
+    - 1701.52
+    measured_rounds: 3
+    warmup_spread: 0.03534892
+  candidate_model_guard:
+    graph_capture: passed
+    two_rank_replays: passed;16each and observer restored
+    fixed_gpqa10_C8: 10/10 nonempty;10/10 length-limited at256
+    declared_M64_gemm2_stages: 1
+    same_requests: 10
+    identical_texts: 6
+    different_texts: 4
+    formal_accuracy: not_run; threshold pending
+  identity_A_B:
+    same_model_tokenizer: true
+    same_engine_plugin: true
+    same_flaggems: true
+    same_launch_config: true
+    changed_files:
+    - src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py
+    fgvv_before: efdf2e567b6a732f7fe26904754e0b8ff9f0333a2b9c9774f8b35245e3ae42b7
+    fgvv_after: a3a271684679628c7574eb0040a9fe8988141ffdc99b516d973849af66a3ba73
+  candidate_performance_run: results/performance/candidate01-target-p1k-01/run-record.json
+  revert_controls:
+  - commands/revert_op002.py
+  - commands/prepare_model_revert01.py
+  - commands/model_service_control.py
+  - commands/prepare_repeat_role.py
+  - commands/switch_op002_repeat_source.py
+  next_profile:
+    mode: reprofile
+    command: commands/reprofile_candidate01.py
+    after: candidate01-target-p1k-01 complete
+    separate_from_performance: true
+    question: Confirm GEMM2 actual graph shared/register geometry and phase hotspot
+      migration
+  model_AB1:
+    scope: P1024/D1024/C64/N128; diagnostic/performance_only, no formal gate; one
+      independent instance per role
+    baseline:
+      status: complete
+      run_record_sha256: 02196204bebc4a63a3606aed9054c259c43ee50a13d998721766052f6a27364e
+      rows:
+      - output_throughput: 1761.8723056094734
+        mean_ttft_ms: 1698.4703687630827
+        p99_ttft_ms: 3598.9166869036853
+        mean_tpot_ms: 34.6443646121699
+        p99_tpot_ms: 35.99928025144425
+        p99_itl_ms: 36.2619483564049
+      - output_throughput: 1838.3872182273508
+        mean_ttft_ms: 1718.6526208097348
+        p99_ttft_ms: 3619.6328822989017
+        mean_tpot_ms: 33.114238459233
+        p99_tpot_ms: 34.33065221829746
+        p99_itl_ms: 34.94799202308057
+      - output_throughput: 1701.5172054464624
+        mean_ttft_ms: 1857.1368742923369
+        p99_ttft_ms: 3702.9160934872925
+        mean_tpot_ms: 35.756149008526855
+        p99_tpot_ms: 38.2400507702677
+        p99_itl_ms: 36.86124086380004
+      mean:
+        output_throughput: 1767.2589097610955
+        mean_ttft_ms: 1758.0866212883848
+        p99_ttft_ms: 3640.48855422996
+        mean_tpot_ms: 34.50491735997659
+        p99_tpot_ms: 36.18999441333647
+        p99_itl_ms: 36.023727081095174
+    candidate:
+      status: complete
+      run_record_sha256: 6af381bcffd3be76bfbdc2e0274da6d4f1fc6e3e82802f4717d6057d6cdbbfcc
+      rows:
+      - output_throughput: 1891.4571560399886
+        mean_ttft_ms: 1712.1514306854806
+        p99_ttft_ms: 3599.049753760919
+        mean_tpot_ms: 32.144271509938314
+        p99_tpot_ms: 33.61465854577553
+        p99_itl_ms: 33.80768273025751
+      - output_throughput: 1984.0408054746533
+        mean_ttft_ms: 1725.281367856951
+        p99_ttft_ms: 3601.89934800379
+        mean_tpot_ms: 30.556144003262972
+        p99_tpot_ms: 31.793185200538566
+        p99_itl_ms: 32.32043488882482
+      - output_throughput: 1872.0968039767233
+        mean_ttft_ms: 1692.337647502427
+        p99_ttft_ms: 3592.259057816118
+        mean_tpot_ms: 32.4847636956855
+        p99_tpot_ms: 34.10493635750018
+        p99_itl_ms: 34.28717737086117
+      mean:
+        output_throughput: 1915.8649218304552
+        mean_ttft_ms: 1709.923482014953
+        p99_ttft_ms: 3597.7360531936088
+        mean_tpot_ms: 31.72839306962893
+        p99_tpot_ms: 33.170926701271426
+        p99_itl_ms: 33.471764996647835
+    relative_changes:
+      output_throughput: 0.08408842148061302
+      mean_ttft_ms: -0.027395202653971773
+      p99_ttft_ms: -0.01174361638540955
+      mean_tpot_ms: -0.0804674957305721
+      p99_tpot_ms: -0.08342271837854942
+      p99_itl_ms: -0.07084114530133057
+    decision: not yet retained; revert drift and second independent process required
+  candidate_reprofile:
+    status: passed
+    native_artifact: results/profiling-candidate01/qwen3vl-fg-e2e-baseline/diagnostic-88d7b6c481f74041adee33daa934ed12/diagnostic.json
+    analysis: results/candidate01-phase-profile-analysis.json
+    ranks:
+    - 0
+    - 1
+    unmapped_moe: 0
+    M64_G2_shared_bytes:
+    - 40960
+    - 20480
+    M64_G2_registers:
+    - 132
+    - 64
+    M64_G2_kernel_mean_us:
+    - 166.42548
+    - 109.85458
+    G1_kernel_mean_us:
+    - 186.56295
+    - 186.28897
+    prefill_mixed_largeM: unchanged within trace noise; not a speedup claim
+    profiler_timings: diagnostic only
+    decode_moe_device_activity_ms_rounded:
+    - 1067.437
+    - 895.54
+  revert_identity:
+    matches_baseline_model_tokenizer_engine_plugin_fg_fg_vllm_launch: true
+    independent_instance: true
+    declared_M64_G2_stages: 3
+    graph_C8: passed
+  revert_performance_run: results/performance/revert01-target-p1k-01/run-record.json
+  revert01_result:
+    status: complete
+    output_tps:
+    - 1770.8866099624754
+    - 1823.7403749244897
+    - 1727.9835939703921
+    mean_output_tps: 1774.2035262857855
+    baseline_drift_percent: 0.3929596
+  repeat_control:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_second_triplet.py
+    sha256: 0596983ed1125baee79a92330ed861ceadd7fbf9feac97655ca638d1993fc6da
+    scope: fresh baseline04/candidate02/revert02; same plan; private clone only
+  formal_preparation:
+    status: provenance-and-full-weights-ready-threshold-pending
+    evaluator: qwen3vl-flaggems-eval-20261014
+    reason: Use required image reference and verified identical image ID in actual
+      inspect; first sanity evaluator created by digest retained
+    command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/prepare_formal_provenance.py
+    command_sha256: 66ad0f73568e7a29ec1d1c9fbca7e94cf9abd90ade0efea68e281f0c19e79bd7
+    threshold: null
+    model_requests: 0
+    dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+    raw_count: 198
+    processed_count: 198
+    formal_execution: not_started; user threshold pending
+    minimal_dataset_consistency:
+      ordered_raw_docs_identical: true
+      matching_raw_doc_count: 198
+      path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/gpqa-dataset-consistency.json
+    model_sha256: 8c9fd334f4a308f9311906c6005cf2bbb25a6fd17da056e6d4a167eec3f139f6
+    weight_shards: 13
+    total_weight_bytes: 62141618016
+    full_weight_manifest:
+      path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/manifests/full-weight-identity.json
+      sha256: 6db4b16c1d50b055c610e4d55a75c6d5174539aa6970593bfc0398272a3d7996
+  first_triplet_spread_audit:
+    status: incomplete
+    baseline_p99_tpot_ms:
+    - 35.99928025144425
+    - 34.33065221829746
+    - 38.2400507702677
+    relative_spread: 0.10859657539440393
+    frozen_limit: 0.1
+    decision: All rounds retained; no contract loosening or source deployment. Continue
+      existing second independent triplet for diagnostic confirmation; cannot clear
+      original within-process violation by aggregation.
+  model_text_repeat_audit:
+    scope: same fixed requests; no formal score
+    candidate01_vs_baseline03:
+      same: 6
+      different: 4
+    revert01_vs_baseline03:
+      same: 6
+      different: 4
+    baseline04_vs_baseline03:
+      same: 3
+      different: 7
+    interpretation: Original stage3 repeats also produce differing text; text differences
+      alone cannot attribute a regression to stage1. Root cause and formal accuracy
+      not established.
+  repeat_control_recovery:
+    status: candidate02-complete-revert02-started
+    baseline04_status: complete
+    incident: Original candidate02 source-switch subprocess exited1 before source
+      replacement; stderr not printed by initial wrapper. Later read-only preconditions
+      pass and original source56f01 remains. No candidate measurement started during
+      failed attempt.
+    change: Explicitly wait for exact own API process exit as well as empty GPUs;
+      persist stderr; unique retry1 control artifacts. No benchmark/contract/source-patch
+      change.
+    command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_second_triplet_recovery.py
+    command_sha256: ad75f3705984782d69a0424c3f56acdfe6443da7fea87ec1159223aaa0fa3f6a
+  comparison_tool_fix:
+    status: code-tested
+    reason: api_pid and runtime_evidence_files differ per actual process and must
+      not be stable configuration fields
+    change: Only two observed metadata fields normalized; every runtime evidence file
+      SHA verified, malformed metadata and undeclared semantic fields still rejected
+    local_tests: 31 comparison tests and 207 project tests passed (3 skipped); scripts/validate-local
+      --code passed
+    remote_new_source: commands/tooling/evaluation/performance/compare_performance_v2.py
+    remote_new_source_sha256: b8c8e58bcc3217af7450bc4930758a7c6e47f2a51eb5dab0655206bf2d711c5b
+    frozen_records: unchanged
+    thresholds: unchanged; original B03 P99 TPOT spread violation still incomplete
+    stable_identity_audit: passed for B03/C01/R01/B04/C02; only /flaggems_vllm_sha256
+      changed; all service instance IDs unique
+    local_validation_log_sha256: e3afad56bc5be064de32a10d3c48eab41e9850c1e21df402afc3d787f6e9ea84
+  baseline04_result:
+    status: complete
+    output_tps:
+    - 1748.1487712102469
+    - 1829.1655834986811
+    - 1743.5250881568927
+    mean_output_tps: 1773.6131476219405
+    p99_tpot_ms:
+    - 36.059809772630935
+    - 34.66021951187843
+    - 36.86340357639435
+    p99_tpot_relative_spread: 0.061098050111959075
+  candidate02_result:
+    status: complete
+    output_tps:
+    - 1909.8568107195324
+    - 1991.364114592638
+    - 1867.5355600055086
+    mean_output_tps: 1922.9188284392264
+    relative_gain_vs_baseline04_mean: 0.08418164976814424
+    mean_tpot_ms: 31.62455396158373
+    p99_tpot_ms_mean: 32.90166140312457
+    p99_tpot_relative_spread: 0.06975636669163572
+    scope: diagnostic; original B03 spread violation remains
+  finalization_control:
+    command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/finalize_op002_diagnostic.py
+    sha256: 2690cf679170d63c9ae6f94816dbaf58c27dc0c6c56a6d65a82ac32b3f7aa044
+    scope: Compare all six records without mutation; stop only own18430; verify original
+      sources; hash all weight shards after measurement; no deployment
+  decision: retained-private-json-user-restarted
+  six_process_comparison:
+    status: incomplete
+    scope: performance_only
+    aggregation: median of per-process round medians
+    source_variable:
+    - /flaggems_vllm_sha256
+    independent_processes_per_role: 2
+    warmup_rounds_per_process: 5
+    measured_rounds_per_process: 3
+    issues:
+    - baseline03 p99_tpot_ms within-process spread10.8597% exceeds frozen10%
+    native_report:
+      path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op002-p1k-comparison-v3.json
+      sha256: 8fb5edc1088c7aa5f1fcfc2d1074030588d281cb1c0bfee37951bc64ca563379
+    metrics:
+      output_throughput:
+        baseline: 1755.0105384098601
+        candidate: 1900.6569833797605
+        revert: 1763.6961653649737
+        relative_improvement: 0.08298892900202431
+      p99_ttft_ms:
+        baseline: 3628.921335283667
+        candidate: 3600.0427041808143
+        revert: 3601.2033394537866
+      p99_tpot_ms:
+        baseline: 36.02954501203759
+        candidate: 33.35317617099739
+        revert: 35.95032736781042
+      p99_itl_ms:
+        baseline: 36.407067803665996
+        candidate: 33.86941095814109
+        revert: 36.46140615455806
+    claim_boundary: Observed positive direction only, not formal P1K or four-scene
+      acceptance
+  finalization:
+    status: diagnostic-artifacts-complete-experiment-incomplete
+    receipt: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op002-finalization-recovered.json
+    source_audit_sha256: f8c60804636f96f97c25f045fb801b7bbf409cbbeb895abfb383884c02715006
+    original_and_private_source_match_initial: true
+    own_service_stopped: true
+    source_service_models:
+    - qwen3vl-opt1
+    control_incidents: v2 summary control log basename collided safely; new v3 outputs
+      used. Initial finalizer completed stop/source/weights but receipt referenced
+      absent v2 report. Recovered receipt binds actual v3 without rewriting any old
+      artifact.
+  local_record_audit:
+    command: scripts/validate-local --records
+    status: failed-unrelated-records
+    current_case_errors: 0
+    reason: Global checker reports existing MiniMax/Qwen3.6 missing links and historical
+      process artifacts in other cases; no current case errors; unrelated files left
+      untouched
+    log_sha256: 9a0d3a35c6b0ac0a79b631e08843b0c6470f0f1215177fca2841b495ba0fc59c
+  retention_basis: User 2026-10-14 explicitly requests retaining useful optimization
+    despite variability; archived unchanged candidate, no formal promotion or source
+    deployment
+  json_config_migration_20261014:
+    status: user-restarted-manual-results-imported
+    operation_id: op002-json-cfg01
+    authorization: 'Side conversation 2026-10-14: implement configuration-file approach
+      in container; explicitly allow updating disk files while user keeps qwen3vl-opt2
+      running and restarts later.'
+    container: qwen3vl-flaggems-e2e-20261013
+    scope: Private FlagGems-vllm only; no service restart/stop, GPU traffic, profiling,
+      formal accuracy, or changes to source qwen-vl.
+    before_moe_sha256: 4bac1ee1100fcaeb28f9204715e32fcbcd6807c1da4bf128c8f9d69735ead7f1
+    design: Sparse per-stage JSON overrides in existing try_get_optimal_moe_config
+      default path; legacy embedded config priority and execution-path flag preserved;
+      exact M lookup, no nearest-M widening.
+    expected_equivalence: C550/BF16/E128/N2048/K384/top8/gemm2/M8..64 retains num_stages=1,
+      all other terminal configs identical to retained candidate.
+    validation: CPU-only extracted actual config functions; compare old/new terminal
+      config, boundary and non-target cases, cache/file-missing/legacy priority tests;
+      syntax/packaging checks. Hardware and E2E verification deferred until user restart.
+    remote_case_dir: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1
+    pr_readiness: experimental
+    remote_command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/op002-json-cfg01/apply_moe_json_cfg01.py
+      --apply
+    remote_command_sha256: 1b1ec05c6a339c3e006b178f92d4e3b53f7fb9c7babceebf7691304c00d9892a
+    validation_script_sha256: 89e04c5d08ecebd88c3467d4d972ebf606b6c337f5406ab6e94ba90ea5c959aa
+    patch_sha256: 879fc48491068001c1ef1b41b4eb4afa038ffe7e579db94da6fbffb62398dfce
+    transfer_sha256: 88b2c86a3ecb4972922f761981c899b6ffe6f11b5c694d9a347c3080e5024996
+    configuration_equivalence_cases: 159840
+    local_preflight_notes:
+    - Default local Python3 is 3.9, so used project Python3.12.
+    - Validation harness initially assumed all out-of-scope defaults were stage3;
+      corrected to actual pre-migration oracle because existing large-M shared-memory
+      heuristics select other stages. No production behavior changed by this correction.
+    after_moe_sha256: bcc9a3b15337c192c6eb43229659d73e92e9a7813937cb3bf3b6ef8ad2a486b0
+    json_path: /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/utils/configs/moe/E=128,N=2048,K=384,topk=8,device_name=MetaX_C550,dtype=bf16,gemm_stage=gemm2.json
+    json_sha256: ad5bf196af20be5f9bb2916527a9fd061172e7fbbc93ed329a3e925758654261
+    pyproject_sha256: 78e7946d734aee6046adb5b4903937f788ad619993bd2c0f3f99bf8bf1066dba
+    private_repo_sha256: ef38f46c8a719c7f64ba7c51cc95c895b8667de6bcf9e40b9561c365b4bda99b
+    changed_files:
+    - pyproject.toml
+    - src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py
+    - src/flaggems_vllm/runtime/backend/_metax/utils/configs/moe/E=128,N=2048,K=384,topk=8,device_name=MetaX_C550,dtype=bf16,gemm_stage=gemm2.json
+    json_entries: 57
+    json_reads_for_100_calls: 1
+    syntax_and_package_resource_pattern: passed; wheel not built
+    unchanged_triton_jit_functions: 5
+    source_container_and_other_private_repos: passed; full source fingerprints identical
+      before/after
+    actual_import_path: /workspace/FlagGems-vllm/src/flaggems_vllm/__init__.py
+    user_service: qwen3vl-opt2/8000; same process and environment before/after; current
+      user CUDA/MACA devices4,5. This CPU-only migration does not add or compare manual
+      performance to original TP2/device0,1 case metrics.
+    service_restart_performed: false
+    gpu_work_performed: false
+    gpu_graph_and_e2e: not_run after JSON refactor; explicitly left to user after
+      restart
+    accuracy: not_run
+    lint: black/isort/flake8 unavailable locally and in container; no dependency installation.
+      Syntax, JSON/TOML parsing, git diff --check passed.
+    remote_receipt: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op002-json-cfg01-apply.json
+    remote_receipt_sha256: e263189434ff59a0c904b176be731c3e7c7d114ea5a193a7951f41b44109e756
+    remote_validation: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op002-json-cfg01-validation.json
+    remote_validation_sha256: 7639a2a78ab98d64f9da3ecc550680861469d960200d727e67ea23d385b50534
+    remote_final_audit: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op002-json-cfg01-final.json
+    remote_final_audit_sha256: 4a2ecb316d10235acff017e45da92d395a5fa92801b7eefc427573c19357deb5
+    rollback: Restore archived fused_moe.before.py and pyproject.before.toml from
+      remote commands/op002-json-cfg01; new JSON then unused by old code. Restart
+      only under user control.
+    transport_note: SFTP/scp destination lookup failed without writing; same archive
+      transferred via verified SSH stdin using exclusive create and matching SHA.
+    previous_decision:
+      candidate_promoted: false
+      candidate_deployed: false
+      reason: Original B03 P99 TPOT spread10.8597% > frozen10%; formal GPQA threshold/gate
+        missing
+      source: Both source and private clone four repositories restored/match initial
+        fingerprints; source8000 healthy
+      own_service: 18430 exited; GPUs0/1 idle with860MiB each
+      patch: Archived experimental candidate only; no new optimization stacked
+    previous_next_action: Keep op002 private and original ATen blacklist; next bounded
+      investigation separates copy_ from cumsum if needed and profiles residual host/dynamic-shape
+      or routing sensitivity. Formal accuracy remains deferred; no source deployment.
+  user_opt2_retry_import_20261014:
+    status: observation-only
+    source: user-supplied manual CSV; latest running served qwen3vl-opt2-retry/8000
+      GPU4,5; default import private JSON code matches disk
+    rows:
+    - input_tokens: 16384
+      output_tokens: 1024
+      concurrency: 64
+      requests: 128
+      baseline:
+        path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_16384in_1024out_c64_n128_20261013_213146.csv
+        sha256: cfb6320928b13d821b88839ac224d070685bade1491ef6634e1bee260010007b
+        medians_all3:
+          Output tok/s: 321.43
+          Mean TTFT (ms): 87090.13
+          P99 TTFT (ms): 181775.0
+          Mean TPOT (ms): 85.25
+          P99 TPOT (ms): 118.04
+          P99 ITL (ms): 665.47
+      candidate:
+        path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt2-retry/qwen3vl-opt2-retry_16384in_1024out_c64_n128_20261014_153638.csv
+        sha256: b44ff586969fb578a0cd3a8e645529a6a2a26c5dfc410e2bd1c36a3bf7ffcfdf
+        medians_all3:
+          Output tok/s: 328.71
+          Mean TTFT (ms): 85306.25
+          P99 TTFT (ms): 177162.95
+          Mean TPOT (ms): 83.2
+          P99 TPOT (ms): 115.3
+          P99 ITL (ms): 663.45
+      observed_output_tps_relative_change: 0.022648788227607852
+      all_original_rounds_retained: true
+    - input_tokens: 4096
+      output_tokens: 1024
+      concurrency: 64
+      requests: 128
+      baseline:
+        path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_4096in_1024out_c64_n128_20261013_213146.csv
+        sha256: 947275be895016d45c0c13e877e3041c37a7a9009065396de76f42aa55480267
+        medians_all3:
+          Output tok/s: 827.29
+          Mean TTFT (ms): 4946.99
+          P99 TTFT (ms): 15507.74
+          Mean TPOT (ms): 72.31
+          P99 TPOT (ms): 76.48
+          P99 ITL (ms): 496.2
+      candidate:
+        path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt2-retry/qwen3vl-opt2-retry_4096in_1024out_c64_n128_20261014_153638.csv
+        sha256: ed237d2d86d25c4f9ca6c0c6343e2a28168443b2d666083280f657887308b4f7
+        medians_all3:
+          Output tok/s: 851.94
+          Mean TTFT (ms): 4932.76
+          P99 TTFT (ms): 15509.81
+          Mean TPOT (ms): 70.12
+          P99 TPOT (ms): 74.46
+          P99 ITL (ms): 494.5
+      observed_output_tps_relative_change: 0.029796081180722744
+      all_original_rounds_retained: true
+    - input_tokens: 65536
+      output_tokens: 1024
+      concurrency: 64
+      requests: 128
+      baseline:
+        path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt1/qwen3vl-opt1_65536in_1024out_c64_n128_20261013_213146.csv
+        sha256: b613c5653810485dab753602b9a7ff59ce8db39e42d7c83e3956b357d7d52444
+        medians_all3:
+          Output tok/s: 66.56
+          Mean TTFT (ms): 675206.06
+          P99 TTFT (ms): 948206.66
+          Mean TPOT (ms): 99.16
+          P99 TPOT (ms): 120.21
+          P99 ITL (ms): 1562.22
+      candidate:
+        path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt2-retry/qwen3vl-opt2-retry_65536in_1024out_c64_n128_20261014_153638.csv
+        sha256: d0e287c071785f3848cdcb4e84897e6a77c9e7a529b3e16a081dfcfc22c4349e
+        medians_all3:
+          Output tok/s: 66.91
+          Mean TTFT (ms): 671977.2
+          P99 TTFT (ms): 943834.79
+          Mean TPOT (ms): 98.56
+          P99 TPOT (ms): 119.14
+          P99 ITL (ms): 1566.7
+      observed_output_tps_relative_change: 0.005258413461538325
+      all_original_rounds_retained: true
+    limitations:
+    - no native run-record/plan/comparison and prospective steady-state proof supplied
+    - all three rounds preserved; original SUMMARY excludes first round and is not
+      used for new attribution
+    - manual results do not replace own GPU0,1 series or formal four targets
+    - P1K and P32K absent; P64K extra diagnostic
+    actual_json_migration: worker restart observed from new API command; complete
+      new-container MoE call resolves GEMM2 stage1 from JSON; user worker internal
+      config cache not introspected
+    original_summary_policy: Verified test/perf_test/vllm_perf.py predefines RUNS3/SKIP_FIRST1;
+      SUMMARY exclusion is planned warmup, not posthoc. All3 median retained as additional
+      trend only; neither proves steady admission.
+- experiment_id: diag-001-p1k-stability-recovery
+  document: diag-001-p1k-stability-recovery.md
+  scenario_id: p1024-d1024-c64-n128
+  status: diagnosis-complete-routed-to-aten-isolation
+  direction: diagnostic/measurement-recovery
+  performance_skill_mode: targeted
+  scope: pureperformance; formal precision intentionally deferred by user
+  change: warmup5->8; same3measured/main/guard/spread/drift thresholds; allnewB/C/R
+    processes; no sourceoptimization beyond unchanged archivedop002
+  old_series: retainedincomplete; never relabeled or rewritten
+  evidence: B03r8 cross-request common1.09s gaps near first-wave completion/second-wave
+    start; other same-seed runs~0.43-0.45s. start_times are monotonic, not epoch;
+    absolute log alignment unavailable. Root cause not established.
+  hypothesis: More complete transition/shape warmup may remove rare nonsteady gap;
+    full6process prospective rerun checks it without relaxing10%spread
+  stop_rules: At mostone newtwo-process-per-role recovery series; any failedwarmup/request/withinspread>10%
+    stops further blindrole repetitions; diagnose with trace instead
+  accuracy: No GPQA or score/gate; only graph/servicehealth checks requestedscope
+  source: Private cloneonly; sourceqwen-vl untouched; FGonallroles
+  tags:
+  - baseline05
+  - candidate03
+  - revert03
+  - baseline06
+  - candidate04
+  - revert04
+  target_plan:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/target-p1k-plan-recovery.json
+    sha256: 2a214f87bee159ad26b4d3d7e60c1f9af47bbc6a27abc4c1aba01ce00e29e52f
+  comparison:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/comparison-stability-recovery.json
+    sha256: 9a2f4c29e2a7bbd0c30c798189564d7473809ac52f5cdde7c543658c0f69b788
+  control_preparation:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/stability-recovery-preparation.json
+    local_sha_manifest: See experiment document
+  recovery_result:
+    native_status: failed
+    warmup_spread: 0.06688377578443468
+    warmup_last3_tps:
+    - 1761.4306720507077
+    - 1832.140373455048
+    - 1714.3292393257823
+    completed_requests: 1024
+    failed_requests: 0
+    measured_rounds: 0
+    unstarted_roles:
+    - candidate03
+    - revert03
+    - baseline06
+    - candidate04
+    - revert04
+    hypothesis: extra warmup did not resolve variability
+    max_itl_ms_r8: 439.2550205811858
+    over800ms_itls_r6_r7_r8: 0
+  profiling:
+    mode: capture then analyze
+    container: qwen3vl-flaggems-e2e-20261013
+    service_tag: transition01
+    delay_iterations: 1000
+    max_iterations: 120
+    profile_seeds:
+    - 74289
+    - 74290
+    scope: diagnostic first/second-wave transition; no profiler-on performance claim
+    skill_sha256: 0702ab0e55981c39974f28749990fbcde3a92062f48d49364c77d635cca669d7
+  trace_result:
+    status: parsed-and-mapped
+    trace_sha: cf0dfe9c0787719c0de2be57b28ac20dd09209328216801bc57b0e52c52aa1d0
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/transition01-analysis.json
+    rank_coverage:
+    - 0
+    - 1
+    seeds:
+    - 74289
+    - 74290
+    markers_per_trace:
+      decode: 110
+      mixed: 10
+      pure_prefill: 0
+    unmapped_moe: 0
+    rank0_M64_gemm1_us:
+      seed7: 174.95127453271027
+      seed8: 191.40024143302182
+    rank0_M64_gemm2_us:
+      seed7: 158.10603115264797
+      seed8: 168.29901460280374
+    gpu_iteration_gap_max_ms: 5.960703979492187
+    boundary: new+cached retains partial-prefill ambiguity; delayed-start/export profiling
+      overhead not performance; old pure-Prefill trace referenced
+  gap_inspection:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/transition01-gap-inspection.json
+    sha256: 190038d3eb8c0da948895da935d98e3c9bbdce905b1719d047d2b806ba9d08cf
+    mixed_seed8_gaps_ms: 160-196; overlaps copy_/cumsum/MoE CPU operations
+    compile_cause: not established; default-cache mtime search yielded no matching
+      new metadata
+    alternative: profiler overhead/other host effects remain unresolved
+  source_audit:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/transition01-final-source-audit.json
+    sha256: f63b45b31405a7a48b66bb427d183e4a1b264576eda082fce0d3938f66d911bf
+    status: passed before user-retained private op002 reactivation
+    source_service: qwen3vl-opt1/8000 unchanged
+- experiment_id: diag-002-aten-copy-cumsum-isolation
+  document: diag-002-aten-copy-cumsum-isolation.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed-negative-blacklist-reverted
+  direction: diagnostic/aten-isolation
+  performance_skill_mode: targeted
+  scope: performance_only; op002 retained in all roles; native ATen test temporary
+    user-authorized
+  variable: VLLM_FL_FLAGOS_BLACKLIST adds exactly copy_,cumsum for C
+  roles:
+    baseline: aten01-base
+    candidate: aten01-off
+    revert: aten01-revert
+  comparison_limits:
+    processes_per_role: 1
+    measured_rounds: 3
+    warmup_rounds: 5
+    warmup_last3_spread: 0.05
+    measured_spread: 0.1
+    baseline_revert_drift: 0.1
+    primary_min_gain: 0
+    p99_ttft_tpot_max_regression: 0.05
+    p99_itl_max_regression: 0.1
+  source_qwen_vl: untouched
+  stop: Request/dispatch/identity failure stops; warmup admission failure prevents
+    measurement for that role but permits exactly one C/R diagnostic; no speedup from
+    incomplete roles
+  accuracy: no GPQA or accuracy gate; health/graph only
+  control_version: run_aten01_isolation_v2.py; v1 prepared but never executed
+  plan:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/target-p1k-plan-aten01.json
+    sha256: 0310eb946e021c0b6a61dcd52b76965bd6df63d28a4dd3681982a0d0c1ae5fe9
+  comparison:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/comparison-aten01-diagnostic.json
+    sha256: c95a4485d755f78244e4eb35e6f181ee3aad24f42188ef76ffd8e664c6e6cd9e
+  baseline_progress:
+    status: complete
+    warmup_spread: 0.00975696643589668
+    measured_output_tps:
+    - 1919.5335267321743
+    - 1988.36
+    - 1878.73
+    measured_p99_tpot_ms:
+    - 32.89097434214752
+    - 31.708
+    - 33.817
+    note: Last two values rounded live display only; final native report authoritative
+    requests_failed: 0
+    moe_gemm2_stages: 1
+    copy_cumsum_cuda_registration: FlagGems /dev/null:488
+    next: aten01-off source unchanged; only two added blacklist ops
+  off_dispatch_proof:
+    status: health-and-graph-passed
+    gemm2_stages: 1
+    blacklist: mm,mm_out,layer_norm,log_softmax,copy_,cumsum
+    copy_: native CompositeExplicitAutograd default CUDA backend
+    cumsum: native CUDA RegisterCUDA_0.cpp:8524
+    cumsum.out: still FlagGems /dev/null:488; intentionally no extra blacklist
+    workers:
+    - 0
+    - 1
+  off_progress:
+    status: complete
+    warmup_spread: 0.022426171529781727
+    measured_output_tps_display:
+    - 1718.36
+    - 1822.65
+    - 1726.71
+    measured_p99_tpot_ms_display:
+    - 37.381
+    - 34.821
+    - 36.739
+    requests_failed: 0
+    note: Rounded live display; final native comparison authoritative
+    next: Restore only copy_/cumsum; keep op002 and complete matched R
+  native_comparison:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/aten01-p1k-comparison.json
+    sha256: 4170cbd033684780dea9ebb58b754dbcd16e54ce112a4a44be650b02b8bbef3c
+  native_status: failed
+  native_issues:
+  - 'p1024-d1024-c64-n128/output_throughput: primary improvement below threshold'
+  - 'p1024-d1024-c64-n128/p99_tpot_ms: guardrail regression'
+  metrics:
+    p1024-d1024-c64-n128:
+      output_throughput:
+        baseline: 1919.5335267321743
+        candidate: 1726.7109918832507
+        revert: 1901.6161217372216
+        relative_improvement: -0.10045280906199429
+      p99_ttft_ms:
+        baseline: 3610.626390185207
+        candidate: 3558.708243854344
+        revert: 3586.367644658312
+        relative_improvement: 0.01437926296445202
+      p99_tpot_ms:
+        baseline: 32.89097434214752
+        candidate: 36.73857296412794
+        revert: 33.155242993058465
+        relative_improvement: -0.11698037832372706
+      p99_itl_ms:
+        baseline: 33.77118567004799
+        candidate: 36.926930500194416
+        revert: 33.916974533349276
+        relative_improvement: -0.09344489296226538
+  runs:
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/performance/aten01-base-target-p1k-01/run-record.json
+    sha256: 3aad0f469e8745a778d67dd09b618b7c605c26a15853f4248bb3b2eb152e2c90
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/performance/aten01-off-target-p1k-01/run-record.json
+    sha256: e6d8a594d73227d862ef9e8e8222fa76ff4f2543c835558daa9fe6b5175050f6
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/performance/aten01-revert-target-p1k-01/run-record.json
+    sha256: c90e2daf9bc76b8488875c0e7913dcff56d5e2b364b02b3f7b5face419c5f137
+  within_process_spreads:
+    baseline:
+      tps: 0.05711319277017566
+      p99_tpot: 0.06412528747868705
+    'off':
+      tps: 0.060396274018068026
+      p99_tpot: 0.06967786650372464
+    revert:
+      tps: 0.054431229174036776
+      p99_tpot: 0.05946447056844172
+  long_itl:
+    baseline_over800ms:
+    - 0
+    - 0
+    - 0
+    off_over800ms:
+    - 97
+    - 0
+    - 0
+    revert_over800ms:
+    - 0
+    - 0
+    - 0
+    off_r6_max_ms: 944.1050291061401
+  conclusion: Combined copy_/default cumsum disable reduces TPS10.05%, worsens P99TPOT11.70%,
+    does not reduce round spread; rare long gap still appears while both defaults
+    native. No support for keeping combined blacklist or assigning sole cause to those
+    FlagGems defaults. cumsum.out remains enabled; individual op contributions and
+    host/JIT cause unresolved.
+  source_audit:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/aten01-final-source-audit-v2.json
+    sha256: 2681a64ddafdb9f23791ca4c20e092f5b655942a2308dee86a1d911be3cdddf8
+    status: passed
+    source_qwen_vl: unchanged and qwen3vl-opt1/8000 healthy
+    private_clone: only op002 FG-vllm file differs; hash a3a271684679628c7574eb0040a9fe8988141ffdc99b516d973849af66a3ba73
+    temporary_blacklist: restored to original four
+    own18430: stopped
+  control_exit_note: Native comparison status failed correctly returns1 for negative
+    candidate; orchestration raised at final comparison after all measurements and
+    stops. No measurement retry or rewritten artifact; no controller bug inferred.
+- experiment_id: op-003-metax-moe-decode-tiling
+  document: op-003-metax-moe-decode-tiling.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed-negative-no-product-change
+  direction: operator/improve
+  dependency: op002 JSON-based GEMM2 stage1 retained
+  primary_variable: MoE GEMM tiling, including shared row alignment when BM changes
+  source_container: qwen3vl-flaggems-e2e-20261013
+  optimization_container: qwen3vl-flaggems-op003-20261014
+  service_scope: new private container/GPU0,1; user opt2-retry/8000/GPU4,5 protected
+  phase_evidence:
+    prefill: previous op001 trace; no new attribution inferred from TTFT
+    decode: previous op002 candidate trace GEMM1~186us remains dominant; GEMM2~110us
+    mixed: previous phase trace and new manual CSV retain all rounds; performance
+      comparison validity pending
+  search_contract:
+    seeds:
+    - 20261014
+    - 20261015
+    routes:
+    - uniform
+    - concentrated
+    scan_M: 64
+    candidate_variants:
+    - baseline BM16/BN64/BK128 stages3,1
+    - BM8 both GEMMs/alignment
+    - BM32 both GEMMs/alignment
+    - GEMM1 BN32
+    - GEMM1 BK64
+    - GEMM1 BN128 stages1
+    warmup_replays: 200
+    timed_blocks: 3
+    replays_per_block: 200
+    budget_seconds: 900
+    minimum_full_moe_speedup: 1.05
+    max_verification_regression: 0.03
+    max_baseline_revert_drift: 0.05
+    max_timing_spread: 0.1
+    oracle: retained JSON full MoE + independent CPU FP64; atol.002/rtol.02/NRMSE<=.015;
+      two changed-input graph replays
+    verification_M:
+    - 8
+    - 16
+    - 32
+    - 48
+    - 64
+  prepare_command:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/prepare_op003_container.py
+    sha256: a69e0ef00608aeb91eefd27469022b279d0ec710aa96210bbd779ecd36bf193e
+  accuracy: deferred by user; operator correctness remains required
+  performance: two full MoE graph searches below frozen5%; no service candidate generated
+  decision: not-retained
+  preparation_recovery:
+    reason: mount parity passed; docker commit deprecation stdout polluted image-id
+      parser; verify existing target against docker image inspect, no second commit/create
+    command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/recover_op003_container.py
+    sha256: 09af0e4da6f4e70d3f2e6f2a6b2a00dc394c22cd3011fad1359fe4791b06ca74
+  micro_command:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/moe_tiling_scan_op003.py
+    sha256: 00663745bfff5db7ce47ef11dcafe5642d8b2cb06cd2fa5b61686abf483fbe73
+  environment_gates:
+    image_lineage: verified
+    mount_parity: passed
+    receipt: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op003-container-preparation-recovered.json
+    image_id: sha256:12d825d34442dc981b77e5edc41b1539c1df0c66fd475af51093f8f4421c77ba
+    parent_flaggems_vllm_sha256: ef38f46c8a719c7f64ba7c51cc95c895b8667de6bcf9e40b9561c365b4bda99b
+  scan_controller:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_op003_scan.py
+    sha256: 40e2afbe612c925b764de4c6a2afdd24d6db4cdc4b25a7240a26ef3ec88ad6c5
+    timeout_s: 960
+  first_search_result:
+    status: not-promoted
+    selected_variant: g1_bk64
+    min_full_moe_speedup: 1.0299661363873744
+    elapsed_s: 35.83310404419899
+    bm8: FlagTree TritonMETAXGPUPipelineMACA compile failure; no production edit
+    source_unchanged: true
+    artifact: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op003-tiling01-scan.json
+  second_search_contract:
+    reason: BK64 reduced shared-memory footprint but first-search worst route gain
+      below5%; test coupled stage/warp resource pressure
+    variants:
+    - baseline
+    - BK64 s1
+    - BK64 s2
+    - BK64 s3
+    - BK32 s2
+    - BK128 warps2
+    - BK64 warps2
+    - BK64 warps8
+    same_seeds_routes_M_oracles_and_promotion_thresholds: true
+    budget_s: 900
+    commands:
+    - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/moe_tiling_scan_op003_v2.py
+      sha256: 7359a4b935ae07a6947c008d12e80a448541430029d6e36dc003488d694c52f0
+    - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_op003_scan_v2.py
+      sha256: 6d8c0150933f1030ae7a7637818ec823d146484e1429986f02fa7a85907ee573
+  second_search_result:
+    status: not-promoted
+    best_variant: g1_bk64_s3
+    min_full_moe_speedup: 1.0290687209224072
+    elapsed_s: 39.33936122432351
+    artifact: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op003-tiling02-scan.json
+    source_unchanged: true
+- experiment_id: op-004-metax-moe-prefill-tiling
+  document: op-004-metax-moe-prefill-tiling.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed-negative-no-product-change
+  direction: operator/improve
+  dependency: retained op002 JSON; op003 negative not present
+  primary_variable: large-M GEMM tile/group/warp configuration; alignment BM unified
+  optimization_container: qwen3vl-flaggems-op003-20261014
+  phase: prefill; mixed throughput and decode guards
+  phase_evidence:
+    prefill: prior actualM8192 G1~2.98ms,G2~1.41ms; current generic fast path BM128
+      with resource-reduced stages; pair gate-up disabled on64KiB
+    decode: prior candidate G1~186us,G2~110us; two further searches rejected; preserve
+      allM8..64 configs
+    mixed: current target P1K and manualP4K/P16K trend; TTFT includes queue/scheduler;
+      no newpureGPUtiming claim
+  micro_contract:
+    M: 8192
+    seeds:
+    - 20261014
+    - 20261015
+    routes:
+    - uniform
+    - concentrated
+    variants:
+    - baseline
+    - BM64 both
+    - BM64 warps4 both
+    - BM64 warps4 G1stages2
+    - BM32 warps4 both
+    - G1BN64 warps4 stages2
+    - G1BK32 stages2
+    - G1BK32 BN64 warps4 stages3
+    - GROUP4 both
+    - GROUP8 both
+    warmup_replays: 200
+    blocks: 3
+    timed_replays: 50
+    budget_s: 1200
+    minimum_full_moe_speedup: 1.05
+    max_non_target_regression: 0.03
+    max_B_R_drift: 0.05
+    max_spread: 0.1
+    oracle: smallM64 retained baseline/CPUFP64 plus fullM8192 baseline numerical comparison;
+      atol.002/rtol.02/NRMSE<=.015; 2 changed-input graph replays
+    verification_M:
+    - 4096
+    - 8192
+    - 16384
+    exact_M_deployment: 8192
+  accuracy: formal model accuracy deferred; operator correctness required
+  decision: not-retained
+  commands:
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/moe_prefill_scan_op004.py
+    sha256: 202da3648157dac92be22a0dda13887c4a88773c6f927683d5dcbf54a7ea3f3c
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_op004_scan.py
+    sha256: d956f421a74904e1b9712ac6277d799e72af6b92565606510e908de57ac98fc8
+  micro_result:
+    status: not-promoted
+    selected_variant: group4
+    min_scan_speedup: 0.9821589839407161
+    elapsed_s: 165.96195375174284
+    source_unchanged: true
+    artifact: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op004-prefill01-scan.json
+- experiment_id: op-005-flaggems-sort-sampling
+  document: op-005-flaggems-sort-sampling.md
+  scenario_id: p1024-d1024-c64-n128
+  status: retained-private-performance-only
+  direction: operator/improve
+  dependency: op002 JSON retained; op003/op004 rejected
+  optimization_container: qwen3vl-flaggems-op003-20261014
+  primary_variable: FlagGems compute_global_hist_kernel accumulation int64 -> int32;
+    histogram counts bounded8192/CTA and globalN<2^30
+  sampling_workload:
+    user_log: /public-flash/jinghao/qwen3-VL/test/perf_test/perf.log
+    user_benchmark_temperature: null
+    generation_config_temperature: 0.7
+    top_k: 20
+    top_p: 0.8
+    prior_own_temperature: 0
+    conclusion: previous own E2E and profiles omitted random sampling; no direct gain
+      comparison with manual CSV
+    new_entry_baseline_parent: op002 JSON
+  profiling_contract:
+    mode: capture then analyze
+    cases:
+    - - 1024
+      - 16
+      - 64
+      - 128
+    - - 1024
+      - 256
+      - 64
+      - 128
+    parent_target: p1024-d1024-c64-n128
+    temperature: 0.7
+    topk_topp: inherits frozen model generation_config topk20/p.8
+    warmup_rounds: 1
+    runs: 2
+    profile_runs: last
+    delay_iterations: 0
+    max_iterations: 120
+    required_ranks: 2
+    question: Does aten::sort/FlagGems radix sweep dominate actual random-sampling
+      Decode and Mixed? Separate Prefill/model kernels, sampling and device gaps.
+    timeout_s: 600
+    scope: diagnostic only; not steady performance comparison
+  protected_services: user qwen3vl-opt2-retry/8000 GPU4,5 and source qwen-vl unchanged
+  accuracy: deferred by user; numerical/operator graph correctness required
+  decision: retained
+  prepare_command:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/prepare_sampling01.py
+    sha256: 0bca91be11b8e284fbae796a7726ef2b7ac698fa2c24dc204cecb17c4e73d530
+  capture_command:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/capture_sampling01.py
+    sha256: 1b4004aec02491cb4a82a621df08d41a1d2f67af06a91e417e2f259b63a50c1f
+  capture_recovery:
+    reason: first sampler hook observed startup dummy k=V-1,p=.9;16real health requests
+      succeeded; distinguish restored dummy hook from runtime default config proof
+    command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/recover_sampling01_capture.py
+    sha256: 0a4635299cadf29932b743a7f8262445f911fb0acd5a1846212365167ce70727
+    health_rerun: false
+    prior_failure_preserved: true
+  capture_control_retry:
+    reason: prepared template args basename collided with execution record; no profile
+      requests started, retain original FileExistsError
+    command: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/capture_sampling01_profiles_v2.py
+    sha256: 6c043b5048424353dfb54d057e3755c17ffc8d56aa1e2d18d93d5e2c869df72a
+    existing_health_and_manifest: passed and reused; no service restart
+  analysis_command:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/analyze_sampling01.py
+    sha256: 4d4f50e7c9a8af4d37f461158d36815eead1b5a771c737cd508f0e48288443d4
+  profiling_result:
+    status: both-ranks-two-probes-parsed
+    artifact: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/sampling01-analysis.json
+    sha256: af0a1aa884573b0eec8e4deb98d9fac77c84817bdb1b2ecb37e7e7c6a6a9f7b6
+    decode_rank0_radix_cumulative_us: 2161414.9119999963
+    decode_rank0_all_gpu_cumulative_us: 8567157.411998374
+    decode_rank0_radix_activity_fraction: 0.25229079005516075
+    histogram_mean_us: 10138.5728
+    sweep_mean_us: 984.1522666666667
+    histogram_count: 120
+    sweep_count: 960
+    limitations: Profiler sums, not E2E speedup; phase association temporal for sampling
+      outside execute marker; cached-only may include partial Prefill
+  micro_contract:
+    primary: int64 to int32 counter only; scan original/candidate/original
+    shapes:
+    - - 64
+      - 151936
+    - - 8
+      - 151936
+    - - 16
+      - 151936
+    - - 32
+      - 151936
+    - - 48
+      - 151936
+    seeds:
+    - 20261014
+    - 20261015
+    directions:
+    - false
+    - true
+    patterns:
+    - gaussian
+    - ties-and-inf
+    correctness: FP32 output bitwise and indices exact originalFlagGems; CPUstable
+      sort for finite ordinary inputs; signedzero/NaN payload separately compared
+      to original; strided/dim0/int32/int64/fp16/bf16 sentinels
+    graph: two changed-input replays; warmup50 then3blocks20replays; CPU+GPU queued
+      complete calls3blocks10calls
+    minimum_full_sort_speedup: 1.05
+    max_shape_regression: 0.03
+    max_B_R_drift: 0.05
+    max_spread: 0.1
+    budget_s: 900
+    prototype_scope: process-local alternate JIT histogram function; product files
+      unchanged before eligibility
+    final_scope: one generic FlagGems kernel dtype line in newprivatecontainer only;
+      no sampler/Plugin/vLLM or blacklist changes
+  superseded_unexecuted_idea: radix digit width not measured; source sub4-bit histogram
+    tile requires extra bound handling, so prefer universally bounded counter-width
+    reduction
+  micro_commands:
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/bench_sort_hist32.py
+    sha256: 68f00f148ee6154917bcdadbb5b965db4e044532d4d87df28aa43172954f4b00
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_sort_hist32_micro.py
+    sha256: d7da9c93fade4e1185b555855cd2593242b1ffaae90b85b802d7595ab3cf60df
+  histogram_runtime_geometry:
+    registers_per_thread: 256
+    shared_memory_bytes: 4096
+    grid:
+    - 1216
+    - 1
+    - 1
+    block:
+    - 256
+    - 1
+    - 1
+    occupancy_estimate_percent: 25
+    note: trace metadata estimate, not a hardware counter
+  first_micro_attempt:
+    status: failed-oracle-fixture
+    source_unchanged: true
+    scan_completed: 4
+    scan_speedup_graph_range:
+    - 1.9471740960490438
+    - 2.162792360670578
+    scan_speedup_queued_range:
+    - 1.9233482476437713
+    - 2.1474853784310577
+    failed_check: originalFlagGems vs CPU bitwise before candidate in signedzero tie
+      fixture; not a candidate mismatch
+    result: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op005-sort-hist32-micro.json
+  micro_recovery:
+    method: reuse unchanged four Gaussian scan rows; prove original CPU mismatch only
+      signedzeros; normalize ordinary zeros for CPU tie oracle and still test signedzero/NaN
+      exactoriginal
+    commands:
+    - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/bench_sort_hist32_recovered.py
+      sha256: b81408f03f052e1c83523a5d00911019f8130cd8d18df1246c0d5acb8337b3bb
+    - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_sort_hist32_recovered.py
+      sha256: 61ce09b4ff9bfe68e9558845c8c55686e892214c1799ddb6f44015be5a929810
+    thresholds_unchanged: true
+  recovered_micro_result:
+    status: passed
+    result: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op005-sort-hist32-micro-recovered.json
+    Gaussian_scan_rows: 4
+    batch_verification_rows: 5
+    dtype_strided_and_special_cases: 12
+    output_and_indices: bitwise original FlagGems, CPUstable except original signedzero
+      semantics explicitly separated
+    product_source_unchanged: true
+  performance_contract:
+    mode: targeted
+    scope: performance_only
+    milestone_id: p1024-d256-c64-n128-sampling
+    parent_target: p1024-d1024-c64-n128
+    differences: output256 instead1024; generation.7 now matches real user sampling;
+      topk20/p.8 inherited frozen modeldefaults
+    roles:
+    - baseline
+    - candidate
+    - revert
+    processes_per_role: 1
+    warmup_rounds: 5
+    measured_rounds: 3
+    primary: steady output_throughput +5%
+    guards: P99TTFT/TPOT<=5% regression; P99ITL<=10%
+    warmup_admission: last3 outputTPS spread<=5%
+    max_measured_spread: 0.1
+    max_baseline_revert_drift: 0.1
+    formal_accuracy: deferred
+    promotion: successful Mixed milestone then originalD1024 target performance check;
+      no four-scene acceptance
+  performance_prepare_command:
+    path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/prepare_hist32_e2e.py
+    sha256: 3834513228cd081575fdb286053a257dbe5030277d124c1d8a4d69410317a519
+  e2e_commands:
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/switch_hist32_source.py
+    sha256: 4b44ca7342b336f38a69a57e3da0404e3c976dffe53e22067fe6a02a7839cb81
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_hist32_e2e.py
+    sha256: e5dc9df07e055b15e91810a42daba57c42b8128fe2320332202ec0f370c3ab39
+  candidate_sources:
+    before_sort_sha256: 4f63aadbe42f7dbfab0f0fb295c9dea09d749e292ce1b1e61340f68978e8fab9
+    after_sort_sha256: 06208cc0d074bd5a38a9ed84afa5870ccbea062fe3d244a1b438c2dc5df2e184
+    baseline_flaggems_sha256: f5114796e13547df4d9c06ad56ee5e1496ac77195d4dccd4f05eecd41c382e09
+    candidate_flaggems_sha256: 130b1746df5cb8f0817e9f7720f4e9fce35ae9731cbfe71b82c5863b96b84f77
+  e2e_commands_preflight: v1 prepared, never executed; nested null separator replaced
+    with bytes([0]) before remote execution
+  e2e_commands_actual:
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/switch_hist32_source_v2.py
+    sha256: 14c92daf96b19a9a27d07a6a68c507356465d1fad9578ec22c1933c3db642dcc
+  - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_hist32_e2e_v2.py
+    sha256: d007a65314ab730b92188e15f1891f58a3b8a81242d889aa28cfad105713d3d1
+  storage_failure:
+    status: incomplete-no-measured-rounds
+    native_record: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/performance/hist32-base-sampling-01/run-record.json
+    error: '[Errno28] No space left on device;client-probes.json zero bytes'
+    filesystem: shared/public-flash NFS350T now~1.2G free, earlier~1.3T;private overlay28T
+      ample;shm ample
+    source_change_performed: false
+    own_service_stopped: true
+    records_retained: true
+  storage_recovery:
+    host_approved_case_root: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1
+    container: qwen3vl-flaggems-op003-20261014
+    container_private_dir: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02
+    no_new_mounts: true
+    no_shared_data_deleted: true
+    new_host_root_chosen: false
+    same_performance_contract: true
+    commands:
+    - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/prepare_hist32_private_storage.py
+      sha256: 285fe4f684993508e228b953e1b5c5caf4495e4c0cc148765214dfef5b4f60e3
+    - path: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/run_hist32_private_e2e.py
+      sha256: 29f1d637d8d6d33d2fd3590db9ecc6aa653f3c22239affe1d7ca2c18a75e90f4
+    actual_execution_command:
+      container: qwen3vl-flaggems-op003-20261014
+      path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/commands/run_hist32_private_e2e.py
+      sha256: 29f1d637d8d6d33d2fd3590db9ecc6aa653f3c22239affe1d7ca2c18a75e90f4
+      verified_transfer:
+        path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/commands/run_hist32_private_e2e.py
+        sha256: 29f1d637d8d6d33d2fd3590db9ecc6aa653f3c22239affe1d7ca2c18a75e90f4
+        bytes: 5699
+      public_copy_zero_bytes: true
+      public_copy_never_started_private_test: true
+  full_target_contract_20261015:
+    mode: targeted
+    scope: performance_only
+    scenario_id: p1024-d1024-c64-n128
+    sampling:
+      temperature: 0.7
+      top_k: 20
+      top_p: 0.8
+    warmup_rounds: 3
+    measured_rounds: 3
+    window: 3
+    max_warmup_spread: 0.05
+    processes_per_role: 1
+    primary_min_improvement: 0.05
+    guards_and_comparison_limits: unchanged from D256 milestone
+    reason: bounded milestone observed15%gain; originalD1024 gets own three complete
+      warmups and3measure perfreshservice, no olddata discarded or thresholds loosened;
+      formal accuracy deferred
+    output_container_dir: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03
+    prepare_command:
+      container: qwen3vl-flaggems-op003-20261014
+      path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/commands/prepare_hist32_full_target.py
+      sha256: e8e0e18c29186dc2125ebb00025513bc985a4754634ef475a961343344314faa
+  milestone_e2e_result:
+    status: passed
+    scope: performance_only
+    scenario_id: p1024-d256-c64-n128-sampling
+    container: qwen3vl-flaggems-op003-20261014
+    artifact: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/results/hist32p-sampling-comparison.json
+    sha256: a2842ff73e0600256b601887cb016c0bb4bbeb7cde8a04d7b9f9df6cb02897af
+    metrics:
+      output_throughput:
+        baseline:
+          value: 977.8944082636442
+          round_values:
+          - - 977.8944082636442
+            - 971.4307728331449
+            - 980.5533305848306
+          process_values:
+          - 977.8944082636442
+          relative_spread: 0.0
+        candidate:
+          value: 1127.8540341408989
+          round_values:
+          - - 1133.604654198213
+            - 1127.8540341408989
+            - 1117.6599072455065
+          process_values:
+          - 1127.8540341408989
+          relative_spread: 0.0
+        revert:
+          value: 976.9091213143791
+          round_values:
+          - - 980.699387779634
+            - 976.9091213143791
+            - 973.03262820886
+          process_values:
+          - 976.9091213143791
+          relative_spread: 0.0
+        relative_improvement: 0.15334950748263707
+      p99_ttft_ms:
+        baseline:
+          value: 3750.2232788782567
+          round_values:
+          - - 3796.262153899297
+            - 3750.2232788782567
+            - 3729.2762992251664
+          process_values:
+          - 3750.2232788782567
+          relative_spread: 0.0
+        candidate:
+          value: 3663.7600694969296
+          round_values:
+          - - 3667.6419697143137
+            - 3655.530604403466
+            - 3663.7600694969296
+          process_values:
+          - 3663.7600694969296
+          relative_spread: 0.0
+        revert:
+          value: 3710.069257952273
+          round_values:
+          - - 3698.6949713528156
+            - 3719.1929573751986
+            - 3710.069257952273
+          process_values:
+          - 3710.069257952273
+          relative_spread: 0.0
+        relative_improvement: 0.023055483087713477
+      p99_tpot_ms:
+        baseline:
+          value: 63.411635457958084
+          round_values:
+          - - 63.411635457958084
+            - 63.67191263777661
+            - 63.18695665399233
+          process_values:
+          - 63.411635457958084
+          relative_spread: 0.0
+        candidate:
+          value: 54.84846783082421
+          round_values:
+          - - 54.497615923411125
+            - 54.84846783082421
+            - 54.988476472194584
+          process_values:
+          - 54.84846783082421
+          relative_spread: 0.0
+        revert:
+          value: 63.459185571793256
+          round_values:
+          - - 63.06029886942284
+            - 63.459185571793256
+            - 63.668281479099505
+          process_values:
+          - 63.459185571793256
+          relative_spread: 0.0
+        relative_improvement: 0.13504095211061465
+      p99_itl_ms:
+        baseline:
+          value: 443.4572266507894
+          round_values:
+          - - 443.4572266507894
+            - 444.48037003166974
+            - 442.66495294868946
+          process_values:
+          - 443.4572266507894
+          relative_spread: 0.0
+        candidate:
+          value: 433.17675712518405
+          round_values:
+          - - 433.9736342616379
+            - 433.17675712518405
+            - 432.9554012976587
+          process_values:
+          - 433.17675712518405
+          relative_spread: 0.0
+        revert:
+          value: 440.8864412643016
+          round_values:
+          - - 440.6468419544399
+            - 444.3463505990803
+            - 440.8864412643016
+          process_values:
+          - 440.8864412643016
+          relative_spread: 0.0
+        relative_improvement: 0.023182550441783464
+    native_runs:
+    - path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/results/performance/hist32p-base-sampling-01/run-record.json
+      sha256: df99d1e70bd38098133815dcb1c5604da85f835bd7099ce36681445d090779a5
+    - path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/results/performance/hist32p-candidate-sampling-01/run-record.json
+      sha256: ed8e19a11120fb4227535f70bb20efa25c2f1a5246ff0d8875493269fa9621ac
+    - path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-storage02/results/performance/hist32p-revert-sampling-01/run-record.json
+      sha256: e76b6f71d812d4d0b3762c7a1e6040c814f38df12fe8bb4a3d7cae28e1b544b3
+    changed_paths:
+    - /flaggems_sha256
+    revert_tps_drift: -0.0010075596515727314
+    claim_boundary: measured workloads only; no sustained-capacity or long-term-stability
+      claim
+    all_rounds_retained: true
+    accuracy: deferred; no score or formal gate
+  conditional_retention_command:
+    path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/retain_hist32_full_candidate.py
+    sha256: 487646b6f20e67a7d53dc9bc83c3c226861ca4b51161b1144f9dfd0032362b3a
+    precondition: native full-target comparison passed; own service stopped/GPU0,1
+      idle; exact before trees and single sort line
+    execution_status: passed
+  final_source_audit_command:
+    container: qwen3vl-flaggems-e2e-20261013
+    sha256: 12bba798bf85cd3863406063dd04f5fb3f789d850a0d5ffca867676e48e034b7
+    mode: read_only python via docker exec stdin; no writes in user source container
+    status: passed
+    archive_path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/audit_user_source.py
+  full_target_result:
+    status: passed
+    scope: performance_only
+    scenario_id: p1024-d1024-c64-n128
+    container: qwen3vl-flaggems-op003-20261014
+    artifact: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/hist32f-sampling-comparison.json
+    sha256: 956a7410e2860e30e4296cd65f10d529860e512ecadc84fedcbea3f2b2ac3318
+    metrics:
+      output_throughput:
+        baseline:
+          value: 1133.5905555746235
+          round_values:
+          - - 1128.689860264264
+            - 1133.5905555746235
+            - 1137.9862509815946
+          process_values:
+          - 1133.5905555746235
+          relative_spread: 0.0
+        candidate:
+          value: 1357.264823678639
+          round_values:
+          - - 1369.7252789844792
+            - 1357.264823678639
+            - 1352.7826583574204
+          process_values:
+          - 1357.264823678639
+          relative_spread: 0.0
+        revert:
+          value: 1130.6226228489777
+          round_values:
+          - - 1114.7236632014044
+            - 1130.6226228489777
+            - 1140.0998403209428
+          process_values:
+          - 1130.6226228489777
+          relative_spread: 0.0
+        relative_improvement: 0.19731486558710232
+      p99_ttft_ms:
+        baseline:
+          value: 3705.6466626096517
+          round_values:
+          - - 3705.6466626096517
+            - 3707.171027008444
+            - 3697.8524141013622
+          process_values:
+          - 3705.6466626096517
+          relative_spread: 0.0
+        candidate:
+          value: 3660.705538596958
+          round_values:
+          - - 3641.642809640616
+            - 3740.1656327489763
+            - 3660.705538596958
+          process_values:
+          - 3660.705538596958
+          relative_spread: 0.0
+        revert:
+          value: 3716.9909833092242
+          round_values:
+          - - 3716.9909833092242
+            - 3737.43954799138
+            - 3703.0352479591966
+          process_values:
+          - 3716.9909833092242
+          relative_spread: 0.0
+        relative_improvement: 0.012127741283634577
+      p99_tpot_ms:
+        baseline:
+          value: 56.08798338772177
+          round_values:
+          - - 56.183745506113056
+            - 56.08798338772177
+            - 55.93686543348612
+          process_values:
+          - 56.08798338772177
+          relative_spread: 0.0
+        candidate:
+          value: 46.819179621402206
+          round_values:
+          - - 46.49954739526526
+            - 47.14254607469251
+            - 46.819179621402206
+          process_values:
+          - 46.819179621402206
+          relative_spread: 0.0
+        revert:
+          value: 56.59023725873775
+          round_values:
+          - - 56.86503321042545
+            - 56.59023725873775
+            - 55.563496779741484
+          process_values:
+          - 56.59023725873775
+          relative_spread: 0.0
+        relative_improvement: 0.16525471601014274
+      p99_itl_ms:
+        baseline:
+          value: 56.57907929271458
+          round_values:
+          - - 56.81036235764621
+            - 56.545243831351385
+            - 56.57907929271458
+          process_values:
+          - 56.57907929271458
+          relative_spread: 0.0
+        candidate:
+          value: 47.40343833342194
+          round_values:
+          - - 46.764343651011586
+            - 47.59063555859029
+            - 47.40343833342194
+          process_values:
+          - 47.40343833342194
+          relative_spread: 0.0
+        revert:
+          value: 56.95300864055751
+          round_values:
+          - - 57.491220440715544
+            - 56.95300864055751
+            - 56.1473448202014
+          process_values:
+          - 56.95300864055751
+          relative_spread: 0.0
+        relative_improvement: 0.16217374114241104
+    native_runs:
+    - path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/performance/hist32f-base-sampling-01/run-record.json
+      sha256: 26c0a9d80cd7d1dde1c43c41249e5da77c65261d35a0ec86b969ea001f36a7d7
+    - path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/performance/hist32f-candidate-sampling-01/run-record.json
+      sha256: 7ac925afd0f3575123d84df2d4f4361743851d7a04d249730e5c59d7979468f5
+    - path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/performance/hist32f-revert-sampling-01/run-record.json
+      sha256: 923288a80eb3685b1ed6469bbb826ca5cacbf6429a4448b68239dc5416e6d8c1
+    changed_paths:
+    - /flaggems_sha256
+    revert_tps_drift: -0.002618169947738669
+    all_measured_rounds_retained: true
+    single_process_per_role: true
+    claim_boundary: measured workloads only; no sustained-capacity or long-term-stability
+      claim
+    accuracy: deferred by user; no formal score/gate/four-scene acceptance
+    admissions:
+      baseline:
+        p1024-d1024-c64-n128:
+          status: passed
+          metric: output_throughput
+          values:
+          - 1127.6657454176905
+          - 1151.9791601986408
+          - 1132.7484686973057
+          relative_spread: 0.02146408973645444
+          max_relative_spread: 0.05
+      candidate:
+        p1024-d1024-c64-n128:
+          status: passed
+          metric: output_throughput
+          values:
+          - 1338.2029925017857
+          - 1371.2053980856792
+          - 1365.5354414036349
+          relative_spread: 0.02416810621185365
+          max_relative_spread: 0.05
+      revert:
+        p1024-d1024-c64-n128:
+          status: passed
+          metric: output_throughput
+          values:
+          - 1117.4630641057136
+          - 1146.4899103589332
+          - 1121.949169308478
+          relative_spread: 0.025871801546152567
+          max_relative_spread: 0.05
+    measured_relative_spread:
+      baseline: 0.008200836423357552
+      candidate: 0.012482914411012841
+      revert: 0.022444427173759114
+    requests_per_measured_round: 128
+    all_requests_successful: true
+  retained_source:
+    artifact: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/hist32f-retained-source.json
+    sha256: 1643662f01fe85e92309fe88e1528ce34dbea4ee2a2170275fa02403daa5ddfd
+    status: retained-private-only
+    time: 1792001195.2571626
+    container: qwen3vl-flaggems-op003-20261014
+    path: /workspace/FlagGems/src/flag_gems/ops/sort.py
+    before_sha256: 4f63aadbe42f7dbfab0f0fb295c9dea09d749e292ce1b1e61340f68978e8fab9
+    after_sha256: 06208cc0d074bd5a38a9ed84afa5870ccbea062fe3d244a1b438c2dc5df2e184
+    fingerprints:
+      /workspace/vllm: d7c6c260ab43b4ca43206ad084c0ee74772e6fc4548d9e949206ab55527a2208
+      /workspace/vllm-plugin-FL: 28c8baaf3a57befaccb47e3c0df8454a6883c60460dd828f556276a9b948a303
+      /workspace/FlagGems: 130b1746df5cb8f0817e9f7720f4e9fce35ae9731cbfe71b82c5863b96b84f77
+      /workspace/FlagGems-vllm: ef38f46c8a719c7f64ba7c51cc95c895b8667de6bcf9e40b9561c365b4bda99b
+    comparison:
+      path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/hist32f-sampling-comparison.json
+      sha256: 956a7410e2860e30e4296cd65f10d529860e512ecadc84fedcbea3f2b2ac3318
+    source_user_container_modified: false
+    service_running: false
+    accuracy: deferred by user
+    formal_acceptance: incomplete
+  source_user_audit:
+    artifact: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/hist32f-user-source-audit.json
+    sha256: 3e7e194f43fc9957fc9acc355d2f01e43c5b98278b7d98da9a9b4faf8c971abe
+    time: 1792001213.959335
+    container: qwen3vl-flaggems-e2e-20261013
+    fingerprints:
+      /workspace/vllm: d7c6c260ab43b4ca43206ad084c0ee74772e6fc4548d9e949206ab55527a2208
+      /workspace/vllm-plugin-FL: 28c8baaf3a57befaccb47e3c0df8454a6883c60460dd828f556276a9b948a303
+      /workspace/FlagGems: f5114796e13547df4d9c06ad56ee5e1496ac77195d4dccd4f05eecd41c382e09
+      /workspace/FlagGems-vllm: ef38f46c8a719c7f64ba7c51cc95c895b8667de6bcf9e40b9561c365b4bda99b
+    matches_source_snapshot: true
+    service_8000:
+      status: reachable
+      served_models:
+      - qwen3vl-opt2-retry
+    operation: read_only
+    no_stop_or_restart: true
+  pr_readiness:
+    status: reviewable one-line operator patch; not full acceptance
+    target_platform: MetaX C550 passed numerical/graph/sampled P1K B/C/R
+    other_platforms: not hardware-tested
+    uncovered: P4K/P16K/P32K optimized E2E + formal model accuracy
+    cross_repo_dependency: user retained FG-vllm op002 JSON; Plugin/vLLM unchanged
+  full_target_preparation:
+    artifact: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/results/full-target-preparation.json
+    sha256: 0ee94e217befbcab8c6498ebbaaff43153005ba6c2937000a010e47a257455f0
+    actual_controller:
+      path: /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/run_hist32_full_e2e.py
+      sha256: c795028155b75f704a7e0b0964c02a27e99423326e1a818cec94f1184e31c230
+    files:
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/hist32f-sampling-plan.json: 2d71d79556c16e9c57aa4da349294e3b9ee408f1ac90333087c4136715668fbd
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/hist32f-sampling-comparison.json: e0fff1b384918a63779dd4193599b47dc81f51d2198320db2782248bf3a34cd1
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/sanity_hist32f-base.py: 5ed7e004dfa0084cf710b85617b23178d6b93324c2b0c843bd84f45b58e6a41c
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/manifest_hist32f-base.py: d3ecc432160778831f7266fafa26ca35b918841decddb54868936b5de0ee71f2
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/sanity_hist32f-candidate.py: 7c53ad6a1211fea2a9a277649ea12ed392e558b901de3a874f0477ae51ccc8aa
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/manifest_hist32f-candidate.py: b65d91e8681a94bbba4e7c830ae50d6a5b6a05d7bf023af76feec3054227b870
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/sanity_hist32f-revert.py: 632b607db7d91b0a264d826a47f9240a58d1a84e537bb23eba6cc10f8c02ce67
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/manifest_hist32f-revert.py: 60732b035f5666ffa4ed22d79bcbd2789fd74f1fb0fb7508c1893c4078c79ad8
+      ? /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/hist32f-base-service-template.json
+      : d991f39d8e84e3e4a3d4efa9c346ea10054cded25dbcbddc5ec775a20edb34e4
+      ? /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/hist32f-candidate-service-template.json
+      : d991f39d8e84e3e4a3d4efa9c346ea10054cded25dbcbddc5ec775a20edb34e4
+      ? /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/hist32f-revert-service-template.json
+      : d991f39d8e84e3e4a3d4efa9c346ea10054cded25dbcbddc5ec775a20edb34e4
+      ? /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/hist32f-bounded-observer/sitecustomize.py
+      : c2203b6da0cbe948217c583fa2c4294b05722b794be9245ec2ae1da583e4e128
+      /workspace/e2e-artifacts/20261013-qwen3vl-metax-flaggems-e2e-opt1/hist32-full03/commands/run_hist32_full_e2e.py: c795028155b75f704a7e0b0964c02a27e99423326e1a818cec94f1184e31c230
+  user_writeback_20261015:
+    status: applied-verified-user-manual-e2e-handoff
+    authorization: User explicitly requests sort writeback to qwen3vl-flaggems-e2e-20261013,
+      preserve current MoE JSON, user will run E2E
+    target_container: qwen3vl-flaggems-e2e-20261013
+    service_restart: not performed; user starts/restarts inference service for manual
+      benchmark
+    command:
+      tag: op005-sort-writeback-20261015-5521f25b
+      script_sha256: 221cba2813bac0abec89efdff46ef9e50676ab7b86cc3981ecaf2d594130a247
+      remote_script: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/commands/op005-sort-writeback-20261015-5521f25b.py
+    receipt: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op005-sort-writeback-20261015-5521f25b.json
+    receipt_sha256: 12ac31fb377276722e8fd10156c3593b2015e5b05c36265aa1991f8501458978
+    verification:
+      status: applied-verified
+      time: 1792030010.4929419
+      host: mx-59
+      container: qwen3vl-flaggems-e2e-20261013
+      path: /workspace/FlagGems/src/flag_gems/ops/sort.py
+      before_sha256: 4f63aadbe42f7dbfab0f0fb295c9dea09d749e292ce1b1e61340f68978e8fab9
+      after_sha256: 06208cc0d074bd5a38a9ed84afa5870ccbea062fe3d244a1b438c2dc5df2e184
+      exact_tested_candidate_match: true
+      changed_files:
+        /workspace/vllm: []
+        /workspace/vllm-plugin-FL: []
+        /workspace/FlagGems:
+        - src/flag_gems/ops/sort.py
+        /workspace/FlagGems-vllm: []
+      moe_json_unchanged: true
+      moe_json:
+        ? src/flaggems_vllm/runtime/backend/_metax/utils/configs/moe/E=128,N=2048,K=384,topk=8,device_name=MetaX_C550,dtype=bf16,gemm_stage=gemm2.json
+        : ad5bf196af20be5f9bb2916527a9fd061172e7fbbc93ed329a3e925758654261
+      fingerprints_before:
+        /workspace/vllm: d7c6c260ab43b4ca43206ad084c0ee74772e6fc4548d9e949206ab55527a2208
+        /workspace/vllm-plugin-FL: 28c8baaf3a57befaccb47e3c0df8454a6883c60460dd828f556276a9b948a303
+        /workspace/FlagGems: f5114796e13547df4d9c06ad56ee5e1496ac77195d4dccd4f05eecd41c382e09
+        /workspace/FlagGems-vllm: ef38f46c8a719c7f64ba7c51cc95c895b8667de6bcf9e40b9561c365b4bda99b
+      fingerprints_after:
+        /workspace/vllm: d7c6c260ab43b4ca43206ad084c0ee74772e6fc4548d9e949206ab55527a2208
+        /workspace/vllm-plugin-FL: 28c8baaf3a57befaccb47e3c0df8454a6883c60460dd828f556276a9b948a303
+        /workspace/FlagGems: 130b1746df5cb8f0817e9f7720f4e9fce35ae9731cbfe71b82c5863b96b84f77
+        /workspace/FlagGems-vllm: ef38f46c8a719c7f64ba7c51cc95c895b8667de6bcf9e40b9561c365b4bda99b
+      service_8000: &id001
+        status: unavailable
+        reason: URLError
+      service_not_restarted: true
+      running_workers_require_restart: false
+      backup: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/patches/op005-sort-writeback-20261015-5521f25b/sort.before.py
+      patch: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/patches/op005-sort-writeback-20261015-5521f25b/sort-hist32.patch
+      script_sha256: 221cba2813bac0abec89efdff46ef9e50676ab7b86cc3981ecaf2d594130a247
+      verification: syntax and exact tested source hash; numerical/graph/E2E evidence
+        from op005, no GPU test or benchmark launched in user container
+      handoff: User runs E2E after restarting inference service; preserve all current
+        MoE JSON and existing repository edits
+metrics:
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: output_throughput
+  value: 977.8944082636442
+  unit: token/s
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: candidate
+  metric: output_throughput
+  value: 1127.8540341408989
+  unit: token/s
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: revert
+  metric: output_throughput
+  value: 976.9091213143791
+  unit: token/s
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: p99_ttft_ms
+  value: 3750.2232788782567
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: candidate
+  metric: p99_ttft_ms
+  value: 3663.7600694969296
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: revert
+  metric: p99_ttft_ms
+  value: 3710.069257952273
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: p99_tpot_ms
+  value: 63.411635457958084
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: candidate
+  metric: p99_tpot_ms
+  value: 54.84846783082421
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: revert
+  metric: p99_tpot_ms
+  value: 63.459185571793256
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: baseline
+  metric: p99_itl_ms
+  value: 443.4572266507894
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: candidate
+  metric: p99_itl_ms
+  value: 433.17675712518405
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-milestone
+  scenario_id: p1024-d256-c64-n128-sampling
+  role: revert
+  metric: p99_itl_ms
+  value: 440.8864412643016
+  unit: ms
+  scope: D256 milestone performance_only; not original D1024/four-scene acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 1133.5905555746235
+  unit: token/s
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: output_throughput
+  value: 1357.264823678639
+  unit: token/s
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: output_throughput
+  value: 1130.6226228489777
+  unit: token/s
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 3705.6466626096517
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: p99_ttft_ms
+  value: 3660.705538596958
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: p99_ttft_ms
+  value: 3716.9909833092242
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 56.08798338772177
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: p99_tpot_ms
+  value: 46.819179621402206
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: p99_tpot_ms
+  value: 56.59023725873775
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 56.57907929271458
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: p99_itl_ms
+  value: 47.40343833342194
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+- experiment_id: op-005-flaggems-sort-sampling-full
+  scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: p99_itl_ms
+  value: 56.95300864055751
+  unit: ms
+  scope: original P1K sampled performance_only; no four-scene/model-accuracy acceptance
+constraints:
+  keep_flaggems_enabled: true
+  no_added_blacklists: true
+  no_vendor_or_native_substitution: true
+  preserve_plugin_original_sampler: true
+  authorized_diagnostic_exception:
+    ops:
+    - copy_
+    - cumsum
+    experiment: diag-002-aten-copy-cumsum-isolation
+    otherwise_preserve_initial_operator_choices: true
+skills:
+  accuracy: baseline-sanity then minimal-regression/formal-gate
+  performance: baseline then targeted/checkpoint/formal
+  profiling: capture then analyze
+remote_case_dir: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1
+planning_reviews:
+- review_id: planning-op002-firstAB-20261014
+  status: incomplete-awaiting-revert-repeat-formal-gate
+  evidence_cutoff: baseline03 and candidate01 P1K complete; candidate01 reprofile
+    capturing
+  objective: steady output throughput with TTFT/TPOT/ITL guards; keep all original
+    FG selections/blacklist fixed
+  current_candidate: op-002-metax-moe-decode-stages; private clone only
+  ledger_summary:
+  - experiment_id: op-001-flaggems-baseline-profile
+    decision: diagnosis-complete
+    result: original MoE first hotspot in three phases/two ranks; unstable short-warmup/observer/stream
+      incidents preserved and corrected
+  - experiment_id: op-002-metax-moe-decode-stages
+    decision: pending
+    result: complete FG graph micro1.13-1.22x; first model P1K A/B +8.409%, guards
+      improved; no revert/repeat/formal gate yet
+  cumulative_effect:
+    scope: first paired three-round P1K diagnostic comparison, not confirmed retained
+      combination
+    output_tps:
+    - 1767.2589
+    - 1915.8649
+    relative_change: 0.08409
+    do_not_add_micro_speedup: true
+    other_formal_scenarios: not_run
+  phases:
+    prefill: original source new-only MoE55.7% device activity; largeM8192 G1~2.98ms/G2~1.41ms;
+      unchanged by candidate; reprofile pending
+    decode: original full graph MoE64.6% device activity; M64 G1/G2 ~186.56/166.43us,40KiB
+      shared each; candidate G2stage1 hardware bits proven, actual-model reprofile
+      pending
+    mixed: original new+cached MoE55.4% activity; cached-prefill ambiguity retained;
+      P1K no-profiler guards improve in first A/B
+  gaps:
+  - revert drift
+  - second independent process/role required by frozen contract
+  - current final GPQA threshold/gate unavailable
+  - P4K/P16K/P32K original scenarios not evaluated
+  - full weight-shard identity before formal gate
+  - candidate profile hotspot migration pending
+  ranked_next:
+  - rank: 1
+    direction: validate existing operator/improve candidate; no new code
+    first_experiment: same P1K revert01 then baseline04/candidate02/revert02, all5warm+3measure
+      and same seeds
+    skills:
+    - inference-performance-evaluation targeted/checkpoint
+    - inference-accuracy-evaluation minimal-regression
+    - inference-profiling reprofile/analyze
+    success: '>=5%output with TTFT/TPOTp99<=5%regression/ITLp99<=10%; spread<=10%,
+      revert drift<=10%;2independent instances/role'
+    stop: fail numeric/graph, guards, sustained output benefit, identity or drift;
+      restore exact original FG source
+  - rank: 2
+    direction: formal GPQA and P1K intermediate scope then ordered next scenario
+    dependency: user freezes GPQA threshold; full stable source/weights identity and
+      current service binding
+    first_experiment: native198question gpqa_diamond_generative_cot then gate-check
+      and intermediate-single-target performance
+    stop: score below threshold/invalid score evidence invokes accuracy-diagnosis;
+      do not advance scene
+  - rank: 3
+    direction: possible operator/improve large-M MetaX FG MoE GEMM1 configuration
+    scope: E128/H2048/I384/BF16/M8192; allFG selection fixed; libraryvendor backend
+    evidence: original Prefill/Mixed MoE leading activity, G1~2.98ms; existing heuristic
+      modeled otherhardware; no measured candidate
+    first_experiment: after current candidate validation, alignment-safe bounded tile/stage/warp
+      scan complete FG transaction and dtype graph oracle
+    expected_effect: unknown; hardware hotspot does not establish net E2E benefit
+    stop: <5%complete operator benefit, any numeric/graph failure, or parent Mixed/Decode
+      regression
+  deferred:
+  - native/vendor switches and added blacklists forbidden
+  - broadPlugin/vLLM changes lack evidence and vLLM remainsreadonly
+  - new fusion/splitK before simple stage/tile value established
+  immediate_experiment: candidate01 reprofile then revert01 exact FG original, same
+    P1K plan
+  next_review_trigger: A/B/R independent repeat complete, drift/guard contradiction,
+    or hotspot migration
+  old_decisions_summary: Short three-warmup and unbounded-observer attempts retained
+    only diagnostic; current production comparison uses five warmup and restored startup-only
+    instrumentation.
+- review_id: planning-op002-spread-audit-20261014
+  status: incomplete
+  trigger: First baseline p99 TPOT within-process spread 10.86% exceeds frozen10%
+  scope: current op002 only; private clone
+  decision: Complete already launched independent B04/C02/R02 under same plan to characterize
+    candidate reproducibility and seed/role patterns; preserve all old rounds and
+    incomplete verdict. No new source optimization or formal scene closure before
+    stable evidence and user accuracy threshold.
+  next_review: Second triplet final comparator; inspect round-level workload/routing/clock
+    evidence before choosing prospective recovery measurement contract.
+- review_id: planning-op002-six-process-20261014
+  status: incomplete
+  trigger: Two independent B/C/R processes complete; guard spread violation remains
+  combination: No newly retained point; only archived op002 candidate
+  observed_gain: P1K paired process-medians +8.299%, guarded tails improve; not formal
+    or cumulative four-scene gain
+  phase_view: Decode actual G2 shared40->20KiB/reg132->64/time166->110us; MoE remains
+    main hotspot. Prefill/Mixed largeM unchanged.
+  decisions:
+  - Preserve all measured rounds and old control failures; do not relax10% spread
+    or deploy
+  - Freeze user threshold and run198-question formal gate on current candidate with
+    full weight identity before P1K formal closure
+  - Before high-cost new series diagnose seed-dependent routing/time and environment
+    noise, freeze prospective recovery protocol; no post-hoc exclusion
+  - Only after required validation rank largerM8192 MoE G1 tuning; do not disable
+    FlagGems or alter vLLM/Plugin selection
+  next_trigger: User formal threshold or new stability diagnosis evidence
+- review_id: planning-aten-isolation-20261014
+  evidence_cutoff: diag001 recovery failed; four transition traces parsed; user retains
+    op002 and authorizes two ATen blacklist diagnostic; aten01-base health passed
+    and perf running
+  current_candidate: op002 unchanged, physically reapplied in private clone; source
+    untouched
+  cumulative_conclusion: Old P1K same-series observation +8.30%, incomplete spread
+    validation; no confirmed formal cumulative gain; user authorizes retention
+  ledger_decisions:
+    op001: diagnosis-complete
+    op002: retained-by-user/performance-only; operator oracle and graph passed
+    diag001: more warmup did not resolve variability; completed trace attribution,
+      cause open
+    diag002: running one controlled B/C/R dispatch isolation
+  phase_map:
+    prefill: Existing pure-prefill profile; large-M MoE contribution high; fresh transition
+      window lacks pure-prefill markers
+    decode: same-geometry G1/G2 vary by seed; MoE remains large hotspot; route distribution
+      not captured
+    mixed: 10 new/cached markers per trace; internal copy/cumsum/MoE host-associated
+      gaps; profiler and dynamic-shape causes unproved
+  ranked_next:
+  - rank: 1
+    direction: diagnostic/aten-isolation
+    experiment: diag002
+    falsification: Same retained op002, Native copy_/cumsum C vs FlagGems B/R, native
+      dispatch proof, targeted no-profiler variance and TTFT/TPOT/ITL guardrails
+    stop: One series, no repeated same-role retries; no speedup from unadmitted role
+  - rank: 2
+    direction: operator/improve
+    condition: Only if two-op isolation materially improves stability
+    experiment: Separate copy_ and cumsum; then inspect dynamic stride/specialization
+      and launch overhead in actual FlagGems implementation
+    first_test: one-operator ablation or numerical/graph micro on observed strided
+      copy/cumsum shapes; no new broad blacklist
+  - rank: 3
+    direction: operator/improve
+    condition: If isolation fails to explain variability
+    experiment: Investigate MoE input-routing sensitivity and residual host gaps using
+      bounded matched-shape data
+    first_test: record routing/geometry on diagnostic-only path; no claim from kernel
+      sums
+  deferred:
+  - New MoE tiling before ATen diagnosis resolves measurement confidence
+  - P4K/P16K/P32K formal closure while accuracy deferred and P1K comparison incomplete
+  required_skills:
+  - inference-performance-evaluation targeted
+  - inference-profiling analyze if isolation outcome ambiguous
+  - key-operator-analysis only on localized operator
+  next_review_trigger: diag002 native comparison/incomplete result or before implementing
+    new operator code
+  superseded_decision: Do not further increase warmup blindly; user explicitly allows
+    copy_/cumsum temporary isolation despite initial no-blacklist constraint
+- review_id: planning-aten-isolation-result-20261014
+  evidence_cutoff: B/C/R three processes complete,9 measured rounds,only blacklist
+    env changed; source audit passed
+  current_candidate: op002 retained; temporary combined ATen blacklist reverted
+  conclusion: No cumulative new gain; combined disable TPS-10.05%, P99TPOT+11.70%;
+    B/R TPS drift-0.93%, all requests pass. Original candidate +8.30% observation
+    remains incomplete formal validation; no sum of effects
+  phase_map:
+    prefill: TTFT slightly improves1.44% with off, not enough to offset decode regression;
+      no fresh pure-prefill trace in transition window
+    decode: TPOT regresses11.70% when both disabled; MoE retained allroles; seed7
+      remains faster across on/off/revert
+    mixed: Off r6 has97>800ms ITL intervals (max944ms); on/revert none in current
+      sample; copy/cumsum default FG implementation not sufficient explanation; cumsum.out/other
+      host causes unresolved
+  ranked_next:
+  - rank: 1
+    direction: diagnostic/aten-isolation
+    first_test: Separate copy_-only and cumsum-only if further causal attribution
+      needed; include native/FG/out-overload proof
+    boundary: One paired same-config targeted group; no broad blacklist; no direct
+      source deployment
+  - rank: 2
+    direction: framework/operator diagnostic
+    first_test: Bounded no-profiler host/JIT sampling around transition or capture
+      routing distribution for matched M64 geometry; distinguish compile and profiler
+      effects
+    boundary: Retain op002, do not increase warmup blindly; no exact gain from incomplete
+      evidence
+  - rank: 3
+    direction: operator/improve
+    first_test: Only after confidence issue localized, tune remaining G1 or large-M
+      MoE full transaction with oracle and graph; return to mixed test
+    boundary: No FlagGems-wide disable; current model/platform/real shapes only
+  next_review_trigger: Single-op isolation result or localized host/operator mechanism
+  formal_status: not_evaluated; user defers accuracy and full four scenes incomplete
+- review_id: planning-opt2-json-op003-negative-20261014
+  evidence_cutoff: user opt2-retry all CSVrounds + two rejected decode tiling searches
+  current_candidate: op002 JSON only
+  cumulative_gain: manualP4K/P16K/P64K observations +2.98/+2.26/+0.53%; not formal,
+    no added local speedups
+  next_ranked:
+  - M8192 full MoE tiling from measuredPrefillhotspot; exact JSON configuration
+  - boundedMixedhost-gap cause if no operator candidate qualifies
+  - scheduling budget only after phase attribution and supportedconfig prove
+  stop_conditions: no thresholds loosening or best-seed choice; reject source/numerical/graph/whole-call
+    failures; user8000/GPU4,5 protected
+  superseded_decision: further smallM tuning deprioritized after two negative searches
+- review_id: planning-actual-sampling-path-20261014
+  evidence_cutoff: three negative whole-MoE searches plus actual userbench logs temperature=None
+    and model default.7
+  current_candidate: op002 JSON only
+  phase_reassessment: past temp0 MoE profile is valid for greedy; random sampler absent
+    from that trace, so actual user workload hotspot currentlyunknown
+  immediate_experiment: sampled baseline Prefill and Decode/Mixed trace, then FlagGems
+    sort full-call tuning if observed
+  stop_conditions: No sampler semantic changes, blacklist, vLLM edits or reuse of
+    greedy baseline for random workload
+- review_id: planning-histogram32-p1k-20261015
+  evidence_cutoff: user opt2 JSON and three negative whole-MoE scans; random-sampling
+    two-rank phase traces; full-sort numerical/graph; sampled D256 and original D1024
+    B/C/R passed
+  current_candidate: op002 JSON + op005 histogram int32, private container only
+  cumulative_gain_boundary: This comparison isolates op005 over retained op002 JSON.
+    Do not add old greedy op002 +8.30%, manual opt2 observations or microbenchmark
+    speedups. No new anchor-to-combination four-scene result.
+  original_p1k_output_tps_improvement: 0.19731486558710232
+  phase_map:
+    prefill: D16 proxy sampled trace and original target P99TTFT guard; no pure-prefill
+      speedup claim
+    decode: radix histogram confirmed hotspot; full-sort speedup and E2E TPOT improve;
+      post-change hotspot not newly profiled
+    mixed: sampling-matched P1K D256 and D1024 B/C/R; exact main and guards archived;
+      one process per role only
+  negative_experiments:
+  - op003 two small-M MoE searches failed >=5% promotion threshold; no product changes
+  - op004 ten M8192 MoE candidates failed full-call threshold; no product changes
+  - earlier combined copy_/cumsum blacklist negative and reverted
+  next_ranked:
+  - rank: 1
+    direction: P4K sampled stage checkpoint
+    first_test: Same baseline/current MoE JSON sampling-matched targeted Prefill/Decode/Mixed
+      on independent private environment; sort improvement must guard prompt phase
+    skills:
+    - inference-performance-evaluation targeted
+    - inference-profiling if bottleneck ambiguous
+    stop_conditions: No cross-workload gain, all measured rounds retained, no added
+      blacklist; numerical/graph/source drift blocks promotion
+  - rank: 2
+    direction: remaining radix sweep or MoE hotspot
+    first_test: Only after post-sort P4K trace localizes expensive shapes, benchmark
+      whole transaction rather than isolated GEMM
+    skills:
+    - inference-profiling
+    - key-operator-analysis
+    stop_conditions: No local-kernel-only gain; avoid more MoE tuning without new
+      evidence
+  formal_status: accuracy deferred by user; four-scene final acceptance incomplete
+user_directive_20261014:
+  accuracy_evaluation: 'deferred by user: 先不进行精度评测'
+  performance_primary: steady output throughput at D1024/C64/N128
+  guards:
+  - TTFT
+  - TPOT
+  - ITL
+  - request errors
+  scope: performance_only targeted/checkpoint; no GPQA calls or formal accuracy/performance
+    acceptance; keep FlagGems selection/blacklist fixed
+user_directive_20261014_aten:
+  keep_moe_optimization: true
+  temporary_blacklist_allowed:
+  - copy_
+  - cumsum
+  scope: diagnose possible FlagGems ATen variability, explicit override of earlier
+    no-added-blacklist restriction only for these operators
+  source: user latest message 2026-10-14
+  accuracy: still deferred
+user_resume_20261014:
+  source: 'user: JSON tuning migrated; qwen3vl-opt2-retry supplied; continue optimization'
+  old_manual_handoff: resumed, no permission to restart user service inferred
+  manual_results_path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt2-retry
+  accuracy: still deferred
+manual_handoff_20261015:
+  actor: user
+  scope: manual E2E benchmark after explicit sort-only writeback
+  automation_allowed: false
+  source: 'User: 回写到 qwen3vl-flaggems-e2e-20261013，保留当前 MoE JSON，我来跑端到端性能'
+  known_api_8000_at_writeback: *id001
+  service_operations: none
+  receipt: /public-flash/jinghao/qwen3-VL/20261013-qwen3vl-metax-flaggems-e2e-opt1/results/op005-sort-writeback-20261015-5521f25b.json
+linked_p64k_case: 20261015-qwen3vl-metax-p64k-opt3

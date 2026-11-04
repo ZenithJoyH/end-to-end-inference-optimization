@@ -1,0 +1,49 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen3vl-metax-pr977
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt10-inline-moe-before-pr977
+  topology: TP2:GPU0,1
+stage: baseline
+current:
+  status: numeric-graph-baseline-passed;E2E-not-run
+  candidate: null
+  next_action: 'No baseline timing: candidate resource failure stops promotion'
+experiments: []
+metrics: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: numeric-graph-baseline-passed;E2E-not-run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 组件 numeric/graph 检查；current.status 明确 E2E-not-run。
+    evidence_pointer: state.yml#/current/status
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 组件 numeric/graph 检查；current.status 明确 E2E-not-run。
+    evidence_pointer: state.yml#/current/status
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 组件 numeric/graph 检查；current.status 明确 E2E-not-run。
+    evidence_pointer: state.yml#/current/status
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 组件 numeric/graph 检查；current.status 明确 E2E-not-run。
+    evidence_pointer: state.yml#/current/status
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: state.yml#/current/status
+    reason: 组件 numeric/graph 检查；current.status 明确 E2E-not-run。

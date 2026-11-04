@@ -1,0 +1,13 @@
+# maint-003：当前优化容器僵尸回收
+
+**完成：138→0。** 4子进程自测通过，当前容器全部138个Z已回收；独立延迟复核零僵尸、PID1睡眠且未被跟踪、所有现存sleep/Bash身份保留，容器未重启，无存活进程被终止。模型在操作前已未运行，保持未运行；未改安装、源码、环境或启动配置。
+
+用户要求清理当前容器僵尸。只读核验mx-104容器qwen3vl-pr943-split1-mx104-20261023目前138个Z状态进程，均为PID1 sleep infinity的直接子进程；当前无模型/评测进程，18977连接拒绝，这一状态在操作前已存在。仅有PID1和3个Bash会话存活，不主动启动/重启模型。
+
+复用此前已验证回收器（原工具在独立验证容器清理81个Z成功），保持只对事先列出的直接Z子进程执行WNOHANG wait4；空闲单线程sleep父进程暂时被seize/interrupt，调用现有syscall指令，恢复全通用寄存器并detach，不改代码/栈/FP状态/信号配置，不终止存活进程，不重启容器。先以独立临时sleep父进程的4个僵尸子进程自测，随后精确绑定当前容器ID/启动时间/父进程PIDticks及138个Z状态，若有活动工作负载或身份变化则拒绝。
+
+证据保存在已授权远端case /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-metax-repo-consolidation 的commands/logs/results，新文件不覆盖既有维护或实验记录。当前PID1宿主PID44338/startticks1103764373，containerID5f78551591bede2107b93ebbc8c6b60b66d4996a07e3a28b86271f23c86ebcb0，StartedAt2026-10-23T03:41:37.157551883Z。执行前命令/SHA归档；本项不是精度或性能验证。
+
+执行前归档当前回收器reap_current.py SHA92c35c2c505393621c7d179e6644950b25ef9b36efa53fb1c8935ff54099c94b，原算法不变，仅替换精确容器/父PID/ticks/启动时间、记录输出路径和要求138个Z；空闲进程集保护仍保留，只允许sleep/bash。串行包装器先4子进程自测，再apply，再独立延迟复核，所有日志与回执采用新文件名不覆盖。操作前活跃会话PID1及bash910338/1140827/1157628均保留，不启动模型。
+
+回收回执SHA8ae08dd57618be5ee7490f7cfd69c956fd963f585c48c80695b4e5d6b9d82aa1，独立核验SHA701d560a6583a4333b62ccb1ce6448c6e498565de5b606f1499596aee5e07cd1。具体路径见state.yml，selftest/apply日志为本case logs/current-zombies-*.log。此次仅执行非阻塞wait4收尸，没有部署永久reaper或改变PID1；未来进程退出仍由原容器生命周期管理。

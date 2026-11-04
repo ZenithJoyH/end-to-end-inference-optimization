@@ -1,0 +1,32 @@
+# env-002：收敛FlagGems-vllm安装与冗余副本
+
+最终状态：**已完成并保留**。同一个优化容器 `qwen3vl-pr943-split1-mx104-20261023` 中，当前优化版FlagGems-vllm（bad340d及已有修改）已直接editable安装到模型Python `/opt/conda/bin/python3.12`，标准仓库 `/workspace/FlagGems-vllm`。默认导入不需要PYTHONPATH覆盖；已安装依赖版本及另外三仓库源码未变。
+
+07:57:27UTC完成。当前服务1149451:1131197985，GPU4/5、TP2、18977、split1/prefixON及其他参数保持；两worker1149938/1149939真实导入canonical，MoE SHA仍bbc2eddedc93a608a899653c5acca0b1cb4f5293436a5d6136a06401ce50e462；原始active包全部内容SHA一致，capture/16replay/C8、HTTP200通过，进程无PYTHONPATH环境变量。
+
+已删除3份FGV实验副本（pr943-runtime、pr943-refresh、upstream977）、旧Plugin before-024plugin-opt-20261016备份及旧canonical暂存。/workspace现仅4个所需Git仓库：FlagGems、FlagGems-vllm、vllm、vllm-plugin-FL。5份原仓库完整Git/dirty/untracked备份及原安装metadata保存在本case远端backups，已校验；不影响其他容器或共享数据。
+
+最小回归passed，不是新完整精度或性能结果，不复用旧gate。共享start-model.sh的旧权重路径/GPU/端口本次未改，不能因此宣称该旧脚本已经可直接使用。以下过程记录中旧pending/EXDEV失败及已回退实例均为历史。
+
+
+状态：准备。用户明确要求在当前优化容器中直接安装FlagGems-vllm并删除无关仓库。此项是安装/目录维护，不是新性能优化；不改数学实现、配置、sampling/gems-opt/MoE/split1/prefixON及GPU4/5/TP2/18977，不新增性能收益或精度gate声明。
+
+当前source容器qwen3vl-pr943-split1-mx104-20261023；实际服务通过PYTHONPATH使用/workspace/FlagGems-vllm-pr943-runtime（bad340d+已有dirty改动），默认editable仍指向旧/workspace/FlagGems-vllm（f6fdb9+旧patch）。/workspace和site-packages均属容器私有层，仅/public-flash、/data为挂载。
+
+先完整归档5份仓库（含Git历史、dirty/untracked改动）并逐文件校验；将当前active精确复制到canonical目录，以no-index/no-deps/no-build-isolation安装，取消服务PYTHONPATH覆盖，重启自己的空闲18977服务验证默认导入/实际两rankMoE来源/graph16/C8。验证失败恢复原canonical和安装metadata及原服务；通过后才删除3个FGV实验副本、旧Plugin备份和已归档旧canonical暂存。保留所需FlagGems、FlagGems-vllm、vLLM、Plugin，其他服务不动。
+
+使用本地inference-accuracy-evaluation minimal-regression方法，当前服务正常helper不改；源码包内容必须与原active一致。已有正式分数只属于其原测量实例，不复用gate；无完整评测或性能测量。
+
+外部产物根/public-flash/jinghao/qwen3-VL/20261026-qwen3vl-metax-repo-consolidation，在已授权mx-104根下创建唯一子目录。新命令执行前归档commands并记录SHA；备份保存在backups，完整日志/原始JSON不进入本地模型目录。此次不修改共享start-model.sh的GPU/端口等配置。
+
+执行前归档prepare_consolidation.py SHA68d76605c9306b1a7e18a0ad26a2934f0eb787b7a782501d3e8b5b60983b1679，预备脚本只建立当前事实/逐文件备份/新旧启动配置，不停服务、不换安装。当前源PID1132797/ticks1130835253、端口18977无running/waiting请求。所有待清理Git仓库均无alternates依赖，合计约120MiB，私有层空间约47GB；依赖源码未发现对旧实验目录的硬编码引用。
+
+准备passed：5份仓库完整Git/dirty/untracked归档并逐文件校验，安装metadata也已备份，源仍未停服。执行前归档consolidate_controller.py SHA22ac37da9d8e18fa59d582cd71db7cc37205bf873ab8baf04b24911d7d38f0c9，pip安装限定no-index/no-deps/no-build-isolation、不改变其他包版本；实际MoE文件SHA必须仍bbc2eddedc93a608a899653c5acca0b1cb4f5293436a5d6136a06401ce50e462。graph16/C8和默认导入通过前不删除旧实验路径；失败时恢复原canonical+metadata+旧路径原服务。新控制器排他manifest并保存日志。
+
+首次目录切换在Docker lower-layer目录rename时返回EXDEV，未复制/删除仓库、未执行pip，控制器已进入单独回退服务流程，原证据保留。默认docker exec python3实际指向系统3.10，因此修正新脚本的所有容器Python调用为模型真实/opt/conda/bin/python3.12，并重新采集该解释器包版本，防止安装到错误解释器。目录切换改为已备份基础上的copytree逐文件字节校验后移除旧canonical，再复制active；不依赖overlay跨层rename。新prepare_v2 SHA313a0be09ac25880c9e74e84584fcab4e389e9c623f8a496d3b34f1aecfece78，必须旧控制器回退graph/C8passed且已退出后才准备下一次切换，不并发中断或覆盖旧文件。
+
+首次控制器已退出并07:49:22UTC完成原服务回退（1141046:1131149599，graph16/C8passed），无仓库删除和pip执行。v2容器操作全固定/opt/conda/bin/python3.12；consolidate_v2_controller.py SHA9ff065160989092f58db27b63465cbb84bebc7f626ef8769b1f8bcb06089f02c，复制旧canonical到私有备份并逐文件验证后替换，不再rename底层目录。start_v2.py SHAc62b1d25fdb3bda5f43ebfa0a0b2dba6949d58b67495143c75d57d6e9bc3bc86。旧失败仅环境工具路径/overlay约束，不是模型数值失败；用户授权范围与参数保持。
+
+当前唯一v2控制器2301751/startticks1131191604于07:52:49UTC启动；07:53:18UTC模型解释器pip直接安装成功（0.3.0.dev1），不带PYTHONPATH的新进程实际导入canonical且MoE SHA与原active精确相同，其他已安装包版本未变。新服务1149451:1131197985于07:53:53UTC启动，GPU4/5/18977/split1/prefixON/其他模型参数不变，正在graph/C8验证；旧副本尚未删除。
+
+最终原始证据：completed-v2 SHA921bd77828ef07154887debfd5ea78d07d85b18fb5fe816ffac498b6a840c4a9；minimal SHA56eec6b45e76dd6c9a3f124b5b62909fc7529c5982e9e015728a738c16f9eda9；source SHA148ed5abdbc520f2e25420ce0d3a4cd5e523d524c9912f78ca780ca1b099cdb9；cleanup SHA161801a920d618888f3b13800211f443bd5ab274821e9d46b2924061869350f0；backups manifest SHA6c8f890c4ae5f9360326993792d83ac016d3c6e479b7149d98da92d301c56e01。

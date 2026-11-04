@@ -114,3 +114,10 @@ Sampler interface migration: current B now uses Plugin registration -> FGV apply
 
 
 2026-10-29 显存修复短程：保持0.9，KV预算计入初始non-Torch占用；仅预算修正版保留，原C32窗口32图与35,112 rawpatch原生视觉边界零OOM，独立报告SHA9d88ecf7d18840dfa4705131b294176e79b505e8c5cac017f4c2197726e7b5b6。图像拆批因冻结数值门槛失败已回退，未全部完成；MoE/GDN/采样保留，无全量重跑/性能/gate。详见当前模型optimize/erqa-memory-fix-001.md。
+
+
+### 2026-11-03 retest 稳态总吞吐只读诊断
+
+用户新容器qwen36-35b与清理后参考59,535条保护记录中59,534相同，唯一差异是共享启动脚本。按用户最新要求仅关注稳态总TPS：P32K/P64K旧opt4和retest均消费全部三轮，分别11157.36→10920.01（-2.13%）、10726.17→9463.44（-11.77%）。当前KV1,786,116tokens，连续三轮P32K/P64K的KV>=99%排队点Running分别49/26；P64K中位ITL近乎不变而TTFT增加，支持安全KV预算修正后的驻留/排队瓶颈。旧性能服务prefix/精确实例未完全绑定，不能把全部历史差值签成单变量因果。0新模型/压测/profiler/服务修改，旧暂停维持，未签正式性能验收。证据等级observation；确认当前容量压力，但历史贡献需同条件A/B。详见[当前实验](../../../models/Qwen3.6-35B-A3B/metax/20261022-qwen36-35b-mx104-stack-regression/optimize/perf-retest-20261103-001.md)。
+
+2026-11-03 原B的retest-old接续：同样复现长上下文下降，P32K三轮总TPS11157.36→10884.25（-2.45%），P64K双方前两轮10713.45→9452.36（-11.77%，本次三轮尚不完整）。补丁前留档与当前6515个可比包源码/配置仅worker.py变化，确认opt4上午完成、物理KV预算修正下午才应用；当前原B亦为178.6万token、Running49/26并排队。历史全部差值的单变量贡献仍未量化；无新请求/服务操作。后续结果仍维护同一[性能诊断实验](../../../models/Qwen3.6-35B-A3B/metax/20261022-qwen36-35b-mx104-stack-regression/optimize/perf-retest-20261103-001.md)。

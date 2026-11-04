@@ -1,0 +1,2797 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-27b-mx104-plugin-regression
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-104
+  baseline_id: pre-migration-d1653d9-optimized
+  topology: TP2:GPU2-GPU3
+stage: optimize
+current:
+  status: acc011_full_accuracy_completed_performance_paused
+  candidate: user-c64-03-clean-port8010
+  next_action: User clean-container C64 full GPQA and ERQA complete and independently verified; monitor deleted. Preserve user8010 service; no additional inference or performance, await user direction.
+
+experiments:
+- experiment_id: acc-011
+  document: acc-011-clean-c64-full-accuracy.md
+  status: completed
+  classification: framework
+  risk: accuracy_only_existing_user_service
+  scenario_id: GPQA198-ERQA400-C64-model-default-sampling
+  variable: User-created clean-image container and newly started port8010 instance
+  decision: full native and independent verification complete; GPQA163/198 passed155 threshold, ERQA246/400=61.5percent zero exclusions; monitor deleted, user service preserved, performance paused
+- experiment_id: env-010
+  document: env-010-clean-image.md
+  status: completed
+  classification: framework
+  risk: user_authorized_nonpausing_image_snapshot
+  scenario_id: environment-maintenance
+  variable: new image config removes one unused Env; filesystem and other config preserved
+  decision: retained local clean image; effective Env removed; source service and all other config/source preserved
+- experiment_id: env-009
+  document: env-009-online-maintenance.md
+  status: completed
+  classification: framework
+  risk: user_authorized_online_environment_maintenance
+  scenario_id: environment-maintenance
+  variable: new-shell legacy flag unset and exact unused cache removal
+  decision: online scope complete; new Bash legacy var unset,1.75GiB writable layer freed; service/source/settings intact; immutable Docker/live env removal deferred
+- experiment_id: acc-008
+  document: acc-008-c64-8010-full-accuracy.md
+  status: completed
+  classification: framework
+  risk: accuracy_only_existing_user_service
+  scenario_id: GPQA198-ERQA400-C64-model-default-sampling
+  variable: New user port8010 service instance and refreshed Plugin revision metadata
+  decision: full native and independent verification complete; GPQA162/198 passed155 threshold, ERQA244/400=61percent zero exclusions; monitor deleted, service unchanged, performance paused
+- experiment_id: env-007
+  document: env-007-plugin-update.md
+  status: completed
+  classification: framework
+  risk: environment_maintenance
+  scenario_id: environment-maintenance
+  variable: Plugin release/0.2 upstream update preserving local changes
+  decision: release/0.2 updated to1bc0c77; local config preserved; editable refreshed;249 other versions unchanged;8CPU and28differential passed; service exited before pip, not restarted
+- experiment_id: env-006
+  document: env-006-container-cleanup.md
+  status: completed
+  classification: framework
+  risk: user_authorized_container_removal
+  scenario_id: environment-maintenance
+  variable: Remove 17 confirmed model containers except B; preserve images and mount data
+  decision: completed; B service unchanged and health200; unrelated containers unchanged; performance paused
+- status: running
+  classification: framework
+  risk: high
+  hypothesis: release/0.2 migration preserves graph, GPQA and throughput/latency within frozen 5% tolerance
+  document: val-001.md
+  variable: Plugin revision and its migrated optimized implementation
+  baseline: d1653d9ff0450ce0366686bfcde5d8aecab44755 + original dirty optimization
+  candidate: 7cb559947cb61fd8b69fa5027d8ec113e528a644 + equivalent two-file optimization
+  accuracy: candidate_formal_passed_155_of_198
+  performance: incomplete_baseline_within_process_latency_noise
+  experiment_id: val-001
+  scenario_id: migration-four-scenarios
+- experiment_id: env-001
+  document: env-001.md
+  status: retained
+  classification: framework
+  risk: medium
+  scenario_id: environment-maintenance
+  direction: Preserve effective Gems code and provide traceable source repositories/editable installations
+  hypothesis: Install/provenance changes can preserve all currently effective source bytes and dependency
+    versions
+  variable: Git provenance and editable installation in B only
+  accuracy: source_parity_250_versions_syntax_and_fresh_import_passed; model_accuracy_not_run
+  performance: not_run_user_requested_pause
+  decision: retained_source_editable_maintenance_only
+- experiment_id: env-002
+  document: env-002.md
+  status: retained
+  classification: framework
+  risk: high
+  scenario_id: environment-maintenance
+  direction: Update both Gems to current upstream mainline while preserving local modifications
+  variable: FlagGems and FlagGems-vllm source revisions and editable builds
+  accuracy: installation_only_syntax4083_and_fresh_import_passed; model_accuracy_not_run
+  performance: manual_user_csv_reviewed; throughput_aligned; P32K_TPOT_plus5.69pct/P64K_plus6.36pct; formal_evidence_incomplete
+  decision: latest_upstream_installed; prior modifications retained as whole backups, not active
+- experiment_id: fw-001
+  document: fw-001.md
+  status: retained
+  classification: framework
+  risk: medium
+  scenario_id: contiguous-prefill-auto-selection
+  direction: Replace experimental env switch with MetaX capability/workload routing
+  variable: Automatic selection for existing contiguous single decoder prefill implementation
+  accuracy: 'current_PR638_Gems_whitelist_combination: graph each rank2 real replays; GPQA159/198 passed;
+    ERQA235/400=58.75pct full score, zero exclusions; minimal8/10 historical difference retained'
+  performance: not_run_after_change; focus_total_token_throughput_per_user
+  decision: PR638 applied in B and current combined precision verified; original verify untouched, performance
+    paused, no individual PR benefit attribution
+  candidate: PR638 head3e04e696f5ab93d25ef90b1f0e1d0fb50cd9ab60 file content on base7cb5599
+- experiment_id: diag-003
+  document: diag-003.md
+  status: retained
+  classification: framework
+  risk: read_only
+  scenario_id: manual-whitelist-blacklist-gap
+  direction: Identify configuration/execution mismatch behind user manual total-throughput gap
+  variable: User whitelist27 versus blacklist4; actual endpoint/service identity checked
+  accuracy: not_run
+  performance: current_white_P1K1766.99_vs_black7_1371.26_minus22.40pct; fullbatch_sampling_path_localized
+  decision: Corrected missed MetaX sampler patch; prioritize controlled sort/sort_stable family exclusion
+    at P1K, no new tests
+- experiment_id: acc-004
+  document: acc-004-pr638-full-accuracy.md
+  status: completed
+  classification: framework
+  risk: high
+  scenario_id: full-gpqa198-erqa400
+  direction: Full accuracy of PR638 plus current upgraded Gems/whitelist combination
+  variable: New exact PR source/current stack; no single-change score attribution
+  accuracy: native_GPQA159/198>=155/198_PASS; native_ERQA235/400=58.75pct_no_threshold_zero_exclusions;
+    primary_refs_and_provenance_verified
+  performance: not_run_per_user_pause
+  decision: Full user-requested precision complete; hourly monitor deleted; preserve minimal8/10 observation,
+    performance remains paused
+- experiment_id: acc-005
+  document: acc-005-c64-model-default-accuracy.md
+  status: completed
+  classification: framework
+  risk: accuracy_only_existing_user_service
+  scenario_id: GPQA198-ERQA400-C64-model-default-sampling
+  direction: Full precision on user newly started blacklist9 service, default model sampling
+  variable: C64/t1/top_p0.95/top_k20/default request seed; not paired with priorC32 greedy white-list
+    test
+  accuracy: C64/model defaults:GPQA163/198=82.32323232323232pct native PASS>=155/198;ERQA239/400=59.75pct,400scored,zero
+    exclusions,no threshold; independent native/provenance/source/identity/payload/frozen-SHA verification
+    passed
+  performance: not_run_per_user_pause
+  decision: User full precision scope complete;30min monitor deleted;existing user9998 service preserved,performance
+    remains paused
+metrics: []
+remote_case_root: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression
+scope: migration-regression
+graph:
+  status: baseline_and_candidate_passed
+  instance: baseline-02
+  capture: PIECEWISE and FULL completed in live log
+  replay: two completed native graph replays per rank verified by exact mcGraphLaunch and completed GPU
+    correlations
+  artifact: profiles/baseline-02-graph/capture-receipt.json
+  timestamp_issue: resolved by trace-internal epoch, empty before/new stable after inventory and request
+    log; original mtime incomplete preserved
+  verified_manifest: services/baseline-02.verified.service.json
+  verified_manifest_sha256: 6d51898bb61a629fc2573c8793ee9e19f6db84c71b89106eee1c20e45f16cffb
+  candidate:
+    status: passed
+    instance: candidate-01
+    minimum_completed_replays_per_rank: 2
+    scope: P64/D16 C1/N1 and C8/N8; no all-shape/backend-hit claim
+    verified_manifest: services/candidate-01.verified.service.json
+    verified_manifest_sha256: af9895a85970240369bcc46a4530af8238d8a0698f9fcfe876d3f51799bb558d
+    runtime_evidence: services/evidence/candidate-01-graph-final/runtime-evidence.final.json
+    runtime_evidence_sha256: e70aede004408af677e36772570baa8b9e835cf6e08d4d18cb63a16463806e81
+    explicit_review: profiles/candidate-01-graph/explicit-primary-review.json
+    explicit_review_sha256: af869f9323fcca4ecb61cded19492e933bb8af47167002c0d7c20e52529f9304
+    semantic_inspection: profiles/candidate-01-graph/semantic-inspection.json
+    semantic_inspection_sha256: 326a1e7ef80455f57c94b2c01fd3da36ec420483ed69a25aedd46ecf023911d3
+    mtime_exception: current internal epochs, four new stable hashes, worker identity, successful requests
+      and profiler stop; original mechanical incomplete preserved
+accuracy:
+  status: baseline_and_candidate_formal_passed
+  rule: candidate full198 score >= first valid old-Plugin full198 score; seed42
+  minimal_regression: 'baseline-02 passed: GPQA10=9/10, arithmetic=2, all12 responses valid; doc8 length
+    at30000 recorded separately'
+  health_observations:
+  - baseline-02 C8 doc8 length-truncated at30000 tokens; candidate minimal had no health warnings
+  active_job:
+    job_id: a1-formal-198-v2
+    status: completed_verified
+    client_container: qwen36-27b-regression-eval-20261022
+    job_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/a1-formal-198-v2
+    native_run_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/a1-reference-runs/Qwen3.6-27B-plugin-migration-A1-reference/c045b1ac65434591abf7ea4eabe63966
+    expected_samples: 198
+    formal_score: 0.7828282828282829
+    model_requests_started_at_utc: '2026-10-22T14:52:28Z'
+    correct_samples: 155
+    run_record_sha256: 2743ee0c19a55d05fd0fc231355192b5e022eb86ee9e76e4de0a859ea4fffb0b
+  progress_snapshot:
+    observed_at_cst: 2026-10-23 00:04
+    native_score_timestamp_utc: '2026-10-22 15:32:04'
+    completed_samples: 198
+    expected_samples: 198
+    strict_correct_partial: 155
+    strict_score_partial: 0.7828282828282829
+    timeouts: 0
+    final_result_available: true
+  candidate_threshold:
+    value: 0.7828282828282829
+    metric: exact_match,strict-match
+    contract: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/b1-candidate-inputs/candidate-contract.json
+    sha256: 463fc984a6c11d1b0d5e3f640c7612d4ba9570209db4e2d9c320b710e10323eb
+    frozen_before_candidate_start: true
+  candidate_config:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/b1-candidate-inputs/formal-config.json
+    sha256: 849040f206ac06fb9dbc3b8188ec89da8222ca5ab761871c6097a1fe5fec85ee
+  candidate_minimal_job:
+    job_id: b1-sanity
+    status: completed_verified
+    client_container: qwen36-27b-regression-eval-20261022
+    launch_control: host durable Docker client; no automatic retry or acceptance decision
+    status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/launch-b1-sanity.py
+      --status
+    job_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/b1-sanity
+    native_output: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/candidate-01-sanity
+    expected_requests: 12
+    dry_run_sha256: d42d1ab7ef48cbabe5e4a388bdcae76377fca7e0d15bb7f4eb28795c41a5a3c0
+    reference_score_gpqa10: 9/10; minimal only, not formal198
+    progress_snapshot:
+      observed_at_utc: '2026-10-22T22:31:16.726094+00:00'
+      completed_requests: 2
+      total_requests: 12
+      stage: C8 doc0..7 in flight; smoke doc0 and arithmetic completed
+      formal_score_available: false
+    receipt: accuracy/candidate-01-sanity/sanity-receipt.json
+    receipt_sha256: 4fe4c94e0c0efce735bf1dacc963311377f82feddeecfa691eb7d4c839ac2f60
+    strict_correct: 10
+    expected_gpqa_items: 10
+    arithmetic: '2'
+    completed_requests: 12
+    completed_at_utc: '2026-10-22T22:38:43.310884+00:00'
+    artifact_sha_checks: 31
+  candidate_formal_job:
+    job_id: b1-formal-198
+    status: completed_verified
+    client_container: qwen36-27b-regression-eval-20261022
+    job_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/b1-formal-198
+    native_run_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/b1-candidate-runs/Qwen3.6-27B-plugin-migration-B1/00b242752c1245bf955a69a508488564
+    expected_samples: 198
+    model_requests_started_at_utc: '2026-10-22T23:14:21Z'
+    preexisting_response_cache_hits: 0
+    formal_score: 0.7828282828282829
+    preflight_stdout: commands/b1-formal-preflight.json
+    preflight_stdout_sha256: cd67549de1b0576e0560ba364744f795c37a8dea57b7019f7a7e3a053ba0a532
+    progress_snapshot:
+      native_timestamp_utc: '2026-10-22 23:53:57'
+      completed_samples: 198
+      expected_samples: 198
+      strict_correct_partial: 155
+      strict_score_partial: 0.7828282828282829
+      timeouts: 0
+      final_result_available: true
+    correct_samples: 155
+    run_record_sha256: 56bcf2f83cfbc83375735a93f9c80a7c0d0a24a23cfc3df453cdebc88e4bd0a1
+    completed_at_utc: '2026-10-22T23:53:57Z'
+  candidate_gate:
+    status: passed_native_issue_and_check
+    path: accuracy/candidate-01.accuracy-gate.json
+    sha256: e0c2073430e135471ce233d6c182747850eb288e668d7298c046aadcde2bec69
+    service_manifest_sha256: af9895a85970240369bcc46a4530af8238d8a0698f9fcfe876d3f51799bb558d
+    score: 0.7828282828282829
+    threshold: 0.7828282828282829
+  paired_full198_comparison:
+    status: identical_native_samples
+    path: accuracy/full198-outcomes-comparison.json
+    sha256: 6ac214382abe266646864ed045bde8ec88bcf872871cc39441fa418986133fc7
+    samples_sha256: 2ea980068a717ba722feae1821be38b95378fd440b42afc85bbe1b4926323807
+    identical_native_rows: 396
+    total_native_rows: 396
+    strict_both_correct: 155
+    strict_A_only_correct: 0
+    strict_B_only_correct: 0
+    strict_both_incorrect: 43
+    scope: Supplementary comparison of already accepted A1/B1 native full198; no new score or gate
+  current_PR_candidate: candidate03_full_native_GPQA_pass159/198; ERQA_score235/400_58.75pct_verified;
+    performance_paused; monitor_deleted
+performance:
+  status: incomplete_baseline_latency_noise_and_candidate_warmup_variability
+  mode: checkpoint
+  max_regression: 0.05
+  max_drift: 0.05
+  min_processes_per_role: 2
+  warmup_rounds: 5
+  measured_rounds: 3
+  dry_run:
+    status: passed
+    artifact: commands/a1-performance-warmup5.dry-run.json
+    sha256: aa7ca72ec8174ed5222087054e50043a8ef9a044d425234244352fef0bb9c509
+    round_commands: 32
+    model_requests_sent: 0
+  active_job:
+    job_id: b2-performance-warmup5
+    status: stopped_warmup_not_admitted
+    client_container: qwen36-27b-regression-a-20261022
+    service_instance: candidate-02
+    job_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/b2-performance-warmup5
+    run_record: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/b2-performance-warmup5/run-record.json
+    scope: checkpoint migration regression; native formal_candidate label requires gate; original-anchor
+      acceptance not claimed
+    current_scenario: p1024-d1024-c64-n128
+    total_rounds: 32
+    automatic_retry: false
+    accuracy_gate_sha256: 040b56f1657a024492672837981bface6da6e00d9de8c62475abca43882e8f0c
+    native_output_observed:
+    - service.json
+    - accuracy_gate.json
+    - comparison_contract.json
+    - client-probes.json
+    - effective-plan.json
+    - client.json
+    native_run_record_available: true
+    run_record_sha256: d0c506c182a5f8a532dc3e4c93031f1cc2899c086de38c7461d9c069f80b21a4
+    completed_rounds_observed: 5
+    measured_rounds: 0
+  warmup_stability_window: 3
+  current_plan:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/contracts/perf-plan-v2.json
+    sha256: 5eb9551b57544d357b95ca80401971dc42ddaff6085f0afd67451d31f6cd8571
+    revision_reason: previous3-warmup run failed steady-state admission; no admitted measurements; same
+      revised plan required for all roles
+  failed_attempts:
+  - job_id: a1-performance
+    native_status: failed
+    conclusion: incomplete-steady-state-not-admitted
+    run_record: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance/run-record.json
+    sha256: e49e23f425433e9eb322f1c8422b6fe972b6b90b7643e0255c6277841fc8d288
+    completed_warmup_rounds: 3
+    measured_rounds: 0
+    scenario: p1024-d1024-c64-n128
+    output_throughput_tokens_per_second:
+    - 1015.9565786024328
+    - 1162.9849292399263
+    - 1162.652738285095
+    relative_spread: 0.12645938533147846
+    steady_state_limit: 0.05
+    migration_regression_conclusion: not_comparable_candidate_not_run
+  - job_id: b2-performance-warmup5
+    native_status: failed
+    conclusion: incomplete-steady-state-not-admitted
+    run_record: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/b2-performance-warmup5/run-record.json
+    sha256: d0c506c182a5f8a532dc3e4c93031f1cc2899c086de38c7461d9c069f80b21a4
+    completed_warmup_rounds: 5
+    measured_rounds: 0
+    scenario: p1024-d1024-c64-n128
+    warmup_window_output_throughput_tokens_per_second:
+    - 1114.5895137014725
+    - 1102.4611644334943
+    - 1158.743514104097
+    relative_spread: 0.05049603372248936
+    steady_state_limit: 0.05
+    migration_regression_conclusion: not_comparable_no_admitted_candidate_measurements
+  individual_run_verification:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/verification/a1-performance-warmup5.json
+    sha256: 79c4e622cd6cfe13d9a7d49eec9041270eae797ac97c9447828cd59d9b305850
+    status: passed
+    scope: one native run only; independent repetition, candidate/revert comparison and drift decisions
+      pending
+  completed_case_summaries:
+    observed_at_cst: 2026-10-23 06:08
+    scope: one complete baseline process native check_run passed; independent repetitions and migration
+      comparison pending
+    cases:
+      p1024-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 1162.7258019368135
+        - 1162.3976945492814
+        - 1163.0130796207611
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 112.72821139916778
+          total_input_tokens: 131072
+          total_output_tokens: 131072
+          request_throughput: 1.1354744159539194
+          output_throughput: 1162.7258019368135
+          peak_output_throughput: 1472.0
+          total_token_throughput: 2325.451603873627
+          mean_ttft_ms: 5230.113986879587
+          median_ttft_ms: 5193.037930876017
+          p99_ttft_ms: 10936.986049544066
+          mean_tpot_ms: 49.90777721005104
+          median_tpot_ms: 50.05816461924438
+          p99_tpot_ms: 54.22700027149546
+          mean_itl_ms: 49.90777735751899
+          median_itl_ms: 44.41963788121939
+          p99_itl_ms: 45.86456432938575
+          median_e2el_ms: 56260.329329408705
+          p99_e2el_ms: 62146.53339808807
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+      p4096-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 692.1013833697906
+        - 692.1197304712318
+        - 692.044468598799
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 189.38265859521925
+          total_input_tokens: 524288
+          total_output_tokens: 131072
+          request_throughput: 0.6758802571970611
+          output_throughput: 692.1013833697906
+          peak_output_throughput: 1344.0
+          total_token_throughput: 3460.5069168489526
+          mean_ttft_ms: 14138.528529423638
+          median_ttft_ms: 5702.734394930303
+          p99_ttft_ms: 44571.96385836229
+          mean_tpot_ms: 78.47470971366779
+          median_tpot_ms: 86.97186088606439
+          p99_tpot_ms: 90.85039106883175
+          mean_itl_ms: 78.47470987941453
+          median_itl_ms: 48.92112500965595
+          p99_itl_ms: 1424.728146865964
+          median_e2el_ms: 94136.94303762168
+          p99_e2el_ms: 134574.45830577984
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+      p16384-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 230.0051055573704
+        - 229.9854057714065
+        - 230.07276704872345
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 569.8656109496951
+          total_input_tokens: 2097152
+          total_output_tokens: 131072
+          request_throughput: 0.22461436089586953
+          output_throughput: 230.0051055573704
+          peak_output_throughput: 874.0
+          total_token_throughput: 3910.0867944752968
+          mean_ttft_ms: 98312.22663301742
+          median_ttft_ms: 65059.79074630886
+          p99_ttft_ms: 253538.64131763577
+          mean_tpot_ms: 166.53699346137574
+          median_tpot_ms: 189.2591632278099
+          p99_tpot_ms: 240.64593754756123
+          mean_itl_ms: 166.53699364117654
+          median_itl_ms: 55.58604095131159
+          p99_itl_ms: 1570.5361649766564
+          median_e2el_ms: 262830.75525797904
+          p99_e2el_ms: 451686.2021176517
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+      p32768-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 113.68055829272322
+        - 113.68311987996138
+        - 113.76147416491291
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 1152.9592092335224
+          total_input_tokens: 4194304
+          total_output_tokens: 131072
+          request_throughput: 0.11101867175777479
+          output_throughput: 113.68311987996138
+          peak_output_throughput: 468.0
+          total_token_throughput: 3751.5429560387256
+          mean_ttft_ms: 302420.17927151755
+          median_ttft_ms: 322125.0790003687
+          p99_ttft_ms: 523667.3704718612
+          mean_tpot_ms: 193.65055960464395
+          median_tpot_ms: 206.601418604854
+          p99_tpot_ms: 257.8025676629061
+          mean_itl_ms: 193.65055979555427
+          median_itl_ms: 56.23758677393198
+          p99_itl_ms: 1753.2835177145898
+          median_e2el_ms: 533334.9035624415
+          p99_e2el_ms: 735072.9479982704
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+  within_process_variability:
+    status: incomplete
+    path: performance/verification/a1-performance-warmup5-variability.json
+    sha256: 70d812e65a728d1a57598f057cf85c6c505302da8402a2c36a57f1c1dde3fcb9
+    scenario: p1024-d1024-c64-n128
+    metric: median_ttft_ms
+    values_ms:
+    - 5395.882333628833
+    - 4875.803179107606
+    - 5193.037930876017
+    relative_spread: 0.10014930787025744
+    limit: 0.05
+    data_integrity: native_check_run_passed_complete32
+    migration_regression: not_attributable_candidate_not_measured
+    next_action: diagnose measured latency variability before comparable performance reruns; retain every
+      round, no threshold relaxation
+    diagnosis:
+      status: refill_mixed_interference_localized_exact_scheduling_cause_unresolved
+      raw_native_medians_reproduced: true
+      parser_error_excluded: true
+      cause: Subsequent refill cohort and mixed scheduling/client arrival are narrowed surfaces; no device/operator
+        root cause proven. First cohort and overall throughput are much steadier.
+      threshold_unchanged: true
+      native_source_verified:
+        serve.py: dfeb9bf42b587ffae5cc8ef959e066df5c4a89d078f663c554f6d3973c3d54f3
+        lib/endpoint_request_func.py: 63a7d582e0511ee2761757dedd585bebe1bb5130d1b0736e79327a94b58bc435
+      client_semantics: C64 semaphore acquired before per-request clock start; TTFT excludes waiting for
+        client semaphore, includes HTTP/service queue/scheduling; native first choices event may carry
+        empty text
+      cohort_data:
+      - round: 6
+        first64_start_span_ms: 12.793164700269699
+        next_request_start_offset_s: 55.98081764951348
+        last64_start_span_s: 6.01487891562283
+        first64_ttft_median_ms: 6281.289404258132
+        last64_ttft_median_ms: 4859.8518976941705
+      - round: 7
+        first64_start_span_ms: 12.56861723959446
+        next_request_start_offset_s: 55.98502998612821
+        last64_start_span_s: 6.343915719538927
+        first64_ttft_median_ms: 6282.78580121696
+        last64_ttft_median_ms: 4542.074494063854
+      - round: 8
+        first64_start_span_ms: 12.09147460758686
+        next_request_start_offset_s: 55.98188053071499
+        last64_start_span_s: 6.176062222570181
+        first64_ttft_median_ms: 6279.6596540138125
+        last64_ttft_median_ms: 4508.209261111915
+      next_probe:
+        status: capture_valid_analysis_complete_phase_attribution_partial
+        parent_scenario_id: p1024-d1024-c64-n128
+        question: Which service/client/phase timing changes cause later64 TTFT variation with stable first64/throughput?
+        required_conditions: After current B formal198 ends, use a freshly verified A instance and unchanged
+          P1K/D1K/C64/N128; bounded native capture/analyze, all ranks, actual request/perf_counter versus
+          trace wall-time anchors; preserve no-profiler rounds separately.
+        budget_seconds: 1800
+        stop_condition: Missing request-to-trace phase alignment or rank evidence => incomplete; no invented
+          phase/operator attribution; no threshold relaxation or best-run selection.
+        job_id: a2-p1k-noise
+        job_path: jobs/a2-p1k-noise
+        status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/launch-a2-p1k-noise.py
+          --status
+        output: profiles/baseline-03-p1k-noise
+        service_instance_id: dfa1771432833f63aeded7ff9c46d01df8d9831a1e93dab67f841b06d9e43b87
+        mode: capture
+        next_mode: analyze
+        dry_run: commands/a2-p1k-noise.dry-run.json
+        dry_run_sha256: f408f99a1b0ffcb836c2108c064dd6ab8bf01ee0bdb65ba41b3ed0305475ef7b
+        capture_script: commands/capture-p1k-noise.py
+        capture_script_sha256: 11160fb12bebab2e7d997853ce2d4cb337b1b5f8fcf575f814a12130f2fec006
+        launcher_sha256: 21c92b8e8b39dbb6a395c25033dece27bb84bc617d3d8cc327f732b68e2dfeb1
+        warmup_rounds: 5
+        profiled_rounds: 2
+        per_round_timeout_seconds: 300
+        formal_performance_result: false
+        capture_receipt: profiles/baseline-03-p1k-noise/capture-receipt.json
+        capture_receipt_sha256: 5793398d0ce4db3966400883ddcf5dc8dcf255bca4bd85889788f7b15df5217f
+        native_diagnostic: profiles/baseline-03-p1k-noise/native/qwen36-27b-migration/diagnostic-1742f83fe00a48058b46f557a6f49a36/diagnostic.json
+        native_diagnostic_sha256: 4f41f3d8e0c745d2ef265d4e9a4ffd0c88175003344d53568f119a0303654f65
+        clock_after_sha256: 776b068881752923cfd66a3609bec4b235dc5ac03ee73a05dc37bd81be8805f1
+        all_native_rounds_valid: true
+        completed_rounds: 7
+        elapsed_seconds: 1467.1441553644836
+        analysis_script: commands/analyze-p1k-noise-v1.py
+        analysis_script_sha256: 1172e72139d5590619fb5c8e9c085e2c40beed35d4bb696d568d57fa008c9434
+        analysis_output: profiles/baseline-03-p1k-noise/analysis-v1
+        timeout: false
+        inspection: profiles/baseline-03-p1k-noise/analysis-v1/inspection.json
+        inspection_sha256: f9258ac522cbf377475f66f18ee753ca4817d5f716b914a32c843c088965827d
+        primary_review: profiles/baseline-03-p1k-noise/analysis-v1/primary-review.json
+        primary_review_sha256: c0c37f49c5e49fc156775b9380eed41a3de46d13ff89b90a5336521abb743cab
+        request_comparison: profiles/baseline-03-p1k-noise/request-cohort-comparison.json
+        request_comparison_sha256: a84cbf7634176b28cadd0848bbf11cb4f973d45a8220e68a066c56e7ff5cd36e
+        clock_offset_spread_ns: 2530
+        clock_max_bracket_ns: 5679
+        validated_native_benchmark_processes: 7
+        validated_rank_traces: 4
+        graph_launches_per_trace: 2042
+        profiler_stopped: true
+        prefill_view: Initial/refill request regimes have chunk Prefill, GEMM and AllReduce; pure Prefill
+          critical path remains unknown.
+        decode_view: 'No new prompt issuance after first64 first-choices until refill: steady decode request
+          regime11.03/11.16..57.81/57.99s; packed recurrent decode/GEMM/communication; not formal timing.'
+        mixed_view: Refill57.81..69.33/57.99..69.53s overlaps old request stalls and chunk/GEMM/AllReduce
+          on both ranks; exact unprofiled scheduler decision unresolved.
+      additional_alternatives_excluded: A1 all three rounds sorted last-choices-to-refill gaps0.115..1.090ms;
+        no hundreds-of-ms client refill delay as sole explanation. Median boundary requests are all refill64.
+  candidate_dry_run:
+    status: reviewed_passed
+    artifact: commands/b2-performance-warmup5.dry-run.json
+    sha256: 45c9386ad5d1bc2c94e4b69d667419f43492c84cdd78ed39e7c026727888b889
+    all32_commands_equal_to_A1_except_result_directory: true
+    model_requests_sent: 0
+  candidate_warmup_diagnosis:
+    status: native_integrity_verified_paired_pattern_requires_diagnosis
+    run_record_sha256: d0c506c182a5f8a532dc3e4c93031f1cc2899c086de38c7461d9c069f80b21a4
+    valid_rounds: 5
+    requests_per_round: 128
+    failed_requests_each_round: 0
+    input_output_tokens_each_round: 131072
+    raw_validation_sha_checks: 10
+    A_last3_output_throughput:
+    - 1119.5420487207182
+    - 1106.4753013141683
+    - 1161.815749736857
+    B_last3_output_throughput:
+    - 1114.5895137014725
+    - 1102.4611644334943
+    - 1158.743514104097
+    paired_B_over_A_minus1:
+    - -0.004423715058228361
+    - -0.0036278594523586616
+    - -0.002644339804703022
+    A_relative_spread: 0.04943132639450686
+    B_relative_spread: 0.05049603372248936
+    inference: Common same-seed workload/execution pattern is a hypothesis; environment/seed/scheduler
+      contribution not isolated
+    boundary: Warmup only; no admitted candidate formal measurement or no-regression verdict
+environment:
+  image_lineage: verified
+  mount_parity: passed
+  snapshot_image: sha256:50b91afb5af0f4209c0d469930c392818654151c78e559c41d1adc7e2bde8838
+  evidence: clone-preparation/20261022T134301Z-b7d4dcad/result.json
+  source_container_preserved: true
+  baseline_container: qwen36-27b-regression-a-20261022
+  candidate_container: qwen36-27b-regression-b-20261022
+  model_manifest_sha256: d07003c7d4212744b2c5886479abf9236684b296cc5d0f022f3b0b55c79d5c21
+issues:
+- id: diag-001
+  trigger: baseline graph startup before model requests
+  classification: identity/configuration or inherited execution blocker
+  status: baseline startup and graph recovered under common USE_FLAGTUNE=0
+  root_cause: confirmed minimal operator/config boundary
+  evidence: logs/baseline-01.log
+  failure: 'FlagGems mul autotune -> FlagTune UnsupportedFlagTuneDeviceError: backend maca; FlagTree runtime.errors
+    absent'
+  baseline_plugin: d1653d9
+  candidate_tested: false
+  graph_capture: PIECEWISE and FULL completed on baseline-02
+  formal_accuracy: baseline_reference_verified
+  performance_blocked: false
+  next_action: candidate verification pending; initial startup blocker resolved
+  fix: USE_FLAGTUNE=0 common A/B/A startup config; no code changes
+- id: diag-002
+  trigger: graceful stop after full P1K profiling/analysis completed
+  status: resolved_after_explicit_user_authorization
+  scope: baseline03 validation service only
+  evidence: services/stops/baseline-03-20261023T060224Z-a480a887/stop-receipt.json
+  observation: EngineCore exited and API application shutdown logged; API process waits child; two same-identity
+    workers sleep during cleanup. First TERM already caught; current worker signal handler ignores subsequent
+    TERM once shutdown_requested is set.
+  lease: released
+  candidate02_started: true
+  SIGKILL: Exactly two approved workers signaled once via pidfd; all service processes subsequently exited
+  force_plan: commands/kill-terminated-baseline03-workers.py
+  force_plan_sha256: 91a99e9b20f7155dff9d6019f3d4f00f671fde0a140511a41a1cf0d1d7d28252
+  preview: identity/artifact checks passed; action=preview; no signal
+  targets:
+    container_pids:
+    - 68207
+    - 68208
+    start_ticks: 1103447122
+    host_pids:
+    - 4176376
+    - 4176377
+    physical_gpus:
+    - 2
+    - 3
+  unrelated_gpu_services: 0,1 and newly observed4,5 untouched
+  authorization: 用户明确回复：允许精确清理并继续验证
+  resolution_receipt: services/stops/baseline-03-20261023T061625Z-79152d3b/stop-receipt.json
+  signal_receipt: services/stops/baseline-03-user-approved-workers-20261023T061238Z-74a5c20c/signal-receipt.json
+  signal_receipt_sha256: c95a56a70cc741e4d31f1106b58fdce78c89e732cc1f53a9bf995ce1e9cd7de3
+  resolution_receipt_sha256: 3db12942762b982d4d8000fbb9dd42ecff44a69a0d6b06824b82ef8d817071f8
+policy_version: null
+policy_date: '2026-10-22'
+acceptance_scope: formal
+accuracy_status: not_run_for_env002_current_source
+performance_status: manual_csv_throughput_aligned_long_context_latency_caveats; formal_incomplete
+common_launch_revision: start-service-v5
+automation:
+  id: qwen27b
+  kind: heartbeat
+  status: DELETED
+  cadence: hourly
+  authorization: 'user: 每一个小时提醒一次吧'
+  stop_when: migration regression complete or user intervention required
+  stop_reason: 用户要求：你先中止一下吧，我先跑轮端到端的性能看看情况
+tools_root: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/tools-v3
+evaluation_launcher: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/launch-evaluation-job-v2.py
+baseline_service_stop:
+  status: released_after_term
+  receipt: services/stops/baseline-02-20261022T221016Z-092558fd/stop-receipt.json
+  script: commands/stop-service-v2.py
+  python: /usr/bin/python3 -I
+  container_stopped: false
+candidate_validation:
+  instance: candidate-01
+  status: formal198_passed_performance_pending
+  container: qwen36-27b-regression-b-20261022
+  graph: passed
+  minimal: passed_10_of_10
+  formal198: passed_155_of_198
+  performance: not_run
+  component_fingerprint: manifests/fingerprints-candidate-01.json
+  component_fingerprint_sha256: 89a818e88ac16fab36871d98078c628339de51e0b44d99eabeaf50416d9c9f74
+  plugin_sha256: b4332fc114f644e9518bc9d5418675137bbdb286474318e509284b1316495d3a
+  other_component_fingerprints_match_baseline: true
+  launch_receipt: services/candidate-01.launch.json
+  log: logs/candidate-01.log
+  service_manifest: services/candidate-01.service.json
+  service_manifest_sha256: cc24d6b06cfa9edb69932f3aed354777055c8c6db1473d1ef8da09efa6060f15
+  service_instance_id: b998ad2f761a8f05d3077495082ffe08f18253704ccc6f5d4fc8f28b28fc3256
+  runtime_evidence: services/evidence/candidate-01-20261022T221838Z-863f4e07/runtime-evidence.json
+  worker_pids:
+  - 960
+  - 961
+  worker_start_ticks:
+  - 1101797825
+  - 1101797825
+  graph_capture_directory: profiles/candidate-01-graph
+  graph_dry_run_sha256: c6b8bede5d268b0fbdb91f9eaaf5ae5d0146b56ece3802dd7fddcce27829b881
+  verified_service_manifest: services/candidate-01.verified.service.json
+  verified_service_manifest_sha256: af9895a85970240369bcc46a4530af8238d8a0698f9fcfe876d3f51799bb558d
+  service_liveness: stopped_after_precision_gate; future candidate restart requires graph/minimal and
+    native rebind before performance
+candidate_service_stop:
+  status: released_after_term
+  receipt: services/stops/candidate-01-20261023T012001Z-a467b311/stop-receipt.json
+  signals_sent: 5
+  container_stopped: false
+noise_diagnostic_service:
+  instance: baseline-03
+  role: baseline
+  status: stopped_after_authorized_exact_worker_cleanup
+  container: qwen36-27b-regression-a-20261022
+  launch_receipt: services/baseline-03.launch.json
+  api_pid: 67670
+  component_fingerprint: manifests/fingerprints-baseline-03.json
+  plugin_sha256: 2fe56b4f22aa74dfc91f98639cca23747d91078879270122de5bbb43fc51a5e8
+  component_service_fields_match_frozen_baseline: true
+  purpose: old-A exact P1K mixed/refill TTFT noise diagnosis, no new source/config optimization
+  service_manifest: services/baseline-03.service.json
+  service_manifest_sha256: 80428a907d09d7e5604a62a222130603a64a3b58a175c5651303930f91252268
+  service_instance_id: dfa1771432833f63aeded7ff9c46d01df8d9831a1e93dab67f841b06d9e43b87
+  runtime_evidence: services/evidence/baseline-03-20261023T025052Z-49fec89d/runtime-evidence.json
+  component_fingerprint_sha256: cca93898b5e371f678a1ec0f0876d9c9b260764e2d51bf54735b99e4264d2cb1
+  graph_capture_directory: profiles/baseline-03-graph
+  graph_dry_run_sha256: ab6241c9dcb75603add5ed33a0e8265e13321894d17feff4cb4ad388f4fd3671
+  minimal: passed_9_of_10
+  graph: passed_at_least_two_completed_replays_per_rank
+  verified_service_manifest: services/baseline-03.verified.service.json
+  verified_service_manifest_sha256: 42d4408e2976c47143aa49eb5a1f7820ed018de0aef944405ead2e4eb16cca3a
+  runtime_final_sha256: 69c76fee0b1ceabd4d82576a457c0b5236eb422bfb399fa75bedb27b39ffc711
+  explicit_review_sha256: 48014383b151d77aadb50afce940392df21dfd6de6d1bee5598f7324f53581d8
+  minimal_job:
+    job_id: a2-sanity
+    status: completed_verified
+    status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/launch-a2-sanity.py
+      --status
+    client_container: qwen36-27b-regression-eval-20261022
+    native_output: accuracy/baseline-03-sanity
+    expected_requests: 12
+    dry_run_sha256: 0fb4972325a8e83cb006fe97d57c484aea3aebfcc4521a04875f9c7e92f1d53b
+    receipt: accuracy/baseline-03-sanity/sanity-receipt.json
+    receipt_sha256: e7750e937602a21755e2a7c09d9904174e5532949c0437c49a6ff5fafa7d1175
+    strict_correct: 9
+    expected_gpqa_items: 10
+    completed_requests: 12
+    arithmetic: '2'
+    health_warnings: []
+    artifact_sha_checks: 31
+  is_formal_performance_revert: false
+  stop_receipt: services/stops/baseline-03-20261023T061625Z-79152d3b/stop-receipt.json
+  container_stopped: false
+  authorized_worker_cleanup_receipt: services/stops/baseline-03-user-approved-workers-20261023T061238Z-74a5c20c/signal-receipt.json
+candidate_restart:
+  instance: candidate-02
+  status: performance_incomplete_warmup_noise
+  container: qwen36-27b-regression-b-20261022
+  component_fingerprint: manifests/fingerprints-candidate-02.json
+  component_fingerprint_sha256: 7630e8196e80d9b6fd64177bbce16d0a48d1225e3ed8c7e33205d27705f17cc0
+  static_service_fields_match_evaluated_candidate01: true
+  launch_receipt: services/candidate-02.launch.json
+  api_pid: 46359
+  log: logs/candidate-02.log
+  graph: passed_at_least_two_completed_replays_per_rank
+  minimal: passed_9_of_10
+  accuracy_rebind: passed_native_rebind_and_check
+  performance: incomplete_steady_state_not_admitted
+  service_manifest: services/candidate-02.service.json
+  service_manifest_sha256: 8cd2ba2f82172a7e793095627ecc8245dd79ce2fab54ffc0f1ba5737e3228f26
+  service_instance_id: de9b81284730365d4db7ec417ac2b9c2104676c468761787871a7d7bde580450
+  runtime_evidence: services/evidence/candidate-02-20261023T062151Z-3361b2dc/runtime-evidence.json
+  graph_dry_run_sha256: ac860ef5e3f65d7dd833165840ad941e2885b4626048e9d14baf5014e32fd8a5
+  verified_service_manifest: services/candidate-02.verified.service.json
+  verified_service_manifest_sha256: 2817bf6d7768c241b25676d003d6a8ddd8edefe505c95278eb05e77fea69f9ec
+  runtime_final_sha256: ff9f081bf87ef6a57538a72e35b5d23faceff99db822f0cfee043e1b58031999
+  explicit_review_sha256: f719ac4e58e10038fe22a3060fa9bf80d31e5ce9cbc6d139323bc8b96b03b53d
+  worker_pids:
+  - 46936
+  - 46937
+  worker_start_ticks:
+  - 1104712706
+  - 1104712706
+  minimal_job:
+    job_id: b2-sanity
+    status: completed_verified
+    client_container: qwen36-27b-regression-eval-20261022
+    status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/launch-b2-sanity.py
+      --status
+    native_output: accuracy/candidate-02-sanity
+    expected_requests: 12
+    dry_run_sha256: f5594e4913b9f4bea6e58536de65770c39ceaa20218236f4cb2b61e329d11f4f
+    receipt: accuracy/candidate-02-sanity/sanity-receipt.json
+    receipt_sha256: a3b8bc33cc0d9fdbb480a76d11fdfa351d6daf36d318d1ea60c6e14626a03e8f
+    strict_correct: 9
+    completed_requests: 12
+    arithmetic: '2'
+    artifact_sha_checks: 31
+    health_warnings:
+    - C8 doc8 length-truncated at30000 tokens; valid response, separately recorded
+  rebound_gate:
+    path: accuracy/candidate-02.rebound.accuracy-gate.json
+    sha256: 040b56f1657a024492672837981bface6da6e00d9de8c62475abca43882e8f0c
+    evaluation_reused: true
+    score: 0.7828282828282829
+    threshold: 0.7828282828282829
+    source_gate: accuracy/candidate-01.accuracy-gate.json
+    rebind_evidence_sha256: 761f07ad366bfd64b9d83cdadd5cfc66f89b44a65728e4fe251717dc368ce6f8
+    minimal_wrapper_sha256: e13af0c0b33d27452de5704f28c841641b248e17fd0d7a59480ff9eeec59f2bc
+  service_liveness: historical candidate02 exited before env001; no current replacement service
+  binding_applicability: Historical pre-env001/pre-env002 evidence only. Current latest Gems source revision
+    changed; old precision gate cannot be reused or merely rebound.
+user_pause:
+  authorization: 你先中止一下吧，我先跑轮端到端的性能看看情况
+  evaluation_job: b2-performance-warmup5 already exited; no new clients launched
+  retained_service: User manually started B port9998 after env002; fw001 kept current service running.
+    No automatic restart.
+  containers_and_artifacts_preserved: true
+  resume_requires_fresh_runtime_observation: true
+paused_environment_comparison:
+  source: qwen3.6-27B-verify
+  candidate: qwen36-27b-regression-b-20261022
+  scope: Read-only user-requested comparison; validation remains paused
+  installed_package_versions_equal: true
+  package_count_each: 250
+  python: 3.12.11
+  source_tree_hashes_equal:
+    vllm: 5e6ca21f56c8ab3cae15ca32b3dd95bcbc2c012ef9819821a38d536d0a603862
+    plugin: b4332fc114f644e9518bc9d5418675137bbdb286474318e509284b1316495d3a
+    flaggems: cce96c703b67f3198127ce2d7709b1bffdd198650d74fe08f9f680630f3247c9
+    flaggems_vllm_installed: f613716819ba5a96b458f2a12f6bc82bb49d918fdff88cd967fd72afd1c6cb64
+  plugin_head_both: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+  vllm_head_both: bc150f50299199599673614f80d12a196f377655
+  mounts_runtime_resources_equal: true
+  safe_filtered_docker_and_login_env_equal: true
+  source_current_vllm_serve_processes: 0
+  candidate_service: candidate-02 / API46359 / GPU2,3 / port18027
+  candidate_launch_overrides:
+  - USE_FLAGTUNE=0
+  - FLAGGEMS_VENDOR=metax
+  - VLLM_FL_USE_FLAGGEMS_ATTN=1
+  - VLLM_ENABLE_FLA_PACKED_RECURRENT_DECODE=1
+  - VLLM_FL_FLAGOS_WHITELIST fixed list
+  - PYTHONSAFEPATH=1
+  - VLLM_CACHE_ROOT=/opt/qwen27-regression-cache/vllm
+  - TRITON_CACHE_DIR=/opt/qwen27-regression-cache/triton
+  boundary: Default shell env equal does not mean manually started service parameters equal. Source already
+    migrated in env-003 before snapshot; later regression left it unchanged.
+  time_scope: Historical observation before env-001; current B installations now editable with Git repositories
+gems_installation_audit_on_pause:
+  scope: user requested clarification only; no install/source/service changes
+  both_containers_identical_layout: true
+  flaggems:
+    version: 5.0.2
+    installation: editable
+    direct_url: file:///workspace/FlagGems
+    pth: /opt/conda/lib/python3.12/site-packages/_flag_gems_editable.pth
+    source: /workspace/FlagGems/src/flag_gems
+    git_repository: false
+    revision: unknown
+  flaggems_vllm:
+    version: 0.1.0
+    installation: non_editable_local_directory_install
+    direct_url: file:///opt/FlagGems-vllm
+    metadata_dir_info: {}
+    runtime_package: /opt/conda/lib/python3.12/site-packages/flaggems_vllm
+    source_checkout: /opt/FlagGems-vllm
+    source_edit_does_not_automatically_update_installed_copy: true
+  clarification: Code/version parity across containers does not establish editable source installation
+    or Git provenance. FGV metadata records a local-source origin, but installed code is a separate ordinary
+    package copy.
+  time_scope: Historical observation before env-001; current B installations now editable with Git repositories
+gems_source_maintenance:
+  experiment_id: env-001
+  target_container: qwen36-27b-regression-b-20261022
+  backup_receipt: snapshots/env-001-pre-editable/backup-receipt.json
+  backup_archive_sha256: 1b4929a957e7a2b3d271f87e27cf32aa76776c77509d4214e06a2d6c0eec30a9
+  private_backup: /opt/qwen27-gems-env001-20261023/backup
+  consolidation_sha256: 63633d4dfe64a38429934886b1554e1b1b2e44222cfeaa723dbc6ff9c3a25547
+  install_receipt_sha256: 439cee69235d83f1684d6664912de75e60ffab3fb57c7ecfff64b04dbc26b0da
+  flag_gems_repository: /workspace/FlagGems
+  flag_gems_base: v5.0.2@30bfcc0735b8ebd48bd7339ef752ec64df69663f
+  flag_gems_original_revision: unknown; reconstructed comparison base only
+  flaggems_vllm_repository: /opt/FlagGems-vllm
+  flaggems_vllm_head: e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+  effective_runtime_source_bytes_preserved: true
+  all250_package_versions_unchanged: true
+  both_editable_metadata_verified: true
+  fresh_import_verification: passed
+  performance: paused_by_user
+  model_service: not_started
+  commits_created: false
+  pushed: false
+  status: completed
+  verification: manifests/env-001/verification.json
+  verification_sha256: ca07d986e59fcb9cbf50ca7baeae0972c041ebe5938bbb9e4b9cdad132f57124
+  syntax_files_checked: 3187
+  syntax_errors: 0
+  original_verify_code_and_install_layout_unchanged: true
+  preexisting_flaggems_source_files_changed: 0
+  preexisting_flaggems_source_files_missing: 0
+  fgv_only_intentional_checkout_change: src/flaggems_vllm/runtime/backend/_metax/fused/fused_moe.py copied
+    from original effective installed package
+  source_archive: snapshots/env-001-pre-editable/consolidated-editable-source-repositories.tar.gz
+  source_archive_sha256: d53052c40aee8328a06685e2032ed6fff41e2fd4f67a1d2e73d4642946fbe354
+  source_archive_bytes: 40814845
+  rollback_command: docker exec --workdir /workspace qwen36-27b-regression-b-20261022 bash -lc "/opt/conda/bin/python
+    -B -I /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env-001-install.py
+    --rollback"
+  rollback_scope: Restore exact old installation files and layout; consolidated repositories remain; requires
+    no service/clients and no intervening changes
+  service_lease_released: services/stops/candidate-02-20261023T083342Z-2ffc55c2/stop-receipt.json
+  patches:
+    flag_gems:
+      path: patches/env-001/FlagGems.effective-source.patch
+      sha256: 7fffd2dca11c85a2c1392f306335709ac0e25022f11c32155abf4652a2cd8e8a
+    flaggems_vllm:
+      path: patches/env-001/FlagGems-vllm.effective-source.patch
+      sha256: 6ebfbaf7596a018c7449b72df16868d7c9bfd364dbd5dba600f409531a8bff4a
+  time_scope: env001 historical; B actual installed sources superseded by env002. Old complete repositories
+    retained.
+gems_mainline_upgrade:
+  experiment_id: env-002
+  status: completed_installation_only
+  container: qwen36-27b-regression-b-20261022
+  flag_gems:
+    branch: master
+    head: b3a676f6a37f013d7150c1bcc310cb5a4a52cd59
+    version: 5.5.0.dev0+gb3a676f6a
+    path: /workspace/FlagGems
+    editable: true
+  flaggems_vllm:
+    branch: main
+    head: d3214ceefc921e688196f916560c24ad805575a9
+    version: 0.3.0.dev1
+    path: /opt/FlagGems-vllm
+    editable: true
+  non_target_package_versions_unchanged: true
+  old_modified_source: /opt/qwen27-gems-env002-20261023/retained-source-v2
+  old_modifications_active: false
+  backup_archive: snapshots/env-002-pre-mainline/effective-gems-and-metadata.tar.gz
+  backup_sha256: 70dd958e718a013f347ced67c4d86a4b87ba219fdd00da419c5da3f2d6538b9a
+  install_receipt: manifests/env-002-attempt2/install-receipt.json
+  install_receipt_sha256: 062d3aee29bcbb0f94dc16f9c02a12b7e884f75efd0fabaf3ec18b283c6971dd
+  verification: manifests/env-002-attempt2/verification.json
+  syntax_files: 4083
+  fresh_import: passed
+  original_verify_code_metadata: read_only_verified_unchanged
+  graph_accuracy_performance: not_run; old gates historical only
+  rollback_script: commands/env-002-upgrade-v2.py --rollback
+  performance_paused: true
+  no_model_service_started: true
+  no_commit_or_push: true
+  verification_sha256: 0909b1995fcd4c708a88ee128314c1dbe00471007ca444884ab55371f1e42c76
+manual_performance_review:
+  reviewed_date_cst: '2026-10-24'
+  source: user reported manual E2E alignment; CSV/log read-only reviewed
+  skill_mode: checkpoint
+  skill_invocation_scope: existing manual evidence review only; no measurement launched
+  skill_bundle_sha256: 872b65dd0e7a4e8c5b342c37b1c34729f14154d1e68be01ed60938d5b22dc8d1
+  baseline_container_user_report: qwen3.6-27B-verify
+  candidate_container_user_report: qwen36-27b-regression-b-20261022
+  baseline_directory: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b
+  candidate_directory: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new
+  all5_csv_scenarios_same_lengths_concurrency_request_count: true
+  csv_run_rows_checked: 30
+  csv_success_each_round: 128
+  csv_exact_tokens_per_round: true
+  summary_rule: 3 runs, SKIP_FIRST=1; SUMMARY averages Run2/Run3 in both dirs; all original rounds preserved
+  native_run_record: not_available_in_given_result_directories; CSV-only cannot pass native run-record
+    check
+  formal_verdict: incomplete_evidence; do not replace old acceptance contract
+  bounded_conclusion: Output throughput broadly aligned; P32K mean/P99 TPOT +5.686/+5.643%, median ITL
+    +11.482%; supplemental P64K mean TPOT +6.362%. P1K old measured Run2/3 throughput spread9.33%, so
+    apparent gain is not a stable attribution.
+  cases:
+  - scenario_id: p1024-d1024-c64-n128
+    stage: mixed
+    old_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b/qwen36-27b_1024in_1024out_c64_n128_20261023_155336.csv
+    old_sha256: d386fc57af766edb576e38b96832e60e7883d5f6439faf0b297569b25abd6fde
+    new_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new/qwen36-27b-new_1024in_1024out_c64_n128_20261023_223712.csv
+    new_sha256: 72efe624c48f76ecbd2531083dfdbdd34ebe2d2f25a13fcd61203c9dd09ebff5
+    output_tps:
+      old: 841.04
+      new: 884.34
+      change_pct: 5.148387710453739
+    mean_ttft_ms:
+      old: 5849.05
+      new: 5103.09
+      change_pct: -12.753524076559442
+    mean_tpot_ms:
+      old: 69.74
+      new: 67.37
+      change_pct: -3.398336679093761
+    p99_tpot_ms:
+      old: 76.4
+      new: 71.46
+      change_pct: -6.465968586387449
+    median_itl_ms:
+      old: 61.89
+      new: 61.56
+      change_pct: -0.5332040717401787
+    total_token_tps:
+      old: 1682.07
+      new: 1768.66
+      change_pct: 5.14782381232648
+  - scenario_id: p4096-d1024-c64-n128
+    stage: mixed
+    old_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b/qwen36-27b_4096in_1024out_c64_n128_20261023_155336.csv
+    old_sha256: 9ebeb91b585517c8fec0dfe65fc50289c75a844e15c8db5ecff6344787dfaa9c
+    new_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new/qwen36-27b-new_4096in_1024out_c64_n128_20261023_223712.csv
+    new_sha256: a136cd47d4447c6a4fae406a98c92bce5bab1ca7bb2914cafdb9b98b9b0eeb78
+    output_tps:
+      old: 579.24
+      new: 580.35
+      change_pct: 0.19163041226435418
+    mean_ttft_ms:
+      old: 14464.92
+      new: 14457.66
+      change_pct: -0.05019039165097272
+    mean_tpot_ms:
+      old: 96.12
+      new: 95.92
+      change_pct: -0.20807324178111486
+    p99_tpot_ms:
+      old: 108.62
+      new: 108.44
+      change_pct: -0.1657153378751719
+    median_itl_ms:
+      old: 66.34
+      new: 66.16
+      change_pct: -0.27132951462165433
+    total_token_tps:
+      old: 2896.22
+      new: 2901.74
+      change_pct: 0.1905932560371859
+  - scenario_id: p16384-d1024-c64-n128
+    stage: mixed
+    old_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b/qwen36-27b_16384in_1024out_c64_n128_20261023_155336.csv
+    old_sha256: b23180970180d6d329a8ef1b3ab8632110e282cba092b14d50631fb21d4912db
+    new_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new/qwen36-27b-new_16384in_1024out_c64_n128_20261023_223712.csv
+    new_sha256: 38604f10a028d19ac8de1decaa264c504c877521fe6d6570bd273e8377d67fe8
+    output_tps:
+      old: 213.58
+      new: 214.87
+      change_pct: 0.6039891375597017
+    mean_ttft_ms:
+      old: 108514.34
+      new: 102541.33
+      change_pct: -5.5043508535369545
+    mean_tpot_ms:
+      old: 175.2
+      new: 178.96
+      change_pct: 2.1461187214611988
+    p99_tpot_ms:
+      old: 219.86
+      new: 226.28
+      change_pct: 2.9200400254707493
+    median_itl_ms:
+      old: 68.66
+      new: 69.07
+      change_pct: 0.5971453539178606
+    total_token_tps:
+      old: 3630.97
+      new: 3652.66
+      change_pct: 0.5973610357562942
+  - scenario_id: p32768-d1024-c64-n128
+    stage: mixed
+    old_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b/qwen36-27b_32768in_1024out_c64_n128_20261023_155336.csv
+    old_sha256: 9481f35adfe98b67d1ae2e9a7485ccf3c0c5880a787cb5bfd950bf98e1db5613
+    new_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new/qwen36-27b-new_32768in_1024out_c64_n128_20261023_223712.csv
+    new_sha256: b7555d9fa49eaddee23e22ca4e0b4e312a579984a763252e4d7ef33d667fd51b
+    output_tps:
+      old: 109.91
+      new: 108.25
+      change_pct: -1.5103266308798102
+    mean_ttft_ms:
+      old: 319242.8
+      new: 315241.51
+      change_pct: -1.2533689091813405
+    mean_tpot_ms:
+      old: 192.92
+      new: 203.89
+      change_pct: 5.686294837238237
+    p99_tpot_ms:
+      old: 258.03
+      new: 272.59
+      change_pct: 5.642754718443599
+    median_itl_ms:
+      old: 58.44
+      new: 65.15
+      change_pct: 11.48186173853527
+    total_token_tps:
+      old: 3627.18
+      new: 3572.09
+      change_pct: -1.5188107565657027
+  - scenario_id: p65536-d1024-c64-n128
+    stage: mixed
+    old_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b/qwen36-27b_65536in_1024out_c64_n128_20261023_155336.csv
+    old_sha256: 566db0587299587e196a61b7524f37bc7703547afef1a5253923eba5c3011ca7
+    new_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new/qwen36-27b-new_65536in_1024out_c64_n128_20261023_223712.csv
+    new_sha256: d32505432b000d03ade84c427de3055a58761a96e517b935a0b0ff9631e16191
+    output_tps:
+      old: 52.4
+      new: 53.55
+      change_pct: 2.194656488549618
+    mean_ttft_ms:
+      old: 817861.79
+      new: 789551.8
+      change_pct: -3.4614638250797802
+    mean_tpot_ms:
+      old: 202.77
+      new: 215.67
+      change_pct: 6.361887853232706
+    p99_tpot_ms:
+      old: 214
+      new: 227.39
+      change_pct: 6.257009345794384
+    median_itl_ms:
+      old: 58.3
+      new: 58.62
+      change_pct: 0.5488850771869558
+    total_token_tps:
+      old: 3405.7
+      new: 3480.74
+      change_pct: 2.203364947000619
+  prefill_view: CSV mean TTFT improved in all5 scenes; client proxy includes queue/network/scheduler,
+    not pure device prefill
+  decode_view: CSV TPOT/ITL expose long-context increases; no operator attribution
+  mixed_view: Same CSV workload P1/4/16/32/64K,D1K,C64,N128; output throughput -1.51..+5.15%
+  script:
+    path: /public-flash/jinghao/qwen3.6-27B/test/perf_test/vllm_perf.py
+    sha256: 795578af8349ca3c903958337c616652f0ec175bd9848196b595f3cfaeffadc2
+  candidate_perf_log:
+    path: /public-flash/jinghao/qwen3.6-27B/test/perf_test/perf.log
+    sha256: e55e531c11b206eac485b81e87a34462fe6c2f04827bff407e2668d75452ef97
+    port: 9998
+    tokenizer_path: /public-flash/models/Qwen3.6-27B
+  current_B_gems_heads_match_env002: true
+  current_B_gems_tracked_diff_empty: true
+  evidence_gaps:
+  - No full raw native JSON/per-request outputs/service snapshots in supplied result dirs
+  - Old client/launch/prefix-cache/model-content and exact measurement-time source identity not independently
+    bound
+  - Different warmup/repeat scheme from prior5warmup3measure twoA/B/A contract
+  - No current-source formal accuracy gate supplied; historical155/198 is pre-env002
+  automation_resumed: false
+  remote_mutations_or_test_requests: 0
+  time_scope: 20261023 user runs before fw001; not post-fw001 measurements
+performance_focus:
+  user_instruction: 先不关注TPOT，先对齐总吞吐的性能数据
+  effective_scope: current fw001/manual performance alignment only; prior contracts remain historical
+  primary_metric: Total tok/s
+  latency_review: deferred_by_user
+  new_automatic_measurements: not_authorized_to_resume
+fw001_auto_contiguous_prefill:
+  status: implemented_CPU_static_verified
+  container: qwen36-27b-regression-b-20261022
+  plugin_head: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+  implementation_owner: MetaX vendor FlashAttention; not FLA recurrent decode
+  removed_env: VLLM_FL_METAX_CONTIGUOUS_SINGLE_PREFILL
+  conditions:
+  - MetaX decoder FlashAttention
+  - non-cascade
+  - DCP world size1
+  - one prefill; mixed decode+one prefill remains supported
+  - prefill KV sequence length>=2048
+  - nonquantized KV
+  fallback: Existing paged prefill, decode, encoder/cross-attention, DCP/cascade routes maintained
+  attention_source_sha256: 9f1d8a30c17f6dcdd4437095c49c42f58f2d5d68d103620dfcd451254a1eca15
+  envs_source_sha256: ecae13cf9bb3cbc83c0c411bd15420031a543743a94b0fe1d41dd959c803222f
+  backup: /opt/qwen27-fw001-20261024
+  verification: manifests/fw-001/final-verification.json
+  cpu_tests: 8
+  cpu_tests_status: passed
+  cpu_log_sha256: 431279b1ff0392ac00c2a8ea8fcafeb6eeb20a3c3834a756380b12528324ec4f
+  patch: manifests/fw-001/final-full.patch
+  patch_sha256: 75c96511b0f07a8d98b014a28d183aa3e3ba0952f46dc772ca18ce30ab4c9372
+  hardware_graph_accuracy_performance: not_run
+  existing_user_service: port9998; unchanged process; disk changes require next restart
+  original_verify_two_files_SHA_unchanged: true
+  rollback: commands/fw-001-reuse-tests.py --rollback-source
+  pr_readiness: experimental
+  no_commit_or_push: true
+  verification_sha256: f57aae29f765b5068e8bd4338ac1a2afb5503bb37fb30f206b1088be07bd74cc
+  test_source_sha256_historical: d4ab79a1c4bd7a5799993f39ab7ce2394b75661448fb454a062fab1b6c70bed8
+  plugin_added_test_file: removed after user requested existing test reuse; backup retained
+  reused_tests:
+    payload: commands/fw-001-test-metax-contiguous-prefill-v2.py
+    payload_sha256: d4ab79a1c4bd7a5799993f39ab7ce2394b75661448fb454a062fab1b6c70bed8
+    harness: commands/fw-001-reuse-tests.py
+    harness_sha256: 733f3801fbc8aa3bda2791f6a9215b3f83eae3e03e9185358c21b520ef479814
+    receipt: manifests/fw-001/test-reuse.json
+    tests_run: 8
+    failures: 0
+    errors: 0
+    log: logs/fw-001-reused-case-tests.log
+    log_sha256: 8144e47bc544d11d86803e73592f8761b378752b2440365386c1f573cc797e8b
+    production_source_bytes_unchanged: true
+    receipt_sha256: 291b2ac0eb26e4565af6be7041b7e9773f1f289f0f1704e7af37554b06af71ca
+manual_list_gap_diagnosis:
+  date_cst: '2026-10-25'
+  mode: checkpoint_existing_manual_evidence_only
+  source_whitelist_directory: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry
+  source_intended_blacklist_directory: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry
+  whitelist: add,cat,cos,cumsum,embedding,full,gather,le,lt,mul,pow_scalar,resolve_conj,sin,softmax,sub,zeros,zeros_like,bitwise_not,gt_scalar,sigmoid,true_divide_,argmax,copy_,index,_index_put_impl_,max,masked_fill_
+  intended_blacklist: exponential_,index_select,mm,max
+  comparisons:
+  - input: 1024
+    D: 1024
+    C: 64
+    N: 128
+    whitelist_total_tps: 1760.54
+    second_group_total_tps: 1187.34
+    change_pct: -32.558192372794714
+    whitelist_csv_sha256: 3dd67f56f2f59ac68102b19f869a1dbe968b8240814cbab71a8e14c8c916eddc
+    second_group_csv_sha256: 24a417984bcb68d47c14a3c9b4b380edb33acd9b909f47fbfe8fb947691a8d29
+  - input: 4096
+    D: 1024
+    C: 64
+    N: 128
+    whitelist_total_tps: 2895.47
+    second_group_total_tps: 1811.3
+    change_pct: -37.44366199615261
+    whitelist_csv_sha256: ca37b6a46805830106161f36596b64869046c1cc9be7cce23c64bf9221796b69
+    second_group_csv_sha256_at_first_read: 55098dc65785d5ec3f5f21d262549d1e241b78b6cb760563fba70a7a2b5ff20c
+    file_growing_at_first_read: true
+  measurement_boundary: 3runs with SKIP_FIRST1; CSV full counts/tokens equal. Only P1K/P4K second-group
+    complete at last review; P16K user client running; P32K/P64K absent then. CSVs are not native bound
+    run records.
+  confirmed_evidence:
+    listener: Container API171330 exclusively owns listening socket1895575028 port9998; namespace4026531840
+    other_api: Container171400 is a separate launch and has no9998 listening fd; its initial env has intended
+      blacklist and no whitelist
+    listener_initial_env: Neither whitelist nor blacklist present; default source use_flaggems true, current
+      metax config exclusion lists empty
+    request_log: service-new.log has878 matching POST completions during review, all emitted by API171330;
+      server started line392 before bench
+    worker_mapping: API171330->Engine171672->worker172208/172209. API171400->Engine171941->worker172418/172419
+    runtime_paths: service-new.log lines330-337 FlagGems mm metax_nt/splitk during startup/capture; lines926+
+      actual FlagGems MetaX index_select warnings during benchmark
+    gpu_observation: GPU2/3 first TP workers about61328/61756MiB; other workers about2MiB each. Second
+      full model replica competition is not demonstrated.
+    code: Plugin worker.py246-273 maps whitelist to only_enable and blacklist to enable(unused). utils.py128-145
+      rejects both envs simultaneously. register_ops.py384 also filters fused logical ops.
+    config_drift: Current user dirty metax.yaml removes masked_fill/masked_fill_ entries from both flagos_blacklist
+      and oot_blacklist; timing versus older run unknown; no edits by agent
+  source_log: /public-flash/jinghao/qwen3.6-27B/service-new.log
+  conclusion: White P1K1766.99 recovers on current stack; black1371.26 is22.40pct lower, TTFT similar.
+    MetaX forces full-batch PyTorch sampling; blacklist enables FG8-pass full-vocab sort versus native
+    in whitelist. This is leading concrete mechanism; exact contribution not yet measured.
+  recommended_next_step: Current white P1K recovery verified. On explicit user resume or user-controlled
+    repeat, keep blacklist7 and exclude only sort/sort_stable as one alias family for P1K; MetaX patch
+    forces PyTorch full-vocab sort at all batch sizes. Preserve temperature1/top_k20/top_p0.95. Native
+    trace still needed for exact contribution; no automatic tests while paused.
+  remote_mutations: 0
+  new_requests: 0
+  services_stopped: 0
+  latest_valid_blacklist:
+    csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry/qwen36-27b-new-retry-retry-retry_1024in_1024out_c64_n128_20261025_110346.csv
+    sha256: 8e4c2549fe3e29356efc082bd95afd559107774de26f02e102c6039ebf92347f
+    total_tps: 1185.8
+    measured_run2_run3:
+    - 1185.78
+    - 1185.82
+    prior_whitelist_total_tps: 1760.54
+    change_pct: -32.645665534438294
+    service_evidence: API247744 owns9998 socket1897513676; BLACKLIST=exponential_,index_select,mm,max,
+      no whitelist. Engine248015 workers248282/248283. No duplicate listener observed.
+    registration_evidence: FlagGems op_registrar.py186-193 excludes item[1].__name__ exactly. __init__.py1446
+      mm versus1447 mm.out->mm_out; max versus max_dim likewise separate.
+    runtime_evidence: service-new.log323/324 current workers metax_nt and329/330 metax_splitk_two_step_partial
+      during FULL graph capture. Shows Gems MM variants remain, not proof of all throughput loss.
+    compiled_cache_boundary: Existing Inductor cache includes extern_kernels.mm(...,out=...), but cache
+      files not bound to this active instance; do not treat as current invocation proof.
+    benchmark_boundary: Manual existing CSV only; current per-operator timing/profile unavailable; previous
+      whitelist file not present in latest directory inventory, values retained from earlier SHA-identified
+      read.
+  blacklist6_review:
+    date_cst: '2026-10-25'
+    mode: checkpoint_existing_manual_evidence_only
+    blacklist: exponential_,index_select,mm,max,mm_out,max_dim
+    comparisons:
+    - input: 1024
+      D: 1024
+      C: 64
+      N: 128
+      prior_blacklist4_total_tps: 1185.8
+      blacklist6_total_tps: 1368.89
+      historical_whitelist_total_tps: 1760.54
+      improvement_vs_blacklist4_pct: 15.440209141507854
+      difference_vs_whitelist_pct: -22.246015427084863
+      duration_s: 191.5
+      runs_total_tps:
+      - 1303.83
+      - 1369.11
+      - 1368.67
+      requests_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry_1024in_1024out_c64_n128_20261025_150446.csv
+      sha256: 98a55efea84215f5aac646398180cc8bb7aa816eea979f3dfeb670c15bffcb85
+    - input: 4096
+      D: 1024
+      C: 64
+      N: 128
+      prior_blacklist4_total_tps: 1837.64
+      blacklist6_total_tps: 2439.36
+      historical_whitelist_total_tps: 2895.47
+      improvement_vs_blacklist4_pct: 32.74417187261922
+      difference_vs_whitelist_pct: -15.752537584571746
+      duration_s: 268.66
+      runs_total_tps:
+      - 2426.54
+      - 2439.22
+      - 2439.5
+      requests_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry_4096in_1024out_c64_n128_20261025_150446.csv
+      sha256: 70e10eab7ee1536aabafacb7a239a737d81b93008d3c9adf0dd20b0aca36f752
+    service: B API262845 owns9998 socket1898432685; Engine263115 workers263382/263383; no whitelist. Client
+      observed P16K; not interrupted.
+    runtime: New startup/FULL graph capture log no longer contains previous FlagTune flaggems/mm entries;
+      absence alone is not whole-workload dispatch proof. Current rank0 worker owns oplist fd9, confirming
+      file belongs to current process; once-log does not prove time spent or distinguish warmup from requests.
+    source: Plugin7cb559947cb61fd8b69fa5027d8ec113e528a644 with prior flash_attn.py/metax.yaml dirty;
+      FlagGems b3a676f6a37f013d7150c1bcc310cb5a4a52cd59, FGV d3214ceefc921e688196f916560c24ad805575a9,
+      vLLM bc150f50299199599673614f80d12a196f377655; no code edits in this review.
+    model_path_difference: New /data vs previous /public-flash/models. config.json bytes differ but JSON
+      objects equal. tokenizer_config/index/generation_config SHA equal; full weight bytes not rehashed.
+    primary_next_hypothesis: linear remains allowed (__init__.py1349), while whitelist27 excludes it.
+      LogitsProcessor._get_logits -> UnquantizedEmbeddingMethod.apply -> dispatch_unquantized_gemm ->
+      default_unquantized_gemm -> F.linear; independent MetaX linear_kernel exists. Target BF16 K5120/N124160
+      per TP2 rank, batch<=64. Static eligibility proven, live kernel share unmeasured. Add only linear
+      for the next controlled P1K test, not executed.
+    sampling_boundary: Service log329 confirms model defaults temperature1/top_k20/top_p0.95. Client has
+      no override. apply_top_k_top_p uses native Triton for batch>=8, PyTorch sort below8; sort/sort_stable
+      allowed in blacklist and excluded in whitelist, but exact tail cost unproven. Do not change sampling
+      parameters to make throughput comparison look aligned.
+    phase_views:
+      prefill: Client mean TTFT P1K9545.90->5163.22ms, P4K26802.83->14531.83ms; includes scheduler/queue
+        and is not pure GPU prefill time.
+      decode: Source confirms repeated logits F.linear and sampling path; TPOT intentionally deferred
+        by user. No phase timings or profiler captured.
+      mixed: P1K/P4K total throughput improved but remain below historical whitelist. No current white
+        reversion or bound formal repeat; two exclusions changed together, cannot assign individual benefit.
+    outcome: partial_recovery_observed; exact_remaining_root_cause_incomplete
+    new_measurements: 0
+    remote_mutations: 0
+    sampling_boundary_correction: 'Superseded on2026-10-26: MetaX platform patch forces PyTorch path at
+      all batch sizes, so earlier C>=8 Triton statement is incorrect for this container.'
+  blacklist7_review:
+    date_cst: '2026-10-26'
+    mode: checkpoint_existing_manual_evidence_only
+    blacklist: exponential_,index_select,mm,max,mm_out,max_dim,linear
+    comparisons:
+    - input: 1024
+      D: 1024
+      C: 64
+      N: 128
+      blacklist6_total_tps: 1368.89
+      blacklist7_total_tps: 1371.26
+      change_pct: 0.17313297635308533
+      runs_total_tps:
+      - 1311.18
+      - 1371.06
+      - 1371.46
+      duration_s: 191.17
+      successes_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry-retry_1024in_1024out_c64_n128_20261025_193026.csv
+      sha256: cd9dd949dbcc25f4a920c1fdd586532d446a4f1158793f5241e6e03b5920d507
+    - input: 4096
+      D: 1024
+      C: 64
+      N: 128
+      blacklist6_total_tps: 2439.36
+      blacklist7_total_tps: 2439.48
+      change_pct: 0.004919323101137962
+      runs_total_tps:
+      - 2429.6
+      - 2439.64
+      - 2439.32
+      duration_s: 268.64
+      successes_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry-retry_4096in_1024out_c64_n128_20261025_193026.csv
+      sha256: cb1b4de6b6694db349c5d27a6d04e1c6f01587c5542ee23679f8c2bf27a9cce2
+    - input: 16384
+      D: 1024
+      C: 64
+      N: 128
+      blacklist6_total_tps: 3372.7
+      blacklist7_total_tps: 3370.85
+      change_pct: -0.054852195570309625
+      runs_total_tps:
+      - 3360.25
+      - 3370.01
+      - 3371.69
+      duration_s: 661.03
+      successes_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry-retry_16384in_1024out_c64_n128_20261025_193026.csv
+      sha256: f16758b42de3e692532acf7e5f2d037fcc0ad76e6b3e3eef058a6d0dd4042063
+    - input: 32768
+      D: 1024
+      C: 64
+      N: 128
+      blacklist6_total_tps: 3421.47
+      blacklist7_total_tps: 3428.17
+      change_pct: 0.19582226353000998
+      runs_total_tps:
+      - 3425.51
+      - 3428.3
+      - 3428.04
+      duration_s: 1261.72
+      successes_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry-retry_32768in_1024out_c64_n128_20261025_193026.csv
+      sha256: a01bd9892f248a495394be01ba03a63d7d59af6df2031540138caedb61c38628
+    - input: 65536
+      D: 1024
+      C: 64
+      N: 128
+      blacklist6_total_tps: 3406.77
+      blacklist7_total_tps: 3415.98
+      change_pct: 0.27034405022938746
+      runs_total_tps:
+      - 3409.04
+      - 3415.4
+      - 3416.56
+      duration_s: 2494.06
+      successes_each: 128
+      csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-new-retry-retry-retry-retry-retry/qwen36-27b-new-retry-retry-retry-retry-retry_65536in_1024out_c64_n128_20261025_193026.csv
+      sha256: 1dda8d8a18e92f8f522fd8b86e8d065904002308d66e5e15cbccea54a83e87a3
+    historical_whitelist_remaining_pct:
+      P1K: -22.111397639360653
+      P4K: -15.748393179691034
+    service: API285453 owns9998 socket1898798527, workers285990/285991; blacklist7 present, no whitelist,
+      GPU2,3, TP2, prefix caching disabled, full-decode-only/maxcapture64; no active benchmark observed
+      at review.
+    revisions: Plugin7cb5599 with same flash_attn.py/metax.yaml dirty; FlagGems b3a676f6a; FGV d3214cee;
+      vLLM bc150f50. No source/config mutation in this review. Client vllm_perf.py SHA da320b269a7b233b75b3bd02b2c509938fdf1e98c81b72bb720419749ca5321f.
+    hypothesis_result: linear exclusion has no meaningful observed throughput benefit across five scenes
+      (-0.055..+0.270pct), downgrade prior primary hypothesis; not proof linear never executes.
+    compiled_path: Bound current cache4dec565ac5/rank_0_0/backbone. Startup log304 directly loads prior
+      compiled graph(s). Examined artifacts subgraph0,1,2,3,64 contain extern_kernels.mm(...,out=...)
+      from linear nodes; no linear_kernel/flag_gems strings. This is current-cache code proof unlike earlier
+      unbound Inductor examples, but not device timing or exhaustive live-kernel proof.
+    cache_boundary: FLAGOS_BLACKLIST not in displayed cache_key_factors.env. Cache reuse alone does not
+      prove wrong kernels; future controlled configuration comparison should separate compile caches without
+      deleting existing evidence.
+    runtime_stage_observation: Before first128 completion responses, seven service samples show prompt
+      throughput0, Running64, generation767.8..780.8 tok/s. This demonstrates substantial full-batch decode
+      periods; does not support assigning all remaining gap to small-batch sort. Not comparable white-stage
+      profiler evidence.
+    sampling: Defaults remain temperature1/top_k20/top_p0.95. Keep semantics fixed; do not force greedy
+      to align throughput.
+    next_step: No further blind blacklist expansion. Upon explicit resume, establish current white-list
+      P1K recovery control with frozen same configuration and separate compile caches, then native two-rank
+      capture/analyze for representative P1K on whitelist versus blacklist7. Distinguish graph body, logits/sampling,
+      CPU/dispatch, communication and low-batch tail; no current trace and no root-cause attribution yet.
+    new_model_requests: 0
+    remote_mutations: 0
+    services_stopped: 0
+    outcome: linear_primary_hypothesis_not_supported; remaining_root_cause_incomplete
+    sampling_path_correction: See white_retest_review. Full-batch sort is now supported by MetaX patch
+      import chain; previous tail-only hypothesis boundary was incorrect.
+  white_retest_review:
+    date_cst: '2026-10-26'
+    mode: checkpoint_existing_manual_evidence_only
+    scenario: p1024-d1024-c64-n128
+    white_csv: /public-flash/jinghao/qwen3.6-27B/test/perf_test/benchmark_results/qwen36-27b-white-list/qwen36-27b-white-list_1024in_1024out_c64_n128_20261026_094528.csv
+    white_sha256: a12a1ab5a983b77428f78d917ea13326de000f00613255ddab9487223b72ef9e
+    white_runs_total_tps:
+    - 1738.1
+    - 1766.42
+    - 1767.56
+    white_total_tps: 1766.99
+    blacklist7_total_tps: 1371.26
+    blacklist7_vs_white_pct: -22.39571248280975
+    duration_s:
+      white: 148.36
+      blacklist7: 191.17
+      excess: 42.809999999999974
+    mean_ttft_ms:
+      white: 5099.58
+      blacklist7: 5166.18
+    counts: Both3runs128success/131072input/131072output each. Only white P1K CSV present at review; no
+      other white scene result inferred.
+    service: API307160 owns9998 socket1899952222, workers307699/307700. Whitelist27, no blacklist; /data
+      model, TP2/GPU2,3, BF16, budget8192/C64, prefixcacheoff, FULL_DECODE_ONLY/maxcapture64, same source
+      revisions. Current rank0 owns operator-once log.
+    runtime: White log full-batch prompt0/Running64 samples first scene1030.2..1043.2 generation tok/s
+      (later rounds up to1049.6). Prior black first-scene equivalent samples767.8..780.8. Engine rates
+      are coarse10s windows, not device stage timings.
+    compiled: White startup log298/300 loads same4dec565ac5 compile-cache path as black; shared path/reuse
+      is not a proof all runtime kernels identical or cache correctness bug.
+    client_boundary: Current vllm_perf.py SHAe342ce5a32ea1e89b08ac3ae23a782f4ec2db76ba96900ad892dacc27e2f8f38
+      differs from prior black SHAda320b269a7b233b75b3bd02b2c509938fdf1e98c81b72bb720419749ca5321f. Current
+      command still3runs/SKIP_FIRST1/random/ignoreEOS/P1024D1024C64N128, no temperature/topk/topp override;
+      exact old source unavailable for byte diff. Not a formally frozen identity-bound comparison.
+    critical_correction: Prior assertion that C>=8 uses native Triton topk_topp is wrong for this MetaX
+      environment. vllm_fl/platform.py180 and vendor/metax/__init__.py13 import patches; patches/__init__.py22
+      imports topk_topp_sampler, whose36 replaces apply_top_k_top_p with _apply_top_k_top_p_no_triton,
+      always calling apply_top_k_top_p_pytorch if k/p set. Thus sort runs for full C64 too, not only tail.
+    patch_source_sha256: 347cd1353bdd485a75b089db6148ec9c15caf0f7bfde758b43a371e0e4179af7
+    patch_init_sha256: 2436c2ac8428cee5cc418eb40645f595284c341a9eb20deecdf5be45fd2e525f
+    vllm_sampler_source_sha256: be6c3aa3ee35f4f03435a77653187028ceb0775c4100a1b23c905fea4505939f
+    flaggems_sort_source_sha256: 4f63aadbe42f7dbfab0f0fb295c9dea09d749e292ce1b1e61340f68978e8fab9
+    call_chain: MetaX patched apply_top_k_top_p -> PyTorch sampler279 logits.sort -> FG aten.sort/sort.stable
+      under blacklist7 (__init__.py1793/1794) -> sort_stable -> radix_sort(k_bits4). Whitelist omits both
+      sort functions, retaining native ATen backend.
+    workload: Service log default temperature1/top_k20/top_p0.95; full-vocab logits FP32. B64*V248320=15892480
+      elements per sampling step. FlagGems32bit/4bit=8 radix sweeps with clone, int64 indices, temp buffers/status
+      clears. Runtime black once-log has GEMS SORT/SORT.STABLE/CLONE/SCATTER_/CUMSUM_OUT; white once-log
+      lacks these (not a timing measure).
+    conclusion: Strongly localizes remaining configuration effect to repeated sampling path, with full-vocab
+      FG radix sort the leading evidence-backed cause candidate. Does not prove exact per-kernel share
+      of22.40pct without targeted no-profiler A/B or trace. Linear exclusion already negative.
+    phase_views:
+      prefill: TTFT near-equal5.100vs5.166s, client proxy including queue/sampling, not proof identical
+        device prefill.
+      decode: Large sustained C64 output-rate gap and per-token full-vocab sort path; exact kernel/host
+        split unknown. TPOT not used as acceptance target.
+      mixed: Total throughput white1766.99 vs black1371.26;42.81s extra makespan at equal tokens. White
+        confirms historical recovery.
+    next_step: Current white P1K recovery verified. On explicit user resume or user-controlled repeat,
+      keep blacklist7 and exclude only sort/sort_stable as one alias family for P1K; MetaX patch forces
+      PyTorch full-vocab sort at all batch sizes. Preserve temperature1/top_k20/top_p0.95. Native trace
+      still needed for exact contribution; no automatic tests while paused.
+    remote_mutations: 0
+    new_requests: 0
+    services_stopped: 0
+pr638_application:
+  status: applied_cpu_mock_verified
+  pr_url: https://github.com/flagos-ai/vllm-plugin-FL/pull/638
+  pr_head: 3e04e696f5ab93d25ef90b1f0e1d0fb50cd9ab60
+  base: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+  target_container: qwen36-27b-regression-b-20261022
+  target_source: /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py
+  commands:
+    apply-pr638.py:
+      remote: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-3e04e696-20261026-apply.py
+      sha256: 9c02e12bfbd6998dbb7598a98a900f874786fef98483a91f29b31ed025989127
+    check-pr638.py:
+      remote: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-3e04e696-20261026-check.py
+      sha256: 42c2183274230b01e669536b1aa0e26944a7f775b6236b88f089970dd2a5deb9
+    flash_attn.pr638.py:
+      remote: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-3e04e696-20261026-source.py
+      sha256: f49f4a5b401a5ca66f04f10b27e7b6f186e3efe1c8d214556efb0b1edaf36514
+  scope: Apply pinned one-file PR content; preserve YAML and all other files; no commits, restart or performance
+    resumption
+  backup: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/fw-001/pr638-3e04e696-20261026
+  design: Existing MetaX attention backend extension; selects K/V/block table first then shares one varlen
+    call. Semantics intended unchanged; CPU/mock comparison planned; device validation not authorized
+    in this application turn.
+  orchestration:
+    path: /tmp/qwen27-pr638-20261026/apply-pr638.yml
+    sha256: 830c4ee176178593fbbb499e38f7b9783e3984886cf36dc17d21a188997b51ba
+    reason: Direct SSH stdin transfers failed authentication; project connectivity still passes. Use existing
+      Ansible control transport with raw bounded payloads, exclusive-create-or-identical verification,
+      no SFTP and no overwrite.
+  source_sha256: f49f4a5b401a5ca66f04f10b27e7b6f186e3efe1c8d214556efb0b1edaf36514
+  git_blob: fb2de517e5898ee247c663640c63c8e3ab124999
+  base_head_unchanged: true
+  other_tracked_files_preserved: true
+  metax_yaml_sha256: 13592c2b2d31064748aaae0e5cf259c9dc14313242c0eea84e585465e1ab89a1
+  apply_receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/fw-001/pr638-3e04e696-20261026/apply-receipt.json
+  test_receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/fw-001/pr638-3e04e696-20261026/test-receipt.json
+  checks:
+    CPU_mock_tests: 8
+    before_after_differential_cases: 28
+    prefill_single_varlen_call_ast: true
+    common_attention_arguments_equal_ast: true
+    syntax_diff_check: passed
+    device_graph_model_accuracy_performance: not_run
+  rollback_command: docker exec qwen36-27b-regression-b-20261022 /usr/bin/python3 -I /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-3e04e696-20261026-apply.py
+    --rollback
+  install: Existing editable /workspace/vllm-plugin-FL unchanged; on-disk PR applied as uncommitted tracked
+    diff, no package reinstall required
+  activation: Next model service launch; no inference service present in B at preflight. No restart or
+    test requests sent.
+  source_container: qwen3.6-27B-verify not modified; Plugin root remains B private writable layer outside
+    mounts
+  pr_readiness: source_synced_to_upstream_PR; hardware_validation_pending
+accuracy_pr638:
+  experiment_id: acc-004
+  status: full_native_accuracy_completed_verified_performance_paused
+  authorization: 用户要求应用完PR后跑全量GPQA和ERQA
+  modes:
+    GPQA: formal-gate
+    ERQA: native full400 score-only extension explicitly requested by user
+  candidate: candidate-03
+  container: qwen36-27b-regression-b-20261022
+  devices:
+  - 2
+  - 3
+  source_sha256: f49f4a5b401a5ca66f04f10b27e7b6f186e3efe1c8d214556efb0b1edaf36514
+  GPQA:
+    task: gpqa_diamond_generative_cot
+    limit: 0
+    expected_samples: 198
+    threshold: 0.7828282828282829
+    metric: exact_match,strict-match
+    gen_kwargs: temperature=0,top_p=1,max_gen_toks=30000,seed=42
+    concurrency: 32
+    status: passed
+    score: 0.803030303030303
+    strict_correct: 159
+    completed_samples: 198
+    completed_at_utc: '2026-10-26T09:00:33Z'
+    run_record:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-gpqa-runs/Qwen3.6-27B-PR638-current-stack/53b1ad26174845a2a076e6e7da486512/run-record.json
+      sha256: e1d8463967106b4fe7220280c0d8c584d2ce24f292130c698af6ab5823e0e140
+    gate:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-gpqa.accuracy-gate.json
+      sha256: b37ba36d738a28fdb08cdac3e9a39618ad0df2f7c0e346c955c792cc5260db40
+    native_issue: PASS
+    native_check: PASS
+    primary_review:
+      all8_run_record_artifact_sha256_verified: true
+      native_rows: 396
+      unique_doc_ids: 198
+      strict_rows: 198
+      strict_correct: 159
+      flexible_rows: 198
+      flexible_correct: 133
+      samples_sha256: 76e43a877b9ce3491f37e2feecade117a4a894ec8b59671e8ebdf3dda77078c2
+      native_iterator_sha256: 9799f2df22b1f9bf08331b6ae7e0fdfc345e2dcadc0f81202265f59b38ffcd11
+      service_after_gpqa: same_api_PID_startticks_and_four_package_content_SHA_passed
+      scope: current PR plus upgraded Gems/config combination; not isolated PR causality
+  ERQA:
+    task: erqa
+    expected_samples: 400
+    images: 630
+    threshold: null
+    max_tokens: 30000
+    temperature: 1.0
+    num_workers: 8
+    num_infers: 1
+    response_cache: false
+    seed: not emitted by native GPT runner; no invented seed guarantee
+    provenance:
+      status: postchecked_unchanged_data630images_source_config
+      evaluator: qwen36-27b-pr638-erqa-20261026
+      image: sha256:997570d1669fb03892961cbc1fb2688c676982eeb105d0f805ac82f5b53bc856
+      data_sha256: c02963830b51a6103f07d4e2fa60c76ba566d7af88214bcb4545c7475658663c
+      source_tree_sha256: 5cb06ee618c66a786478f50c628377c6dff82125beecdb9ef7a91cd2d3bf0fc2
+      payload_proof_network_requests: 0
+      prepared: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/pr638-erqa-prepared.json
+    status: completed_verified_score_only
+    started_at_utc: '2026-10-26T09:00:36Z'
+    native_output: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-erqa/native-output
+    progress:
+      observed_at_utc: '2026-10-26T13:29:54.099068+00:00'
+      completed_native_item_files: 400
+      unique_question_ids: 400
+      nonempty_answers: 400
+      all_ids_in_frozen400: true
+      processing_ids_observed: 400
+      expected_samples: 400
+      partial_score: null
+      not_final: false
+      native_timeout_warning_lines: 4
+      warning_classification: 4 native retry warnings retained; final400 nonempty responses scored, no
+        rejection exclusions
+      other_error_patterns: no traceback/connectionerror/HTTP500/OOM matches
+      final_raw_evaluated_result_files: complete_native400_verified
+      pending_ids: []
+    runtime_check:
+      observed_at_utc: primary-review-current-service
+      host_controller_pid: 2321693
+      controller_start_ticks_match: true
+      controller_state: S
+      B_container_running: true
+      ERQA_evaluator_running: true
+      same_api_pid_start_ticks: true
+      health_status: 200
+      no_restart_or_new_requests_by_agent: true
+      four_package_content_sha256_unchanged: true
+      evidence: &id001
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-full-primary-review.json
+        sha256: 26af6fa77ea8a1f4a2e171de74590fcabcccc15fa4b9aba3f95fd7d700089dbd
+    correct: 235
+    completed_samples: 400
+    scored_samples: 400
+    rejected_samples: 0
+    rejected_ids: []
+    native_accuracy_percent: 58.75
+    all400_accuracy_percent: 58.75
+    verdict: score_only_no_user_threshold
+    artifacts:
+      erqa.json:
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-erqa/native-output/erqa/erqa.json
+        sha256: 27417f77486a67facd73bbc6f614314ef8cc4ebd5f582d58753e3b7b22e557b1
+      erqa_evaluated.json:
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-erqa/native-output/erqa/erqa_evaluated.json
+        sha256: bdaa789e11c50485249b8c7d016def4e53a11248cde04c4f740fa63dabd03e9f
+      erqa_result.json:
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-erqa/native-output/erqa/erqa_result.json
+        sha256: 3b8b27235d36862c5b1f598105559413f1f0d4daedb0f61ada1e990927ab3de6
+    completed_at_utc: '2026-10-26T12:33:22.645754+00:00'
+    postcheck: &id002
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/pr638-erqa-postcheck.json
+      sha256: 53c450d8e8e77160ba55a6bd71c70e25dd6f8abd8347c0b0d64750b699da378d
+  launch:
+    graph_mode: FULL_DECODE_ONLY
+    max_capture: 64
+    max_model_len: 262144
+    prefix_cache: false
+    whitelist: latest user whitelist27
+    served_name: qwen36-27b-migration
+    port: 18027
+    USE_FLAGTUNE: 0
+    cache_root: /opt/qwen27-pr638-accuracy-cache
+    reason: Preserve latest manual graph/model-length/whitelist; use existing isolated regression endpoint
+      and profiler support for fresh evidence.
+  commands:
+    pr638-collect-components.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-collect-components.py
+      sha256: 684e6cf565c6a4f6f7cb65bedd73549ec3c473a301a15e4b37f8c503e1d7d207
+    pr638-start-service-v6.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-start-service-v6.py
+      sha256: 2934f05c6769cf5de1b7f0bf1e1966cae4b509e61047d68573e6f204754cc323
+    pr638-gather-service.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-gather-service.py
+      sha256: d40b0c73e2f388628ef10d5c06d7d90be634d7202bff3e6d32d6a1ad4f86e603
+    pr638-prepare-erqa.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-prepare-erqa.py
+      sha256: 5a83acbf9326d847d15521d627efe9e3b209c186ecf5eaae9e487e834001a40f
+    pr638-prepare-start.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-prepare-start.py
+      sha256: 7b0f7bee3a7a34ed6db58563cfdfc1410dfe3de7275389866990a2e0b1fa18f4
+    pr638-preflight-stage.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-preflight-stage.py
+      sha256: 680a6d686dd1282338a1f5debdbc4ca77b8ed662ee0f95072e08bd9292671ebf
+    gpqa-formal-config.json:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-inputs/gpqa-config.json
+      sha256: 3cb9985c2a6ca09d275f7fac51089b16dc6f7e690440637c62cb731f83110916
+    pr638-collect-components-v2.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-collect-components-v2.py
+      sha256: 4c52bf8ae0cbb571c798fc9826a478710bcad0f410bf8aa90eecf17f7fa8ae34
+    pr638-preflight-stage-v2.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-preflight-stage-v2.py
+      sha256: 4ef755c24cb3441e65237a814a6be5c4694a294d663c38298cdb5f630d2ddd56
+    pr638-accuracy-suite.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-accuracy-suite.py
+      sha256: 00133e6b3ae560e456ced7c3ee6f66bebb9dfdb1c3b64195cfc053f4441f8a5f
+    pr638-review-finalize-launch.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-review-finalize-launch.py
+      sha256: d535f87cb5bb49a1d47617430a916ca9a556393361e79df49cf43f120b7c05db
+    pr638-accuracy-suite-v2.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-accuracy-suite-v2.py
+      sha256: 524b8f1e5427bc64b087a1396352b647fc8afb5c4148714db8ef81c6c9b93ef8
+    pr638-full-diagnostic.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-full-diagnostic.py
+      sha256: 17b9b1cb6448505acfb319eda14f3ae2b907f798c57c6c58e84c0f98357cea64
+    pr638-review-full-results.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-review-full-results.py
+      sha256: 22532f661de1c9632dec29157f504f2a1d8d99eb5fa86d8d828096834e028473
+  sequence: graph capture+two replays each rank, fixed minimal, native GPQA, native ERQA; never performance
+    overlap
+  orchestration:
+    local: /tmp/qwen27-pr638-accuracy-20261026/prepare-start.yml
+    sha256: 6ddbbf4d0db6b148cd92bbc2c76862b230e208d77e131a76f573d52bc7ac9581
+  monitor:
+    id: qwen27b-pr638
+    status: deleted
+    cadence: hourly
+    scope: post-PR GPQA/ERQA only, performance remains paused
+    cleanup_evidence: automation_update(mode=delete,id=qwen27b-pr638) returned deleteStatus=deleted
+    reason: User-requested full GPQA/ERQA completed and independently verified
+  service_launch:
+    api_pid: 330455
+    receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/candidate-03.launch.json
+    status: ready_graph_verified
+  preflight_job:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-preflight
+    status: v2_completed_graph_primary_reviewed
+    scope: two native provenance captures, current fingerprints/readiness, native C1/C8 graph capture
+      and semantic review; no full dataset requests yet
+    continuation: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-preflight-v2
+  incidents:
+  - id: acc004-collector-editable-root
+    classification: measurement-invalid_preflight_only
+    cause: fingerprint-runtime.py default expect-fgv-root points to removed site-packages; actual editable
+      import is /opt/FlagGems-vllm/src/flaggems_vllm/__init__.py
+    confidence: confirmed
+    fix: Use existing --expect-fgv-root CLI with actual source root; keep original helper unchanged
+    failed_job: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-preflight
+    continuation: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-preflight-v2
+    model_requests_before_failure: 0
+    model_restarted: false
+    original_failure_preserved: true
+  - id: acc004-dryrun-mixed-stream
+    classification: measurement-invalid_orchestration_only
+    cause: Wrapper merged native preview stderr diagnostics into stdout and attempted json.loads from
+      first character. Native preview exit0 contains complete trailing plan, model_requests_sent0.
+    fix: Preserve mixed log, decode only unique complete mode=minimal-regression JSON ending at EOF, revalidate
+      frozen service/request_count; reuse successful preview without model replay
+    confidence: confirmed
+    failed_job: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy
+    continuation: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy-v2
+    accuracy_requests_sent_before_failure: 0
+    model_restarted: false
+  - id: acc004-minimal-gpqa10-score
+    classification: suspected_combination_answer_difference
+    trigger: minimal-regression failed:8/10 versus reference9/10
+    candidate_instance: bde51c9ea4413ef7e8d45e4c97a8006a43255112e7970957719a802398a8e0aa
+    receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/candidate-03-sanity/sanity-receipt.json
+    receipt_sha256: b991ffe44018629a3fd6a4c20aac2120da297a363f9b72ca351c720812178ff2
+    request_evidence: 12 complete, arithmetic2, no fatal error/warnings; 14 referenced native files SHA
+      verified
+    cause: unknown; comparison reference predates several stack/config changes; no PR-specific causality
+    decision: Preserve minimal failure; run user-requested full precision diagnostically under unchanged
+      contracts and service. No performance or promotion. Not rerunning minimal to seek a pass.
+    threshold_unchanged: true
+    performance_may_resume: false
+    sample_delta:
+      lost_correct_ids:
+      - 7
+      both_wrong_ids:
+      - 8
+      all10_http_status: 200
+      all10_finish_reason: stop
+      all10_health_warnings: false
+      all10_below_max_tokens: true
+    final_scope_update: Full GPQA159/198 meets frozen155/198; full ERQA235/400 score only. Keep original
+      minimal8/10 failure and unknown cause as scoped observation. No further auto bisection/source change
+      or performance resume.
+  suite_queue:
+    status: completed_full_scores_minimal_unresolved
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy-diagnostic
+    ordering:
+    - preserve failed minimal without retry
+    - full GPQA198 native gate; stop and diagnose native failure
+    - full ERQA400 native score/postcheck
+    gate_before_launch: Primary review of current graph; frozen verified service SHA passed explicitly
+    failure_policy: No retry; retain native evidence and diagnose; no performance
+    pid: 2321693
+    status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/pr638-full-diagnostic.py
+      --status
+    progress: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy-diagnostic/progress.json
+    result: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-full-results.json
+    failure: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy-diagnostic/exit.json
+    previous_job: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy-v2
+    start_ticks: 1131346237
+    diagnostic_context: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/pr638-full-accuracy-diagnostic/diagnostic-context.json
+    completed_at_utc: '2026-10-26T12:33:22.645754+00:00'
+    exit_sha256: 75f4d01a197d0e1c5e5f9e48137225d9a5264b22abca14ebad44aa4d2c3d7add
+  graph_review:
+    status: primary_review_completed
+    semantic_sha256: 71ef52bb8143262937cc3bcca36cd691a7d81befa2ad921d2d34b1cc7e74bce9
+    workers:
+    - 331258
+    - 331259
+    start_ticks: 1130952356
+    minimum_replays_each_rank: 2
+    actual_repeated_model_launches_each_export: 15
+    kernels_per_launch:
+    - 1169
+    - 1217
+    trace_exports: 4
+    C1_C8_requests: 9 successful profiled requests plus warmups, zero failed
+    freshness: New empty-before directory, stable current SHA/internal epoch/workers/request/stop; file
+      mtime217.06..217.71s behind export kept as observed exception
+    profiler_stopped: true
+    scope: P64/D16 graph execution only
+    receipt:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/profiles/candidate-03-graph/explicit-primary-review.json
+      sha256: 55d5b6e2f4fe03a0348076c667141ea551923f556b4e6c583ca3b271520181aa
+    runtime_final:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/evidence/candidate-03-graph-final/runtime-evidence.final.json
+      sha256: 75d022fc4a3c5d205366d4a94ce6507027bcd4f8502b32d1e5df0d237fc4316b
+  service_instance_id: bde51c9ea4413ef7e8d45e4c97a8006a43255112e7970957719a802398a8e0aa
+  verified_service:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/candidate-03.verified.service.json
+    sha256: ec29b7bf086dcb0e2b51228730da49c991ccd727d6f67cac910f0aa9a4261e54
+  local_skill_bundle:
+    path: /tmp/qwen27-pr638-accuracy-20261026/accuracy-skill-bundle.json
+    sha256: 40605374230efd02ad9b4ba62f379c2b7038d5f9c00025d3c00de3194a34c538
+    bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+    capability_id: e2e/accuracy
+    selection: formal-gate
+    runtime: Remote tools-v3 deployed runtime is separately fingerprinted; current method receipt does
+      not assert newest local tool bytes deployed
+  last_observed:
+    phase: completed_full_native_scores_verified
+    GPQA: 159/198=0.803030303030303, native threshold gate passed
+    ERQA: 235/400=58.75%, full400 scored, zero rejection exclusions, no user threshold
+    final_result: &id003
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-full-results.json
+      sha256: 367a026ad20e52ed220a9543141ee45ee2eecd4a1bcc91af9e8a3389fc37673a
+    primary_review: *id001
+    provenance_postcheck: *id002
+    monitor: deleted
+    performance: paused_per_user
+    limitations: Current PR/Gems/config combination only; minimal8/10 versus historical9 retained, causal
+      explanation unknown; no new performance or PR-specific numerical attribution
+  final_result: *id003
+  primary_review: *id001
+  scope_complete: true
+  record_validation:
+    current_case: passed_no_errors
+    whole_project: failed_outside_current_case
+    outside_case_error_count: 372
+    warnings_count: 3
+    scope: Record/Skill link checker only; unrelated workspaces not changed; model accuracy evidence separately
+      native-verified
+  current_user_script_comparison:
+    observed_date: '2026-10-26'
+    scope: Read-only comparison of current script contents versus frozen evaluated candidate03 and current
+      live process; not a claim about script contents at evaluation time
+    current_script:
+      path: /public-flash/jinghao/qwen3.6-27B/start-model-flagos.sh
+      sha256: c9e2d403ffa30846d5ecf32ab924c95ca4f4a15b8e9778115deec616fe1a5d47
+      host_container_bytes_identical: true
+      flagos_mode: blacklist9
+      blacklist:
+      - exponential_
+      - index_select
+      - mm
+      - max
+      - mm_out
+      - max_dim
+      - linear
+      - sort
+      - sort_stable
+      whitelist_export: commented; inherited shell whitelist not explicitly unset
+      port: 9998
+      host: 0.0.0.0
+      served_name: qwen36-27b-black-list
+      explicit_model_max_len: null
+      script_only_explicit_env:
+        MACA_VISIBLE_DEVICES: 2,3
+        VLLM_USE_FLAGGEMS: '1'
+        VLLM_FL_STRICT: '0'
+    evaluated:
+      instance: candidate-03
+      flagos_mode: whitelist27
+      blacklist: explicitly unset
+      port: 18027
+      host: 127.0.0.1
+      served_name: qwen36-27b-migration
+      explicit_model_max_len: 262144
+      explicit_env_not_in_user_script:
+        USE_FLAGTUNE: '0'
+        VLLM_ENABLE_FLA_PACKED_RECURRENT_DECODE: '1'
+        VLLM_CACHE_ROOT: /opt/qwen27-pr638-accuracy-cache/vllm
+        TRITON_CACHE_DIR: /opt/qwen27-pr638-accuracy-cache/triton
+      extra_args:
+      - --no-enable-log-requests
+      - --profiler-config (stopped during formal accuracy)
+    same_script_explicit_settings:
+    - model /data/Qwen3.6-27B
+    - CUDA GPU2,3
+    - TP2
+    - BF16
+    - batched_tokens8192
+    - max_num_seqs64
+    - memory0.9
+    - prefix caching disabled
+    - FULL_DECODE_ONLY maxcapture64
+    - trust_remote_code
+    model_config_max_position_embeddings: 262144
+    current_listener_check: 18027 listening;9998 not listening on mx104 at observation. B API still330455
+      uses evaluated whitelist27
+    conclusion: Not equivalent. GPQA159/198 and ERQA235/400 belong to whitelist27 candidate03; current
+      blacklist9 script has not received these full accuracy tests. Existing gate remains valid for unchanged
+      evaluated instance.
+    actions: No restart, source change, extra evaluation, performance or monitor creation
+accuracy_c64_defaults:
+  experiment_id: acc-005
+  authorization: 用户要求当前新服务、GPQA/ERQA全量、并发64、模型默认采样、每30分钟通知
+  status: full_native_accuracy_completed_verified
+  mode: formal-gate plus native ERQA score-only extension
+  target:
+    host: mx-104
+    container: qwen36-27b-regression-b-20261022
+    api_pid: 499980
+    api_start_ticks: 1133379219
+    port: 9998
+    served_model: qwen36-27b-black-list
+    devices:
+    - 2
+    - 3
+    user_script: /public-flash/jinghao/qwen3.6-27B/start-model-flagos.sh
+    user_script_sha256: fe5b74ca3c05afe77fd339fd4afcd4dfa5936f49142468ac660411281f055c53
+  sampling:
+    temperature: 1.0
+    top_p: 0.95
+    top_k: 20
+    source: model generation_config.json and current service default sampling log
+    request_seed: omitted in both payloads; GPQA per-job adapter removes native1234 only
+    max_output_tokens_budget: 30000
+    budget_scope: evaluation output budget inherited separately; not a temperature/top_p/top_k model-default
+      claim
+    proof:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-inputs/gpqa-default-sampling-proof.json
+      sha256: 0ca9ecd0b46cedd8f1c836d58db2181bdbedbfe71e01076fda8c386bbae081e3
+  concurrency:
+    GPQA: 64
+    ERQA: 64
+  prefix_caching: true
+  prefix_policy: Preserve explicitly user-launched current service; accuracy-only scope, no performance
+    reuse
+  service_changes_allowed: false
+  performance: paused
+  commands:
+    acc005-gather-user-service.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-gather-user-service.py
+      sha256: ace9528d462a8684904dff00e5847bb2bf42112f961879977bb9b6211a2668a7
+      role: observer/control only; never starts/stops model service
+    acc005-client-adapter/sitecustomize.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-client-adapter/sitecustomize.py
+      sha256: a72d3e676e09888180b68a4e1faef64f42e9b2cb1cad982ac7e713d52ad400d7
+      role: request-seed-only scoped client adapter
+    acc005-prepare.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-prepare.py
+      sha256: 0b3f753505f602ef6058f7554e4584150d2dfce6287ee97a3a219c8c1267c2ad
+      role: observer/control only; never starts/stops model service
+    acc005-prepare-v2.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-prepare-v2.py
+      sha256: a45e1e5c8d03079576dd5a5b2c56fac0622a21615db7d99abf85a367056b40ea
+    acc005-verify-gpqa.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-verify-gpqa.py
+      sha256: 4723dd5006bd48e5c655de36ddcb50e77cbbced390fc502875ce86e0e7fed4f5
+    acc005-full-suite.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-full-suite.py
+      sha256: 101f6e661bd6b738bd6d306727990b90173c5e661d0c1722275f1304a8a38be8
+    acc005-launch.sh:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-launch.sh
+      sha256: af9dbbc98a5cdb0b3cec0a9c1589722b240b66c718b9e8b6a1743cf729c29c2c
+    acc005-review-full-results.py:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-review-full-results.py
+      sha256: 10ff14de2ad02758f542218b9ae630a3c942abf572fd7e7213f3da6dd25f714e
+  monitor:
+    id: qwen27b-c64
+    status: deleted
+    cadence_minutes: 30
+    cleanup_evidence: automation_update(mode=delete,id=qwen27b-c64) returned deleteStatus=deleted
+    reason: User requested full C64 GPQA/ERQA completed and independently verified
+  graph_scope: Current service capture11/11 observed; no profiler configured, actual replay not trace-attested.
+    Accuracy-only request, no performance promotion claim.
+  preparation_job:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc005-preparation-v2
+    status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-prepare-v2.py
+      --status
+    status: prepared_verified
+    previous_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc005-preparation
+    receipt_sha256: ef0f07fd0a0a67eb4a751b1e7af4bbbac339c72f8d4e857298a6e7d877eb8889
+  incidents:
+  - id: acc005-container-inspect-equality
+    classification: measurement-invalid_preflight_only
+    stage: current-inspects
+    model_requests_sent: 0
+    failed_job: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc005-preparation
+    action: Read exact field differences before resuming; never bypass clone identity/mount rules.
+    cause: Docker inspect Mounts array order differs, all six fields per mount and containerId/Image identical
+    confidence: confirmed
+    fix: Canonical sort full mount dictionaries; retain every field, same container/image/running gates.
+      Keep failed job and reuse zero-request inspect evidence, with fresh current-inspect identity checks.
+    status: resolved_before_any_model_request
+  suite_queue:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc005-full-accuracy
+    status: completed_full_scores_verified
+    status_command: python3 /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc005-full-suite.py
+      --status
+    failure_policy: No automatic full-run retry. If complete valid GPQA scores below155, preserve failed
+      verdict/no gate, then complete independently requested ERQA on unchanged healthy service; no parameter/source
+      changes.
+    pid: 2805682
+    start_ticks: 1133515275
+    progress: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc005-full-accuracy/progress.json
+    exit: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc005-full-accuracy/exit.json
+    final_result: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-full-results.json
+    completed_at_utc: '2026-10-26T17:00:47.899843+00:00'
+    exit_sha256: 80abc51c820e978f2fda07f8b9fd812ab5c8df0a8781bcf248b851683a56b2fc
+  local_skill_bundle:
+    path: /tmp/qwen27-c64-defaults-20261026/accuracy-skill-bundle.json
+    sha256: 40605374230efd02ad9b4ba62f379c2b7038d5f9c00025d3c00de3194a34c538
+    bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+    capability_id: e2e/accuracy
+    selection: formal-gate
+  service:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/user-c64-01.service.json
+    sha256: a8a58fb3eaee23c9ba5e195378eebd364341fe136e9841298ee1814892f134a3
+    service_instance_id: 48735de01cabcb1882a9a9ccf4a1660d937b1d8b1f6f5643dc48b70f0fbf3fc7
+  GPQA:
+    expected_samples: 198
+    concurrency: 64
+    threshold: 0.7828282828282829
+    metric: exact_match,strict-match
+    gen_kwargs: temperature=1.0,top_p=0.95,top_k=20,max_gen_toks=30000,do_sample=True
+    request_seed: omitted
+    harness_dataset_seed: 42
+    status: passed
+    contract:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-inputs/gpqa-contract.json
+      sha256: b2609c987a56a84db1a0c3b36099761b8f21f4cbfca744e4d6c3d2048f5412c1
+    run_id: b5fd3bdf8a9340f7aa3fb25fc3afcbb1
+    run_directory: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-gpqa-runs/Qwen3.6-27B-user-C64-model-defaults/b5fd3bdf8a9340f7aa3fb25fc3afcbb1
+    actual_generation_start_utc: '2026-10-26T14:20:29Z'
+    completed_samples_last_observed: 198
+    response_cache_hits: 0
+    effective_native_generation_kwargs: until</s>,temperature1.0,do_sampleTrue,max_gen_toks30000,top_p0.95,top_k20;
+      request seed removed by per-job adapter
+    progress_scope: full native198 unique questions verified;396 dual-filter rows
+    progress_observed_at_utc: '2026-10-26T14:40:07.048444+00:00'
+    score: 0.8232323232323232
+    correct: 163
+    completed_at_utc: '2026-10-26T14:58:34.200657+00:00'
+    native_issue: PASS
+    native_check: PASS
+    gate:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-gpqa.accuracy-gate.json
+      sha256: 321fd8ad387d720da9cb23b6612e3704e3798d391166c59600aa978d0965da56
+    run_record:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-gpqa-runs/Qwen3.6-27B-user-C64-model-defaults/b5fd3bdf8a9340f7aa3fb25fc3afcbb1/run-record.json
+      sha256: 9698776fda82edbabb7b4eb61eb8912f9c76941690a03cd5cffa7eb1ebabd8e3
+    verified_result:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-gpqa-verified-result.json
+      sha256: c34a8923157a45797ce41d8a0df687ab754345f26fe4ce6f276d53f595176882
+    samples_sha256: e18367a163fddd422509842b8b43339043987835c0d7c08a80a4442cbdca57ea
+    result_sha256: 0ba1296efbc3d480b8b6c86dcf6f12fa0aa183701d48f2567a9e125d85caf5be
+    primary_review:
+      all8_run_record_refs_sha_verified: true
+      native_rows: 396
+      unique_doc_ids: 198
+      strict_filter_rows: 198
+      strict_correct: 163
+      flexible_filter_rows: 198
+      frozen_inputs_tools_adapter_refs_unchanged: 11
+  ERQA:
+    expected_samples: 400
+    images: 630
+    concurrency: 64
+    threshold: null
+    temperature: 1.0
+    top_p_top_k: inherit service0.95/20
+    request_seed: omitted
+    status: completed_verified_score_only
+    contract:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-inputs/erqa-contract.json
+      sha256: f160a39f6e60a61a4b9824b5d89c01d478d4ab47fe6942734ee79c5008495e42
+    started_at_utc: '2026-10-26T14:58:53.080422+00:00'
+    native_output: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-erqa/native-output
+    progress:
+      observed_at_utc: '2026-10-26T17:03:32.810459+00:00'
+      completed_items: 400
+      unique_question_ids: 400
+      nonempty_answers: 400
+      all_ids_in_frozen400: true
+      expected_samples: 400
+      not_landed_count: 0
+      not_landed_ids: []
+      not_final: false
+      native_timeout_retry_warning_count: 56
+      timeout_classification: Native retry warnings retained; ultimately all400 nonempty responses scored,
+        zero rejection exclusions
+      other_error_patterns: 0 traceback/connectionerror/HTTP500/OOM
+      final_result_files: complete_native400_verified
+    http_timeout_observation:
+      observed_at_utc: '2026-10-26T16:05:16.662053+00:00'
+      method: Independent same native GPT constructor and adapter allowed-model-config source, zero network
+        requests
+      native_client_timeout:
+        connect: 5.0
+        read: 600
+        write: 600
+        pool: 600
+      cli_timeout: 7200
+      scope: Native adapter does not forward timeout in allowed model config; provider HTTP timeout differs
+        from task/server timeout. Actual task/request configuration unchanged.
+      interpretation: Explains which timeout policy can trigger provider retries; does not prove device/operator
+        cause for slow samples. Keep all existing attempts and frozen contract.
+    runtime_check:
+      observed_at_utc: '2026-10-26T16:35:09.090647+00:00'
+      same_controller_start_ticks: true
+      controller_state: S
+      same_api_pid_start_ticks: true
+      health_status: 200
+      frozen_refs_unchanged: 11
+      server_aggregate_requests_running: 7.0
+      server_aggregate_requests_waiting: 0.0
+      metrics_scope: Owned9998 service aggregate, not per-request trace mapping
+      model_requests_sent_by_observer: 0
+      status: post_accuracy_same_instance_source_environment_default_sampling_verified
+      evidence: &id004
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-full-primary-review.json
+        sha256: 0fe06d3bcd541e8b777798d64a16a7dc6d54f562f2e58293dd4f913a6488be6d
+    correct: 239
+    completed_samples: 400
+    scored_samples: 400
+    rejected_samples: 0
+    rejected_ids: []
+    native_accuracy_percent: 59.75
+    all400_accuracy_percent: 59.75
+    verdict: score_only_no_user_threshold
+    artifacts:
+      erqa.json:
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-erqa/native-output/erqa/erqa.json
+        sha256: 59d039daca073a60aac6febd1581db0d243a046020bcbc0a4fc94a37b714a9df
+      erqa_evaluated.json:
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-erqa/native-output/erqa/erqa_evaluated.json
+        sha256: 42907cc59c28673820bdaec6b4bcecf7633264f343e34cff45d59a573f5ca90f
+      erqa_result.json:
+        path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-erqa/native-output/erqa/erqa_result.json
+        sha256: ddea1c5a2313c09d5b69e8e0b892a20b5efcb40fa4b3d3b62f9e7538a56d0dff
+    native_postcheck:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/acc005-erqa-postcheck.json
+      sha256: 56b28cdec8d830aaacca330182a044dd42643fb4da34f39b46ae419b7e1e9ac9
+    primary_postcheck:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/acc005-erqa-primary-postcheck.json
+      sha256: 917ab8a9939fed85cd58523e8ea500fd12418bd215be774de537375513e55ff4
+    completed_at_utc: '2026-10-26T17:00:38.627487+00:00'
+  primary_preflight_review:
+    all8_service_and_input_refs_sha_verified: true
+    two_GPQA_provenances_identical: true
+    native_request_payload_zero_network_proof: passed t1/p0.95/k20/30000; no request seed
+    ERQA_proof: C64 config, native temperature1/max30000, no request seed/top_p/top_k overrides
+    four_package_content_fingerprints: same measured bytes as acc004, behavior configuration differs
+    image_lineage: verified
+    mount_parity: passed_normalized_full_mount_dicts
+    no_model_requests_sent_yet: true
+  last_observed:
+    stage: completed_full_native_scores_verified
+    completed_at_utc: '2026-10-26T17:00:47.899843+00:00'
+    GPQA: 163/198=0.8232323232323232, native formal passed>=155/198
+    ERQA: 239/400=59.75%, all400 scored,zero exclusions; no user threshold
+    current_service: 9998/qwen36-27b-black-list,user-c64-01, same API and source/environment/default config
+    concurrency:
+      GPQA: 64
+      ERQA: 64
+    sampling:
+      temperature: 1.0
+      top_p: 0.95
+      top_k: 20
+      request_seed: omitted
+      max_output_tokens_budget: 30000
+    prefix_caching: true
+    native_timeout_retry_warnings: 56
+    final_result: &id005
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-full-results.json
+      sha256: 50adb1e400309c3ad9b4a006a9c4897186d608e993edb23b1623246244a39f7a
+    primary_review: *id004
+    frozen_input_refs_verified: 11
+    model_requests_by_observer: 0
+    monitor: deleted
+    performance: paused_per_user
+  scope_complete: true
+  completed_at_utc: '2026-10-26T17:00:47.899843+00:00'
+  final_result: *id005
+  primary_review: *id004
+  record_validation:
+    current_case: passed_no_errors
+    whole_project: failed_outside_current_case
+    outside_case_error_count: 372
+    warnings_count: 3
+    scope: Record/schema/link checks only; model results separately verified by native and independent
+      artifacts
+
+container_cleanup_20261027:
+  status: completed
+  user_authorization: Remove all Qwen3.6-27B related containers on mx-104 except B; explicitly supersedes prior verify preservation
+  kept_container: qwen36-27b-regression-b-20261022
+  expected_remove_count: 17
+  document: env-006-container-cleanup.md
+  command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/cleanup-qwen27-containers-20261027.py
+  command_sha256: ac22174bb5b9b2d17a4f4a6e74b3cde8a7486e58782ac9c810aaf6e1d779b165
+  evidence_root: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/container-cleanup-20261027
+  images_and_mounts: preserve
+  completed_cst: "2026-10-27T12:18:16+08:00"
+  removed_count: 17
+  remaining_related_count: 1
+  plan_sha256: 5d006a2c42c5900da651c81a28ca41d05439e578d2c0ba0b6f255429bf4c8f18
+  receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/container-cleanup-20261027/receipt.json
+  receipt_sha256: 53214ab1acb73f8c0141aebcef3a4ed3a98d51c6dae25f234f021531d80b340a
+  preserved_service: Same API Engine and two workers by PID/startticks; port9998 health200; no restart
+  unrelated_container_changes: 0
+  future_evaluation: CPU GPQA/ERQA evaluator containers removed after complete results archived; recreate only on new authorization
+
+plugin_update_20261027:
+  status: completed
+  container: qwen36-27b-regression-b-20261022
+  branch: release/0.2
+  before_head: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+  target_head: 1bc0c775ffbdf4a0b0e2efb5e847d586e902273f
+  document: env-007-plugin-update.md
+  command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env007-update-plugin-20261027.py
+  command_sha256: 665c8374b40d2d12eaa5e8922c79f1878297162cbc7d34c45a35ea7882ccc3a4
+  service_control: no_restart
+  performance: remains_paused
+  installed_version: 0.2.2rc2.post1+g1bc0c775f.d20261027
+  editable_source: /workspace/vllm-plugin-FL
+  plan_sha256: 26d84f0a59d458867fc87493067f3f368aca8b7ebb7c8991e7651c800046030c
+  source_receipt_sha256: 814eba72b603e03740dd8f1ac9f1005db102b773efe781ffbf23d041293aca1d
+  final_receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/env007-plugin-update-20261027/final-verification.json
+  final_receipt_sha256: 6cf6cfd2085c8779eda1aa3b946d3f647aac3342af473c5ee769730d89ead431
+  preserved_attention_sha256: f49f4a5b401a5ca66f04f10b27e7b6f186e3efe1c8d214556efb0b1edaf36514
+  preserved_metax_config_sha256: 13592c2b2d31064748aaae0e5cf259c9dc14313242c0eea84e585465e1ab89a1
+  other_package_versions_unchanged: 249
+  validation: 8CPU_mock_and28differential_passed;syntax_and_actual_login_shell_fresh_import_passed
+  user_service_current: exited_9998_not_listening;EngineDeadError12:24:18CST_before_pip;rootcause_unknown;no_restart
+  hardware_graph_accuracy_performance: not_run
+  validation_command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env007-verify-final-20261027.py
+  validation_command_sha256: a2a2cb41fe65ff5494f950be9ce0d067de5ae7b25b40c28cb3b5217ff5fea7df
+
+accuracy_acc008:
+  status: completed_full_native_and_independent_verified
+  mode: formal-gate
+  capability_id: e2e/accuracy
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  document: acc-008-c64-8010-full-accuracy.md
+  host: mx-104
+  container: qwen36-27b-regression-b-20261022
+  service_label: user-c64-02
+  api_container_pid: 626708
+  api_start_ticks: 1140143723
+  endpoint: http://127.0.0.1:8010/v1/chat/completions
+  model_name: qwen36-27b-black-list
+  concurrency: 64
+  gpqa_expected: 198
+  gpqa_threshold: 0.7828282828282829
+  erqa_expected: 400
+  erqa_threshold: null
+  sampling: model_defaults_t1_p0.95_k20_no_extra_request_seed
+  max_output_budget: 30000
+  prefix_caching: preserve_user_enabled
+  monitor_id: qwen27b-8010-c64
+  monitor_status: deleted
+  monitor_minutes: 30
+  commands:
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-bootstrap.py
+    sha256: 083656f9b760406eb231c5ddb2b8fb5161cbedd23e20a220b8eb285b003e4ebd
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-prepare.py
+    sha256: 0795fbf979a0b1f8e5e453da814e0efad1fa25cd1124bab8ab9257bfa87d9261
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-gather-user-service.py
+    sha256: 9d78160f04903e561f9a300fdc22a3005f97980b110007b5e0a47304421bff26
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-full-suite.py
+    sha256: a37c41845ce1ab9a6943b5afc41e4f05858306d96fdcd6eb5f717003c9450109
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-verify-gpqa.py
+    sha256: 106a35796cd08d8257a6a32ea703d7b2da42e6a66a62b44d45ac52fdaed926f5
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-review-full-results.py
+    sha256: 50ff91bcac22373e6a0c1cce0ea3fe4556d080917ac5173db5a2b8cbe4c74019
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-client-adapter/sitecustomize.py
+    sha256: 1ecf64552c21a80c5ba2f54d6f734ab3366c362f2bb69a4243c254332b5e1158
+  primary_review_command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-review-full-results-v2.py
+  primary_review_command_sha256: e5e2e9a89bc4d06c191e349be969366de204ed45a9084505fc77a83fa106b213
+  deprecated_do_not_execute: commands/acc008-review-full-results.py;contains_old_result_constants_caught_before_execution
+  preparation_receipt_sha256: 666ac32a582103530068d8bae041424d42d6c9c7983cf0de7a935a7cace7728a
+  service_manifest: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/user-c64-02.service.json
+  service_manifest_sha256: e01261a9eb0bd7c2639f4744389be27d7b15b31eb88fbd90fe82170cd4699b76
+  service_instance_id: 19f061a806dea94cf3298f69bd4ed88f8411d4d0c253c4bd04dfbf8c39859d50
+  launch_command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc008-launch.sh
+  launch_command_sha256: 2186498bfc2a7c5a63ad089fdcb592305a965fc4bfd4cb054822934eafdfb955
+  job_root: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/acc008-full-accuracy
+  controller_host_pid: 5777
+  controller_start_ticks: 1140221643
+  gpqa_native_run: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-gpqa-runs/Qwen3.6-27B-user-C64-8010-defaults/86f261cd7fcd48f8a3bed83ca59e416c
+  gpqa_generation_started_cst: '2026-10-27T16:58:15+08:00'
+  gpqa_cache_hits: 0
+  gpqa_preflight_exit: 0
+  erqa_status: complete400_native_score_only_verified
+  current_scores:
+    gpqa_correct: 162
+    gpqa_samples: 198
+    gpqa_score: 0.8181818181818182
+    gpqa_passed: true
+    erqa_correct: 244
+    erqa_samples: 400
+    erqa_score_percent: 61.0
+    erqa_rejected_samples: 0
+    erqa_threshold: null
+  performance: remains_paused_no_new_runs
+  last_checked_cst: '2026-10-27T20:21:47+08:00'
+  last_progress:
+    stage: completed_full_scores_verified
+    gpqa: 162/198_native_passed
+    erqa: 244/400_native_score_only_zero_exclusions
+    erqa_native_items: 400
+    service_health: 200
+    service_identity_source_defaults: unchanged_verified
+    frozen_refs_verified: 11
+    native_timeout_retry_warnings: 59
+    other_matched_erqa_runtime_error_patterns: 0
+  gpqa_run_record_sha256: 89ea77e920b37bdce7d1f4c2c80130aa28733cf2464b5af4ad3ec2d22f1b0e39
+  gpqa_gate: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-gpqa.accuracy-gate.json
+  gpqa_gate_sha256: e80544c4fcc2d32e2b8c1b1ba804b79803865f76a3574389b074369fd8278b7c
+  gpqa_verified_result_sha256: 2e6d012b91a55c1386a7d679b291f5bd41c7215b44588bf49358df4c791313db
+  gpqa_primary_review: native_verify_run_and_check_passed;396rows_198unique_8record_refs_verified;zero_inference
+  duplicate_heartbeat_check:
+    observed_cst: '2026-10-27T19:49:20+08:00'
+    erqa_items: 398
+    pending_ids:
+    - ERQA_309
+    - ERQA_367
+    native_timeout_retry_warnings: 59
+    final_results_exist: false
+    notification: suppressed_same_progress_reported_less_than_3minutes_ago
+  scope_complete: true
+  monitor_cleanup: automation_update(mode=delete,id=qwen27b-8010-c64) returned deleteStatus=deleted
+  completed_cst: '2026-10-27T19:59:53+08:00'
+  final_result:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-full-results.json
+    sha256: 2c241220970fcea86f10150b41508e8027a38a1f70ac683fe950897881aa8f51
+  primary_review:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-full-primary-review.json
+    sha256: 3904409cff93bd0d556fbfa8422b7ec382cde036362e9081500d39d7bdd9776e
+  primary_erqa_postcheck:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/acc008-erqa-primary-postcheck.json
+    sha256: bb72ff374a1f5b90a3af4207afb2fcb2ab4d69cef9ff5925637e08bbc6c24385
+  job_exit_sha256: ee5993481fd903f6455e91ba351362796cc31eef0c22de7c3ec9085cb4f2c380
+  zero_additional_inference_by_review: true
+  remaining_scope: none for requested full accuracy; performance still paused
+
+container_environment_observation_20261028:
+  container: qwen36-27b-regression-b-20261022
+  image_env_equals_container_env: true
+  docker_config_env:
+    VLLM_FL_METAX_CONTIGUOUS_SINGLE_PREFILL: "1"
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  legacy_flag: unused_in_current_plugin_1bc0c775;automatic_metadata_selection
+  shell_macA_source: /root/.bashrc:100-104
+  shell_conda_source: /etc/bash.bashrc:72 -> /etc/profile.d/conda.sh
+  login_and_interactive_shell: MACA_HOME_MACA_PATH_opt_maca;conda_base;vendor_library_paths
+  process_only_settings: USE_FLAGGEMS1_VLLM_USE_FLAGGEMS1_FLAGGEMS_VENDORmetax_STRICT0_GPU2,3_blacklist9
+  process_unset: [USE_FLAGTUNE, VLLM_FL_FLAGOS_WHITELIST]
+  operation: read_only_no_changes
+
+online_maintenance_env009:
+  status: completed_online_scope_immutable_env_removal_deferred
+  document: env-009-online-maintenance.md
+  container: qwen36-27b-regression-b-20261022
+  command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env009-online-cleanup-20261028.py
+  command_sha256: 9c3df10bd7d6f977ad81caeb4c186225addf562b4f3b661efdf93dc4664ce058
+  initial_size_rw_bytes: 6631686144
+  initial_size_rootfs_bytes: 25155854336
+  immutable_env_limit: DockerConfigEnv_and_live_process_env_cannot_be_removed_without_recreation_or_process_change;preserve_them
+  shell_change: append_only_one_legacy_unset_to_root_bashrc
+  candidate_paths: [/root/.cache/pip, /opt/qwen27-pr638-accuracy-cache, /opt/qwen27-regression-cache]
+  protected: current_vllm_triton_inductor_cache_sources_dependencies_models_backups_mount_data
+  service_controls: none
+  plan_sha256: e279ed1a0bb97873ce289cced1e37c965bb1f8cb47abbcd6cfde2feec329147d
+  before_snapshot_sha256: 39d00052f48838d2b62716c70bfd10709581b7e37334fb465d86fa8da1c520cb
+  planned_allocated_cache_bytes: 2981277696
+  archives_verified: 14847_files_across_two_archives
+  apply_policy: exact_three_idle_private_cache_roots_and_one_bashrc_unset_only
+  completed_cst: "2026-10-28T09:50:25+08:00"
+  result_receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/env009-online-cleanup-20261028/receipt.json
+  result_receipt_sha256: ab1b4ffc81fd4de3de3163cef9f301cdaa36bd43c9299d6e37c86dd5daa9bc0f
+  host_receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/env009-online-cleanup-20261028/host-final-verification.json
+  host_receipt_sha256: 4630af0e768c02e305978fd4e949a3b26b6ae151b019eec17844fb21921a4c90
+  final_size_rw_bytes: 4753870848
+  final_size_rootfs_bytes: 23278039040
+  actual_rw_bytes_reduced: 1877815296
+  visible_cache_bytes_removed: 2981277696
+  archive_total_bytes_external: 387560727
+  new_bash_environment: legacy_var_absent;all_other_checked_vars_equal
+  docker_and_live_process_environment: unchanged_legacy1_remains;requires_recreation_for_true_removal
+  source_and_all_versions: unchanged
+  service_identity_and_health: exact_API_Engine_twoWorkers_PID_startticks_environ_hash_unchanged;health200
+  protected_cache_sizes: {vllm: 4718043136, triton: 139034624, inductor: 1172205568}
+  bashrc_before_sha256: 7807c02031ab71bd51256b0e9d4344efdd72b7e39eb6051b8aafdf902bfa17d9
+  bashrc_after_sha256: 03220d5576f345f23e4ef29ece8d5df021aa5c420d150f5f9c3796dac5b3057e
+  performance_accuracy_requests: none
+
+clean_image_env010:
+  status: completed
+  document: env-010-clean-image.md
+  host: mx-104
+  source_container: qwen36-27b-regression-b-20261022
+  final_tag: qwen36-27b-metax-optimized:20261028-clean-env
+  temporary_snapshot_tag: qwen36-27b-metax-optimized:20261028-env010-source-snapshot
+  command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env010-clean-image-20261028.py
+  command_sha256: 07a84308cffc64be593922cd00da47328e7d1aa75e10583b4eff715fcfa80023
+  commit_pause: false
+  env_key_removed_from_new_image: VLLM_FL_METAX_CONTIGUOUS_SINGLE_PREFILL
+  other_config_and_filesystem: all_other_image_config_exact_and_all17_rootfs_diff_ids_equal; CPU_source_install_shell_probes_equal
+  original_container_service: same_API_Engine_twoWorker_PID_startticks_environment_hash_and_health200; Config_HostConfig_Mounts_unchanged
+  model_weights_scripts_mounts: external_data_not_embedded
+  push: false
+
+clean_image_env010_resume_command:
+  path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env010-clean-image-v2-20261028.py
+  sha256: 397362c4a11e68a6d3f3171f8449cecbb4f116b8b5ed85d768efb27cc6479dac
+  reason: resume existing snapshot; default-root User empty/omitted equivalence reviewed
+
+clean_image_env010_metadata_command:
+  path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/env010-clean-image-v3-20261028.py
+  sha256: 442b9750f5fbed7b465edc93f4680e744be3aa9561c3888d7fd2274842940b1f
+  reason: Docker29 image identity is OCI manifest; resume verified existing archive without duplicate commit or save
+
+clean_image_env010_apply:
+  plan_sha256: d2c6b33e179a8c6fb365785e904762a19e1cfc641fc39cc6b6174f820c9538aa
+  expected_image_id: sha256:f001fd92fbc72300a67a6547530a9a59ef725cdb2027ae6f8044c54e6c849a8b
+  reviewed: only target Env removed; all17 layer descriptors and all other config/history/rootfs equal
+  status: completed
+
+clean_image_env010_result:
+  completed_utc: '2026-10-28T02:19:37.849873+00:00'
+  image_tag: qwen36-27b-metax-optimized:20261028-clean-env
+  image_id: sha256:f001fd92fbc72300a67a6547530a9a59ef725cdb2027ae6f8044c54e6c849a8b
+  config_digest: sha256:26ae456985032aba7ebff6add17b056c77c6b8d21081b545773a9874fcc9089d
+  image_size_bytes: 9186966619
+  receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/env010-clean-image-20261028/receipt.json
+  receipt_sha256: b2361a4c226dd04c2e16cc1864a35a119b1ef06885b16b761ebf676fb53eaf82
+  target_key_absent: true
+  other_env_config_source_installs: preserved_and_verified
+  original_service: not_paused_stopped_restarted_or_changed; exact_identity_environment_health200
+  temporary_snapshot_tag_removed: true
+  temporary_export_archive_removed_bytes: 9186988544
+  inference_performance_accuracy_requests: 0
+  pushed: false
+  future_mounts: original_data_and_public_flash_required
+
+accuracy_acc011:
+  status: completed_verified
+  document: acc-011-clean-c64-full-accuracy.md
+  skill: inference-accuracy-evaluation
+  capability: e2e/accuracy
+  mode: formal-gate
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  host: mx-104
+  container: qwen36-27b-clean-20261028
+  container_id: 0425b53d4f77e23c3913fb78c8fde91d128982cc6826ba6369785d6a317aaf3f
+  image: sha256:f001fd92fbc72300a67a6547530a9a59ef725cdb2027ae6f8044c54e6c849a8b
+  instance_label: user-c64-03-clean
+  api_pid: 13812
+  api_start_ticks: 1148292268
+  endpoint: http://127.0.0.1:8010/v1/chat/completions
+  model_name: qwen36-27b-black-list
+  model_path: /data/Qwen3.6-27B/
+  physical_gpu: [2, 3]
+  concurrency: {GPQA: 64, ERQA: 64}
+  expected_samples: {GPQA: 198, ERQA: 400}
+  sequence: GPQA_then_ERQA
+  sampling: {temperature: 1.0, top_p: 0.95, top_k: 20, request_seed: omitted, max_output_budget: 30000}
+  prefix_caching: enabled_user_configuration_preserved
+  gpqa_threshold: 0.7828282828282829
+  erqa_threshold: null
+  result: full_native_scores_verified
+  performance_may_resume: false
+  progress_monitor: {id: qwen27b-clean-c64, cadence_minutes: 30, status: deleted}
+  cpu_evaluators: [qwen36-27b-acc008-gpqa-20261027, qwen36-27b-acc008-erqa-20261027]
+  evaluator_reuse: inspected_only_sleep_idle; separate new run directories and adapters; no historical results reused
+  remote_case: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression
+  commands:
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-bootstrap.py
+    sha256: 68f4c729016aa1081955aaf4abd96b65e49dda5e09a5222f113a95fbd218432e
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-review-full-results-v2.py
+    sha256: cfd6e55953dc424187b7458a754293642414ab854fef54cd4f1d631e5f820ac8
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-full-suite.py
+    sha256: a2fe64378c647d5897ddf3d9ee63ad149a1cbd4ac0f15d754dbd8144258f7f5f
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-client-adapter/sitecustomize.py
+    sha256: e36a5471dcb814eea51452c1df1ae168b618617f383c9da5b0219860d8470cc3
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-prepare.py
+    sha256: 88fa9c31c34e29146ac1a89dc9c62c4306c1adc197d18b5ad1109ebe74c49406
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-verify-gpqa.py
+    sha256: 0d1a3b3d1a86b324abf0ddb055c0b215b5a72bf902c46b3414c63450285941c8
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-gather-user-service.py
+    sha256: d02eaecee68cc2ce33ad617cbb3bfb11198001b5f2b3c24ccc0a8fabd6ff0ba1
+
+accuracy_acc011_bootstrap_resume:
+  command: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-bootstrap-v2.py
+  sha256: 1c3c1356fbda87ded7f8618f50832b5de292a48ceb36be9cd1a865a2bb7fcfe1
+  reason: Docker top requires PID column; original stopped before any model request, output inspect or evaluator mutation
+  status: registered
+
+accuracy_acc011_preparation_revision:
+  reason: Original observation expected old clone-state string; new verified lineage stores b.id. Strict current container-ID check corrected, not removed.
+  old_job: jobs/acc011-preparation
+  new_job: jobs/acc011-preparation-v2
+  model_requests_before_correction: 0
+  verified_fingerprint_sha256: dae9ffb7acbbbfd1d79e7cecaa2dd9ed1a0deea0c4c536b27c2ccd1e4a88b7ca
+  commands:
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-gather-user-service-v2.py
+    sha256: 0222da5341caa9c8db15a7ae51c3d5898e1764ca11a7fc741d324f9c2a317332
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-prepare-v2.py
+    sha256: 2162f6576728936440c6bf6df2cd0a67e1a6ce15fff48cf343b47c95b2d1cff7
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-full-suite-v2.py
+    sha256: c24d0230108ba21b186d35ca8a5817567b7937faa4b4586195ab8f9bd3362ceb
+  - path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/acc011-review-full-results-v3.py
+    sha256: ff83d86708ba2ab0edc68a00fa33cad61b3c4616706a77b105f40ae517bca0df
+
+accuracy_acc011_launch:
+  preparation_command: commands/acc011-prepare-v2.py
+  preparation_job: jobs/acc011-preparation-v2
+  preparation_exit_sha256: 7ea68fe9b9659c2086ebf81b500bde5147b92e7786e86f853901dbfad3e6d965
+  service_manifest: services/user-c64-03-clean.service.json
+  service_manifest_sha256: 46aa416343f2372387704c161da25fb57281fd0926cbc4b35f08b1415bb17ccd
+  service_instance_id: 04dac0a157881c6bd3ba493e1c0ae538365c7f564df10006d717f78147d5cf3b
+  gpqa_provenance_double_sha256: ae5050bae5011730255f44df855d19d87328328a644f015e6fb7b40878bdd47d
+  gpqa_contract_sha256: 89172153ad85d3b0bd5d5d6821475f94f9b185b2f2461562101f750b4b618749
+  gpqa_config_sha256: 55c2c44a50ba5ede3afa26d1caac743ce65f1ab097e70eccd539ac3b7d8071df
+  primary_pre_request_review: passed_7_inputs_and_service_rehashed; exact_model_concurrency_defaultpayload_and_unique_fullsets
+  full_controller: commands/acc011-full-suite-v2.py
+  full_controller_sha256: c24d0230108ba21b186d35ca8a5817567b7937faa4b4586195ab8f9bd3362ceb
+  reviewed_preparation_argument: 7ea68fe9b9659c2086ebf81b500bde5147b92e7786e86f853901dbfad3e6d965
+  independent_final_review: commands/acc011-review-full-results-v3.py
+  independent_final_review_sha256: ff83d86708ba2ab0edc68a00fa33cad61b3c4616706a77b105f40ae517bca0df
+accuracy_acc011_preflight_diagnosis:
+  issue_id: acc011-preflight-lineage-shape
+  skill: inference-accuracy-diagnosis
+  classification: measurement-invalid
+  model_accuracy_regression_claim: false
+  failure: container-ID read compared string to b.id mapping; strict check rejected before first model request
+  minimized_boundary: gather current receipt container_id versus verified lineage clones.b.id
+  correction: read explicit id and preserve all container_namespace_image_mount_source_process_listener guards
+  failed_artifacts: jobs/acc011-preparation/exit.json and services/evidence/user-c64-03-clean-20261028T073426Z-b5b567eb/runtime-evidence.json
+  revalidation: new preparation-v2 and independent primary pre-request review passed
+  performance_may_resume: false
+
+accuracy_acc011_live_job:
+  job: jobs/acc011-full-accuracy
+  status: completed_full_scores_verified
+  controller_pid: 2045815
+  controller_start_ticks: 1148386221
+  gpqa_generate_until_started_utc: '2026-10-28T07:39:00Z'
+  gpqa_run: accuracy/acc011-gpqa-runs/Qwen3.6-27B-user-C64-8010-defaults/bf560b4d05e849a7a7d0bfbc3b5aec91
+  response_cache_hits_before_requests: 0
+  remaining_requests_at_start: 198
+  native_concurrency: 64
+  native_per_request_timeout_seconds: 7200
+  identity_before: source_hashes_environment_defaults_same_and_health200
+  final_scores: {GPQA_correct: 163, GPQA_total: 198, GPQA_score: 0.8232323232323232, ERQA_correct: 246, ERQA_scored: 400, ERQA_native_percent: 61.5}
+  monitor: qwen27b-clean-c64
+
+accuracy_acc011_progress_20261028T0759Z:
+  observed_heartbeat_utc: '2026-10-28T07:59:27.440Z'
+  status: gpqa_running_erqa_queued
+  gpqa_native_request_progress: 162
+  gpqa_request_total: 198
+  progress_semantics: native_client_request_completion_auxiliary; not formal score
+  gpqa_final_result_or_run_record: absent
+  erqa_started: false
+  controller_identity: PID2045815_startticks1148386221_unchanged
+  service_continuity: API13812_startticks1148292268_same; four_source_hashes_defaultsampling_environment_health200_passed
+  frozen_input_refs_rehashed: 11
+  native_error_matches: {APITimeoutError: 0, Traceback: 0, ConnectionError: 0, HTTP500: 0, out_of_memory: 0}
+  additional_model_requests_from_review: 0
+  monitor_decision: notify_explicit_user_30minute_preference; keep_existing_job_and_monitor
+
+accuracy_acc011_progress_20261028T0829Z:
+  observed_heartbeat_utc: '2026-10-28T08:29:27.675Z'
+  status: gpqa_passed_erqa_running
+  GPQA:
+    correct: 163
+    expected_samples: 198
+    score: 0.8232323232323232
+    threshold: 0.7828282828282829
+    result: passed
+    verification: native_full_verify_issue_check_exit0; independent_native_verifier_and_gate_check_PASS
+    native_rows: 396
+    completed_utc: '2026-10-28T08:16:39.881043+00:00'
+    run_record: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-gpqa-runs/Qwen3.6-27B-user-C64-8010-defaults/bf560b4d05e849a7a7d0bfbc3b5aec91/run-record.json
+    run_record_sha256: 5a1c7b67c30c84724bfb7b7d842dc353b15f47dc2596b53f30b255a8b9f83f98
+    gate: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-gpqa.accuracy-gate.json
+    gate_sha256: 41df6a43b6b2037ffeb991bca38a0724a22b80a64b810816d70ef089d906654c
+    verified_result_sha256: f48b364dba4ff222196fa6ee1214d298c06a1e08e7c379fd1aa68c48f7b0b70f
+  ERQA:
+    started_utc: '2026-10-28T08:16:59.818611+00:00'
+    native_unique_nonempty_responses: 131
+    expected_samples: 400
+    partial_json_files: 0
+    final_result_present: false
+    result: incomplete_running
+    score: null
+  source_service_and_defaults: same_instance_four_source_hashes_environment_and_generation_config;health200
+  frozen_input_refs_rehashed: 11
+  controller_identity: PID2045815_startticks1148386221_unchanged
+  native_error_matches_both_datasets: {APITimeoutError: 0, Traceback: 0, ConnectionError: 0, HTTP500: 0, out_of_memory: 0}
+  additional_model_requests_by_review: 0
+  monitor: active_qwen27b-clean-c64_30min
+  performance_may_resume: false
+
+accuracy_acc011_progress_20261028T0859Z:
+  observed_heartbeat_utc: '2026-10-28T08:59:27.901Z'
+  status: gpqa_passed_erqa_running
+  gpqa_correct: 163
+  gpqa_samples: 198
+  gpqa_result: passed_previously_native_and_independent_verified
+  erqa_valid_unique_nonempty_responses: 257
+  erqa_expected: 400
+  erqa_partial_json: 0
+  erqa_final_score: null
+  erqa_final_result_present: false
+  native_timeout_retry_warnings_latest: 28
+  native_timeout_warning_latest_timestamp_utc: '2026-10-28T09:00:24.522Z'
+  native_timeout_warning_classification: all28_are_original_before_sleep_Retrying_APITimeoutError; not28_final_failed_questions
+  other_native_error_matches: {Traceback: 0, ConnectionError: 0, HTTP500: 0, out_of_memory: 0}
+  frozen_input_references_rehashed: 11
+  controller: PID2045815_startticks1148386221_unchanged_alive
+  current_service: API13812_startticks1148292268_environment_four_source_hashes_defaultconfig_unchanged;health200
+  extra_model_requests_from_inspection: 0
+  action: keep_existing_native_job_retries_and_monitor; no timeout_config_source_service_change_or_performance
+  monitor: active_qwen27b-clean-c64_30min
+
+accuracy_acc011_latest_observation:
+  heartbeat_trigger_utc: '2026-10-28T10:31:23.419Z'
+  actual_primary_review_utc: '2026-10-28T14:02:58.179623+00:00'
+  suite_completed_utc: '2026-10-28T10:19:56.872137+00:00'
+  status: completed_independently_verified
+  gpqa_correct: 163
+  gpqa_total: 198
+  gpqa_score: 0.8232323232323232
+  gpqa_threshold: 0.7828282828282829
+  gpqa_result: passed
+  erqa_correct: 246
+  erqa_total: 400
+  erqa_scored: 400
+  erqa_native_accuracy_percent: 61.5
+  erqa_rejected_ids: []
+  erqa_threshold: null
+  erqa_result: score_only_no_user_threshold
+  erqa_unique_nonempty_responses: 400
+  erqa_partial_json_files: 0
+  native_APITimeoutError_retry_warnings: 68
+  all_timeout_lines_native_retry_callbacks: true
+  latest_native_retry_utc: '2026-10-28T10:09:35.638Z'
+  other_error_matches: {Traceback: 0, ConnectionError: 0, HTTP500: 0, out_of_memory: 0}
+  frozen_refs_verified: 11
+  source_service_defaults: unchanged_API13812_startticks1148292268_four_package_hashes_environment_generation_config;health200
+  extra_model_requests_from_review: 0
+  monitor_status: deleted
+  monitor_cleanup: automation_update(mode=delete,id=qwen27b-clean-c64) returned deleteStatus=deleted
+  decision: complete_user_accuracy_scope; preserve_user_service_and_evaluators; performance_paused
+
+accuracy_acc011_final:
+  status: full_native_scores_verified
+  result:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-full-results.json
+    sha256: 2f9c3fa42f374dec6f78e8415b9dbcc215e21b7cbdf20d0464cc7ca7e1a1a0f7
+  primary_review:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-full-primary-review.json
+    sha256: f6f7235ef018d1de04412bdcacc2aec664b209a5565f37037aaade99af6b3014
+  primary_erqa_postcheck:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/acc011-erqa-primary-postcheck.json
+    sha256: bb72ff374a1f5b90a3af4207afb2fcb2ab4d69cef9ff5925637e08bbc6c24385
+  job_exit_sha256: 0500c4d65b938399dce2341e68606dc88e293d6d9f17e78fe9932de298c4839a
+  gpqa_run_record_sha256: 5a1c7b67c30c84724bfb7b7d842dc353b15f47dc2596b53f30b255a8b9f83f98
+  gpqa_gate_sha256: 41df6a43b6b2037ffeb991bca38a0724a22b80a64b810816d70ef089d906654c
+  erqa_raw_sha256: 38ad366bed50090421b6399e60aeba148435fbecc2b9ea7c3544a50986e94cd8
+  erqa_evaluated_sha256: eab47f2813b2ac7aefa16c5dca00bc833d734eb69bd0156506cd357e0cc75283
+  erqa_result_sha256: 514f36b6dfffd86bd0f5232e532ccd5fccd243704c50ca89b06772c938aed5e5
+  native_erqa_postcheck_sha256: 05a437e497617a711cd5e40346d4f89a5b0a91c49898602572ae90c2a4c1f677
+  independent_review_command: commands/acc011-review-full-results-v3.py
+  independent_review_command_sha256: ff83d86708ba2ab0edc68a00fa33cad61b3c4616706a77b105f40ae517bca0df
+  gpqa_unique_samples: 198
+  gpqa_native_rows: 396
+  erqa_unique_scored_samples: 400
+  erqa_source_images_verified: 630
+  runtime_continuity: passed
+  graph_scope: configured_FULL_DECODE_ONLY; capture_logs_observed; fresh_perrank_replay_not_trace_attested
+  performance_may_resume: false

@@ -1,0 +1,3417 @@
+schema_version: 4
+identity:
+  case_id: 20261015-qwen36-27b-metax-fg20-e2e
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-59
+  baseline_id: script-fg20-de2298b
+  topology: TP2:GPU2-3
+stage: optimize
+current:
+  status: completed/requested-revert-and-Decode-diagnosis; performance-incomplete
+  candidate: original20FG restored; metadata andfull candidate patches archived/privateC alsooriginal
+  next_action: 'No automatic rerun or deployment. Next planned point: FP32 GDN redundant JIT bucket keys, firstvalidate
+    stable compile variants/numeric/graph before new all-role contract; keep all87oldrounds,10%spread,1%drift,.002/.02
+    and20FG. Exacthistoricalbucketpair/perrankstall unavailable.'
+experiments:
+- experiment_id: env-001-script-scope-baseline
+  document: env-001-script-scope-baseline.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: baseline/profiling
+  status: completed/baseline-and-profile
+  decision: Current baseline measured3phases and bothranktrace; no new gain; operator point follows from separated
+    B64graph20.1% packed hotspot
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-setup-v2.py
+  command_sha256: 2ce9c3188f632764eed76925929c2e00f802320d3768e9b320d96027d4e220cf
+  setup_v1: snapshot created; parser assertion stopped before clone/service changes
+- experiment_id: op-001-gdn-packed-decode-bv16
+  document: op-001-gdn-packed-decode-bv16.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: operator/improve
+  status: rejected/operator-micro-admission-not-met
+  decision: 12case/96step/24changed-input pairs passed and bitwise; full-callB64-11.14%<20% frozen; no install/E2E;
+    original service restoration follows controller
+- experiment_id: op-002-gdn-packed-decode-warps4
+  document: op-002-gdn-packed-decode-warps4.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: operator/improve
+  status: rejected/measured-E2E-below2%-threshold
+  decision: Real15case numeric/graph passed; new3role3phase87rounds/27measured valid, Decode+1.3902%/Mixed+1.3316%<2%,
+    guard/spread/drift pass; original source and private code restored
+- experiment_id: combo-001-gdn-packed-bv16-warps4
+  document: combo-001-gdn-packed-bv16-warps4.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: operator/improve
+  status: rejected/proxy-ABI-micro
+  decision: Numerical/graph passed; B64 latency+8.93%, no E2E, original restored; later cache inspection revealed
+    ABI gap
+- experiment_id: framework-002-mixed-batch-overlap
+  document: framework-002-mixed-batch-overlap.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: framework
+  status: reverted/performance-incomplete/Mixed-primary-below2%
+  decision: FreshBCR87rounds/27measured/9408requests0failed andallSHAverified; PF+0.5804%passed, D+0.2495%incompletebaselineTTFT13.445%,
+    M+0.2646%failed2%; maxB/Rmetricdrift0.998445%<=1. Original20FG/source18002 restored. Decode newunusedbucketGDNJIT
+    diagnosed; no rerun/drop/relax/deploy.
+- experiment_id: op-003-metax-full-small-integer
+  document: op-003-metax-full-small-integer.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: operator/improve
+  status: correctness-and-scoped-stability-proved/archived-reverted
+  decision: 194numeric/16replay/micro+modelactualFGfixedfull passed. CommonnewbaselineMixed0.1794%measuredoutputspread<10%;
+    nofull old/new E2Epaired gain. Finaloriginalfullrestored S+C, patches/evidencekept; independentGDNHredundantJIT
+    exposed.
+metrics:
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: total_token_throughput
+  value: 5637.136083570706
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: candidate
+  metric: total_token_throughput
+  value: 5674.391979482466
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: total_token_throughput
+  value: 5662.969827893035
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: output_throughput
+  value: 937.5673861876342
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d512-c64-n64-decode
+  role: candidate
+  metric: output_throughput
+  value: 950.6011558122502
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: output_throughput
+  value: 938.6878424504529
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d256-c64-n128-mixed
+  role: baseline
+  metric: output_throughput
+  value: 696.3424253005743
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d256-c64-n128-mixed
+  role: candidate
+  metric: output_throughput
+  value: 705.6151797239713
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+- scenario_id: p1024-d256-c64-n128-mixed
+  role: revert
+  metric: output_throughput
+  value: 698.1784304232615
+  unit: tok/s
+  scope: op002r2 targeted/diagnostic; candidate rejected, original restored
+constraints:
+  flaggems_scope: exact current script20:17 ATen plus gdn_decode/gdn_packed_decode/gdn_prefill; attention_backend
+    absent, do not add or disable ops
+  numerical_tolerance:
+    atol: 0.002
+    rtol: 0.02
+  formal_accuracy:
+    task: gpqa_diamond_generative_cot
+    samples: 198
+    max_gen_toks: 50000
+    threshold: 0.8
+  protected:
+  - source8002
+  - otherGPU0,1,4,5,6,7 workloads
+  - vLLM source
+  - weights/tokenizer/sharedsource
+  objective: throughput-first explicitly chosen by user 2026-10-16; frozenDecode/Mixed>=2% with5%latency guard and1%B/R
+    drift unchanged
+authorization:
+  user_instruction: continue E2E based on current script scope
+  resource_approval: User explicitly approves stopping832568/18002/GPU2,3 for independent container baseline/candidate/revert
+    and restoring original service at end
+  old_source_container: qwen36-27b-fa-opt-20261012
+  optimization_container: qwen36-27b-fg20-e2e-20261015
+  remote_case_dir: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e
+planning_review:
+  review_id: rev-016-complete-BCR-and-Decode-JIT
+  scope: Current20FG/FP32 original. No retainednewcode; noformal198gate orfour-scenes acceptance. Usertaskrevert+diagnosis
+    complete.
+  evidence_cutoff: fw002r4 terminala47dda84 andofflineaudit85c4efe8; sourceexact954040 verified
+  superseded_decision:
+    id: rev-015-baseline-Mixed-variance
+    summary: rev015 diagnosedintegerfullonlineautotune; OP003privateprereq thenmetadataBCR. Bothpatches nowarchived/reverted;
+      baselineMixed steady butmetadata gainbelow2 andDecode incomplete.
+  cumulative_gain: No retainednewcandidate; no authorizedsame-configfull old/new cumulative gain; do notsum micro22%
+    andmetadata0.26%.
+  phase_views:
+    prefill: metadata+0.5804%,meanTTFT-0.6162%, passedguard/spread/drift
+    decode: output+0.2495%observed; baselineTTFT13.445% invalid despite B/R<1%; earlyJIT observed, tokenloopTPOT
+      stable
+    mixed: meanTTFT-.9399%,p99E2EL+.7622%,primaryoutput+.2646%below2; commonfullfixremovedobservedlongautotunepauses
+      thisrun
+  ranked_next:
+  - rank: 1
+    direction: 'operator/improve: FP32GDN hostlaunch/JIT key normalization'
+    evidence: 9identicalsource+binary forunusedbucketkeys; r7onecompile withinlongpause; FP32 fixedtile alreadypruned
+    first_falsifier: 'FutureprivateC only: comparecompilevariantcounts acrossN/skew keychanges atsameFP32tile; originalnumeric9/18changedgraph/full20actualhit+C8,
+      unchangedmath then newuniformPF/D/M BCR'
+    success: No newunneededFP32compile onkey-onlychanges; alloriginaltolerances/graph; subsequently10%allmeasuredspread,1%B/Rdrift,5%latencyguard;
+      no fixedstepwarm pass alone
+    stop: Anyoriginalnumeric/graphfail, output/statechange, fallbackscopebreak or unchangedcompilebehavior; preserveoldresults;
+      no automaticnewrun
+  - rank: 2
+    direction: 'framework: phase-metric steady admission shape/key coverage'
+    evidence: throughput last3warm0.35%passed whilebaselineDecodefirstmeasTTFT13.445%failed
+    first_falsifier: Freeze identicalall-role rule withlatency+compile-keycoverage beforefuturemeasurement; neverremoveoldslowfirstmeasured
+    stop: Cannot cover/observeactualkeys withinboundedwarmbudget -> incomplete, not relax10%
+  deferred:
+  - 'Further metadatahoist throughput investment: only0.2646%Mixed gain'
+  - 'Kernelwarp/tile orBF16math changes: no steadyROI evidence, keepFP32/origtolerance'
+  - 'Formal198 andfour-fullscenes: no current20gate; not partofuserdiagnosisrequest'
+  next_review_trigger: A fixed-JIT candidate passes numeric/graph and hasnewuniformBCR, orcannotruleoutadditionaldriver/CPUstall
+  no_additional_test_started: true
+baseline_plan:
+  mode: baseline
+  scope: diagnostic
+  parent_target: p1024-d1024-c64-n128
+  phase_workloads:
+    prefill: P1024/D1/C64/N128
+    decode: P1024/D512/C64/N64
+    mixed: P1024/D256/C64/N128
+  warmup_rounds:
+    prefill: 6
+    decode: 6
+    mixed: 8
+  measured_rounds: 3
+  round_timeout_s: 600
+  steady_state_admission: fixed last3 warmup output throughput spread<=10%; retain all3 measured; no outlier removal
+  boundary: Phase proxy measurements include residual network/queue/scheduler and otherphase work. Initial baseline
+    no causal comparison; once hotspot selected freeze variable/threshold and fresh B/C/R.
+environment:
+  image_lineage: verified
+  mount_parity: passed
+  source_container: qwen36-27b-fa-opt-20261012
+  optimization_container: qwen36-27b-fg20-e2e-20261015
+  snapshot_image: sha256:a6d57a99280e1a70d6bb2d65cbfa2b0781858ac50f36eea2f9359e9529c4e074
+  source_script_sha256: 0b6381524ed316b67dd733145796bcd5f5f70237cfae212510457d99b978f272
+  source_and_clone_four_repo_hashes_equal: true
+  receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-receipt.json
+baseline_controller:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-baseline-controller-v5.py
+  worker_sha256: 7b14369f2e36443e4dab2a9824054c6b8606701490724e43495b408f6ed85ed5
+  service_helper: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-service-v5.py
+  service_helper_sha256: 6534290160d92c58445e7d03382a0cb2387254b9035881fc788010eafbc8d268
+  launcher: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-launch-baseline-v5.py
+  launcher_sha256: c384e386446aa85b698d7aa929e15ecbfeada0748fee23ff9a8e8327ca4a8273
+  inputshas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-v5-input-shas.json
+  progress: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v5-progress.json
+  terminal: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v5-terminal.json
+  scope: Same20FG/phaseplans, use maintained native sample validator not custom parser, new output namespace and
+    exact current source capture. Set restoration responsibility before stop; restore helper retains still-live
+    original instead of duplicate.
+  source_info: manifests/source-process-v5.json
+  pid: 1426129
+  start_ticks: 501430257
+  created_epoch_from_proc: 1792074743.57
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/env001-baseline-v5-process.json
+  process_receipt_sha256: ebdca6eb835c955a0e62acb2fb4c67df1308f6f2b89006f8f174c45a66521fb0
+  inputshas_sha256: 7ab112d03d5258409446c35169c8863a439d1dcf40de4d2600ffa4509a9a3504
+  terminal_sha256: 7b562f450849c00371447ac4d27c8cd535de8d708342331b6a09ab03467d2a93
+  status: completed-and-source-restored
+  restored_source_at_terminal:
+    pid: 869788
+    birth: 1792077235.13
+    status: ready at baseline terminal; subsequent authorized probe may pause this exact instance
+skill_invocations:
+  performance:
+    mode: baseline
+    capability: e2e/performance
+    bundle_sha256: 872b65dd0e7a4e8c5b342c37b1c34729f14154d1e68be01ed60938d5b22dc8d1
+  accuracy:
+    mode: baseline-sanity
+    capability: e2e/accuracy
+    bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+  profiling:
+    mode: capture -> analyze
+  planning:
+    review_id: rev-010-script-fg20
+  key_operator:
+    entry: skills/key-operator-analysis/SKILL.md
+    operator: GDN packed decode
+    method_read: true
+    scope: current de2298b+5 private MetaX path, B64 H8 HV24 K=V128 FP32Vmajor state; previous prefill cases not
+      a packed speedup proof
+monitor:
+  automation_id: qwen36-metax-flash-attention-op001
+  status: ACTIVE/exact-combo001-complete-cycle
+  interval_minutes: 30
+  remote_scope: pure read-only; no scripts/finalizers/requests/service or source changes
+  notification_policy: only meaningful change/completion/failure/action; pause at terminal
+  authorization: Prior explicit user30min read-only monitoring preference retained for continued optimization
+phase_views:
+  prefill:
+    status: baseline-measured/profile-pending
+    hotspot: null
+    historical_boundary: old all21/source6ea evidence not current20 sourcecb45
+    run_record: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001v5-baseline-E2E/env001v5-prefill/run-record.json
+    run_record_sha256: 26656c7bfd5b1d7ed02f6914018f1da3a88ca97422dc2d673c68c2a089037e93
+    total_token_throughput_median: 5693.82512484262
+    mean_ttft_ms_median: 8990.595569630386
+    measured_throughput_spread: 0.000273572825
+    profiling:
+      status: captured-analyzed/current-bothrank
+      diagnostic:
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/env001v5-prefill/qwen36-fg20-e2e/diagnostic-6c869ee9eb114b2582a8feaf1f671118/diagnostic.json
+        sha256: 1434798b673171c2a794d8a9a0058098f4ae488f36d9b97e091e675917a20133
+      ranks:
+      - rank: rank0
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank0.1792076791303247058.pt.trace.json.gz
+          sha256: 279c4e2f411478dd56480fb0080f6598d041113a3118b798e65d91f4299ebeb8
+          size: 12448272
+        graph_launches: 2
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 3264
+          kernel_work_share: 0.4896628920242627
+          median_us: 2950.912
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 2193
+          kernel_work_share: 0.16526385740875418
+          median_us: 1777.92
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 816
+          kernel_work_share: 0.06273016097570241
+          median_us: 1819.2640000000001
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 816
+          kernel_work_share: 0.054804216014618753
+          median_us: 1614.848
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 960
+          kernel_work_share: 0.04743423372493259
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 816
+          kernel_work_share: 0.04061264775076084
+          median_us: 1089.536
+        - name: _fused_post_conv_kernel
+          count: 816
+          kernel_work_share: 0.023584614883619973
+          median_us: 699.648
+        - name: _causal_conv1d_fwd_kernel
+          count: 816
+          kernel_work_share: 0.014194585731121583
+          median_us: 413.696
+        - name: triton_red_fused__to_copy_add_rms_norm_4
+          count: 912
+          kernel_work_share: 0.012914918126453004
+          median_us: 377.6
+        - name: chunk_gated_delta_rule_fused_cumsum_kkt_solve_tril_kernel
+          count: 816
+          kernel_work_share: 0.011708215393593936
+          median_us: 345.6
+        b64_decode_graph_replays: 0
+        b64_decode_graph_hotspots: []
+      - rank: rank1
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank1.1792076791304355005.pt.trace.json.gz
+          sha256: 4ab804873b3490d36eefba1702655f3a42b4792c6c711355e7cface797fe3372
+          size: 12447897
+        graph_launches: 2
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 3264
+          kernel_work_share: 0.4895745916931793
+          median_us: 2950.912
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 2193
+          kernel_work_share: 0.16807820784046565
+          median_us: 1786.112
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 816
+          kernel_work_share: 0.06006274482942258
+          median_us: 1722.752
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 816
+          kernel_work_share: 0.05479951934776813
+          median_us: 1614.848
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 960
+          kernel_work_share: 0.04741774095631666
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 816
+          kernel_work_share: 0.04076540066583301
+          median_us: 1090.944
+        - name: _fused_post_conv_kernel
+          count: 816
+          kernel_work_share: 0.02342316746177853
+          median_us: 695.296
+        - name: _causal_conv1d_fwd_kernel
+          count: 816
+          kernel_work_share: 0.014195349045194056
+          median_us: 413.696
+        - name: triton_red_fused__to_copy_add_rms_norm_4
+          count: 912
+          kernel_work_share: 0.012914101778584286
+          median_us: 377.6
+        - name: chunk_gated_delta_rule_fused_cumsum_kkt_solve_tril_kernel
+          count: 816
+          kernel_work_share: 0.01182609290102457
+          median_us: 349.44
+        b64_decode_graph_replays: 0
+        b64_decode_graph_hotspots: []
+      boundary: device work sums can overlap; not critical-path time, utilization or speedup. 64iteration cap includes
+        initial prefill; Mixed trace does not cover late second-wave interference/P99 ITL.
+  decode:
+    status: complete/diagnostic-only
+    hotspot: null
+    historical_boundary: old all21/source6ea evidence not current20 sourcecb45
+    workload: P1024/D512/C64/N64
+    warmup_rounds: 6
+    measured_rounds: 3
+    output_throughput_median: 950.0954693293319
+    output_throughput_all:
+    - 942.515056447862
+    - 950.0954693293319
+    - 950.4942555485768
+    mean_ttft_ms_median: 6866.496152040781
+    mean_tpot_ms_median: 53.81912709069242
+    p99_tpot_ms_median: 64.60067766022352
+    p99_itl_ms_median: 47.90760298259556
+    p99_e2el_ms_median: 34473.178489739075
+    measured_throughput_spread: 0.008398312967798176
+    warmup_last3_spread: 0.001307176983645157
+    run_record: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001v5-baseline-E2E/env001v5-decode/run-record.json
+    run_record_sha256: f777a33229974ffb566df640c3e20fea18a142f2e2ca5feab13b8608566c5702
+    boundary: includes initial prefill/queue/network and autoregressive decode, not pure device decode time
+    profiling:
+      status: captured-analyzed/current-bothrank
+      diagnostic:
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/env001v5-decode/qwen36-fg20-e2e/diagnostic-a148711d3ea54f74a8aaeff87fb4e44a/diagnostic.json
+        sha256: 3f2a9d27c2f81b344801a7247279109d6b6bb666fc9921fe2e54fbd832a59930
+      ranks:
+      - rank: rank0
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank0.1792076940606154702.pt.trace.json.gz
+          sha256: 321f9856d38b7886eab37a7c12b6fcb1b4ee414fc2fde81337643acf3a9d01ec
+          size: 9551175
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.40149474948083536
+          median_us: 2950.144
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.15271058225080025
+          median_us: 31.999
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.06342779683824243
+          median_us: 156.646
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.05738742759379897
+          median_us: 2005.76
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.05011670248852368
+          median_us: 1775.36
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.03611225599870486
+          median_us: 1194.752
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.03610219122612685
+          median_us: 1114.496
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.03115863993972111
+          median_us: 165.856
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.01899485305645799
+          median_us: 698.368
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.017989303905050668
+          median_us: 71.958
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 825354.082000002
+          kernel_work_share: 0.3850916012304176
+          median_us: 123.23749999999998
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 430784.9879999997
+          kernel_work_share: 0.20099456031398863
+          median_us: 165.877
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 248913.9620000007
+          kernel_work_share: 0.11613764114779934
+          median_us: 71.958
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 225639.7920000004
+          kernel_work_share: 0.10527843830616483
+          median_us: 31.559
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t,
+            256, Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false,
+            true, false, true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102621.3499999999
+          kernel_work_share: 0.047880807587654214
+          median_us: 118.7075
+      - rank: rank1
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank1.1792076940426149700.pt.trace.json.gz
+          sha256: 1cac78fe0c168148b89049439e583d2db86fefbc820102d74c05bf88f94ffb96
+          size: 9572650
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.4008934278396805
+          median_us: 2950.144
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.15463345627423256
+          median_us: 31.967
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.06339124550674134
+          median_us: 156.622
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.056414645019432816
+          median_us: 1901.312
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.050051534373877514
+          median_us: 1774.848
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.036044141558802284
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.03601702290788333
+          median_us: 1195.904
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.03115669942383988
+          median_us: 166.084
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.018854020373038252
+          median_us: 694.784
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.017988249750097534
+          median_us: 72.044
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 826196.1550000006
+          kernel_work_share: 0.38453730498441885
+          median_us: 123.59899999999999
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 431415.2689999999
+          kernel_work_share: 0.20079404130171477
+          median_us: 166.104
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 249279.66300000082
+          kernel_work_share: 0.11602248354380733
+          median_us: 72.044
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 228527.9890000006
+          kernel_work_share: 0.1063640111028707
+          median_us: 31.867
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t,
+            256, Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false,
+            true, false, true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102763.68399999998
+          kernel_work_share: 0.04782940450216741
+          median_us: 118.829
+      boundary: device work sums can overlap; not critical-path time, utilization or speedup. 64iteration cap includes
+        initial prefill; Mixed trace does not cover late second-wave interference/P99 ITL.
+  mixed:
+    status: complete/diagnostic-only
+    hotspot: null
+    historical_boundary: old all21/source6ea evidence not current20 sourcecb45
+    workload: P1024/D256/C64/N128
+    warmup_rounds: 8
+    measured_rounds: 3
+    output_throughput_median: 704.1775316779153
+    output_throughput_all:
+    - 704.4797270396614
+    - 703.8885509852303
+    - 704.1775316779153
+    mean_ttft_ms_median: 5802.1254846971715
+    mean_tpot_ms_median: 68.21058591657693
+    p99_tpot_ms_median: 87.42195288194162
+    p99_itl_ms_median: 1485.6886451225728
+    p99_e2el_ms_median: 29457.68774480559
+    measured_throughput_spread: 0.0008395270053880606
+    warmup_last3_spread: 0.0558109534144017
+    run_record: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001v5-baseline-E2E/env001v5-mixed/run-record.json
+    run_record_sha256: 8cba4b673d49edbd6d6bbf5a312c54c8d46865b9c50d8d4195948ea6f69197cf
+    boundary: finite batch with prefill insertion/queue/network; high P99 ITL needs timeline attribution, not proof
+      of kernel fault
+    profiling:
+      status: captured-analyzed/current-bothrank
+      diagnostic:
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/env001v5-mixed/qwen36-fg20-e2e/diagnostic-4bf57fdc801644d887a96652c858a176/diagnostic.json
+        sha256: c09d0082b4d60a76ee813424ded3ac973d11f0e0ede51000ccf27ba493bd9745
+      ranks:
+      - rank: rank0
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank0.1792077117117479003.pt.trace.json.gz
+          sha256: 7eb0d97532e99bcd7e5c7effcab8d213582b8a63c3d79d9a788f19c8b5f1b0b6
+          size: 9554832
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.4009692854348672
+          median_us: 2950.4
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.15377245090318833
+          median_us: 31.929
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.0633602887626854
+          median_us: 156.547
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.057255893984366694
+          median_us: 1999.616
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.05007256109986763
+          median_us: 1775.36
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.03606812179464125
+          median_us: 1114.368
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.036046817616273125
+          median_us: 1199.104
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.031134585801173197
+          median_us: 165.856
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.018975371144394366
+          median_us: 698.624
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.01797117961933256
+          median_us: 71.98400000000001
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 825570.0389999998
+          kernel_work_share: 0.38467465841183857
+          median_us: 122.33749999999999
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 431016.8680000004
+          kernel_work_share: 0.20083246561184948
+          median_us: 165.867
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 248989.52
+          kernel_work_share: 0.11601675694305044
+          median_us: 71.98400000000001
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 227773.185000001
+          kernel_work_share: 0.10613099797248325
+          median_us: 31.4745
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t,
+            256, Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false,
+            true, false, true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102636.69599999987
+          kernel_work_share: 0.047823605641192216
+          median_us: 118.6625
+      - rank: rank1
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank1.1792077117108109089.pt.trace.json.gz
+          sha256: a3d59b0a0ddbb68c665d231625fda6b6118ccc764c9b39d78575dbb87211cdbb
+          size: 9575469
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.4010062217591985
+          median_us: 2950.144
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.154500094179855
+          median_us: 32.0
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.06341153982463317
+          median_us: 156.542
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.05641607547975268
+          median_us: 1901.696
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.050068764603938117
+          median_us: 1774.592
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.036061411410902855
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.03601187054021675
+          median_us: 1192.8319999999999
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.03116241591032809
+          median_us: 166.0285
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.018862284606253586
+          median_us: 694.528
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.017990651453581263
+          median_us: 72.0145
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 826219.5400000003
+          kernel_work_share: 0.3845637984454441
+          median_us: 122.1825
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 431370.4980000004
+          kernel_work_share: 0.20078135315969767
+          median_us: 166.044
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 249241.31499999977
+          kernel_work_share: 0.11600934398856909
+          median_us: 72.0145
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 228411.2150000002
+          kernel_work_share: 0.10631397612302784
+          median_us: 31.907
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t,
+            256, Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false,
+            true, false, true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102794.67900000003
+          kernel_work_share: 0.04784577258511718
+          median_us: 118.863
+      boundary: device work sums can overlap; not critical-path time, utilization or speedup. 64iteration cap includes
+        initial prefill; Mixed trace does not cover late second-wave interference/P99 ITL.
+baseline_controller_v1_terminal:
+  status: failed/preflight-only/zero-model-requests/source-not-stopped
+  cause: Server CLI --help ran with VLLM_PLUGINS empty, disabling required MetaX platform detection. Client-only
+    empty plugin setting was wrongly applied to server CLI. No numerical/source/service failure.
+  terminal_sha256: 886bb580d1839042d07342bf7786110c403ad0bcd27435d66a06e432959430a6
+  weights_files_fullhash: 25
+  current_original_service: 832568/1792052263.08 unchanged
+baseline_controller_v1:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-baseline-controller.py
+  worker_sha256: 22f9967cba442d96405653e9e6dfd6c1354caf66337ee0e66d0a5b6b3a3294cf
+  service_helper_sha256: 141a5959836e07ee68932f85c75cc09c63663777c77c94efbe5fc5ad9a04e565
+  inputshas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-input-shas.json
+  inputshas_sha256: ae2369c9272d6bc016da9e92ca3f3c4695de40a0d8f7823a2d73d4369ebf76fd
+  stages:
+  - capture restore config
+  - verify weights/tokenizer and CLI
+  - stop exactidle user model
+  - start isolated20FG graph
+  - two replay and10docC8
+  - 3phase no-profiler baseline
+  - 3phase profile trace
+  - stop isolatedmodel and restore originalservice
+  stop_conditions: No retry/additional requests on non-warmup test failure; exact own source restoration in finally;
+    no operator changes in this controller
+  progress: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-progress.json
+  terminal: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-terminal.json
+  launcher: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-launch-baseline.py
+  launcher_sha256: 89c6c9e4e1b685297af79bb0bacb72bbfd46a16f64412f7bcc1c54eed73c09f5
+  pid: 1326989
+  start_ticks: 501088501
+  created_epoch_from_proc: 1792071326.01
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/env001-baseline-process.json
+  process_receipt_sha256: ab02d0dadca7241147f62982db02c1802ef52051c1eb0ecf44eaaab27d8107b6
+accuracy_incident:
+  issue_id: accdiag-env001-evaluator-path
+  trigger: baseline-sanity
+  classification: measurement-invalid
+  gate_blocking: false
+  root_cause: 'measurement-invalid only: evaluator path then Unicode framing in custom controller; maintained native
+    validator confirms existing C8 10docs/20rows valid'
+  fix: Correct evaluator mapping and maintained sample validator for next same-contract instance
+  failure_evidence: logs/env001v2-C8.log
+  performance_may_continue: true
+  historical_C8_validated: true
+  current_instance_C8: v5 passed fresh10docs/20rows; graph and unchanged20scope verified; no formal score/gate
+evaluator_setup:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-eval-setup.py
+  command_sha256: 7409ed4df6fa1f7ceb70ce1266536f8023caab2e0b2f781c3f1a259a8a4fc861
+  source: qwen36-fa-gpqa-fixed-20261012
+  new: qwen36-fg20-eval-20261015
+  scope: snapshot existing approved corrected task; add only current case mount to independent evaluator, do not
+    change optimization mounts or old evaluator; compare task source hashes and runner visibility
+  status: ready
+  receipt_sha256: 202087e48084adb3c973329b4d4ddcd19f68b19ae656b7ee214bd600d21db95f
+  snapshot_image: sha256:c9443d6cf949cca6138699ded1abf25d2df0c8548eb5c5155229308a898fb106
+  task_sources_identical: true
+  runner_visible: true
+baseline_controller_v2:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-baseline-controller-v2.py
+  worker_sha256: 5f934d4ca0ee1d549869dc7b34d3e2fa1d1f26d0b640165709aa11166e00c65e
+  service_helper: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-service-v2.py
+  service_helper_sha256: 0b66fa34c0b8880e608fc179d61e0819a00a6d59fa04f25ff440a77a86206254
+  launcher: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-launch-baseline-v2.py
+  launcher_sha256: 00255de70e8c60ceded0468889625a8c02508ea9e4286258098ae88ecf3d6a57
+  inputshas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-v2-input-shas.json
+  progress: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v2-progress.json
+  terminal: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v2-terminal.json
+  scope: Same exact20scope/phaseplans/gates asv1; only serverhelp commandfixed. Reuse fresh verified25-filefullhash/sourceconfig,
+    zero priorrequests, source unchanged.
+  pid: 1346285
+  start_ticks: 501133545
+  created_epoch_from_proc: 1792071776.45
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/env001-baseline-v2-process.json
+  process_receipt_sha256: 98b61ac37c84bf0223eb431f8adb3f1f4940dae7d459a90047d0a0a9138b1b86
+  inputshas_sha256: 7f74b3fb4a46c85d10c16d42e9babfb96180323b1a8b8d12cec3925d160b9e38
+local_validation:
+  case_yaml: parsed
+  global_project_record_check: pre-existing failures in other model records/process artifacts; no new-case failure
+    reported, do not edit unrelated files
+baseline_controller_v3:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-baseline-controller-v3.py
+  worker_sha256: 629591949a31c05e2fd218821afc2b3a60b9d6b7949607fca05884b0da1aa30d
+  service_helper: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-service-v3.py
+  service_helper_sha256: 9f911e1be14e0798e01bf079a3a84a146eb4ff0effd04c2d5a08921f0c5643e1
+  launcher: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-launch-baseline-v3.py
+  launcher_sha256: 78905c2bd7cc9b182876cf39ab5d85f88ae2fb86d4bd506e946a87a2c9640070
+  inputshas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-v3-input-shas.json
+  progress: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v3-progress.json
+  terminal: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v3-terminal.json
+  scope: same20FG/phaseplans, corrected evaluator visibility, newinstance; old v2 graph smokes passed but C8 zero
+    requests; no repeated measured run
+  restore_source: capture exact current restored user process854491; full restore at terminal
+  pid: 1392809
+  start_ticks: 501244536
+  created_epoch_from_proc: 1792072886.36
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/env001-baseline-v3-process.json
+  process_receipt_sha256: 97392aa7b54b4c3e49157904dbf22dff18679f3073ff784924ea61a517eea8e0
+  inputshas_sha256: 28eeff62ff1596eb0c3547d4361f51a7a6f2c5c7e5e9e036b17fca97bf3ce42d
+baseline_controller_v3_terminal:
+  sha256: 08f3076481683e40eee6b608bec1950da2941cfb5c1c9afd64470c526aa49936
+  cause: Original model stop completed, then x-mode receipt write hit old source-stop.json. Python evaluated stop
+    before opening receipt; controller incorrectly treated stop as uncompleted, original854491 nowzombie. No new
+    model/C8/perf requests.
+  safe_recovery: Adopt exact already-approved paused source with PID/birth/no-live-workers/port-free proof, do not
+    stop twice; v4 owns final restoration and checks output paths before side effects.
+baseline_controller_v4:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-baseline-controller-v4.py
+  worker_sha256: 647d4a77668d047ae7fe4fd02e91064b9315901618c00bc327fdb232338ea379
+  service_helper: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-service-v4.py
+  service_helper_sha256: 53ae9a0162f2e61ce790d9d20e551b628f3649a5d3f852d73ec902475e3b1bbb
+  launcher: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-launch-baseline-v4.py
+  launcher_sha256: 196844c7924e67b55ac7904a6aad0881236acfa7b9711b12e13e52cb727e9a3a
+  inputshas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-v4-input-shas.json
+  progress: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v4-progress.json
+  terminal: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-baseline-v4-terminal.json
+  scope: Resume verified owned paused source, same v3 planned baseline/profile artifact paths stillunused; source
+    service restore in finally even earlyfailure. No more original stop.
+  source_info: manifests/source-process-v3.json
+  pid: 1401222
+  start_ticks: 501297837
+  created_epoch_from_proc: 1792073419.37
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/env001-baseline-v4-process.json
+  process_receipt_sha256: 242b4ae8e77937b718cb3f1eb103bf1c6b78436c72a1d25a495db0b9cef8dd48
+  inputshas_sha256: 3496f29ebcd158927d825b6dea46aa5386b6b541ca5dc2b621eca38414d4a043
+baseline_controller_v4_terminal:
+  status: failed/control-parser-after-successful-C8/source-restored
+  terminal_sha256: 98274e4827ffd1fa3b1dabf7c58732d6844bdcec9554ba59411fe84860e0f5a9
+  native_C8: 10docs/20filterrows/0timeouts/0empty/0garbled validated using maintained sample_validation physical
+    JSONL parser
+  sample_sha256: e4776831550ec60cacb55d5bdd2c831786deae99b6e252de05c067cd3a73d87c
+  cause: Custom controller str.splitlines split legal Unicode line separator inside JSON string; model/evaluator
+    succeeded, controller wrongly failed.
+  performance_requests: 0
+  current_original_restored:
+    pid: 862147
+    birth: 1792073806.45
+baseline_analysis_command:
+  path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-analyze-existing-v3.py
+  sha256: 5a8d95a99bb5f7beb656bd2cbcd094b67354dbb11effbfe6b869c4940abe3b1e
+  scope: CPU-only existing artifacts; explicitly not-applicable D1 TPOT/ITL; no requests/source or service mutation
+baseline_analysis_command_v1:
+  path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-analyze-existing.py
+  sha256: c6ee02ecfe54623d964efbe84981d33fad4dc3acb7bfc0b6829169c87bfa23d4
+  scope: CPU-only existing artifacts, no requests/mutations; execute only after completed terminal
+planning_review_previous:
+  review_id: rev-010-script-fg20
+  historical:
+    OP010: WY tiled candidate rejected; local numerical/micro passes but E2E incomplete dueMixedinstability/drift
+    OP009: FP32 prefillcost observed; not same20scope
+    delivery007/008: updated and editable code, no fresh model gate
+  cumulative_e2e_gain: unknown for current20scope
+  next_ranked:
+  - measure actual current baseline/phase instability and native-attention versusGDN/device/CPU attribution
+  - optimize a proved FlagGems hotspot within original precision
+  - consider bounded batch/graph workpoint if scheduler/resource interference dominates
+  stop: No choosing warmup as measured, no relaxing drift, no using historicalall21 gate for current20/newsource
+baseline_analysis_command_v2:
+  path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/env001-analyze-existing-v2.py
+  sha256: bd600ddfa79f7900cf0d2e959d41dab48d1b7b6669475b8764d1f7728fca45c3
+  scope: CPU-only existing artifacts plus graph-correlation decode separation; no requests/mutations; execute after
+    completed terminal
+  status: CPU-analysis failed on expected absent single-output TPOT; no model requests or baseline changes
+op001_probe:
+  status: failed/reference-only/original-service-restoring
+  commands_and_patch_shas:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-probe.py: 544c93f6e5712fe47b88c1c262b3c78ceca057d582fdafc7f4dd080438b51f65
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-probe-service.py
+    : 38d170f72169c91970791a810e1d82249e8d6f230ed98cb60bb01544b557254e
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-launch-probe.py
+    : 46d8b3da1b156034eb085308a81f98d781dc6abc90502fe86a06897359f9a084
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-probe-controller.py
+    : 5250b0faf169a4109e27c98efde73c3d6d5e8d7793b6dd53b8e70fa2b801845a
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-launch-probe-control.py
+    : b29cfd3b620cb7f0c4eeab09fda7ce31dfd6eb0179d18e19e8c32e2cc2df4716
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-verify-container-mounts.py
+    : 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op001/fused_recurrent.original.py
+    : 5d15461a87db9b61adf6bbf52b576b9941fda9ed1e653ec98826926f0470a253
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op001/fused_recurrent.candidate.py
+    : e785e55bc9312eda4c42e99dec94c60ca03bd372e73e87d9aa36d29772ed9f31
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op001/candidate.patch
+    : a8e4862fcccbb299f2021320b4ee72280c1ce0edd168d00a5cc50acd3859d2dd
+  input_shas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-probe-input-shas.json
+  input_shas_sha256: 1469c534f7f4ce78bab88ef01a500ba3688d53816123f39b115c891f11fb673d
+  numerical_cases: 12
+  steps_per_case: 8
+  changed_graph_inputs_per_case: 2
+  operator_tolerance:
+    atol: 0.002
+    rtol: 0.02
+  micro_admission:
+    b64_latency_reduction: 0.2
+    b32_no_regression: true
+    b8_max_regression: 0.05
+    micro_baseline_revert_max_drift: 0.05
+  installed_source_changed: false
+  resource_authorization: same user-approved source18002/GPU2,3 pause and restoration; other services untouched
+  controller_pid: 1485393
+  start_ticks: 501765592
+  birth: 1792078096.92
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/op001-probe-control-process.json
+  process_receipt_sha256: 8e4ebe76533f94742b4bb6fb4dd8991b98a46145eff32da0fc310086c1be45bf
+baseline_analysis_result:
+  path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001-v5-existing-analysis.json
+  sha256: bb7ab1bdb6c2526d7cb0f90b546406340b6bf9af5b7ad4ae7231c88f61d93671
+op001_oracle_incident:
+  issue_id: accdiag-op001-oracle-broadcast
+  trigger: minimal-regression
+  classification: measurement-invalid
+  gate_blocking: false
+  root_cause: Independent reference multiplied [B,HV,V] delta by [B,HV] beta without final broadcast dimension;
+    RuntimeError before candidate kernel invocation
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op001-probe-terminal.json
+  evidence_sha256: 2d59b4de48b1bfc8ae4f21eb815cd2c55f7b39f23eb28b88afa4cdb36201efcb
+  target_cases_completed: 0
+  candidate_installed: false
+  fix: Only beta[...,None] in reference; unchanged candidate bytes, seeds, .002/.02; CPU scalar check before same
+    matrix GPU rerun
+  commands:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe.py: b31fcb7ae684ef1f28c60e30d6943ede94946cb959f963c783566408c0592863
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-oracle-cpu-check.py
+    : eb9123ceb6eaa50bae013d2ceed55319fcfdf7c0037fc80e9e8afd2f5b6617ad
+  status: resolved/reference repaired and original12case8step+changedinputgraph scope passed
+  cpu_preflight_1: First CPU check blocked by oracle hard-coded CUDA output device; visible GPU empty prevented
+    any GPU use. Fix output allocation to h.device, identical GPU semantics; previous scripts retained.
+  fixed_commands_v2:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-v2.py: 9386ac6f52de7000030409fc8b2c0dcd1600750f3958a9dff110898b23569398
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001-oracle-cpu-check-v2.py
+    : 159678a22a7b0b17d1bdb6f9a5a1f54c1317211ced52e5c47b58d9d3289228d4
+  cpu_validation:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op001-oracle-cpu-validation.json
+    sha256: b3779b7827ee99f81cc6d224f80e6c82c2e7686d0fd4bead9d4b5343de59b528
+  r1_controller_terminal_sha256: f9f707d6cd4fd693e96080d35ffd3b8a200bb8aea109809e4d4909c9a447e7ac
+  source_restored: true
+  performance_may_continue: true
+op001_probe_r2:
+  status: completed/rejected/source-restored
+  commands_and_patch_shas:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-service.py
+    : dfd6906ca76deb6b4cdcec437621d393c1a05d5564e8f843c4b35ec1175a8b3b
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-launch-probe.py
+    : 3b38ff0b108ff980d17efe32da4479961795f5fedf0ebe9fc1a70cca7b38110d
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-controller.py
+    : b0cad6c51da04ae3409a8625c385336cc1cf3c6d5b59e8d4202bc2f6b26bb9cc
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-launch-probe-control.py
+    : d1c289f288d08d0a333c7d53dd62c1fb6344a1d3d102d6e82014a3e3765355d0
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-verify-container-mounts.py
+    : 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-v2.py: 9386ac6f52de7000030409fc8b2c0dcd1600750f3958a9dff110898b23569398
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op001/fused_recurrent.original.py
+    : 5d15461a87db9b61adf6bbf52b576b9941fda9ed1e653ec98826926f0470a253
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op001/fused_recurrent.candidate.py
+    : e785e55bc9312eda4c42e99dec94c60ca03bd372e73e87d9aa36d29772ed9f31
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op001/candidate.patch
+    : a8e4862fcccbb299f2021320b4ee72280c1ce0edd168d00a5cc50acd3859d2dd
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op001-oracle-cpu-validation.json
+    : b3779b7827ee99f81cc6d224f80e6c82c2e7686d0fd4bead9d4b5343de59b528
+  input_shas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-input-shas.json
+  input_shas_sha256: 897aabe4fe68bbfd768d20f2490275b91ea8347fcb4c6737a1a5a0b460af0c3e
+  change: reference-only beta broadcast and device-following output; same candidate, matrix, seeds, tolerance, micro
+    thresholds and no installed-source changes
+  pid: 1495474
+  start_ticks: 501819998
+  birth: 1792078640.98
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/op001r2-probe-control-process.json
+  process_receipt_sha256: dbb4eedb59cc160400ac6703794b01631691c94b42a7705ba887cfc19b2a7c86
+  numerical_status: passed
+  numerical_sha256: 56c56a519ecefa4540fabe12d5565e81249102039701e4742b99fb22fcceba1e
+  micro_sha256: ff851ee4f440f872127293ee435db7b3d32796b589c677c4b2a0d5f530ecc720
+  worker_terminal_sha256: 90c04359a41b284fcae3c32c25d405169c0271252e453dcbd601111874d3168d
+  eligible: false
+  candidate_installed: false
+  latency_reductions:
+    B8_fallback: 0.018649726391419263
+    B32: 0.1003783250863115
+    B64: 0.11139733734684198
+  numerical_bitwise_all: true
+  compiled_resources:
+    baseline_B64:
+      registers: 256
+      spills: 12
+    candidate_B64:
+      registers: 186
+      spills: 0
+  controller_terminal_sha256: 8a07526b2d6da6d7306fbcdfbebc8aa8fa356939dac4dd46ceb01380971d7122
+op002_plan:
+  primary_variable: num_warps1->4 on BF16packed/FP32state/KV128/B*HV>=768; keep originalBV policy
+  accuracy_mode: minimal-regression
+  performance_mode: targeted/diagnostic
+  micro_admission:
+    b64_latency_reduction: 0.2
+    b32_no_regression: true
+    fallback_regression: 0.05
+    baseline_revert_drift: 0.05
+  e2e_admission:
+    decode_output_improvement: 0.02
+    mixed_output_improvement: 0.02
+    prefill_sentinel_guard: 0.05
+    cross_phase_latency_guard: 0.05
+    measured_spread: 0.1
+    baseline_revert_drift: 0.01
+    prefill_primary: native0%result reported separately; valid sentinel guards govern retention
+  installed_source_changed: false
+op002_probe:
+  status: rejected/source-restored
+  commands_and_patch_shas:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-probe.py: 980711aedde1712e2c742a8a2165131fffa98c79c93208e1671b9aff76866e30
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-probe-service.py
+    : 1378ac7a3b36dd427816500a36407ef3d5133453c6151cfae7fc73c2585c6eda
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-launch-probe.py
+    : 1396ccb1aed914396003e8738a0f94f5485712a9f62710fe2be9d1d863f0cea7
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-probe-controller.py
+    : 71181f3fcc2036f8eb3ee93168ab3f7e5015199712f8c66a1c10c25d17a32b0b
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-launch-probe-control.py
+    : 973ab311da0ea322c63efb73bdd7ff1232b2380d7570c058eb3c18e461fe7f11
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-verify-container-mounts.py
+    : 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op002/fused_recurrent.original.py
+    : 5d15461a87db9b61adf6bbf52b576b9941fda9ed1e653ec98826926f0470a253
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op002/fused_recurrent.candidate.py
+    : 37ac15824541a46b2efca21814aec4c3284293ceb3a62be45ccd13141e6a5060
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op002/candidate.patch
+    : 08614525de6899faf9a89d0db1cd6c807697f876fbcef41cc5a1d5e61629cd30
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-v2.py: 9386ac6f52de7000030409fc8b2c0dcd1600750f3958a9dff110898b23569398
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op001-oracle-cpu-validation.json
+    : b3779b7827ee99f81cc6d224f80e6c82c2e7686d0fd4bead9d4b5343de59b528
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op001r2-probe-control-terminal.json
+    : 8a07526b2d6da6d7306fbcdfbebc8aa8fa356939dac4dd46ceb01380971d7122
+  input_shas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002-probe-input-shas.json
+  input_shas_sha256: 80b72492753582b6ff29f2a3eed9e0c20be4a0c69bb53cce1423aa2cfa55c16a
+  candidate_installed: false
+  pid: 1506559
+  start_ticks: 501879159
+  birth: 1792079232.59
+  process_receipt_sha256: 2c320550ef1a71b267e94ef9992d4ce5ff4b6f2c4a7b8ef3a3428b6dd64fcb1d
+  worker_terminal_sha256: fe46a43e4a8479c3efdd8deeb4141fa9c5d4df766327f1658bd82bc45c09e68d
+  eligible: false
+  latency_reductions:
+    B8_fallback: 0.01883626881457945
+    B32: 0.14323236282670215
+    B64: 0.13461538461538458
+  numerical_sha256: b6911a6492cf037d2e00bf5eaf337550e6dc638de304b52380823501f913c364
+  micro_sha256: c7d45ae6011d92f0fcdc2a885433886f1ff1e1246016da42ef3c933f39b2bb4d
+  controller_terminal_sha256: 10518b003aa7f3c1c52bb26c58de6281d5422b544a4182ba18f769d50928048e
+  numerical_bitwise: false
+  max_numerical_tolerance_ratio: 0.026372920035607893
+  compiled_target_registers: 140
+  compiled_target_spills: 0
+planning_review_previous_011:
+  review_id: rev-011-current20-gdn-packed
+  evidence_cutoff: env001v5 no-profiler all3phase complete; bothrank Prefill/Decode traces, final Mixed/restoration
+    pending verification
+  current_cumulative_gain: unknown; no new performance point retained
+  previous_decision_summary: No reuse of historical all21 WY micro or incomplete E2E gains. New20scope baseline
+    stable measured all3phases. Preserve initial setup/control failures.
+  next_ranked:
+  - rank: 1
+    direction: operator/improve
+    point: GDN packed decode value tile32->16 in scoped BF16/FP32state KV128 B>=32 path
+    support: B64 54correlation-linked graphreplays perrank, packed20.099%/20.079% kernelwork, 256regs/thread, grid4x1536
+      block64; current actualFGhit
+    opposing: 201326592bytes state read/write perB64 invocation, about1.21TB/s nominal effective bandwidth at166us;
+      high registers do not prove spills or available speedup
+    first_falsifier: unchanged .002/.02 numerical+changed-input graph, then same-input interleaved B/C/R complete-wrapper
+      micro; B64 latency reduction>=20%, B32 no regression and fallback<=5%; if unmet no model install
+    performance_mode: targeted
+    required_accuracy_mode: minimal-regression
+    stop: 'numerical/graph fail or micro admission fail: preserve original and report, no E2E candidate test'
+  - rank: 2
+    direction: operator/improve
+    point: GDN FP32 prefill H/WY organization
+    support: current PF H6.0-6.3%, WY5.48%, O4.06% kernel activity
+    opposing: old WY tile change did not meet usable E2E evidence; no replay of old candidate without new justification
+    first_falsifier: new bounded full-call micro if packed point rejected; do not reduce FP32 or tolerance
+  - rank: 3
+    direction: framework
+    point: Mixed prefill/decode scheduling interference with FG scope fixed
+    support: MixedP99ITL1.49s vs Decode47.9ms; need timeline/iteration evidence
+    opposing: different workloads/proxies alone do not prove root cause
+    first_falsifier: bounded same-scope batch-budget comparison only if timeline supports it
+  next_review_trigger: first point terminal or contradiction/shape migration; do not stack before numeric resolution
+combo001_control:
+  status: micro-rejected/source-restored
+  commands_and_patch_shas:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-probe.py: 09a9db2a661538e14a71faedcb43bbba03dea78db75f1d6aca79807b70caffa1
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-probe-service.py
+    : 77fc3b52a86005afc9f8015834a5260be839e77fbe3d45a0e817b7914f8f63f4
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-launch-probe.py
+    : e1c3a9fe5f8c4476275cd2f6b8931f9c54a924df2ae6ade8c4203241a9ba93f3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-probe-controller.py
+    : cd6a52af71871126bd62ca3ee2e778b9eeb4cd3e7c2751d8bdb571dfcf4a9914
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-launch-probe-control.py
+    : bbbf074d8b6e7ea7d1162b0d49045731776d315337de6ece6b6d95ccb0e00cf1
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-model-service.py
+    : 540e99b8a27532f104a07302d16741360e199a33de9a11f19598ed3ea40358f3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-verify-container-mounts.py
+    : 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/combo001/fused_recurrent.original.py
+    : 5d15461a87db9b61adf6bbf52b576b9941fda9ed1e653ec98826926f0470a253
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/combo001/fused_recurrent.candidate.py
+    : d444b44a2c3b0fe7050564023732dd9e046c927ce41535c235092db0abddf50f
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/combo001/candidate.patch
+    : c0f64e4d507465df3ecc324f0e0cc2cae45e1747d34d2540ccfb896343157ffa
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-prefill-plan.json
+    : 60302fb08cf63837f88a3dd2a139daed65e46a97abd825a5054edeb6710a8949
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-prefill-comparison.json
+    : 1ab18633f4ebf645139d074e0aebc9dc0f6e7e1d061eb64ccd3cb58fd111eb67
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-decode-plan.json
+    : 48d98d29593e59e52a156177f41ee46deb1528078739e55a8920fabfe9e13578
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-decode-comparison.json
+    : 01fd8151c8a99e3c27392f62689147e6938f5c41d7e5619a5f12ffa09f5503f2
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-mixed-plan.json
+    : 26ef74a0c790c171eb1ef920f4a8326c6f2667b30c368afab523cfde19f1fce4
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-mixed-comparison.json
+    : 01fd8151c8a99e3c27392f62689147e6938f5c41d7e5619a5f12ffa09f5503f2
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-baseline-c8-config.json
+    : 66a71d00c26f1d06fac318013aadfd7ac6cb6b306fd65bb8004bbe77cefd0e5c
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-candidate-c8-config.json
+    : 58236b638886d7aa88971bfe15ff0a5cdb83c92db59019ab5ece3d1ae6279379
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-revert-c8-config.json
+    : 723350627bbfd7a447aeb547b1f5f0f83df6f0c4cdb737d52b33abcdceb861d7
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-v2.py: 9386ac6f52de7000030409fc8b2c0dcd1600750f3958a9dff110898b23569398
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op001-oracle-cpu-validation.json
+    : b3779b7827ee99f81cc6d224f80e6c82c2e7686d0fd4bead9d4b5343de59b528
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002-probe-control-terminal.json
+    : 10518b003aa7f3c1c52bb26c58de6281d5422b544a4182ba18f769d50928048e
+  input_shas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/combo001-probe-input-shas.json
+  input_shas_sha256: 2396239320de6627e5455eaead5b67d51a5466edf487c5a985164362fa6533b8
+  scope: same12numeric/graph/micro; only if eligible native fresh baseline/candidate/revert3phase; finally privatecode
+    original and user original20FGservice restored
+  micro_thresholds:
+    B64_latency_reduction: 0.2
+    B32_no_regression: true
+    B8_guard: 0.05
+    baseline_revert_drift: 0.05
+  e2e_thresholds:
+    Decode_Mixed_output_improvement: 0.02
+    Prefill_guard_only: 0.05
+    cross_phase_latency_guard: 0.05
+    all_metric_spread: 0.1
+    baseline_revert_drift: 0.01
+  candidate_installed: false
+  future_formal_requires: new198GPQA/cap50000/strict80 gate; no oldall21 reuse
+  pid: 1518805
+  start_ticks: 501972714
+  birth: 1792080168.14
+  process_receipt: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/combo001-probe-control-process.json
+  process_receipt_sha256: 28c11aa32115f00bb1cb67ecd59e3b9e01533ce4aadea6fe4b71b0ef128a9516
+  eligible: false
+  numerical_sha256: b42999284be6d7885e75bfc96a9445f8fa3078520efd5f49b186618f58d5b877
+  micro_sha256: 81dd10888ead4f96b044e3d2f460a11ef9e121515dc6143e6bb97bca9e298bb0
+  controller_terminal_sha256: 70f0e812c496719b55697c78736062b97a46e4c117b3683a3a2c65bf856ec3a0
+  e2e_run: false
+runtime_abi_inspection:
+  command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/runtime-packed-abi-001-inspect.py
+  sha256: 6ce57a65a684522cfb537eadbc33863b2e0748c3a7e4f84e0e6cdd5df1eae995
+  scope: CPU-only compiler cache inspection; no model/GPU requests; validate exact dtype and leading strides before
+    real-ABI retest
+  status: verified
+  result: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/runtime-packed-abi-001.json
+  result_sha256: b83e69b4368eb76a4add6b305c0c5518425c4582099251cde66d4842c80a6307
+  actual:
+    dt_bias: bf16
+    indices: int32
+    qkv_row_stride: 8192
+    state_row_stride: 401408
+    state_head_stride: 16384
+    gate_stride: 24
+    qk_l2norm: true
+  prior_proxy:
+    dt_bias: fp32
+    indices: int64
+    qkv_row_stride: 5120
+    state_row_stride: 393216
+  boundary: Previous proxy micro facts retained, not direct model ABI evidence; no candidate installed or E2E gain
+    claimed
+op002_actualabi_revalidation:
+  status: real-ABI-reference-layout-CPU-passed/preparing-frozen-complete-cycle
+  commands:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe.py: 178b67e3c95ec588417480c67a61b8929132a56afb15922fe388c6aee048aac9
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-oracle-cpu-check.py
+    : cfe3a49462e17d7949ac797a0fe39b04973ff7e8a6d990e9d4fad7f859a2c60e
+  source_candidate_unchanged: 37ac15824541a46b2efca21814aec4c3284293ceb3a62be45ccd13141e6a5060
+  numerical_cases: 15
+  steps: 8
+  changed_input_pairs: 2
+  original_tolerance:
+    atol: 0.002
+    rtol: 0.02
+  micro_admission_unchanged:
+    B64_latency_reduction: 0.2
+    B32_no_regression: true
+    B8_guard: 0.05
+    revert_drift: 0.05
+  reason: Verify best prior proxy candidate W4 under compiler-proven real ABI; no new tile/warp search or lowered
+    threshold; extra input/state padding guards
+  cpu_preflight:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-oracle-cpu-validation.json
+    sha256: be88f4093ca6a420cc9c8684cf691ba89ccdecdd5f87059e837c7dc51a41e6a6
+planning_review_previous_012:
+  review_id: rev-012-two-packed-probes
+  evidence_cutoff: env001v5 all3 measured+bothranktrace; OP001/OP00212case numerical/graph and5x30 complete-wrapper
+    micro, original services restored
+  retained_new_changes: []
+  cumulative_e2e_gain: unknown; no new operator installed or E2E tested
+  decisions:
+    OP001: BV16W1-11.14%<20%, rejected
+    OP002: BV32W4-13.46%<20%, rejected
+  knowledge_delta: 256regs/12spills actual vs186/0 or140/0; removing spills alone does not meet required E2E-space
+    micro gate. Unchanged B8 fallback shows1.9% timing difference; micro not model effect. W4 FP32 order not bitwise
+    but original tolerance passed.
+  next_ranked:
+  - rank: 1
+    point: combo-001-gdn-packed-bv16-warps4
+    mechanism: smaller state tile with more threads; test resource interaction from original, not sum isolated gains
+    first_falsifier: same12matrix/graph + interleaved micro, same20% threshold; if eligible fresh3phase B/C/R
+    stop: one combination only; if unmet stop tile/warp branch
+  - rank: 2
+    point: Mixed interference diagnosis/framework budget
+    first_falsifier: full enough Mixed timeline to include second cohort; original64iteration cap misseslate tail
+    boundary: keep same20FG; no claim P99ITL root cause from shortwindow
+  next_review_trigger: combination terminal or any numeric/control failure; no new kernel grid sweep
+repository_protocol:
+  target_AGENTS: /workspace/FlagGems-vllm/AGENTS.md
+  workflow: /workspace/FlagGems-vllm/workflow.md
+  tables: op-002-gdn-packed-decode-warps4.md real-ABI section before any installed-source modification
+  missing_references:
+  - optimization.md
+  - deep_opt.md
+  fallback_method: current project SOP + key-operator-analysis, existing custom GDN inference task; no staleconv1d
+    diversion
+  pr_readiness: experimental/limited; no push/commit, no broad backend claim
+  no_torch_compute_added: true
+  nvidia_autotune_exemption: NVIDIA unchanged; MetaX local offline fixed configuration experiment
+op002_actualabi_control:
+  status: completed/diagnostic-rejected-reverted
+  commands_and_patch_shas:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe-service.py
+    : e3c169e0081ca175b6d03e17265ce560fffa331f557459be3bb1f17281212175
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-launch-probe.py
+    : 0b5799f16eb178d42ddfd3734e5c6994d2f961f0db709505f86840ee017bf2bc
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe-controller.py
+    : 57b2b4451fb9fb84faf22914aeae3926656dd08f9e66a029f5d02253edf3aa3d
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-launch-probe-control.py
+    : 1ef12c5a3a36a972fda74187f48e60d6cb0b0f489ee0390f0d127aab18d25a6d
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-model-service.py
+    : ac0416f1e75faaf2b3240a13850aab20bd2f79093c2907d088a093dd15a31c71
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-verify-container-mounts.py
+    : 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-prefill-plan.json
+    : 60302fb08cf63837f88a3dd2a139daed65e46a97abd825a5054edeb6710a8949
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-prefill-comparison.json
+    : 36bb7523da4556cdaff1eeab2416385b2b2ce9f6103a049e34f0fe3d9bfffd39
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-decode-plan.json
+    : 48d98d29593e59e52a156177f41ee46deb1528078739e55a8920fabfe9e13578
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-decode-comparison.json
+    : 27edbd723ffa4cbad736dc763ebd863ad13a0c3ddbf9276d7ff35448877405d3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-mixed-plan.json
+    : 26ef74a0c790c171eb1ef920f4a8326c6f2667b30c368afab523cfde19f1fce4
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-mixed-comparison.json
+    : 27edbd723ffa4cbad736dc763ebd863ad13a0c3ddbf9276d7ff35448877405d3
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-baseline-c8-config.json
+    : e07160335bb9c677fd50775fd3c1490c4069303337c6245fd707d921cf530487
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-candidate-c8-config.json
+    : 04a78c947c0812f9e85c23e479a07fc9ade8719798d9ee2b101fcf05846855e0
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-revert-c8-config.json
+    : 98c4b70395da4b91756872084ef12110fb6ce4df3c2b17692271778ba3b989db
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe.py: 178b67e3c95ec588417480c67a61b8929132a56afb15922fe388c6aee048aac9
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op001r2-probe-v2.py: 9386ac6f52de7000030409fc8b2c0dcd1600750f3958a9dff110898b23569398
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-oracle-cpu-validation.json
+    : be88f4093ca6a420cc9c8684cf691ba89ccdecdd5f87059e837c7dc51a41e6a6
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/runtime-packed-abi-001.json
+    : b83e69b4368eb76a4add6b305c0c5518425c4582099251cde66d4842c80a6307
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/combo001-probe-control-terminal.json
+    : 70f0e812c496719b55697c78736062b97a46e4c117b3683a3a2c65bf856ec3a0
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op002/fused_recurrent.original.py
+    : 5d15461a87db9b61adf6bbf52b576b9941fda9ed1e653ec98826926f0470a253
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op002/fused_recurrent.candidate.py
+    : 37ac15824541a46b2efca21814aec4c3284293ceb3a62be45ccd13141e6a5060
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op002/candidate.patch
+    : 08614525de6899faf9a89d0db1cd6c807697f876fbcef41cc5a1d5e61629cd30
+  input_shas: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe-input-shas.json
+  input_shas_sha256: 96efa9afd253b932fd2bd00d9806f125cb0c0eef28d262a7ff02abd6b0ed8790
+  candidate_source_sha256: 37ac15824541a46b2efca21814aec4c3284293ceb3a62be45ccd13141e6a5060
+  runtime_abi_evidence:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/runtime-packed-abi-001.json
+    sha256: b83e69b4368eb76a4add6b305c0c5518425c4582099251cde66d4842c80a6307
+  scope: 15case real dtype/strides including cache/QKV adjacent-region guards; same20%micro gate then conditional
+    fresh3phase B/C/R; restore C source and S service
+  mode: targeted/diagnostic
+  new_gate_issued: false
+  v1_status: saved but never executed; superseded before first real-ABI GPU measurement
+  v2_commands_and_shas:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe-controller-v2.py
+    : c4bb308d32d3714ebe1d0d39bbad06d4842b12d9a5f10d1ac602f61b3b861d3f
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-model-service-v2.py
+    : f879a7a5dd55c6aee46ac688a350be93b0ae933b76aeb6b8c5f965447054a1ea
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-launch-probe-control-v2.py
+    : f4fb98cb5c31793a1042f701b902c5f5f5842ad55e6ae9adc8bd57a8069e2374
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-e2e-research-contract.json
+    : fc86edc95d71332f34dc5d00624117a8c0ff35f390e5806bbbb7e4ed48646f6a
+  v2_research_contract: micro20% target reported separately; actual E2E retain gates unchanged; no automatic source
+    deployment or formal gate
+  v2_input_shas:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-probe-input-shas-v2.json
+    sha256: afc8b39149e7d6fc076dc929b32d897501f25f413cdb85cd1a1df36fbcc08218
+    count: 27
+  process:
+    pid: 1546577
+    birth: 1792084405.51
+    start_ticks: 502396451
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/op002r2-probe-control-process.json
+    sha256: f38af515fe149bcdf9bdb2f928fa7f162267cf6ca9071154a2ced85807fd6d48
+  monitor: PAUSED after terminal; no model request or new task from monitor
+  actual_abi_results:
+    numerical:
+      status: passed
+      cases: 15
+      steps_per_case: 8
+      changed_input_graph_pairs_per_case: 2
+      padding_unchanged: true
+      max_tolerance_ratio: 0.04537421957562795
+      sha256: 3d6d62757a6e1cbb185e2cc0613d7664133a454278445b40453051c1988f8166
+    micro:
+      sha256: 3d2009c6b8e77b50121e48b28db9955b4dd72ed72ab845f2c1d79d1d7c656193
+      records:
+      - B: 8
+        median_ms:
+          baseline: 0.043374931812286376
+          candidate: 0.04395519892374675
+          revert: 0.043204267819722496
+        latency_reduction: -0.013377937145160113
+        baseline_revert_drift: 0.003934622728687165
+      - B: 32
+        median_ms:
+          baseline: 0.10367146333058676
+          candidate: 0.09547946453094483
+          revert: 0.10384213129679362
+        latency_reduction: 0.0790188402523011
+        baseline_revert_drift: 0.0016462386149855845
+      - B: 64
+        median_ms:
+          baseline: 0.17996800740559896
+          candidate: 0.16504319508870444
+          revert: 0.17997652689615887
+        latency_reduction: 0.08293036374658558
+        baseline_revert_drift: 4.733891697039638e-05
+      target20_met: false
+      gross_guard5_passed: true
+    model_baseline_instance: qwen36-fg20-e2e:64758:1792084510.91
+    new_e2e_gain: unknown, loading baseline
+  post_terminal_validation:
+    command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op002r2-final-existing-validation.py
+    sha256: a04c6a4fefcd681f440a8cefab2bfc64c37f69996a64b5af437c04c4a8006794
+    scope: Existing artifacts, all87round hashes/counts/spreads/drifts and current restored identities only; no
+      remeasurement
+  terminal:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-probe-control-terminal.json
+    sha256: dd80282a345805e185142317a74ee46f477e8f7a92da635126c2491424d42b31
+  final_validation:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-existing-final-validation.json
+    sha256: 02106fd22fc8387bb9f691b0820f6a5048e10623569d065ebc673183d9d4e34a
+    status: verified/diagnostic-rejected-reverted
+    rounds: 87
+    completed_requests: 9408
+    phases:
+      prefill:
+        native_status: passed
+        max_measured_spread: &id001
+        - 0.0011967511564783045
+        - p99_e2el_ms/candidate
+        max_baseline_revert_drift: &id002
+        - 0.005135675291647793
+        - p99_e2el_ms
+      decode:
+        native_status: failed
+        max_measured_spread: &id003
+        - 0.019716760391392883
+        - p99_itl_ms/revert
+        max_baseline_revert_drift: &id004
+        - 0.005569986052833598
+        - mean_ttft_ms
+      mixed:
+        native_status: failed
+        max_measured_spread: &id005
+        - 0.09223616214801712
+        - p99_tpot_ms/revert
+        max_baseline_revert_drift: &id006
+        - 0.00828716897450422
+        - p99_itl_ms
+    current:
+      source:
+        engine_sha256: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+        plugin_sha256: 98f36f070aafa5c7d0d3cc55e00fd4ad245d6b1ddadcbf8a84d327d0933a70c1
+        flaggems_sha256: 3a7e89738b76c483d379b57062f1f0df571641903f692056bbd4aa864e0dd0f7
+        flaggems_vllm_sha256: cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482
+        instance: qwen36-addgdn:908003:1792090540.07
+      private:
+        engine_sha256: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+        plugin_sha256: 98f36f070aafa5c7d0d3cc55e00fd4ad245d6b1ddadcbf8a84d327d0933a70c1
+        flaggems_sha256: 3a7e89738b76c483d379b57062f1f0df571641903f692056bbd4aa864e0dd0f7
+        flaggems_vllm_sha256: cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482
+  phase_results:
+    prefill:
+      status: passed
+      issues: []
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-prefill-comparison-result.json
+      sha256: e85dbc1a90a9c08dac022468bc83465473ca44cb8951c545e1347e91c18e7206
+      metrics:
+        total_token_throughput:
+          baseline: 5637.136083570706
+          candidate: 5674.391979482466
+          revert: 5662.969827893035
+          relative_improvement: 0.006609011270872273
+          baseline_revert_drift: 0.004582778194342325
+          round_values:
+            baseline:
+            - 5638.849492523502
+            - 5637.031713108316
+            - 5637.136083570706
+            candidate:
+            - 5675.7666840743
+            - 5672.234205184704
+            - 5674.391979482466
+            revert:
+            - 5664.850650894402
+            - 5659.718196061954
+            - 5662.969827893035
+        output_throughput:
+          baseline: 5.499644959581177
+          candidate: 5.5359921751048455
+          revert: 5.5248486125785705
+          relative_improvement: 0.006609011270872362
+          baseline_revert_drift: 0.004582778194342336
+          round_values:
+            baseline:
+            - 5.501316578071709
+            - 5.49954313473982
+            - 5.499644959581177
+            candidate:
+            - 5.537333350316391
+            - 5.533887029448492
+            - 5.5359921751048455
+            revert:
+            - 5.526683561848197
+            - 5.52167628884093
+            - 5.5248486125785705
+        mean_ttft_ms:
+          baseline: 9086.161052095122
+          candidate: 9020.607818674762
+          revert: 9040.952031311463
+          relative_improvement: 0.007214623760740449
+          baseline_revert_drift: 0.00497559095909208
+          round_values:
+            baseline:
+            - 9083.320056495722
+            - 9087.632214323094
+            - 9086.161052095122
+            candidate:
+            - 9018.675028455618
+            - 9025.320144486614
+            - 9020.607818674762
+            revert:
+            - 9038.413779118855
+            - 9046.192259476811
+            - 9040.952031311463
+        p99_ttft_ms:
+          baseline: 11856.397799132392
+          candidate: 11768.530462794006
+          revert: 11795.507225710899
+          relative_improvement: 0.007410963922348806
+          baseline_revert_drift: 0.005135672271889268
+          round_values:
+            baseline:
+            - 11850.018714340404
+            - 11857.979965219274
+            - 11856.397799132392
+            candidate:
+            - 11762.300097746775
+            - 11776.383996745571
+            - 11768.530462794006
+            revert:
+            - 11794.211949929595
+            - 11802.424926292151
+            - 11795.507225710899
+        p99_e2el_ms:
+          baseline: 11856.397462980822
+          candidate: 11768.530189916492
+          revert: 11795.506855482236
+          relative_improvement: 0.007410958795762188
+          baseline_revert_drift: 0.005135675291647793
+          round_values:
+            baseline:
+            - 11850.018236171454
+            - 11857.97970181331
+            - 11856.397462980822
+            candidate:
+            - 11762.299693338573
+            - 11776.383695453405
+            - 11768.530189916492
+            revert:
+            - 11794.211731571704
+            - 11802.424710169435
+            - 11795.506855482236
+      native_status: passed
+      max_measured_spread: *id001
+      max_baseline_revert_drift: *id002
+    decode:
+      status: failed
+      issues:
+      - 'p1024-d512-c64-n64-decode/output_throughput: primary improvement below threshold'
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-decode-comparison-result.json
+      sha256: ab64011344680a15b2928af8c72ae692124c394d3439f65c4411402a980e0749
+      metrics:
+        output_throughput:
+          baseline: 937.5673861876342
+          candidate: 950.6011558122502
+          revert: 938.6878424504529
+          relative_improvement: 0.013901688365691124
+          baseline_revert_drift: 0.0011950674472314515
+          round_values:
+            baseline:
+            - 938.0448939964307
+            - 937.1197533224112
+            - 937.5673861876342
+            candidate:
+            - 948.7949075057899
+            - 950.6011558122502
+            - 950.9919955057761
+            revert:
+            - 938.6878424504529
+            - 946.7503251621636
+            - 936.7184412976266
+        total_token_throughput:
+          baseline: 2812.7021585629027
+          candidate: 2851.8034674367505
+          revert: 2816.0635273513585
+          relative_improvement: 0.01390168836569096
+          baseline_revert_drift: 0.0011950674472313303
+          round_values:
+            baseline:
+            - 2814.134681989292
+            - 2811.359259967234
+            - 2812.7021585629027
+            candidate:
+            - 2846.3847225173695
+            - 2851.8034674367505
+            - 2852.9759865173282
+            revert:
+            - 2816.0635273513585
+            - 2840.2509754864905
+            - 2810.1553238928796
+        mean_ttft_ms:
+          baseline: 6918.700461901608
+          candidate: 6887.909796671011
+          revert: 6880.163396825083
+          relative_improvement: 0.004450353848984892
+          baseline_revert_drift: 0.005569986052833598
+          round_values:
+            baseline:
+            - 6927.497258904623
+            - 6918.700461901608
+            - 6915.340859006392
+            candidate:
+            - 6889.9963459407445
+            - 6885.391376330517
+            - 6887.909796671011
+            revert:
+            - 6879.735667273053
+            - 6880.163396825083
+            - 6886.569152251468
+        p99_ttft_ms:
+          baseline: 12085.81043748185
+          candidate: 12032.643056781963
+          revert: 12021.579588856548
+          relative_improvement: 0.0043991572575885615
+          baseline_revert_drift: 0.005314566942577761
+          round_values:
+            baseline:
+            - 12097.803162429482
+            - 12084.287348501384
+            - 12085.81043748185
+            candidate:
+            - 12036.380654750392
+            - 12029.824800211936
+            - 12032.643056781963
+            revert:
+            - 12018.158104214817
+            - 12021.579588856548
+            - 12031.640181578696
+        p99_e2el_ms:
+          baseline: 34936.37887004763
+          candidate: 34455.35432063043
+          revert: 34891.61368580535
+          relative_improvement: 0.013768586355399286
+          baseline_revert_drift: 0.0012813344052854127
+          round_values:
+            baseline:
+            - 34919.79912767187
+            - 34951.9539664872
+            - 34936.37887004763
+            candidate:
+            - 34520.068409247324
+            - 34455.35432063043
+            - 34440.133321620524
+            revert:
+            - 34891.61368580535
+            - 34596.78811471909
+            - 34966.34101213887
+        mean_tpot_ms:
+          baseline: 54.61996831342718
+          candidate: 53.7396232176521
+          revert: 54.606841616421384
+          relative_improvement: 0.016117642008200553
+          baseline_revert_drift: 0.00024032780338629613
+          round_values:
+            baseline:
+            - 54.56296008176725
+            - 54.65031829216097
+            - 54.61996831342718
+            candidate:
+            - 53.85727474939601
+            - 53.7396232176521
+            - 53.7075231612342
+            revert:
+            - 54.606841616421384
+            - 54.03348681913464
+            - 54.73689004008151
+        p99_tpot_ms:
+          baseline: 65.47923310738194
+          candidate: 64.5374299477013
+          revert: 65.3909168208889
+          relative_improvement: 0.014383234423899651
+          baseline_revert_drift: 0.0013487678810808073
+          round_values:
+            baseline:
+            - 65.42471749627863
+            - 65.51191558432629
+            - 65.47923310738194
+            candidate:
+            - 64.66012653227668
+            - 64.5374299477013
+            - 64.50700345483777
+            revert:
+            - 65.3909168208889
+            - 64.83498874300845
+            - 65.53225909254044
+        p99_itl_ms:
+          baseline: 48.16463249735534
+          candidate: 47.07539469935001
+          revert: 48.39165229350343
+          relative_improvement: 0.022614888592062735
+          baseline_revert_drift: 0.00471341281718593
+          round_values:
+            baseline:
+            - 48.16463249735534
+            - 47.67084673047066
+            - 48.53125418536365
+            candidate:
+            - 47.07539469935001
+            - 47.01545028947294
+            - 47.13336721993983
+            revert:
+            - 48.05143181234599
+            - 48.39165229350343
+            - 49.005558425560594
+      native_status: failed
+      max_measured_spread: *id003
+      max_baseline_revert_drift: *id004
+    mixed:
+      status: failed
+      issues:
+      - 'p1024-d256-c64-n128-mixed/output_throughput: primary improvement below threshold'
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/op002r2-mixed-comparison-result.json
+      sha256: a69dbaad7bb3c866c245d03984d864bf8ae643a367cb2b0597bbdf34c17154fe
+      metrics:
+        output_throughput:
+          baseline: 696.3424253005743
+          candidate: 705.6151797239713
+          revert: 698.1784304232615
+          relative_improvement: 0.013316371495524596
+          baseline_revert_drift: 0.0026366411925780493
+          round_values:
+            baseline:
+            - 696.3424253005743
+            - 697.8347482052799
+            - 695.671691009225
+            candidate:
+            - 705.5690241950309
+            - 705.6151797239713
+            - 705.8818262380945
+            revert:
+            - 698.1784304232615
+            - 659.458340555772
+            - 698.8344221221852
+        total_token_throughput:
+          baseline: 3481.7121265028713
+          candidate: 3528.0758986198566
+          revert: 3490.8921521163074
+          relative_improvement: 0.013316371495524629
+          baseline_revert_drift: 0.002636641192578082
+          round_values:
+            baseline:
+            - 3481.7121265028713
+            - 3489.173741026399
+            - 3478.358455046125
+            candidate:
+            - 3527.8451209751543
+            - 3528.0758986198566
+            - 3529.409131190472
+            revert:
+            - 3490.8921521163074
+            - 3297.29170277886
+            - 3494.172110610926
+        mean_ttft_ms:
+          baseline: 5873.532319616061
+          candidate: 5801.645787250891
+          revert: 5840.369386183738
+          relative_improvement: 0.012239063046454625
+          baseline_revert_drift: 0.00564616514010946
+          round_values:
+            baseline:
+            - 5873.532319616061
+            - 5832.9294830036815
+            - 5875.157183843839
+            candidate:
+            - 5840.260692406446
+            - 5798.647976342181
+            - 5801.645787250891
+            revert:
+            - 5840.369386183738
+            - 6162.58183842001
+            - 5802.037988061784
+        p99_ttft_ms:
+          baseline: 12082.95007204637
+          candidate: 12017.207762487233
+          revert: 12027.322992244735
+          relative_improvement: 0.005440915435977011
+          baseline_revert_drift: 0.004603766420447763
+          round_values:
+            baseline:
+            - 12082.95007204637
+            - 12076.752203088254
+            - 12085.360023835674
+            candidate:
+            - 12017.207762487233
+            - 12015.612998856232
+            - 12019.700951091945
+            revert:
+            - 12027.322992244735
+            - 12013.09308681637
+            - 12031.66571171023
+        p99_e2el_ms:
+          baseline: 29485.58039151132
+          candidate: 29402.601231196895
+          revert: 29627.584933927283
+          relative_improvement: 0.002814228487709026
+          baseline_revert_drift: 0.004816067397365652
+          round_values:
+            baseline:
+            - 29445.83957767114
+            - 29708.880782257766
+            - 29485.58039151132
+            candidate:
+            - 29109.77534973994
+            - 29418.47947757691
+            - 29402.601231196895
+            revert:
+            - 29361.81213770993
+            - 29798.197346888483
+            - 29627.584933927283
+        mean_tpot_ms:
+          baseline: 68.94082070086334
+          candidate: 68.01743537978517
+          revert: 68.92649991735678
+          relative_improvement: 0.013393883503139211
+          baseline_revert_drift: 0.00020772574740154012
+          round_values:
+            baseline:
+            - 68.93532983798936
+            - 68.94082070086334
+            - 69.01059497659112
+            candidate:
+            - 67.8626401473736
+            - 68.06385647545468
+            - 68.01743537978517
+            revert:
+            - 68.81964804599514
+            - 72.99817367234296
+            - 68.92649991735678
+        p99_tpot_ms:
+          baseline: 88.42175163324997
+          candidate: 87.2298157963829
+          revert: 88.19077921300835
+          relative_improvement: 0.013480120161053908
+          baseline_revert_drift: 0.002612167435900003
+          round_values:
+            baseline:
+            - 88.42175163324997
+            - 88.3218497266153
+            - 88.50742650649273
+            candidate:
+            - 87.19922639188522
+            - 87.30128093998808
+            - 87.2298157963829
+            revert:
+            - 88.19077921300835
+            - 96.27156923039287
+            - 88.13719021894185
+        p99_itl_ms:
+          baseline: 1497.7819808013737
+          candidate: 1481.6987501829863
+          revert: 1485.369608439505
+          relative_improvement: 0.010738031852794946
+          baseline_revert_drift: 0.00828716897450422
+          round_values:
+            baseline:
+            - 1498.972148895264
+            - 1494.7485956083983
+            - 1497.7819808013737
+            candidate:
+            - 1489.3166448455304
+            - 1481.5126479882747
+            - 1481.6987501829863
+            revert:
+            - 1486.2936746515334
+            - 1485.369608439505
+            - 1482.257068362087
+      native_status: failed
+      max_measured_spread: *id005
+      max_baseline_revert_drift: *id006
+  source_restored:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/op002r2-probe-source-restored-launch.json
+    sha256: d29b32d5f567b71d0555c241f4b287d3d10eeb9de3ee8b6dfe4ba2eb5973a2d8
+    service_instance_id: qwen36-addgdn:908003:1792090540.07
+    status: verified-ready
+    source_py_shas:
+      engine_sha256: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+      plugin_sha256: 98f36f070aafa5c7d0d3cc55e00fd4ad245d6b1ddadcbf8a84d327d0933a70c1
+      flaggems_sha256: 3a7e89738b76c483d379b57062f1f0df571641903f692056bbd4aa864e0dd0f7
+      flaggems_vllm_sha256: cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482
+  candidate_kept: false
+  formal_gate: not_run/not_issued; old all21/166 not bound
+planning_review_previous_013:
+  review_id: rev-013-runtime-ABI-correction
+  current_kept_source: original cb45b31d; all20FG unchanged, no new candidate installed
+  retained_new_changes: []
+  cumulative_e2e_gain: unknown; initial3phase baseline complete, candidate E2E not_run
+  correction: Earlier packed micro used proxy FP32bias/I64/contig striding; runtime cache provesBF16bias/I32/QKV8192/state401408.
+    Previous micro remains proxy evidence only, not calibrated current-model effect.
+  next_primary: Actual ABI15case+graph then micro gross-regression<=5% guard; independent new3phase nativeB/C/R
+    for actual model effect; 20%micro target report-only; no further config search
+  scope: OP002 same stable point, new ABI and baseline isolated from old results; original15matrix/padding checks
+    before E2E
+  next_review_trigger: actual-ABI result/any required numeric failure; if insufficient, stop this kernel configuration
+    branch and analyze alternate E2E direction
+  async_scheduling: Current baseline logs confirm enabled; do not propose enabling an already-active mode
+fw002:
+  status: incomplete/model-directory-missing
+  modes:
+    profiling: capture then analyze
+    accuracy: baseline-sanity/minimal-regression
+    performance: targeted/diagnostic after hypothesis choice
+  commands_and_shas:
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-service.py: 469f30a9d9bb515f0c3505ac435c5bb9c4c1ef1b0652be3647613dd8318c17ee
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-controller.py
+    : e0929a3a05efedaebc4c05b03f755575abc4225aef2e542a81ccd23c270f54b9
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-launch.py: 5121aac5b5322d4275282792135bede9644acf55a8cba886dc7550b311f96792
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-c8-config.json
+    : f6e43cb5a67c58b8a69918635803050a44a7793d1e7842e89d2271893da96fad
+  constraints: exact20FG,FP32/.002/.02; inherited/current20 formal notrun; no gate claim
+  source_resource_authorization: Earlier explicit pause18002/GPU2,3 and restore; unchanged service908003/currentsource;
+    current user explicitly continues same case
+  profile_input_receipt:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-input-shas.json
+    sha256: b75d2aed7dcb76ea93e597b5eeae10d69c115147116e0fe531d0087a4063f06b
+    commands:
+      /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-service.py: 469f30a9d9bb515f0c3505ac435c5bb9c4c1ef1b0652be3647613dd8318c17ee
+      ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-controller.py
+      : e0929a3a05efedaebc4c05b03f755575abc4225aef2e542a81ccd23c270f54b9
+      /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-launch.py: 5121aac5b5322d4275282792135bede9644acf55a8cba886dc7550b311f96792
+      ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-c8-config.json
+      : f6e43cb5a67c58b8a69918635803050a44a7793d1e7842e89d2271893da96fad
+  profile_process:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/fw002p-process.json
+    sha256: 07d3c87cf40cda5b2ea18b2529653df63b7b663840db7700cda91e2544249ab2
+    pid: 1760802
+    birth: 1792114485.83
+    start_ticks: 505404483
+  monitor: PAUSED after failed terminal; main awaiting user restored weights/new path
+  analyzer:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-analyze-fullmixed.py
+    sha256: 3f9bac5cd0dcb62f3f440d2a34dac2fcdc37878aed7a11e3830fa67fedb49ffc
+    scope: CPU existing trace launch-correlated phase ranges, union/gap timings; no GPU/model requests
+  skill_bundles:
+    inference-profiling:
+      receipt_sha256: 04b9635d97bb7d44cb56301077a600138cca8fc3b31f40cc20e6c29e742fad08
+      bundle:
+        bundle_sha256: c65d7be2635d0850cf7830113f88b0840c5d5b9b5b02ae30328474a34c0fea46
+    inference-performance-evaluation:
+      receipt_sha256: 4e27796b3c628daa6266a4ecdd356c446e172fe0de25d3fced7ddc11abd145ae
+      bundle:
+        bundle_sha256: 872b65dd0e7a4e8c5b342c37b1c34729f14154d1e68be01ed60938d5b22dc8d1
+    inference-accuracy-evaluation:
+      receipt_sha256: f0d42f77d615206c593d11458a5403e8296b9b0ccff1606b08b4e2df69f2a0d1
+      bundle:
+        bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+  analyzer_v3:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-analyze-fullmixed-v3.py
+    sha256: a8e1feda8c71f34035e7ab893a616197fe011a4303a398bbb1dab32ecf45a6e0
+    change: Use native execute_new_N_cached_M ranges because custom forward/preprocess scopes default0; CPUpreprocess
+      unknown; actual launch-correlated device ranges remain
+    prior_analyzers: v1 uploaded unused; v2 draft unused; no trace results overwritten
+  analyzer_v3_incident: 'Phase classification invalid: CPU execute annotations were mixed with same-named gpu_user_annotation
+    ranges, count1050 instead525, matched<1%kernels; no root-cause interpretation, raw capture valid retained. V4
+    filters CPU user_annotation only.'
+  analyzer_v4:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002p-analyze-fullmixed-v4.py
+    sha256: edb7e6512c4f4feb421aef222c27dfc5e6e372c9cd950771308db17f8148259b
+  analysis:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002p-fullmixed-analysis-v4.json
+    sha256: 701a31a3d200783f37812faf053ba4e7fae9b5d816b29200a3aa50cb3e5c9e54
+    rank_count: 2
+    new_requests_per_rank: 128
+    worker_iterations: 526
+    active_iterations: 524
+    prefill_iterations: 19
+    decode_iterations: 505
+    correlated_kernel_fraction: 0.9969793874901103
+    pure_decode_inter_forward_uncovered_median_us:
+    - 107.0083
+    - 101.6318
+    prefill_device_median_ms: 1504.94
+    interpretation: Prefill GPU work causes long insertion stalls; CPU inter-iteration gap small. Repeated GPUtolist
+      on int8 seq_lens inside16nativeattention layers serializes launches; duration includes priorGPU compute, not
+      all removable.
+  candidate:
+    layer: framework
+    file: /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py
+    mechanism: Per-build authoritativeGPU KV length snapshot and int32prefix once; no kernel/dtype/math/FG registration
+      changes; per-step metadata lifecycle, no global cache
+    file_shas:
+      flash_attn.original.py: 9a1e87cb97b9ec3283351e3e75d8a25f81c9800fc140661e094eb0da7c2c2bae
+      flash_attn.candidate.py: c4d25e9fbe5594f8a49c28d00378d2a98841c323199e600d7c5b3de2fbf24f57
+      candidate.patch: 16063115e13b63b96a0d6acca0973070e6e970263900b07a7dcdb5cec1d57e37
+    fallback: Externally constructed metadata with None fields computes original same prefix; decode/cascade/DCP
+      skip new build work
+    risk: extra one GPUtolist sync in metadata builder; compile/graph and lifecycle tests required; no guaranteed
+      netgain
+  unused_drafts: Budget configuration E2E templates prepared locally before analysis but not selected, never uploaded/executed
+  e2e_commands_and_shas:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-source-service.py
+    : 4663dd2d6f481f8b14fc999f34ef11b7f926b16c7a6d053f5b005d7da1bda886
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-model-service.py
+    : e0ec11368472973bbac98e612c0a3610fe1758e588c2d420ae80d928ae1a90f9
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-controller.py
+    : bd042c4c493a2aebb5a61811e1ddc867d913e0adce8c06dd66f186e5759a1313
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-launch.py: cf584bf1c801b6d2ac67ba1c9f34fa322369e5b0ee2063c2aea23bf3d08ebfc5
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-numerical-launch.py
+    : 9b81c5d648b6118ab24929fbc1a6ba62d74da597eec4b17ee58f3439753c61b1
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-numerical.py: de755b3344302c6e95a2c45d65d3f4493b43901b50431cecc4a7c626240263fa
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-prefill-plan.json
+    : 60302fb08cf63837f88a3dd2a139daed65e46a97abd825a5054edeb6710a8949
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-prefill-comparison.json
+    : 91685a4335355849d0590ab5395443b754c01333626e4c03f1f814503be4f455
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-decode-plan.json
+    : 48d98d29593e59e52a156177f41ee46deb1528078739e55a8920fabfe9e13578
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-decode-comparison.json
+    : d1c7a0503428257addcb7947470fe8d38f55edd0e4c2e8d203e97b338a90eac9
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-mixed-plan.json
+    : 26ef74a0c790c171eb1ef920f4a8326c6f2667b30c368afab523cfde19f1fce4
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-mixed-comparison.json
+    : a88b1dde533dcc796e04891ddddb4c7ba628061ca2c882941351c4291acebce1
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-baseline-c8-config.json
+    : ad8d336801a834c27a83a2d4e32d31d242afc2fc042afaa9c23f3492055b675e
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-candidate-c8-config.json
+    : f0d24ba70ce91c0589242ba9694a7795d9431e6925366fbf60327ac4e350df86
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-revert-c8-config.json
+    : 28a0479cdc5d61147e93799ef3fb42f4a12657bacedebd7d93daf2dfe56d0a41
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/fw002/flash_attn.original.py
+    : 9a1e87cb97b9ec3283351e3e75d8a25f81c9800fc140661e094eb0da7c2c2bae
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/fw002/flash_attn.candidate.py
+    : c4d25e9fbe5594f8a49c28d00378d2a98841c323199e600d7c5b3de2fbf24f57
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/fw002/candidate.patch
+    : 16063115e13b63b96a0d6acca0973070e6e970263900b07a7dcdb5cec1d57e37
+  e2e_contract:
+    mode: targeted/diagnostic
+    primary: Mixed output>=2%
+    sentinels: Prefill/Decode primary0% reported natively, only sole below0 primary issue may be ignored globally;
+      all guards5%/spread10%/drift1% mandatory
+    variable_paths:
+    - /plugin_sha256
+    code_scope: oneMetaX vendorattention file only, prefix hoist before layer loop; no added/removedFG or kernel
+      change
+    numeric_scope: 14prefix cases/reusedsameGPUbuffer freshness/5nativeBF16pagedFA outputs under.002/.02; 2rank2changedwavegraphP>128+C8;
+      trace per-attention integer copies candidate0 vsbaseline>0
+    promotion: No new formal gate; keep candidate patch only ifdiagnosticeligible, restore originals at end
+  e2e_input_receipt:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002e-input-shas.json
+    sha256: 1a150f2dce49801b7e48e48fe99008c1a2b1d8d93655ec4dc3356b49f46de719
+    count: 32
+    master_sha256: bd042c4c493a2aebb5a61811e1ddc867d913e0adce8c06dd66f186e5759a1313
+    launcher_sha256: cf584bf1c801b6d2ac67ba1c9f34fa322369e5b0ee2063c2aea23bf3d08ebfc5
+  e2e_process:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/fw002e-process.json
+    sha256: 63f843189226dab30b47c3ec5115cb5dc875dfefe235ec1bf7ca80d42e256fce
+    pid: 1820698
+    start_ticks: 505605635
+    birth: 1792116497.35
+  e2e_v1_incident:
+    status: control-failed-before-model-launch
+    reason: modelhelper requested fw002e-probe-source-process.json but producer wrote fw002e-source-process.json
+    numerical_status: passed14prefix+5nativeBF16FA/bitwise/ref .002/.02
+    numerical_sha256: bcaec2ef2f6658ecab67a9a4b4b4d98b1f58e14db028612295b0f8decd1c7f04
+    candidate_installed: false
+    benchmark_requests: 0
+    recovery: controller reverts (no-op) and restoresS; waitterminal before r2
+    r2_scope: Only fix control path/new unique IDs, reuse numeric proof; same code/plan/threshold, no remeasurement
+      of completed rounds
+    source_restored: verifiedready, no restorationfailure; originalsource unchanged
+  r2_commands_and_shas:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-source-service.py
+    : 4db6272fb22eb6c2029da45fe9a28ab7f41ad32abb8b84c6a390d0cb6a8121b5
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-model-service.py
+    : 77241bf00ec6d0e8e4fad360316a0265d6e0eeb5c698a2989432eba399345735
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-controller.py
+    : 076e3a324e341010aeeca2bf768a54ab26afb9dbec93684b459b7d2da6df6403
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-launch.py: 86c4d2593549750bbe60b2ed284fe49f8cf18dc3065eb02e1ceb1e2c3abde0b7
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-prefill-plan.json
+    : 60302fb08cf63837f88a3dd2a139daed65e46a97abd825a5054edeb6710a8949
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-prefill-comparison.json
+    : 91685a4335355849d0590ab5395443b754c01333626e4c03f1f814503be4f455
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-decode-plan.json
+    : 48d98d29593e59e52a156177f41ee46deb1528078739e55a8920fabfe9e13578
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-decode-comparison.json
+    : d1c7a0503428257addcb7947470fe8d38f55edd0e4c2e8d203e97b338a90eac9
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-mixed-plan.json
+    : 26ef74a0c790c171eb1ef920f4a8326c6f2667b30c368afab523cfde19f1fce4
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-mixed-comparison.json
+    : a88b1dde533dcc796e04891ddddb4c7ba628061ca2c882941351c4291acebce1
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-baseline-c8-config.json
+    : 0627b7d6076d39fb86d80687aac2007d0d7a033c3a33dc9046f4f2870bb95b61
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-candidate-c8-config.json
+    : 9bdebc3f466c402987369b1b328d68c08f85e822d75b7820b8cbf1c3ba88b860
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-revert-c8-config.json
+    : cd871f9c828597d7dc0ef4d95120771d326ec140ece5353086a4d236ae6ef1e7
+  r2_input_receipt:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-input-shas.json
+    sha256: c1c96c07a0b0069265967fb28743c9beba3178a304bdd10843eb8b9fc9ab0a21
+    count: 31
+    prior_terminal_sha256: 18209e5a303e90ce182ce0d9b36c6c04b86f05d8d51ca1de1ec6e9dd09a30b4e
+  r2_process:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/fw002r2-process.json
+    sha256: 9456e5e5afdd3aaafa1087a4f6b9af8338164e1fc674e8db6665c181636294b5
+    pid: 1834650
+    start_ticks: 505646033
+    birth: 1792116901.33
+  numerical_result:
+    status: passed
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002e-numerical.json
+    sha256: bcaec2ef2f6658ecab67a9a4b4b4d98b1f58e14db028612295b0f8decd1c7f04
+    prefix_cases: 14
+    native_attention_cases: 5
+    attention_max_abs: 0.0
+    attention_bitwise_equal: true
+    buffer_reuse_snapshot: passed
+    scope: same kernel/mathematics and integer prefixes; whole-modelgraph/C8 and throughput stillrequired
+  external_blocker:
+    kind: model-path-disappeared-after-source-check-before-baseline-load
+    host_and_S_and_C_missing: /public-flash/models/Qwen3.6-27B
+    numeric_pass: true
+    candidate_installed: false
+    benchmark_rounds: 0
+    original_service_restoration: blocked; source paused under authorization, cannot reload missingweights
+    stop_owned_controller_command: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r2-stop-blocked-controller.py
+    command_sha256: dea88b31e80bc561dc0fb98a27af30420f46ac52132d8685ef981a6f56415034
+    requires_user: original path restored or new path supplied and original25 weights/tokenizer SHA reverified
+    cleanup: SIGINT exacthostcontroller1834650/startticks505646033 only; failed model209190 alreadyzombie/no liveCworkers.
+      CandidatefileC original9a; no perf requests/measurements, no otherGPU/process signal.
+  external_blocker_receipt:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r2-model-path-blocker.json
+    sha256: 33f34bb93c044fe7517316acc1c6accc041bc964dbb86846a6cc62a009f5af56
+    status: incomplete/external-model-directory-missing
+    missing_path: /public-flash/models/Qwen3.6-27B
+    controller_receipt:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/manifests/fw002r2-process.json
+      sha256: 9456e5e5afdd3aaafa1087a4f6b9af8338164e1fc674e8db6665c181636294b5
+    signal: SIGINT exact ownedcontroller only
+    stopped_reason: baseline already exited because model directory disappeared in Host and bothcontainers; no perf
+      rounds/candidate install
+    baseline_observed:
+      baseline_pid: 209190
+      birth: 1792116961.58
+      status: zombie
+      active_model_workers: 0
+      candidate_installed: false
+      model_path_missing: true
+    controller_terminal:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r2-terminal.json
+      sha256: 2c9fa01ebef894967da3f34e047e063e6ded201b8d2148a17b947a21f92fea84
+      status: failed/restoration-needs-inspection
+      failure: 'KeyboardInterrupt: '
+      restoration_failure: 'AssertionError: (''model-stop-baseline-3'', 1)'
+    original_service_restoration: cannot restore until original model directory is available and original25 artifact
+      SHAs match; no substitute path/weights chosen
+    next: await user restored original path or supplied verified new path; no automatic retry or extra benchmark
+    protected: No source8002/otherGPU/shared/vLLM/weights change or otherprocess signal
+  e2e_result:
+    prefill: not_run
+    decode: not_run
+    mixed: not_run
+    candidate_graph: not_run
+    candidate_C8: not_run
+    reason: baseline exited before loading config because original model directory no longer exists
+    numeric_speedup_claim_allowed: false
+  original_service_current: 18002 stopped under userauthorized resource isolation, cannot reload missing /public-flash/models/Qwen3.6-27B;
+    must recover after artifact check
+  kept_new_changes: []
+  formal_gate: not_run/not_issued
+  knowledge_delta:
+    before: Mixed P99ITL~1.49s unknown; old64iterationtrace omittedlatecohort, host wait durations alone not cause
+    confirmed: Full128newrequest workerCPU+GPU correlation shows laterprefill iterations~1.5s GPUspan and tiny interstep
+      uncoveredgap; actual MetaX attention repeats intseqGPUtolist perlayer
+    numeric_only: Per-step cachedprefix yields exactly same14 integer cases and5BF16 nativeFA outputs, not full
+      model/e2e evidence
+    unknown: Actual throughput/latency benefit, candidate modelgraph/C8 and othermodel paths not executed because
+      weightpath disappeared
+    future_action: Check external modelpath and artifacts just before loading, detect exited API during readiness
+      instead of waiting fullbudget, cleanup must tolerate exact already-exited ownedAPI without skipping original-service
+      restoration; next boundedcontrol revision when resuming
+    evidence_level: reproduced/trace+numerical-scope; E2E incomplete
+model_redownload:
+  root: /public-flash/jinghao/qwen3.6-27B/Qwen3.6-27B
+  old_root_missing: /public-flash/models/Qwen3.6-27B
+  original25_sha_equal: true
+  verification: results/fw002-redownload-verification.json
+  verification_sha256: 04ab4ce7c50bcdda8191a792ee030a6288f09a6e66b81c0e39e71f5667296cce
+  source_restore_pid: 931048
+  source_restore_birth: 1792118419.96
+  source_restore_status: Original restoredready aftercycle, 938713/1792120565.55; source model usesverifiednewpath
+  user_script_unchanged: false
+  new_BCR_all_roles_same_model_path: true
+  source_after_cycle: sameoriginal20FG/8192/graph64 with newverifiedmodelpath
+  user_script_path_update:
+    authorization: User explicit 2026-10-16
+    only_change: model path
+    script_sha256: ce05fbfeceee26a65debdc41867ce48332a42ff30b035e2290e7520565b2ff21
+    receipt: results/fw002-start-model-path-update.json
+    receipt_sha256: 99001f91baab47a3f91a8f348fdb89940f36c21f5fadf22c43bd742b5ac313e0
+    backup: commands/fw002-start-model-flagos-before-path.sh
+    bash_n: passed
+    no_restart: true
+fw002r3:
+  host_pid: 1851417
+  start_ticks: 505818463
+  birth: 1792118625.63
+  process_receipt: manifests/fw002r3-process.json
+  process_sha256: 7b25cb375191b9c3a90ee419e91e055b9e24ab50fe26eb14ea35e3a9bce43afb
+  worker_sha256: 964fc8bb560761ef779bf4dae90f3ba0457b5ce4858988ead4d94dc0ad003cc1
+  input_shas_sha256: 5d46fec5d743ab67681c83f97db681cc4844359c2e049e06998253b554981da9
+  monitor: PAUSED/terminal
+  stage: terminal
+  scope: targeted/diagnostic, not formal acceptance
+  baseline_instance: qwen36-fg20-e2e:209762:1792118686.11
+  baseline_runtime_sha256: d6724c3fbb67831ca9f671835b7e7edf746175e1cf433335dfa1eb09dd115e8f
+  baseline_service_sha256: 39fd805665628521f6568ef237653bb0c740b1626425a8a7ce1631944fb86241
+  baseline_graph:
+    rank0_replays: 31
+    rank1_replays: 31
+    integer_copies_each_rank: 224
+    native_attention_calls_each_rank: 112
+    preciseWY_each_rank: 336
+    packed_block_threads: 64
+    all20_FG: true
+  baseline_prefill:
+    run_record_sha256: 9aa71d9ff87e811be94ff430eabd41eecf2eb361917a33530334380b15963167
+    status: complete
+    measured_rounds: 3
+    median_total_token_throughput: 5641.7055907609365
+    failures: 0
+  baseline_decode:
+    run_record_sha256: 06268ff46ead798f858accfe6a63e50d5ec76ead4f7c218650cf6cf75290a9f1
+    status: complete
+    measured_rounds: 3
+    median_output_throughput: 940.14382917635
+    failures: 0
+  baseline_mixed:
+    run_record_sha256: ca6b10a4545700cb238e3667f998b2bae0e4c490add75eb02a95f0ee958e7689
+    native_status: failed
+    reason: did not stabilize within fixed warmup budget
+    warmup_rounds: 8
+    measured_rounds: 0
+    last3_output_throughput:
+    - 697.613441337098
+    - 699.048265286027
+    - 623.6846692438246
+    relative_spread: 0.10803059628231203
+    max_relative_spread: 0.1
+    all8_requests_per_round: 128
+    all8_failed_requests: 0
+  candidate_installed: false
+  e2e_gain: unknown/not measured
+  readonly_artifact_audit:
+    prefill_refs: 26
+    decode_refs: 26
+    mixed_refs: 24
+    sha_mismatches: 0
+    inputs_verified_before_and_after: true
+  source_restoring_instance: qwen36-addgdn:938713:1792120565.55
+  restored_source_code_verified: true
+  private_code_original_verified: true
+  private_live_model_workers: 0
+  status: completed/incomplete/baseline-admission-or-measurement
+  terminal: results/fw002r3-terminal.json
+  terminal_sha256: d6e2b370cbee4b33e1d1e6180fc00a9cc67bae17d299b4d4c3fa9b0e58387849
+  restoration_failure: null
+  source_restored_instance: qwen36-addgdn:938713:1792120565.55
+  source_restore_manifest: manifests/fw002r3-source-restored-launch.json
+  source_restore_manifest_sha256: 5d47f6c0b8042be589507bdbbd3ad41f1a45537a2f030d56565b905f0c1906fb
+  source_ready_verified: 2026-10-16T03:19:40Z /v1/models
+  source_graph_capture_completed: true
+  source_graph_replays_after_restore: not probed; monitor strictly readonly; no accuracy gate/rebind claimed
+  candidate_model_graph_C8: not_run/candidate not installed
+  candidate_prefill_decode_mixed: not_run
+  revert_prefill_decode_mixed: not_run
+  comparisons: not_run/no candidate measurements
+  baseline_total_rounds: 26
+  baseline_total_benchmark_requests: 2752
+  baseline_request_failures: 0
+  baseline_revert_drift: unknown/revert not measured
+fw002_next_scope:
+  required_first: Investigate originalbaseline Mixed variance before treating metadata candidate as performance-tested
+  not_proven:
+  - variance cause
+  - candidate E2E gain
+  - candidate latency deltas
+  - baseline/revert drift
+  - formal198 accuracy/current20
+  - full4scene acceptance
+  frozen_failure_preserved: true
+  no_auto_tests: true
+fw002d1:
+  status: completed/capture-and-analysis/root-confirmed
+  skill_mode: profiling/analyze then capture if needed; performance targeted/diagnostic after fix
+  source_instance: qwen36-addgdn:938713:1792120565.55 reverified
+  command: commands/fw002d1-analyze-existing.py
+  command_sha256: c28ecc856a480a034a6583b59bc185598cc5e62f1f2c286f35182c561e6ce1b9
+  constraints: 20FG unchanged, .002/.02, fixed10%admission; preserve all oldfailedrounds; vLLM readonly
+  existing_analysis_sha256: 6bb8b40cb5d9a99995c1d65c750ec1e83cd5932c4cef8fb364686368af839895
+  workload:
+    P: 1024
+    D: 256
+    C: 64
+    N: 128
+    runs: 6
+    warmup: 2
+    profile_rounds: 4
+    temperature: 0
+    ignore_eos: true
+    seed: 42
+    timeout_each: 600
+    profile_max_iterations: 0
+    rank_coverage:
+    - rank0
+    - rank1
+    custom_cpu_scopes: true
+  commands:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002d1-controller.py
+    : f7b1ceb5a09a555357a4008583077b26d04bebf624c19fe5b7845b1973c6b119
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002d1-source-service.py
+    : 2f17645178e04e90583108d89abb36ead68efe25ab95f107ab3ff3aa88f1b57a
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002d1-model-service.py
+    : 4dd49307cedb2782f8f0648186822d9688df36abf0bb2855f766226ec5f1411b
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002d1-launch.py: 8a304571e2d4046e6ed5d69f01a0ebe891eda941b44b83acdabe657f72f69dad
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002d1-baseline-c8-config.json
+    : dbdae3fc757699df85179a2cde8c78ad2de429d06eea968c20c90ccfb18e821b
+  scope: capture-only no speedup/performance acceptance; numericFP32 unchanged; final restoreoriginal18002
+  host_pid: 1913763
+  birth: 1792121565.61
+  start_ticks: 506112461
+  receipt_sha256: c7aceced553783e04bc6f9f780f02eb93634289799b51b37cfeb34cf7be114c4
+  controller_sha256: f7b1ceb5a09a555357a4008583077b26d04bebf624c19fe5b7845b1973c6b119
+  input_shas_sha256: 1e015c55b8aed5b7f30ea3211c19b15ab4ddd3644a835bdfbcd104b8fb7e73dd
+  monitor: ACTIVE/read-only/30min/terminal-pause
+  terminal_sha256: 9167b768f4effd82eef3021590d71b9bfb4f8354fdb2b52d11ae83948872a939
+  diagnostic_sha256: e1248f44aa5b50478d47eb8f367cac8f826a84cc136d691771a60e9353720b2f
+  full_analysis_sha256: c1cd795bf5f2b18bac1226f9f1f1726343387dbabed69941d15ae98a9174984e
+  profile_rounds: 4
+  ranks_per_round: 2
+  minimum_kernel_correlation: 0.9969795428753889
+  slow_profile_round: 4
+  slow_prefills_each_rank: 4
+  source_restored_instance: qwen36-addgdn:946383:1792123272.69
+  source_ready: true
+op003:
+  scope: private optimization FlagGems MetaX full only, not sourceS
+  original_file_sha256: a0979cd73ef42a22aaf433795dbefd3ae7caa257352468461ef442c1b9320218
+  candidate_file_sha256: 410fadafb8007cd530b4e702b78bf23ebe5c3352c7a40fdd892465f6e887d4fb
+  patch_sha256: c336b00bfa31c4c0d88ed6bc0f59b16207636dd4c4fb8ed4d9f8db29f3026824
+  root_evidence: fw002d1 profile4 rank0+rank1, 4new sizes2112/2114/2128/2140 int32 fill-1; full1.45-1.55s, preprocess1.51-1.57s,
+    forward1.50-1.52s; 6000+cacheflush andthousandsfull trials
+  numerical_plan: 187integer cases bitwise CPUtorch.full,7unchanged dtype fallback cases,implicit dtype and6overflow
+    attempts;8graphs x2changedoutreplays
+  micro_plan: six unseen int32 sizes;>=95%firstNcostreduction, cachedfullcall max5%regression over4shapes/5interleaved
+    B/C/R groups; not E2Egain
+  pr_readiness: experimental
+  full_model_gate: newcurrentFG graph/C8 and baseline10%stability required; oldmetadata14+5 rerun underFGnew beforec4
+    testing
+  projected_full_FG_sha256: a5184db58462235cef8dd9e6808413b1c5854a0bc87df86806a58780c3ff6fe3
+  status: numeric-graph-micro-passed/common-full-model-Mixedsteady-passed; archived/reverted
+  numerical_micro_receipt: results/op003-full-numerical-micro.json
+  numerical_micro_sha256: 4dd1b675e367b588062c502cb8132a228ec48347d6a5ba18bb69e62c91471e1d
+  numeric_case_count: 194
+  integer_bitwise_cases: 187
+  graph_count: 8
+  changed_output_replays: 16
+  newN_baseline_seconds_range:
+  - 1.3914369605481625
+  - 1.4033154537901282
+  newN_candidate_seconds_range:
+  - 0.00011012796312570572
+  - 0.00016740523278713226
+  min_newN_reduction: 0.9998801012281551
+  min_cachehit_fullcall_improvement: 0.22085416411044034
+  max_cachehit_fullcall_improvement: 0.23252225837342166
+  micro_baseline_revert_drift_range:
+  - -0.0030385915059751856
+  - 0.013112197451369267
+  micro_boundary: directFGfull function incl allocation/launch/finalsync amortized, no E2Epercentage claim; micro
+    B/R drift not native model1%gate
+  installed: not installed aftercycle; originalfull restored inS+C
+  model_integration: AllBCR fullfixrealhit+graph+C8 passed; baselineMixed0.3011%warm/0.1794%measured, nativefinalMixed
+    candidateincrementfailedandDecodeincomplete; nofullE2Espeedupclaim
+  retained: false
+  reason: Common prerequisite proved observedfullautotune fixed, not isolated same-contractfull old/newE2E; finalcycle
+    requires originalrestoration.
+fw002r4:
+  status: completed/incomplete/reverted-and-original-source-restored
+  planned_sequence: exactpause originalS -> standalonefullnumeric/graphs/micro -> privateFGfullapply -> rerunmetadata14+5
+    -> fresh3phaseB/C/R with commonfullfix and onlyPluginmetadata variable -> restorePlugin/fulloriginalC and sourceS
+  commands:
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-controller.py
+    : fb004c19b6b894f4a3bcfc34e4b8f67bfe35d7a9c27cd9bc2caff855f5487cb3
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-launch.py: 930f8044620f42c1f6fb34e5f236b334806a305e99b01143a0dad4dfce8e8f00
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-source-service.py
+    : ed0ac21ed6d22c42b1900f51f47dc137ec4560afba3d1dfb7273036e344f995b
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-model-service.py
+    : a90f1669d98a26646ecb568386a42e893e08295430479488de6dfed80c189ddc
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-launch-probe.py
+    : f97839efdad0991b2a9ba6e82e20c43e493e27e2f16dde4c885c8b8f4aa96c85
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-cancel-probe.py
+    : 2e11eba2f0eb58f395e223f7ae4d078cdf20afbb60cd7e7c65f4836fbe478b9e
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-apply-full.py
+    : f74eb687aa8c4d767b4419101dc1322fd4d1b721b165f1b0c6c04b9e48f898c6
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-meta-numerical.py
+    : 2f7008ff087a5377ff532e840c6e08698643e2ab791189772a889c54c64b461c
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-baseline-c8-config.json
+    : 325e6f864b040b6280ccebd77539e7ad0a83a44aee2a3c59ebd28cd8b86460bc
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-candidate-c8-config.json
+    : 9f4e1c2d4f010b704dc92bccaee89782d4c488fbb8425024d8cdb613cba94043
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-revert-c8-config.json
+    : d91d8261c657f88fb31a5c9c49ba5a6946deafbdbac599b4be41303600461251
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-prefill-plan.json
+    : 4375ddfcc3619b618a017fc5ffdeca96325ceeaba2b23076f544dfb8bac232fe
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-prefill-comparison.json
+    : 9cd1196b2e1b74e539fa0210311e2d9901416fe6cf01d1b75c508b9f63fc8481
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-decode-plan.json
+    : df42552abeecd4904665de303c8f3604d4d65ae0033caf437d58423213bb9088
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-decode-comparison.json
+    : 324994c9c36fbfd6512cdadc732f93b6dfceb844cadab50e9b6032e24fd16a39
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-mixed-plan.json
+    : e6e50f2bd1f98f758d7ae8d4f98939e5cdfd4ab8a19709c7b8aab8f0b6ca27f8
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-mixed-comparison.json
+    : c5879725b1cee03ee079f0cbb93c03170a7c66218672bbcf2a1f5319fcca5f85
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-controller-v2.py
+    : 7b8187149d1d9b8afcd66b4483a3962068a489d2032d0d64a71729fec5704218
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-launch-v2.py
+    : 17f33da8be692aff8862214920431f817660c31295801fa360f093310b14e0ad
+    /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/op003-full-probe.py: 3053c4f79f615fa7cdb9b61ad3e35958ab609f2cd81c023703cb5379578ee6af
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op003/full.original.py
+    : a0979cd73ef42a22aaf433795dbefd3ae7caa257352468461ef442c1b9320218
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op003/full.candidate.py
+    : 410fadafb8007cd530b4e702b78bf23ebe5c3352c7a40fdd892465f6e887d4fb
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/op003/candidate.patch
+    : c336b00bfa31c4c0d88ed6bc0f59b16207636dd4c4fb8ed4d9f8db29f3026824
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/fw002/flash_attn.original.py
+    : 9a1e87cb97b9ec3283351e3e75d8a25f81c9800fc140661e094eb0da7c2c2bae
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/patches/fw002/flash_attn.candidate.py
+    : c4d25e9fbe5594f8a49c28d00378d2a98841c323199e600d7c5b3de2fbf24f57
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002d1-terminal.json
+    : 9167b768f4effd82eef3021590d71b9bfb4f8354fdb2b52d11ae83948872a939
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002d1-full-analysis.json
+    : c1cd795bf5f2b18bac1226f9f1f1726343387dbabed69941d15ae98a9174984e
+    ? /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002-redownload-verification.json
+    : 04ab4ce7c50bcdda8191a792ee030a6288f09a6e66b81c0e39e71f5667296cce
+  no_auto_retry: true
+  gates: full unseenN>=95% and warmfullcallreg<=5%, all numeric exact/graph; baselineMixed last3<=10% beforecandidate,
+    then original2%/5%guard/1%drift
+  accuracy_scope: minimal/diagnostic; no formal198gate
+  controller_variant: v2 final preflight includes standalone GPUprobe/artifact/runner hashes; v1 never launched
+  controller_sha256: 7b8187149d1d9b8afcd66b4483a3962068a489d2032d0d64a71729fec5704218
+  launch_sha256: 17f33da8be692aff8862214920431f817660c31295801fa360f093310b14e0ad
+  host_pid: 1972435
+  birth: 1792124055.5
+  start_ticks: 506361450
+  receipt_sha256: 7478f0673e9079db60269f2e478ceb83bf436813da91597514ffef1da9084b4d
+  worker_sha256: 7b8187149d1d9b8afcd66b4483a3962068a489d2032d0d64a71729fec5704218
+  input_shas_sha256: e68c3bfc6185a2cddd957ab4e32cd878a04d82340637cd37ffc6b8b09f083b67
+  full_probe_status: passed
+  full_probe_process_receipt_sha256: 238bd0ba496d55fb7580602775b445e0a60fa3fd3eb47fcac074b9034f0e91c6
+  metadata_numeric_sha256: 5827be49644185da537dfb1d4c422fc3339c5327c512973318d5b9890dcf0a01
+  metadata_process_receipt_sha256: 1de3b904b11851d05410e78eef35dfee190596932ada397c55dc19e0def9a478
+  metadata_bitwise_FA_all: true
+  metadata_max_error: 0.0
+  baseline_instance: qwen36-fg20-e2e:288787:1792124252.15
+  baseline_graph_replays_each_rank: 32
+  baseline_fixed_full_kernel_each_rank: 36
+  baseline_full_scale_kernel_each_rank: 0
+  baseline_C8: passed/10docs20rows
+  monitor: PAUSED/terminal
+  baseline_completed_records:
+    prefill:
+      status: complete
+      measured_rounds: 3
+      errors: []
+      sha256: 04c473d0faec6d6015e866e44bdf10a7c3a5459c35577b260db213a72c6ee8ee
+      warmup_relative_spread: 0.0008077923129120397
+      raw_validation_sha_checked: true
+      total_token_throughput_median: 5694.152346917177
+      mean_ttft_ms_median: 8992.345636317623
+    decode:
+      status: complete
+      measured_rounds: 3
+      errors: []
+      sha256: a503b94dea35f0d4776d1f66fe3c5081f74d9dc11fcd1050978298101b48fab5
+      warmup_relative_spread: 0.0035076306220998524
+      raw_validation_sha_checked: true
+      output_throughput_median: 940.8559695376481
+      mean_ttft_ms_median: 6848.880204954185
+      mean_tpot_ms_median: 54.51147443281829
+      mean_ttft_relative_spread: 0.1344516039895538
+      caution: meanTTFT measured spread exceeds10%; retain all3 measured rounds, native comparison must decide;
+        no exclusion or threshold relaxation.
+  mixed_status: all3roles complete8warm3measured; nativeMixedfailed gain0.2646%<2%, allroundsretained
+  last_readonly_observation:
+    heartbeat_utc: '2026-10-16T05:43:20.901Z'
+    controller_startticks: 506361450
+    controller_worker_receipt_inputs_sha_match: true
+    progress_sha256: 0e220c8c50f92bb7d65b9e32ade0c7fdc2dfa89681c09c7468ba8eecf478fd06
+    completed_records: 7
+    all_completed_rounds_successful: true
+    all_record_plan_contract_client_raw_validation_shas_match: true
+    candidate_all_three_phases_complete: true
+    revert_prefill_complete: true
+    revert_decode_running: true
+    revert_mixed_started: false
+    terminal_present: false
+    meaningful_change: true
+    conclusion: metadataMixed observed+0.2646% below2%; compare/drift/overall validation pending, baselineDecode
+      meanTTFT spread13.445% over10 retained; fullfix common not attributed this delta.
+    live_revert_verification:
+      instance: qwen36-fg20-e2e:357714:1792128229.67
+      pid: 357714
+      birth: 1792128229.67
+      birth_match: true
+      model_command_matches: true
+      sources:
+        engine_sha256:
+          sha256: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+          matches_runtime: true
+        plugin_sha256:
+          sha256: 98f36f070aafa5c7d0d3cc55e00fd4ad245d6b1ddadcbf8a84d327d0933a70c1
+          matches_runtime: true
+        flaggems_sha256:
+          sha256: a5184db58462235cef8dd9e6808413b1c5854a0bc87df86806a58780c3ff6fe3
+          matches_runtime: true
+        flaggems_vllm_sha256:
+          sha256: cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482
+          matches_runtime: true
+      trace_sha_matches:
+      - true
+      - true
+      environment:
+        CUDA_VISIBLE_DEVICES: 2,3
+        VLLM_FL_FLAGOS_WHITELIST: cat,cos,cumsum,fill,full,gather,gt,le,lt,max,mul,sin,softmax,to,where,zeros,zeros_like,gdn_decode,gdn_packed_decode,gdn_prefill
+        VLLM_FL_FLAGOS_BLACKLIST: null
+        VLLM_FL_USE_FLAGGEMS_ATTN: '1'
+  candidate_instance: qwen36-fg20-e2e:323292:1792126243.32
+  candidate_runtime_sha256: 8ea832bb51b8f31ec5fbb97fb08cf63cff0c0c50e2e8d0185d9b844322c7ab6b
+  candidate_graph_replays_each_rank: 31
+  candidate_fixed_full_kernel_each_rank: 42
+  candidate_full_scale_kernel_each_rank: 0
+  candidate_attention_per_layer_integer_copies_each_rank: 0
+  baseline_mixed_complete: true
+  baseline_mixed_warmup_spread: 0.0030111351056022165
+  baseline_mixed_measured_output_spread: 0.0017937055884350973
+  baseline_mixed_median_output_tps: 700.4086757680984
+  readonly_completed_record_summaries:
+    baseline-prefill:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-baseline-prefill/run-record.json
+      sha256: 04c473d0faec6d6015e866e44bdf10a7c3a5459c35577b260db213a72c6ee8ee
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d1-c64-n128-prefill:
+          status: passed
+          metric: output_throughput
+          values:
+          - 5.56181554900416
+          - 5.564722949470179
+          - 5.566310689426227
+          relative_spread: 0.0008077923129120397
+          max_relative_spread: 0.1
+      measured:
+        mean_ttft_ms:
+          values:
+          - 8981.796030122496
+          - 8992.345636317623
+          - 8996.49774239515
+          median: 8992.345636317623
+          spread: 0.0016349140554915537
+        output_throughput:
+          values:
+          - 5.562392324287404
+          - 5.555270582358221
+          - 5.553731140122086
+          median: 5.555270582358221
+          spread: 0.0015590931237126177
+        p99_e2el_ms:
+          values:
+          - 11719.447532994673
+          - 11721.330155655742
+          - 11736.30843076855
+          median: 11721.330155655742
+          spread: 0.0014384798951969726
+        p99_ttft_ms:
+          values:
+          - 11719.447889383882
+          - 11721.330467099324
+          - 11736.308679515496
+          median: 11721.330467099324
+          spread: 0.001438470673524671
+        total_token_throughput:
+          values:
+          - 5701.452132394589
+          - 5694.152346917177
+          - 5692.574418625139
+          median: 5694.152346917177
+          spread: 0.0015590931237126056
+    baseline-decode:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-baseline-decode/run-record.json
+      sha256: a503b94dea35f0d4776d1f66fe3c5081f74d9dc11fcd1050978298101b48fab5
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d512-c64-n64-decode:
+          status: passed
+          metric: output_throughput
+          values:
+          - 940.0342743214675
+          - 942.4037045388569
+          - 939.1064115324235
+          relative_spread: 0.0035076306220998524
+          max_relative_spread: 0.1
+      measured:
+        mean_tpot_ms:
+          values:
+          - 54.547938386717846
+          - 54.51147443281829
+          - 54.398301544223564
+          median: 54.51147443281829
+          spread: 0.0027450521940788606
+        mean_ttft_ms:
+          values:
+          - 7768.649159756023
+          - 6848.880204954185
+          - 6847.806230667629
+          median: 6848.880204954185
+          spread: 0.1344516039895538
+        output_throughput:
+          values:
+          - 915.9579360107141
+          - 940.8559695376481
+          - 942.4969256604469
+          median: 940.8559695376481
+          spread: 0.028207281995324417
+        p99_e2el_ms:
+          values:
+          - 35760.594484210014
+          - 34812.8250866849
+          - 34752.67929220572
+          median: 34812.8250866849
+          spread: 0.028952410196373218
+        p99_itl_ms:
+          values:
+          - 47.84228022210301
+          - 48.71431723237038
+          - 48.10159238055349
+          median: 48.10159238055349
+          spread: 0.018129067399022675
+        p99_tpot_ms:
+          values:
+          - 68.11821469298971
+          - 65.25284633858752
+          - 65.14847873575226
+          median: 65.25284633858752
+          spread: 0.0455112094548017
+        p99_ttft_ms:
+          values:
+          - 12969.46415505372
+          - 11975.514502311125
+          - 11971.890544742346
+          median: 11975.514502311125
+          spread: 0.08330110661373712
+        total_token_throughput:
+          values:
+          - 2747.8738080321423
+          - 2822.567908612944
+          - 2827.4907769813403
+          median: 2822.567908612944
+          spread: 0.0282072819953243
+    baseline-mixed:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-baseline-mixed/run-record.json
+      sha256: 8f9998dc783255442520c6ef4aa6d8fab64a108f26a2ffcbd85be5cfed21a2d2
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d256-c64-n128-mixed:
+          status: passed
+          metric: output_throughput
+          values:
+          - 701.0486331274155
+          - 700.3596701832829
+          - 702.4706223332273
+          relative_spread: 0.0030111351056022165
+          max_relative_spread: 0.1
+      measured:
+        mean_tpot_ms:
+          values:
+          - 68.69460193188657
+          - 68.51858724240789
+          - 68.63480175322597
+          median: 68.63480175322597
+          spread: 0.0025645107872757002
+        mean_ttft_ms:
+          values:
+          - 5814.191910212685
+          - 5817.483482744137
+          - 5814.046952647914
+          median: 5814.191910212685
+          spread: 0.0005910589380765501
+        output_throughput:
+          values:
+          - 699.9411129546337
+          - 701.1974399105474
+          - 700.4086757680984
+          median: 700.4086757680984
+          spread: 0.0017937055884350973
+        p99_e2el_ms:
+          values:
+          - 29236.37370680459
+          - 29235.004355059937
+          - 29272.346262885258
+          median: 29236.37370680459
+          spread: 0.0012772414321899934
+        p99_itl_ms:
+          values:
+          - 1479.9444919731468
+          - 1481.0089562647045
+          - 1481.4572254754603
+          median: 1481.0089562647045
+          spread: 0.0010214209008761186
+        p99_tpot_ms:
+          values:
+          - 87.86725272420868
+          - 87.77081855989118
+          - 87.90531437917085
+          median: 87.86725272420868
+          spread: 0.0015306705867066265
+        p99_ttft_ms:
+          values:
+          - 11965.63543532975
+          - 11973.639341946691
+          - 11968.853473961353
+          median: 11968.853473961353
+          spread: 0.0006687279307373814
+        total_token_throughput:
+          values:
+          - 3499.705564773168
+          - 3505.9871995527365
+          - 3502.043378840492
+          median: 3502.043378840492
+          spread: 0.0017937055884350973
+    candidate-prefill:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-candidate-prefill/run-record.json
+      sha256: d3c9fe8073bbf6a2528cce813ad8a3e7a6b36f49e8771c71eba4fbdb095524fb
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d1-c64-n128-prefill:
+          status: passed
+          metric: output_throughput
+          values:
+          - 5.588010904368456
+          - 5.588522118859006
+          - 5.590855024905747
+          relative_spread: 0.0005089217644309083
+          max_relative_spread: 0.1
+      measured:
+        mean_ttft_ms:
+          values:
+          - 8934.591959718091
+          - 8951.854710896441
+          - 8936.935192912642
+          median: 8936.935192912642
+          spread: 0.0019316187043675076
+        output_throughput:
+          values:
+          - 5.5888917517750345
+          - 5.580084811684132
+          - 5.587511822945297
+          median: 5.587511822945297
+          spread: 0.0015761828108777844
+        p99_e2el_ms:
+          values:
+          - 11652.618484627455
+          - 11681.670930981636
+          - 11655.595858041197
+          median: 11655.595858041197
+          spread: 0.0024925749578162738
+        p99_ttft_ms:
+          values:
+          - 11652.618729798123
+          - 11681.671076975763
+          - 11655.596098545939
+          median: 11655.596098545939
+          spread: 0.0024925663974632705
+        total_token_throughput:
+          values:
+          - 5728.61404556941
+          - 5719.586931976235
+          - 5727.19961851893
+          median: 5727.19961851893
+          spread: 0.0015761828108777722
+    candidate-decode:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-candidate-decode/run-record.json
+      sha256: 0f263c39a4fb795366f22cddc3ca2b5bcf608cac851d9ad9656917239f43c6c2
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d512-c64-n64-decode:
+          status: passed
+          metric: output_throughput
+          values:
+          - 943.2026714726371
+          - 943.9982864023733
+          - 943.9137945066261
+          relative_spread: 0.0008428893977040018
+          max_relative_spread: 0.1
+      measured:
+        mean_tpot_ms:
+          values:
+          - 54.39751093456847
+          - 54.39680084644123
+          - 54.36074338625427
+          median: 54.39680084644123
+          spread: 0.0006759137990117241
+        mean_ttft_ms:
+          values:
+          - 6820.840470260009
+          - 6824.032902426552
+          - 6820.114861329785
+          median: 6820.840470260009
+          spread: 0.0005744220399011994
+        output_throughput:
+          values:
+          - 943.2032152487568
+          - 943.0685555474631
+          - 943.719232838235
+          median: 943.2032152487568
+          spread: 0.000689859067751696
+        p99_e2el_ms:
+          values:
+          - 34728.951452709734
+          - 34732.66281195916
+          - 34708.265833593905
+          median: 34728.951452709734
+          spread: 0.0007024968317422035
+        p99_itl_ms:
+          values:
+          - 48.03780012764037
+          - 47.410203628242016
+          - 47.79581072740257
+          median: 47.79581072740257
+          spread: 0.013130784682736504
+        p99_tpot_ms:
+          values:
+          - 65.11254812516053
+          - 65.10447528792832
+          - 65.07518497745846
+          median: 65.10447528792832
+          spread: 0.0005738952281978454
+        p99_ttft_ms:
+          values:
+          - 11938.741081273183
+          - 11938.69884306565
+          - 11932.92140272446
+          median: 11938.69884306565
+          spread: 0.0004874633848481488
+        total_token_throughput:
+          values:
+          - 2829.6096457462704
+          - 2829.205666642389
+          - 2831.157698514705
+          median: 2829.6096457462704
+          spread: 0.000689859067751696
+    candidate-mixed:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-candidate-mixed/run-record.json
+      sha256: 35b2cae7c7aad53b33df69a430897ad66bed5c0cf3b238ae753021db035f5d97
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d256-c64-n128-mixed:
+          status: passed
+          metric: output_throughput
+          values:
+          - 702.470692458825
+          - 703.0093387371168
+          - 702.1910950512884
+          relative_spread: 0.0011648082896730488
+          max_relative_spread: 0.1
+      measured:
+        mean_tpot_ms:
+          values:
+          - 68.54745386931339
+          - 68.61384220708929
+          - 68.64777510379689
+          median: 68.61384220708929
+          spread: 0.0014621136385383285
+        mean_ttft_ms:
+          values:
+          - 5795.782616325596
+          - 5757.974299820489
+          - 5759.544066917442
+          median: 5759.544066917442
+          spread: 0.0065644634481183805
+        output_throughput:
+          values:
+          - 701.6133966895208
+          - 702.6102909756972
+          - 702.2617427400169
+          median: 702.2617427400169
+          spread: 0.0014195480481207746
+        p99_e2el_ms:
+          values:
+          - 29177.676433641464
+          - 29459.204616071656
+          - 29490.00681821257
+          median: 29459.204616071656
+          spread: 0.010602132292489371
+        p99_itl_ms:
+          values:
+          - 1480.0054142717272
+          - 1474.7550804540515
+          - 1473.487634016201
+          median: 1474.7550804540515
+          spread: 0.004419567928201063
+        p99_tpot_ms:
+          values:
+          - 87.74252460126347
+          - 87.70257418825494
+          - 87.7667842672444
+          median: 87.74252460126347
+          spread: 0.0007318011338431068
+        p99_ttft_ms:
+          values:
+          - 11924.55029190518
+          - 11927.74108205922
+          - 11926.291523976251
+          median: 11926.291523976251
+          spread: 0.00026754252548876514
+        total_token_throughput:
+          values:
+          - 3508.066983447604
+          - 3513.0514548784863
+          - 3511.3087137000844
+          median: 3511.3087137000844
+          spread: 0.0014195480481207746
+    revert-prefill:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-revert-prefill/run-record.json
+      sha256: 6cb4772f0d89ff654fc61fcf8be73e4ea24cf4435b52c2081f371fe775bfecd2
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d1-c64-n128-prefill:
+          status: passed
+          metric: output_throughput
+          values:
+          - 5.5446310504807235
+          - 5.5439451459809685
+          - 5.540509953423701
+          relative_spread: 0.0007433509799443112
+          max_relative_spread: 0.1
+      measured:
+        mean_ttft_ms:
+          values:
+          - 9014.42383981339
+          - 9003.74917400768
+          - 9003.642215713626
+          median: 9003.74917400768
+          spread: 0.001197459401788793
+        output_throughput:
+          values:
+          - 5.540613365940571
+          - 5.548111195660473
+          - 5.547935849916391
+          median: 5.547935849916391
+          spread: 0.0013514629445499846
+        p99_e2el_ms:
+          values:
+          - 11758.920484799892
+          - 11748.279020953923
+          - 11745.8899836801
+          median: 11748.279020953923
+          spread: 0.0011091412705258022
+        p99_ttft_ms:
+          values:
+          - 11758.920686133206
+          - 11748.279248811305
+          - 11745.890185078606
+          median: 11748.279248811305
+          spread: 0.0011091412434649365
+        total_token_throughput:
+          values:
+          - 5679.128700089085
+          - 5686.813975551985
+          - 5686.634246164301
+          median: 5686.634246164301
+          spread: 0.0013514629445499657
+    revert-decode:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-revert-decode/run-record.json
+      sha256: b13f5d23f0728d76adb66958bc34c43a125973e98cea0a9832a634cb1b6b28fe
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d512-c64-n64-decode:
+          status: passed
+          metric: output_throughput
+          values:
+          - 939.4023402771154
+          - 937.8815914577935
+          - 938.335382977884
+          relative_spread: 0.0016206879191698299
+          max_relative_spread: 0.1
+      measured:
+        mean_tpot_ms:
+          values:
+          - 54.57365211270136
+          - 54.607951638622325
+          - 54.547206794818244
+          median: 54.57365211270136
+          spread: 0.0011130800569959087
+        mean_ttft_ms:
+          values:
+          - 6872.871507963282
+          - 6879.182194170426
+          - 6878.874514281051
+          median: 6878.874514281051
+          spread: 0.000917400978029493
+        output_throughput:
+          values:
+          - 939.4023320754657
+          - 938.7148168015939
+          - 939.5617241166168
+          median: 939.4023320754657
+          spread: 0.000901538442162269
+        p99_e2el_ms:
+          values:
+          - 34867.67194692977
+          - 34890.81967705861
+          - 34860.23484811187
+          median: 34867.67194692977
+          spread: 0.0008771686562065565
+        p99_itl_ms:
+          values:
+          - 47.54314705729485
+          - 47.89575071074069
+          - 47.621324490755796
+          median: 47.621324490755796
+          spread: 0.007404322689812774
+        p99_tpot_ms:
+          values:
+          - 65.37140255609852
+          - 65.4022039179444
+          - 65.34879518882417
+          median: 65.37140255609852
+          spread: 0.0008170044856296709
+        p99_ttft_ms:
+          values:
+          - 12031.771994698793
+          - 12038.041523480788
+          - 12038.488719770685
+          median: 12038.041523480788
+          spread: 0.000557958290706245
+        total_token_throughput:
+          values:
+          - 2818.206996226397
+          - 2816.1444504047818
+          - 2818.6851723498503
+          median: 2818.206996226397
+          spread: 0.0009015384421621883
+    revert-mixed:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-E2E/fw002r4-revert-mixed/run-record.json
+      sha256: 2f832130b068bdcbac2b29c7c2251377cf550fce65b1ee4ef484e48f66d56aed
+      all_artifact_shas_verified: true
+      warmup:
+        p1024-d256-c64-n128-mixed:
+          status: passed
+          metric: output_throughput
+          values:
+          - 699.6257502670693
+          - 697.8097320665498
+          - 697.5938498918887
+          relative_spread: 0.002911825791198382
+          max_relative_spread: 0.1
+      measured:
+        mean_tpot_ms:
+          values:
+          - 68.96097696330352
+          - 68.7788677575893
+          - 68.64219066200722
+          median: 68.7788677575893
+          spread: 0.004634945466387433
+        mean_ttft_ms:
+          values:
+          - 5811.453412738047
+          - 5848.239738617849
+          - 5849.2838683887385
+          median: 5848.239738617849
+          spread: 0.006468690980789475
+        output_throughput:
+          values:
+          - 698.3161648542102
+          - 698.2710991483416
+          - 699.2711633611428
+          median: 698.3161648542102
+          spread: 0.0014321080667093471
+        p99_e2el_ms:
+          values:
+          - 29655.721520548686
+          - 29374.271171009168
+          - 29293.272025268525
+          median: 29374.271171009168
+          spread: 0.012339012368003183
+        p99_itl_ms:
+          values:
+          - 1486.6231451649219
+          - 1491.700637517497
+          - 1494.558071354404
+          median: 1491.700637517497
+          spread: 0.005319382448403049
+        p99_tpot_ms:
+          values:
+          - 88.15635619272352
+          - 88.1600561269066
+          - 87.92243427447245
+          median: 88.15635619272352
+          spread: 0.002695459098997547
+        p99_ttft_ms:
+          values:
+          - 12042.815814586356
+          - 12036.982986070216
+          - 12035.525833088905
+          median: 12036.982986070216
+          spread: 0.0006056319516184401
+        total_token_throughput:
+          values:
+          - 3491.580824271051
+          - 3491.3554957417077
+          - 3496.3558168057143
+          median: 3491.580824271051
+          spread: 0.001432108066709445
+  candidate_mixed_complete: true
+  observed_metadata_increment:
+    prefill:
+      metric: total_token_throughput
+      baseline: 5694.152346917177
+      candidate: 5727.19961851893
+      change: 0.005803721008561524
+      scope: Provisional metadata-only B/C delta under commonOP003full; final nativeBCR pending.
+    decode:
+      metric: output_throughput
+      baseline: 940.8559695376481
+      candidate: 943.2032152487568
+      change: 0.002494798127562703
+      scope: Provisional metadata-only B/C delta under commonOP003full; final nativeBCR pending.
+    mixed:
+      metric: output_throughput
+      baseline: 700.4086757680984
+      candidate: 702.2617427400169
+      change: 0.0026456939156076498
+      scope: Provisional metadata-only B/C delta under commonOP003full; final nativeBCR pending.
+  revert_instance: qwen36-fg20-e2e:357714:1792128229.67
+  revert_runtime_sha256: 2736824844e354698a35e430833f064f276833ae99b14c0eef4a8fea36f16347
+  revert_graph_replays_each_rank: 30
+  revert_fixed_full_kernel_each_rank: 48
+  revert_full_scale_kernel_each_rank: 0
+  revert_attention_per_layer_integer_copies_each_rank: 256
+  terminal_sha256: a47dda84a2f8ff6c950d921d540b89d3f62c6c95089e8a5400c0960d834cdbdf
+  source_restored_verified:
+    instance:
+    - 954040
+    - 1792130229.17
+    birth_match: true
+    cmd_match: true
+    sources:
+      engine_sha256:
+        sha256: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+        match: true
+      plugin_sha256:
+        sha256: 98f36f070aafa5c7d0d3cc55e00fd4ad245d6b1ddadcbf8a84d327d0933a70c1
+        match: true
+      flaggems_sha256:
+        sha256: 3a7e89738b76c483d379b57062f1f0df571641903f692056bbd4aa864e0dd0f7
+        match: true
+      flaggems_vllm_sha256:
+        sha256: cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482
+        match: true
+    env:
+      VLLM_FL_FLAGOS_WHITELIST: cat,cos,cumsum,fill,full,gather,gt,le,lt,max,mul,sin,softmax,to,where,zeros,zeros_like,gdn_decode,gdn_packed_decode,gdn_prefill
+      VLLM_FL_FLAGOS_BLACKLIST: null
+      VLLM_FL_USE_FLAGGEMS_ATTN: '1'
+      CUDA_VISIBLE_DEVICES: 2,3
+    logtail:
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /v1/messages, Methods: POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /v1/messages/count_tokens, Methods: POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /inference/v1/generate, Methods: POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /scale_elastic_ep, Methods: POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /is_scaling_elastic_ep, Methods: POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /generative_scoring, Methods: POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /v1/chat/completions/render, Methods:
+      POST'
+    - '(APIServer pid=954040) INFO 10-16 14:00:10 [launcher.py:46] Route: /v1/completions/render, Methods: POST'
+    - '(APIServer pid=954040) INFO:     Started server process [954040]'
+    - '(APIServer pid=954040) INFO:     Waiting for application startup.'
+    - '(APIServer pid=954040) INFO:     Application startup complete.'
+    - '(APIServer pid=954040) INFO:     127.0.0.1:52854 - "GET /v1/models HTTP/1.1" 200 OK'
+  offline_decode_diagnosis:
+    status: completed/strong-historical-JIT-and-cohort-evidence; perrankactualtrace-unavailable
+    worker_path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/commands/fw002r4-decode-offline-diagnose-v1.py
+    worker_sha256: 44eeb03a2401c5b2f6f7791bb46e7867ced97514fe46ccd6e20eb7d7f44c84d7
+    output_directory: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-decode-diagnosis-v1
+    authorization: User asks complete revert and locate DecodeTTFT root; offline audit/archive only; noGPU requests/source
+      changes
+    scope: all9 native records and historicalr1-r9 request cohorts + originalcache hvariants, source, compiler intervals;
+      preserve evidence/originalbadround
+    output_path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-decode-diagnosis-v1/audit-and-diagnosis.json
+    output_sha256: 85c4efe894feda59aca2c460bdf911652e16b85a260d35ecdc533a78dc7bfc84
+    numeric_or_graph_test_rerun: false
+    new_model_requests: 0
+    source_changes: false
+    r7_mean_TTFT_ms: 7768.649159756023
+    r8_mean_TTFT_ms: 6848.880204954185
+    measured_spread: 0.1344516039895538
+    client_send_span_r7_seconds: 0.015998798422515392
+    r7_h_compile_seconds: 0.6159791946411133
+    r7_compile_relative_interval_seconds:
+    - 0.8239569664001465
+    - 1.4399361610412598
+    r7_stream_pause_seconds:
+    - 0.6767753288149834
+    - 2.879908196628094
+    h_cached_variants: 9
+    h_source_unique_shas:
+    - 2c7ac0f488957606188aff7c9e5fe5cef7915879073b2e98785376608579e8fd
+    h_binary_unique_shas:
+    - be2058672cdf0b7259a14fefa6aedd351a4d16a0a1ae4dda08848fd596c1c716
+    config: FP32prune BK32/BV16/W4/stages3; N_BUCKET/SKEW_BUCKET unusedconstexpr but included key
+    warmup_new_h_compiles:
+      r1: 3
+      r2-r6: 0
+    measured_new_h_compiles:
+      r7: 1
+      r8-r9: 0
+    conclusion: Early dynamiccohort differs(r7 first1+1+7 vsregular1+7), newredundant GDN H JIT overlaps pause;
+      insufficientkey warmup andone-metric admission. Stronghistoricalevidence for runtimecompile cause, not numericalfailure;
+      do notattribute every0.92sec to backendcompiler.
+    uncertainty: No actualr7 ranktrace/exactbucketpair; cannot separate otherGC/driver/CPUshares inside gap. Currentofflineruntime
+      source/cache/requestevidence is scoped, no causalnewA/B performed.
+  all_three_phase_revert_complete: true
+  final_native_status:
+    prefill: passed
+    decode: incomplete
+    mixed: failed
+  final_native_issues:
+    prefill: &id007 []
+    decode: &id008
+    - 'p1024-d512-c64-n64-decode/baseline/mean_ttft_ms: excessive within-process spread'
+    mixed: &id009
+    - 'p1024-d256-c64-n128-mixed/output_throughput: primary improvement below threshold'
+  final_native_comparisons:
+    prefill:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-prefill-comparison-result.json
+      sha256: 252f3a598757d0cb149d174836a91c4fdecdbad752abfc826ca067ad2543ed37
+      status: passed
+      issues: *id007
+      metrics:
+        total_token_throughput:
+          baseline: 5694.152346917177
+          candidate: 5727.19961851893
+          revert: 5686.634246164301
+          candidate_change: 0.005803721008561524
+          revert_drift: -0.0013203195655533406
+        output_throughput:
+          baseline: 5.555270582358221
+          candidate: 5.587511822945297
+          revert: 5.547935849916391
+          candidate_change: 0.005803721008561302
+          revert_drift: -0.0013203195655532296
+        mean_ttft_ms:
+          baseline: 8992.345636317623
+          candidate: 8936.935192912642
+          revert: 9003.74917400768
+          candidate_change: -0.006161956584630479
+          revert_drift: 0.0012681382757355752
+        p99_ttft_ms:
+          baseline: 11721.330467099324
+          candidate: 11655.596098545939
+          revert: 11748.279248811305
+          candidate_change: -0.005608097880858809
+          revert_drift: 0.00229912310617153
+        p99_e2el_ms:
+          baseline: 11721.330155655742
+          candidate: 11655.595858041197
+          revert: 11748.279020953923
+          candidate_change: -0.00560809197775447
+          revert_drift: 0.0022991302983799144
+    decode:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-decode-comparison-result.json
+      sha256: 5e0a9d6dc7845332bb28607c425efdfc0bcd04ab42d8ab977b2c8f70e7471b30
+      status: incomplete
+      issues: *id008
+      metrics:
+        output_throughput:
+          baseline: 940.8559695376481
+          candidate: 943.2032152487568
+          revert: 939.4023320754657
+          candidate_change: 0.002494798127562703
+          revert_drift: -0.0015450159314999157
+        total_token_throughput:
+          baseline: 2822.567908612944
+          candidate: 2829.6096457462704
+          revert: 2818.206996226397
+          candidate_change: 0.002494798127562925
+          revert_drift: -0.0015450159314996936
+        mean_ttft_ms:
+          baseline: 6848.880204954185
+          candidate: 6820.840470260009
+          revert: 6878.874514281051
+          candidate_change: -0.004094061197609022
+          revert_drift: 0.004379447213161969
+        p99_ttft_ms:
+          baseline: 11975.514502311125
+          candidate: 11938.69884306565
+          revert: 12038.041523480788
+          candidate_change: -0.003074244470947063
+          revert_drift: 0.005221238816720097
+        p99_e2el_ms:
+          baseline: 34812.8250866849
+          candidate: 34728.951452709734
+          revert: 34867.67194692977
+          candidate_change: -0.002409273989293137
+          revert_drift: 0.0015754785803305804
+        mean_tpot_ms:
+          baseline: 54.51147443281829
+          candidate: 54.39680084644123
+          revert: 54.57365211270136
+          candidate_change: -0.0021036595977308448
+          revert_drift: 0.001140634710948829
+        p99_tpot_ms:
+          baseline: 65.25284633858752
+          candidate: 65.10447528792832
+          revert: 65.37140255609852
+          candidate_change: -0.002273786646628695
+          revert_drift: 0.0018168742692974416
+        p99_itl_ms:
+          baseline: 48.10159238055349
+          candidate: 47.79581072740257
+          revert: 47.621324490755796
+          candidate_change: -0.006356996473874443
+          revert_drift: -0.009984448872255136
+    mixed:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-mixed-comparison-result.json
+      sha256: 436a5155ce17262e04b0f6b842ac5a99d67a0041b8bc36cd4ea52a4cc9ffa4d7
+      status: failed
+      issues: *id009
+      metrics:
+        output_throughput:
+          baseline: 700.4086757680984
+          candidate: 702.2617427400169
+          revert: 698.3161648542102
+          candidate_change: 0.0026456939156076498
+          revert_drift: -0.0029875571024209346
+        total_token_throughput:
+          baseline: 3502.043378840492
+          candidate: 3511.3087137000844
+          revert: 3491.580824271051
+          candidate_change: 0.0026456939156076498
+          revert_drift: -0.0029875571024209346
+        mean_ttft_ms:
+          baseline: 5814.191910212685
+          candidate: 5759.544066917442
+          revert: 5848.239738617849
+          candidate_change: -0.009399043605570201
+          revert_drift: 0.005855986340141062
+        p99_ttft_ms:
+          baseline: 11968.853473961353
+          candidate: 11926.291523976251
+          revert: 12036.982986070216
+          candidate_change: -0.003556059072633566
+          revert_drift: 0.00569223378472139
+        p99_e2el_ms:
+          baseline: 29236.37370680459
+          candidate: 29459.204616071656
+          revert: 29374.271171009168
+          candidate_change: 0.007621701360836175
+          revert_drift: 0.004716640496782443
+        mean_tpot_ms:
+          baseline: 68.63480175322597
+          candidate: 68.61384220708929
+          revert: 68.7788677575893
+          candidate_change: -0.00030537782001671676
+          revert_drift: 0.0020990226631862896
+        p99_tpot_ms:
+          baseline: 87.86725272420868
+          candidate: 87.74252460126347
+          revert: 88.15635619272352
+          candidate_change: -0.001419506347110966
+          revert_drift: 0.0032902299725046102
+        p99_itl_ms:
+          baseline: 1481.0089562647045
+          candidate: 1474.7550804540515
+          revert: 1491.700637517497
+          candidate_change: -0.004222713025602509
+          revert_drift: 0.007219187438108676
+  final_counts:
+    records: 9
+    rounds: 87
+    measured: 27
+    successful_benchmark_requests: 9408
+  final_max_absolute_B_R_drift:
+    prefill: 0.0022991302983799144
+    decode: 0.009984448872255136
+    mixed: 0.007219187438108676
+  final_max_all_role_metric_spread:
+    prefill:
+      baseline: 0.0016349140554915537
+      candidate: 0.0024925749578162738
+      revert: 0.0013514629445499846
+    decode:
+      baseline: 0.1344516039895538
+      candidate: 0.013130784682736504
+      revert: 0.007404322689812774
+    mixed:
+      baseline: 0.0025645107872757002
+      candidate: 0.010602132292489371
+      revert: 0.012339012368003183
+  final_private_source_original:
+    sources:
+      engine_sha256: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+      plugin_sha256: 98f36f070aafa5c7d0d3cc55e00fd4ad245d6b1ddadcbf8a84d327d0933a70c1
+      flaggems_sha256: 3a7e89738b76c483d379b57062f1f0df571641903f692056bbd4aa864e0dd0f7
+      flaggems_vllm_sha256: cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482
+    case_resolved: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e
+    free_bytes: 25527112957952
+    remaining_model_processes: []
+    full_file_sha256: a0979cd73ef42a22aaf433795dbefd3ae7caa257352468461ef442c1b9320218
+    plugin_file_sha256: 9a1e87cb97b9ec3283351e3e75d8a25f81c9800fc140661e094eb0da7c2c2bae
+  final_source_restored_instance: qwen36-addgdn:954040:1792130229.17
+  final_source_restored_launch_sha256: 3c6d73aa22e824a1cef3c9359e83e8ea0ca360077cda56b97a60a5a486741844
+  final_source_ready_verified: true
+  restoration_proof:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002r4-decode-diagnosis-v1/restoration-verification.json
+    sha256: e0a618db8d489f952937bdd438b8e53f606de06603cb4ec33d4b7772f7d3f563
+    status: archived/SHAverified

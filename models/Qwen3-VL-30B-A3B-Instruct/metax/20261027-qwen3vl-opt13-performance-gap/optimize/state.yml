@@ -1,0 +1,301 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-opt13-performance-gap
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: historical-opt10-observation
+  topology: TP2:GPU0,1-current;TP2:GPU6,7-mx59-historical
+stage: optimize
+current:
+  status: PR638-reverted-on-disk
+  candidate: 024plugin-opt-original-FLA-default-split0;other-optimizations-preserved
+  next_action: User next model start loads reverted FLA; no automatic restart or performance/accuracy
+    measurement. Historical opt13 observations remain tied to old source.
+experiments:
+- experiment_id: diag-001-opt13-gap
+  document: diag-001-opt13-gap.md
+  scenario_id: p1024/p4096/p16384-d1024-c64-n128
+  status: completed-readonly
+  decision: causal-attribution-incomplete
+  direction: diagnostic/planning
+  source_or_service_changes: false
+  new_gpu_requests: 0
+  evidence:
+    remote_root: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-opt13-performance-gap
+    result: results/existing-results-analysis.json
+    sha256: eea238c65efd36a1cbcf6d8c24fec44170835d3e7bccc6d33c7ecdc6a13cf764
+    collector_sha256: 5c4042aad62853e16eb72082222804a4b14b2a9c56af8917433c63f038601054
+  summary_rule: original fixed 4 rounds; skip first2; arithmetic mean Run3/4; all
+    rounds archived
+  comparison_boundary: historical mx59 vs current mx104; observational, not controlled
+    regression proof
+  cache_evidence:
+    sampling_guarded_sweep_metadata: 384
+    scan_metadata: 8
+    scope: conservative P1K subwindow; cache writes not measured blocked time
+    timestamp_caveat: NFS mtime about220sec behind host clock; no exact round attribution
+  accuracy: No new accuracy/graph tests; old opt12/split1 gate not rebound to opt13
+- experiment_id: op-002-revert-pr638
+  document: op-002-revert-pr638.md
+  scenario_id: all-existing-scenarios;disk-rollback-only
+  status: completed-on-disk
+  decision: reverted-PR638-per-user
+  direction: operator/replace rollback
+  remote_root: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-opt13-performance-gap/rollback-pr638
+  script: commands/revert_pr638.py
+  script_sha256: f33dbd86469402235f05010b9baa186833624e23ad940f9b0fb8e320ceb07b45
+  before_sha256: f49f4a5b401a5ca66f04f10b27e7b6f186e3efe1c8d214556efb0b1edaf36514
+  expected_after_sha256: f81fa552667b3ed98d1cf141d2dee33ba10476cda9a997744495bdbc36289ef2
+  new_gpu_requests: 0
+  service_restart: false
+  after_sha256: f81fa552667b3ed98d1cf141d2dee33ba10476cda9a997744495bdbc36289ef2
+  result: results/completed.json
+  result_sha256: c2bedd284d036aedb72de565fc19960e61ac61224db62cfacf9c2b8fb664e0c6
+  four_repositories_only_target_changed: passed
+  files_checked: 13887
+  syntax_head_diffcheck: passed
+  runtime: No model or benchmark processes before/after; next user start loads rollback
+  graph_accuracy_performance: not_run
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: historical-opt10
+  metric: total
+  value: 3022.26
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: existing-opt13
+  metric: total
+  value: 2316.93
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: historical-opt10
+  metric: output
+  value: 1511.12
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: existing-opt13
+  metric: output
+  value: 1158.46
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: historical-opt10
+  metric: ttft
+  value: 1694.59
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: existing-opt13
+  metric: ttft
+  value: 2940.14
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: historical-opt10
+  metric: tpot
+  value: 40.68
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: existing-opt13
+  metric: tpot
+  value: 45.67
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: historical-opt10
+  metric: median_itl
+  value: 38.8
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: existing-opt13
+  metric: median_itl
+  value: 36.92
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: historical-opt10
+  metric: p99_itl
+  value: 42.18
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p1024-d1024-c64-n128
+  role: existing-opt13
+  metric: p99_itl
+  value: 40.08
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-opt10
+  metric: total
+  value: 5410.82
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: existing-opt13
+  metric: total
+  value: 5516.31
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-opt10
+  metric: output
+  value: 1082.16
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: existing-opt13
+  metric: output
+  value: 1103.26
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-opt10
+  metric: ttft
+  value: 4808.72
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: existing-opt13
+  metric: ttft
+  value: 5057.44
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-opt10
+  metric: tpot
+  value: 54.27
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: existing-opt13
+  metric: tpot
+  value: 52.91
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-opt10
+  metric: median_itl
+  value: 45.58
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: existing-opt13
+  metric: median_itl
+  value: 42.96
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-opt10
+  metric: p99_itl
+  value: 462.89
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p4096-d1024-c64-n128
+  role: existing-opt13
+  metric: p99_itl
+  value: 461.39
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-opt10
+  metric: total
+  value: 6369.18
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: existing-opt13
+  metric: total
+  value: 4804.64
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-opt10
+  metric: output
+  value: 374.66
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: existing-opt13
+  metric: output
+  value: 282.62
+  unit: tok/s
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-opt10
+  metric: ttft
+  value: 75029.02
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: existing-opt13
+  metric: ttft
+  value: 105108.36
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-opt10
+  metric: tpot
+  value: 79.66
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: existing-opt13
+  metric: tpot
+  value: 102.88
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-opt10
+  metric: median_itl
+  value: 49.52
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: existing-opt13
+  metric: median_itl
+  value: 48.31
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-opt10
+  metric: p99_itl
+  value: 642.51
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+- scenario_id: p16384-d1024-c64-n128
+  role: existing-opt13
+  metric: p99_itl
+  value: 1432.66
+  unit: ms
+  scope: original SUMMARY Run3/4; cross-host observation
+planning_review:
+  review_id: plan-opt13-gap-20261027
+  cumulative_gain: not-established
+  phases:
+    prefill: P16K TTFT+40.09%; PR638 hit but attribution not isolated
+    decode: median ITL faster for all completed scenarios; P1K sampler JIT/cache writes,
+      tail gap
+    mixed: P1K total-23.34%,P4K+1.95%,P16K-24.56%; P32/P64 incomplete
+  ranked_directions:
+  - same-host P1K fixed sampler-shape preparation and steady-state admission
+  - same-host P16K PR638-only B/C/R with split0 and all other code fixed
+  - 'profiling of residual P16K gap: actual Attention/MoE/host/communication stages'
+  deferred:
+  - new split values
+  - blind MoE retuning
+  - full performance rerun on active user service
+  next_review_trigger: steady-state contract valid, PR638 ablation complete, or new
+    measured hotspot
+  required_skills:
+  - inference-performance-evaluation
+  - inference-accuracy-evaluation for changed candidate/formal gate
+  - inference-profiling if stage attribution unresolved
+  - key-operator-analysis after actual hotspot
+  latest_user_action: User explicitly requested disk rollback of PR638; completed
+    without model restart. Prior ablation is a future plan, not an executed test.

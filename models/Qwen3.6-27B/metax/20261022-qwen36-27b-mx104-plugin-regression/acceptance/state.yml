@@ -1,0 +1,229 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-27b-mx104-plugin-regression
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-104
+  baseline_id: pre-migration-d1653d9-optimized
+  topology: TP2:GPU2-GPU3
+stage: acceptance
+current:
+  status: incomplete
+  candidate: user-c64-03-clean-port8010
+  next_action: New clean-container acc011 full accuracy independently verified; monitor deleted, preserve user8010 service and keep performance paused. Project-wide final performance acceptance remains incomplete.
+experiments: []
+metrics: []
+prior_accuracy_acc008:
+  experiment_id: acc-008
+  status: completed_verified
+  scope: current user8010 service C64/default-sampling accuracy only
+  service:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/user-c64-02.service.json
+    sha256: e01261a9eb0bd7c2639f4744389be27d7b15b31eb88fbd90fe82170cd4699b76
+    service_instance_id: 19f061a806dea94cf3298f69bd4ed88f8411d4d0c253c4bd04dfbf8c39859d50
+  GPQA:
+    result: passed
+    correct: 162
+    samples: 198
+    score: 0.8181818181818182
+    threshold: 0.7828282828282829
+    gate:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-gpqa.accuracy-gate.json
+      sha256: e80544c4fcc2d32e2b8c1b1ba804b79803865f76a3574389b074369fd8278b7c
+  ERQA:
+    result: score_only_no_user_threshold
+    correct: 244
+    samples: 400
+    accuracy_percent: 61.0
+    rejected_samples: 0
+    threshold: null
+  concurrency:
+    GPQA: 64
+    ERQA: 64
+  sampling:
+    temperature: 1.0
+    top_p: 0.95
+    top_k: 20
+    request_seed: omitted
+    max_output_tokens_budget: 30000
+  prefix_caching: true
+  final_result:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-full-results.json
+    sha256: 2c241220970fcea86f10150b41508e8027a38a1f70ac683fe950897881aa8f51
+  primary_review:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc008-full-primary-review.json
+    sha256: 3904409cff93bd0d556fbfa8422b7ec382cde036362e9081500d39d7bdd9776e
+  postcheck:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/acc008-erqa-primary-postcheck.json
+    sha256: bb72ff374a1f5b90a3af4207afb2fcb2ab4d69cef9ff5925637e08bbc6c24385
+  native_timeout_retry_warnings: 59
+  scope_limitations: Accuracy only; no new performance test or single-change attribution; graph capture logged but
+    fresh replay not trace-attested
+performance_evaluation:
+  result: incomplete
+  status: paused_per_user
+  new_performance_runs: 0
+prior_progress_monitor_acc008:
+  id: qwen27b-8010-c64
+  status: deleted
+  cadence_minutes: 30
+  cleanup_evidence: automation_update(mode=delete,id=qwen27b-8010-c64) returned deleteStatus=deleted
+  reason: User full accuracy scope complete and independently verified
+prior_accuracy_acc004:
+  experiment_id: acc-004
+  scope: PR638 current combined candidate accuracy only
+  service:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/candidate-03.verified.service.json
+    sha256: ec29b7bf086dcb0e2b51228730da49c991ccd727d6f67cac910f0aa9a4261e54
+  GPQA:
+    result: passed
+    correct: 159
+    samples: 198
+    score: 0.803030303030303
+    threshold: 0.7828282828282829
+    gate:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-gpqa.accuracy-gate.json
+      sha256: b37ba36d738a28fdb08cdac3e9a39618ad0df2f7c0e346c955c792cc5260db40
+  ERQA:
+    result: score_only_no_threshold
+    correct: 235
+    samples: 400
+    accuracy_percent: 58.75
+    rejected_samples: 0
+    threshold: null
+  final_result:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-full-results.json
+    sha256: 367a026ad20e52ed220a9543141ee45ee2eecd4a1bcc91af9e8a3389fc37673a
+  primary_review:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/pr638-full-primary-review.json
+    sha256: 26af6fa77ea8a1f4a2e171de74590fcabcccc15fa4b9aba3f95fd7d700089dbd
+  postcheck:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/pr638-erqa-postcheck.json
+    sha256: 53c450d8e8e77160ba55a6bd71c70e25dd6f8abd8347c0b0d64750b699da378d
+  minimal_reference_difference: 8/10 vs historical9/10 retained; not isolated PR causality
+  current_script_coverage_limit: User current start-model-flagos.sh SHAc9e2d403 uses blacklist9; measured candidate03
+    uses whitelist27. Full scores do not cover that current script configuration. No service restarted.
+container_lifecycle_20261027:
+  status: user_authorized_cleanup_completed
+  remaining_model_container: qwen36-27b-regression-b-20261022
+  removed_count: 17
+  removed_includes: original_verify_A_clone_GPQA_and_ERQA_evaluators_and_13_historical_dense
+  preserved: B service identity health200; images volumes bind mounts model results and backups
+  receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/container-cleanup-20261027/receipt.json
+  receipt_sha256: 53214ab1acb73f8c0141aebcef3a4ed3a98d51c6dae25f234f021531d80b340a
+  historical_accuracy: retained; evaluator containers removed
+  performance: remains_paused
+plugin_maintenance_20261027:
+  status: source_update_complete
+  head: 1bc0c775ffbdf4a0b0e2efb5e847d586e902273f
+  branch: release/0.2
+  version: 0.2.2rc2.post1+g1bc0c775f.d20261027
+  effective_attention_and_config: identical_to_preupdate
+  generated_revision_metadata: refreshed
+  current_service: exited_EngineDeadError_before_pip;not_restarted
+  old_accuracy_results: retained_historical;no_new_run_or_gate
+  performance: remains_paused
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/env007-plugin-update-20261027/final-verification.json
+  evidence_sha256: 6cf6cfd2085c8779eda1aa3b946d3f647aac3342af473c5ee769730d89ead431
+prior_accuracy_acc005:
+  experiment_id: acc-005
+  status: completed_verified
+  scope: current user9998 service C64/default-sampling accuracy only
+  service:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/user-c64-01.service.json
+    sha256: a8a58fb3eaee23c9ba5e195378eebd364341fe136e9841298ee1814892f134a3
+    service_instance_id: 48735de01cabcb1882a9a9ccf4a1660d937b1d8b1f6f5643dc48b70f0fbf3fc7
+  GPQA:
+    result: passed
+    correct: 163
+    samples: 198
+    score: 0.8232323232323232
+    threshold: 0.7828282828282829
+    gate:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-gpqa.accuracy-gate.json
+      sha256: 321fd8ad387d720da9cb23b6612e3704e3798d391166c59600aa978d0965da56
+  ERQA:
+    result: score_only_no_user_threshold
+    correct: 239
+    samples: 400
+    accuracy_percent: 59.75
+    rejected_samples: 0
+    threshold: null
+  concurrency:
+    GPQA: 64
+    ERQA: 64
+  sampling:
+    temperature: 1.0
+    top_p: 0.95
+    top_k: 20
+    request_seed: omitted
+    max_output_tokens_budget: 30000
+  prefix_caching: true
+  final_result:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-full-results.json
+    sha256: 50adb1e400309c3ad9b4a006a9c4897186d608e993edb23b1623246244a39f7a
+  primary_review:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc005-full-primary-review.json
+    sha256: 0fe06d3bcd541e8b777798d64a16a7dc6d54f562f2e58293dd4f913a6488be6d
+  postcheck:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/manifests/acc005-erqa-primary-postcheck.json
+    sha256: 917ab8a9939fed85cd58523e8ea500fd12418bd215be774de537375513e55ff4
+  scope_limitations: No paired same-config performance acceptance or single-change accuracy causality; graph capture
+    logged but current replay not trace-attested
+
+online_maintenance_env009:
+  status: completed_online_scope
+  document: ../optimize/env-009-online-maintenance.md
+  current_evaluated_model_service: same_instance_source_env_and_health200
+  new_shell_environment: legacy_var_unset;other_settings_preserved
+  immutable_image_container_and_live_env: unchanged;full_removal_deferred
+  actual_rw_bytes_saved: 1877815296
+  inactive_cache_roots_removed: 3
+  active_caches_sources_models_backups: preserved
+  model_requests_or_restart: none
+  historical_performance_cache_warning: old_private_validation_caches_archived;do_not_assume_present_for_future_comparison
+
+accuracy_evaluation:
+  experiment_id: acc-011
+  status: completed_verified
+  scope: New user clean container port8010 full GPQA198 and ERQA400 at C64/default sampling
+  service:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/user-c64-03-clean.service.json
+    sha256: 46aa416343f2372387704c161da25fb57281fd0926cbc4b35f08b1415bb17ccd
+    service_instance_id: 04dac0a157881c6bd3ba493e1c0ae538365c7f564df10006d717f78147d5cf3b
+  GPQA:
+    result: passed
+    correct: 163
+    samples: 198
+    score: 0.8232323232323232
+    threshold: 0.7828282828282829
+    gate:
+      path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-gpqa.accuracy-gate.json
+      sha256: 41df6a43b6b2037ffeb991bca38a0724a22b80a64b810816d70ef089d906654c
+  ERQA:
+    result: score_only_no_user_threshold
+    correct: 246
+    samples: 400
+    scored_samples: 400
+    accuracy_percent: 61.5
+    rejected_samples: 0
+    threshold: null
+  concurrency: {GPQA: 64, ERQA: 64}
+  sampling: {temperature: 1.0, top_p: 0.95, top_k: 20, request_seed: omitted, max_output_tokens_budget: 30000}
+  prefix_caching: true
+  suite_completed_utc: '2026-10-28T10:19:56.872137+00:00'
+  primary_review_utc: '2026-10-28T14:02:58.179623+00:00'
+  final_result:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-full-results.json
+    sha256: 2f9c3fa42f374dec6f78e8415b9dbcc215e21b7cbdf20d0464cc7ca7e1a1a0f7
+  primary_review:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/acc011-full-primary-review.json
+    sha256: f6f7235ef018d1de04412bdcacc2aec664b209a5565f37037aaade99af6b3014
+  native_timeout_retry_warnings: 68
+  scope_limitations: Accuracy only; original default stochastic sampling; no performance or single-change attribution; current configured graph and capture logs observed, fresh perrank replay not trace-attested
+progress_monitor:
+  id: qwen27b-clean-c64
+  status: deleted
+  cadence_minutes: 30
+  cleanup_evidence: automation_update(mode=delete,id=qwen27b-clean-c64) returned deleteStatus=deleted
+  reason: User full GPQA and ERQA scope complete and independently verified

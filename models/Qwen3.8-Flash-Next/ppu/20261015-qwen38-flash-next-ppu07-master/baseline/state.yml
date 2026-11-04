@@ -1,0 +1,23 @@
+schema_version: 4
+identity:
+  case_id: 20261015-qwen38-flash-next-ppu07-master
+  model: Qwen3.8-Flash-Next
+  platform: ppu
+  host: PPU-07
+  baseline_id: source-snapshot-20261015-unmeasured
+  topology: TP8:PPU8-15
+stage: baseline
+current:
+  status: performance_not_run
+  candidate: source-snapshot-20261015-unmeasured
+  next_action: No performance work in this request; finish acc-012 current-candidate accuracy first.
+  image_lineage: verified
+  mount_parity: passed
+  environment_evidence: /mnt/nfs/users/jinghao/qwen3.8-flash/20261015-qwen38-flash-next-ppu07-container/accuracy/acc-012-full-gpqa-ppu07-c64-master-20261015/evidence/mount-parity.json
+  required_scenarios_not_run:
+    - p1024-d1024-c64-n128
+    - p4096-d1024-c64-n128
+    - p16384-d1024-c64-n128
+    - p32768-d1024-c64-n128
+experiments: []
+metrics: []

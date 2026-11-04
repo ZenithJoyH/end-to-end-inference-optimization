@@ -1,0 +1,202 @@
+schema_version: 4
+identity:
+  case_id: 20261021-qwen3vl-metax-p1k-opt9
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt9-entry
+  topology: TP2:GPU0,1
+stage: baseline
+current:
+  status: complete-performance-only-P1K-baseline
+  candidate: Original opt9 repos with gems-opt/sampling and MoE retained
+  next_action: Compare independent candidate and revert using prebound hist-comparison contract
+environment:
+  source_container: qwen3vl-p64k-opt-20261015
+  optimization_container: qwen3vl-p1k-opt9-20261021
+  source_revisions:
+    FlagGems: c3c5f5ab274f7d1a8a95e3d3ba7bbac28e4a9fd4
+    FlagGems-vllm: f6fdb9b120787e12892ac67e54979cbf829c7d64 +existing sampling/MoE patches
+    Plugin: 08da21cb39601752040196232b60a152382c0f8f +sampling adapter
+    vLLM: ee0da84ab9e04ac7610e28580af62c365e898389 read-only
+  gates:
+    image_lineage: verified
+    mount_parity: passed
+    path: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/manifests/environment-gates.json
+    sha256: 63187369d0be893dab03b489434aeaa79c4dd42eb15c664c84880335793c2a1e
+    snapshot_image: sha256:749601f91cc37e5cbada7d4d44578679c538bb4cbd077af4c99db5dc48ae3676
+  base_url: http://127.0.0.1:18144
+  topology: TP2 GPU0/1
+  blacklist: mm,mm_out,layer_norm,log_softmax
+  prefix_cache: disabled
+correctness:
+  mode: baseline-sanity
+  status: passed
+  coverage: graph capture and16replays perrank;9smoke/C8 requests and10scienceprompt C8 output-health only
+  formal_gpqa: deferred by user
+  service_manifest:
+    path: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/manifests/baseline2-service.json
+    sha256: 2e8b48e668b94d3fb77daab964b5b02aca8ed014e7ca34413ef86e178e65721c
+  science_sanity:
+    path: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/results/baseline2-science-sanity.json
+    sha256: 7c9ec849c63c679ea2629150997940c59c8c3cc18d70bac56073e99a07921eb9
+scenario_catalog:
+- scenario_id: p1024-d1024-c64-n128
+  scope: current
+  status: complete-performance-only
+- scenario_id: p4096-d1024-c64-n128
+  scope: not_run-current-task-P1K-only
+  status: not_run
+- scenario_id: p16384-d1024-c64-n128
+  scope: not_run-current-task-P1K-only
+  status: not_run
+- scenario_id: p32768-d1024-c64-n128
+  scope: not_run-current-task-P1K-only
+  status: not_run
+measurement:
+  objective: steady_state
+  cold_start_in_scope: false
+  warmup_rounds: 3
+  measured_rounds: 2
+  steady_admission: last2warmup TPS(max-min)/median<=.08
+  all_measured_rounds_retained: true
+  plan: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/commands/target-plan.json
+  comparison: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/commands/hist-comparison.json
+  warmup_check:
+    status: passed
+    last2_values:
+    - 1511.0333035368474
+    - 1439.1353070330356
+    relative_spread: 0.04874161852730396
+  measured_TPS_relative_spread: 0.03170211776456954
+  completed_requests_each_round:
+  - 128
+  - 128
+  errors: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 1455.101068101872
+  round_values:
+  - 1432.0361753917136
+  - 1478.16596081203
+  unit: token/s
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 1758.8088228767447
+  round_values:
+  - 1826.166654966073
+  - 1691.4509907874162
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 3577.61412137188
+  round_values:
+  - 3590.8302072249353
+  - 3564.398035518825
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 42.07523147196639
+  round_values:
+  - 42.52513031341135
+  - 41.62533263052142
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 43.10856974846206
+  round_values:
+  - 43.45940028608596
+  - 42.75773921083815
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: median_itl_ms
+  value: 39.85620941966772
+  round_values:
+  - 40.01031722873449
+  - 39.70210161060095
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 44.19904221314937
+  round_values:
+  - 44.17376343160868
+  - 44.22432099469005
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 46958.26573625207
+  round_values:
+  - 47553.875340372324
+  - 46362.656132131815
+  unit: ms
+  scope: performance_only-3warm2measured-one-service-process
+  aggregation: median across both admitted measured rounds; P99 values are medians of per-round P99, not pooled request P99
+phase_evidence:
+  path: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/results/phase-trace-analysis.json
+  sha256: 8a61c13e921d7fc584ee4f852e1cc47a3cd085ce1a2b1df1afc77b3aa7436f95
+  coverage: prefill/decode/mixed,bothranks
+  boundary: GPUexecute_new/cached annotations; cached-only decoder proxy; cumulative duration not critical path
+  status: complete
+evidence:
+  run_record:
+    path: /public-flash/jinghao/qwen3-VL/20261021-qwen3vl-metax-p1k-opt9/results/performance/hist-target-baseline/run-record.json
+    sha256: 96fef861f28799b42585e1aee3ab849aead7d8ff510f1fcf3d42fb04e9bdbb7a
+experiments: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: complete-performance-only-P1K-baseline
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

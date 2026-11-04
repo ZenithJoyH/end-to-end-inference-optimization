@@ -1,0 +1,65 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-opt15-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: user-opt15-restart
+  topology: TP2:GPU0-GPU1
+stage: acceptance
+current:
+  status: incomplete
+  accuracy_status: passed
+  performance_status: not_run
+  next_action: C32 requested accuracy evaluation complete; current scoped GPQA gate checked. No automatic performance work.
+  experiment_id: acc-004-c32-gpqa-erqa
+  scope: C32 existing opt15 instance;GPQA65536/ERQA18000/default unseeded/prefixON
+  evaluation_status: completed
+  acceptance_scope: user-scoped C32 accuracy completed; final four-scenario performance not_run
+experiments: []
+metrics:
+- dataset: GPQA
+  C: 32
+  output_cap: 65536
+  correct: 127
+  samples: 198
+  score_percent: 64.14141414141415
+  threshold: 64
+  status: passed
+  scenario_id: gpqa-c32-user-scoped-accuracy
+  role: candidate
+  metric: accuracy
+  value: 64.14141414141415
+  unit: percent
+  scope: 用户指定 C32 精度评测；不代表四场景性能验收
+- dataset: ERQA
+  C: 32
+  output_cap: 18000
+  correct: 176
+  samples: 400
+  score_percent: 44.0
+  threshold: 40
+  native_rejected: 0
+  all400_score_percent: 44.0
+  status: passed
+  scenario_id: erqa-c32-user-scoped-accuracy
+  role: candidate
+  metric: accuracy
+  value: 44.0
+  unit: percent
+  scope: 用户指定 C32 精度评测；不代表四场景性能验收
+prior_C64_metrics:
+- dataset: GPQA
+  correct: 125
+  samples: 198
+  score_percent: 63.13131313131313
+  threshold: 64
+  status: failed
+- dataset: ERQA
+  correct: 182
+  samples: 400
+  score_percent: 45.5
+  threshold: 40
+  native_rejected: 0
+  status: passed
+audit_sha256: 204494ff17dcf04580111da3970306bca87e929411e1f16d25dac4c064c85870

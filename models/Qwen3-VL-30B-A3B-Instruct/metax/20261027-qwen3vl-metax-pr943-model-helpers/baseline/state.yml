@@ -1,0 +1,49 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-pr943-model-helpers
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: pr943-a1570dfb
+  topology: CPU-host-helper-refactor
+stage: baseline
+current:
+  status: host-source-baseline-frozen-no-device-measurement
+  candidate: PR943 model-specific host helper refactor
+  next_action: No model gate or performance claim
+experiments: []
+metrics: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: host-source-baseline-frozen-no-device-measurement
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 主机 helper 重构；未做设备测量。
+    evidence_pointer: state.yml#/current/status
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 主机 helper 重构；未做设备测量。
+    evidence_pointer: state.yml#/current/status
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 主机 helper 重构；未做设备测量。
+    evidence_pointer: state.yml#/current/status
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 主机 helper 重构；未做设备测量。
+    evidence_pointer: state.yml#/current/status
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: state.yml#/current/status
+    reason: 主机 helper 重构；未做设备测量。

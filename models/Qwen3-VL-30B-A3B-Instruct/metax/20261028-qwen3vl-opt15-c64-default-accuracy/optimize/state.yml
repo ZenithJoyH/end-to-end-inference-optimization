@@ -1,0 +1,359 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-opt15-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: user-opt15-restart
+  topology: TP2:GPU0-GPU1
+stage: optimize
+current:
+  status: completed
+  candidate: user-opt15-restart
+  accuracy_status: passed
+  next_action: Requested C32 GPQA and ERQA completed and independently audited. No
+    automatic additional evaluation or performance work.
+  monitor: deleted after independent terminal audit; qwen3-vl-opt15-c32
+experiments:
+- experiment_id: acc-001-opt15-c64-default
+  document: acc-001-opt15-c64-default.md
+  status: failed
+  direction: accuracy-evaluation
+  mode: formal-gate
+  skill: skills/inference-accuracy-evaluation/SKILL.md
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-opt15-c64-default-accuracy
+  service:
+    container: qwen3vl-pr943-split1-mx104-20261023
+    model: qwen3vl-opt15
+    port: 8030
+    pid: 1718819
+    ticks: '1149208177'
+    prefix_cache: true
+  workload:
+    GPQA:
+      N: 198
+      C: 64
+      threshold: 64
+    ERQA:
+      N: 400
+      C: 64
+      threshold: 40
+    sampling: model defaults; no request seed; T.7/P.8/K20/rep1
+    per_dataset_runs: 1
+  bootstrap_sha256: a24c4aeaa349a225a408ee9c98f03ddbae96b22abeed50583df83c4518dec8c8
+  phase: formal-completed
+  controller:
+    pid: 2523492
+    ticks: '1150704791'
+    sha256: 2db85b1a8f30c982d4b071a2a065aa46facd4405c60557e9afec8eec365be7f1
+  prepared_sha256: 2ed17a0a9ba16d8638682e55b3299abffcbcf03339a1d5d65088eed9c4a1486a
+  contract_sha256: 86d5cd7b5978092a6f0b56a4526094fb0d8a428a7880338e7df886196875ed38
+  automation_id: qwen3-vl-opt15-c64
+  gpqa_started_at_utc: '2026-10-28T14:05:29.929988+00:00'
+  minimal: 'passed: normal smoke/C8 and source unchanged'
+  erqa_source_preflight: passed
+  gpqa:
+    status: failed
+    correct: 125
+    samples: 198
+    score_percent: 63.13131313131313
+    threshold_percent: 64
+    gate_issued: false
+    result_sha256: b73cb9824a225c6904c1a9e48794d60d49373e431f0c2118337b5e113b5a64cd
+    sampling_audit_sha256: b5b7a5a895743db0b015a231bef01a0d5f183bf400c331f2d4189cd49d1339eb
+    independent_readonly_audit: 'passed: 198 unique, perdoc125, provenance/native/source/default
+      sampling verified'
+  diagnosis:
+    issue_id: accdiag-opt15-c64-gpqa-001
+    skill: skills/inference-accuracy-diagnosis/SKILL.md
+    classification: valid-formal-score-below-threshold
+    gate_blocking: true
+    root_cause: unconfirmed
+    reproducer: not_run
+    fix: none
+    last_known_good: historical opt12 129/198; not same source/instance or unseeded
+      trajectory
+    candidate_identity: manifests/service.json and manifests/source-before.json
+    evidence: results/gpqa-completed.json; configs/execution-contract.json; native
+      result/samples
+    next_action: Complete requested ERQA once; no automatic additional GPU diagnosis
+      or rerun.
+  extraction_audit:
+    status: completed
+    all198_original_filters_reproduced: true
+    strict_correct: 125
+    explicit_final_wrong_correctly_extracted: 62
+    no_explicit_final_at_18000_cap: 11
+    confirmed_final_correct_strict_wrong: 0
+    strict_wrong_flexible_correct_doc_ids:
+    - 68
+    - 74
+    - 79
+    - 98
+    flexible_count: 100
+    official_score_unchanged: true
+    result_path: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-opt15-c64-default-accuracy/results/gpqa-extraction-audit.json
+    result_sha256: 44f63593b890a38c28336df3e6a820f9182f123470bb97317c10b7f0e7e411d3
+  erqa:
+    correct: 182
+    samples: 400
+    scored_samples: 400
+    native_rejected_samples: 0
+    score_percent: 45.5
+    all400_score_percent: 45.5
+    threshold_percent: 40
+    status: passed
+    result_sha256: a721cbfdd2e89178576e6d668aa9dd637acefe9d94e50be5281669c2160031b5
+    sampling_audit_sha256: bd4de7ad8e7e9a17a1a8575a35a7c7026c41b0b4631e18853be0e8302db5b8db
+    independent_audit: 'passed: 400unique/182correct/0reject/data630images/score source/sourcebefore-after'
+  completed_sha256: a93651e112964745c52b18e5223868cc1b3b68f7b5c7e046ab30a2ad60e8c6f8
+  user_service_final_sha256: 28b60cc041bd30f25d6745ce1777bb2bf545713736b56b9669e206415c15cf15
+- experiment_id: diag-002-cap65536-retest
+  document: diag-002-cap65536-retest.md
+  status: completed
+  phase: completed-and-independently-audited
+  direction: accuracy-diagnosis
+  skill: skills/inference-accuracy-diagnosis/SKILL.md
+  user_authorization: After ERQA completes, rerun exactly11 capped items; clarified
+    output cap65536. max_model_len already262144 native maximum.
+  doc_ids:
+  - 36
+  - 48
+  - 68
+  - 74
+  - 79
+  - 98
+  - 115
+  - 127
+  - 138
+  - 187
+  - 194
+  requests: 11
+  output_cap: 65536
+  C_limit: 64
+  actual_max_parallel: 11
+  runs_per_doc: 1
+  request_seed: null
+  service_restart: false
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-opt15-c64-default-accuracy/gpqa-cap65536
+  scripts:
+    prepare: d2df00213ce98ee4079c812fa401ea0ffeab8017096cbe341f2276f09ec30e50
+    score: 9be320691b853c4a2c2f4f539e00c4cf4faa5d06d3087a35906afcb2e22b545c
+    control: 1c6687ecea55bacb6d4093369aca31fd7e001d9296ae3bc19912ba84378b2afe
+    start: 33676016648102502dbb36903f9486ab1984a9bd2e7fde635ca4b05a269e53f3
+  next_action: Prepare exact payload parity; start unique dependency-waiting controller
+    only after frozen contract.
+  controller:
+    pid: 2676812
+    ticks: '1151011704'
+    sha256: 1c6687ecea55bacb6d4093369aca31fd7e001d9296ae3bc19912ba84378b2afe
+  contract_sha256: af54248a59dafe83f776e60e131967eef0d989971c76a8317a1407d5fa5a5b0f
+  original_actual_upstream_parity: true
+  model_requests_so_far: 11
+  started_at_utc: '2026-10-28T15:05:17.761566+00:00'
+  completed_responses: 11
+  http_success: 11
+  strict_correct: 2
+  strict_correct_ids:
+  - 68
+  - 74
+  explicit_final_correct_count: 3
+  new_strict_false_negative:
+    doc_id: 194
+    target: D
+    ending: The best answer is (D)
+    reason: No trailing dot/whitespace; frozen regex has no end-of-string alternative.
+    completion_tokens: 4623
+  length_capped_ids:
+  - 79
+  - 98
+  - 127
+  - 187
+  stop_without_final_answer_ids:
+  - 36
+  - 48
+  explicit_wrong_ids:
+  - 115
+  - 138
+  source_preserved: true
+  controller_exited: true
+  score_sha256: 14539e505500cabb993d0bc031f409c4ce5b0bb6c24929ef2c11980601826cab
+  completed_sha256: 15536942ab0f15653fe3fb1bc7206dd5b43b157cba0abcd7e75a5837504149f0
+  source_preserved_sha256: 3e28eb6c900295dd3a9559346ac3c6f0f25fae653d38a94d87b3f939b459b734
+  ending_audit_sha256: 0c2625913e3b20a3b149f47116e326983cbe789ec7151c5729eb2858ab2d7673
+  causal_limit: All3 explicit correct responses shorter than18000; no attribution
+    to larger cap alone; original fullscore125 unchanged.
+- experiment_id: acc-003-gpqa-full-cap65536
+  document: acc-003-gpqa-full-cap65536.md
+  status: failed
+  direction: accuracy-evaluation
+  mode: formal-gate
+  skill: skills/inference-accuracy-evaluation/SKILL.md
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-opt15-c64-default-accuracy/gpqa-full-cap65536
+  workload:
+    N: 198
+    C: 64
+    output_cap: 65536
+    threshold: 64
+    runs: 1
+    request_seed: null
+    prefix_cache: true
+  automation_id: qwen3-vl-gpqa-64k
+  model_restart: false
+  scoring_rule_change: false
+  phase: completed-and-independently-audited
+  prepared_sha256: cc8e7c9b905caa24a1ae7ae86942b2e42412d1bab912b7c3d832b44b7ef5f2e6
+  contract_sha256: 49a9e1c0df7f1bfa7227342adbd479f653b884658266aa6dc9730d24c0a6081e
+  payload_parity_sha256: 1368412950869f7751ad395441f18380e4a6a75655c78f6eb93cced25587f11f
+  controller_sha256: 996e41d792ea66f1c20137f2191ffd8e080058c44269cfc8c17516cb8302b8b5
+  source_identity: opt15:1718819:1149208177
+  preparation_incident: resolved; only authorized effective cap change; no model requests
+  gpqa_started_at_utc: '2026-10-28T15:58:39.227335+00:00'
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  controller:
+    pid: 2784641
+    ticks: '1151385325'
+    sha256: 996e41d792ea66f1c20137f2191ffd8e080058c44269cfc8c17516cb8302b8b5
+  minimal: passed normal smoke/C8/source; no direct replay counter
+  last_observed_progress:
+    at_utc: '2026-10-28T16:52:13Z'
+    forwarded: 198
+    http_completed: 198
+    http_unique_completed: 198
+    native_last_logged_completed: 198
+    running: 0
+    waiting: 0
+    proxy_errors: 0
+    all_observed_caps: 65536
+    sampling_overrides: 0
+    controller_same_pid_ticks_alive: false
+    models_http: 200
+    final_score: 63.13131313131313
+  completed_at_utc: '2026-10-28T16:47:06.062164+00:00'
+  controller_exited: true
+  source_preserved: true
+  score_percent: 63.13131313131313
+  correct: 125
+  samples: 198
+  threshold: 64
+  gate_issued: false
+  result_sha256: 876afed3ec456b74e5192690abe796370bf0cfb2000e055ce623404f10c9a5bc
+  completed_sha256: 095311c1015cea4b08a9b4e0a5b3f8630d43dc0c66f575ad1d0a7df724f5558e
+  source_final_sha256: e81edeca4a9ee13047062e02b8d63e75c7bb5cbbfe4b429cf08c3c83c22b19c5
+  independent_audit_sha256: 63efcec7014e96555671c52478ab638ab5df258798c49aaccca47bf6570584b3
+  native_result_sha256: 076e42a5be3a3cb4f77e7c541b44632134fdf5a0e4a35aca2bc7bc1379d7ead2
+  native_samples_sha256: 1b9fad5b6bec2fd07dfa527e135dcc601e92a556c807928a47d0fb490e22312f
+  paired_vs_18000:
+    both_correct: 110
+    both_wrong: 58
+    new_only: 15
+    old_only: 15
+    identical_full_responses: 0
+  output_health:
+    capped65536: 10
+    invalid_strict: 11
+    capped_doc_ids:
+    - 48
+    - 66
+    - 68
+    - 71
+    - 85
+    - 88
+    - 127
+    - 128
+    - 180
+    - 187
+    explicit_tail_correct_strict_wrong_candidates: []
+  diagnosis:
+    issue_id: accdiag-opt15-c64-gpqa-001
+    skill: skills/inference-accuracy-diagnosis/SKILL.md
+    classification: valid-formal-score-below-threshold
+    gate_blocking: true
+    root_cause: unconfirmed
+    fix: none
+    reproduction: new user-authorized full cap65536 once; CPU identity/provenance/scoring
+      audit passed
+    next_action: Await new user direction; no automatic further requests.
+- experiment_id: acc-004-c32-gpqa-erqa
+  document: acc-004-c32-gpqa-erqa.md
+  status: passed
+  mode: formal-gate
+  skill: skills/inference-accuracy-evaluation/SKILL.md
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-opt15-c64-default-accuracy/c32-gpqa65536-erqa18000
+  workload:
+    GPQA:
+      N: 198
+      C: 32
+      output_cap: 65536
+      threshold: 64
+    ERQA:
+      N: 400
+      C: 32
+      output_cap: 18000
+      threshold: 40
+    runs_per_dataset: 1
+    request_seed: null
+    prefix_cache: true
+  automation_id: qwen3-vl-opt15-c32
+  source_identity: opt15:1718819:1149208177
+  model_restart: false
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  scripts:
+    controller: sha256:e605d5bf735d3c0ba67d4e1eb76984167be75f30b3ca7ec83d82164873592d6c
+    prepare: sha256:b27a973737f0249fd2e548ffa9a824d6a75438e444cbec4bad3f6559d605fb4d
+    proxy: sha256:fa882649c300d40aeab87cbcae6fa4243750597572e12297b284f2af276cd4c0
+  phase: completed-and-independently-audited
+  prepared_sha256: 66e51588ab15026f8939cf4cf828540d6bef7d4e3a50282e4281d52784670cfc
+  contract_sha256: 6c3595cb7fd8e2025545823658f3c7537c3778bd177827d3943fccc18fccf340
+  payload_parity_sha256: 071503187c3efb04f4776cf0570c6c111bb5cd013fb2f4279c58f1767251b226
+  controller:
+    pid: 3000927
+    ticks: '1154420516'
+    sha256: e605d5bf735d3c0ba67d4e1eb76984167be75f30b3ca7ec83d82164873592d6c
+  gpqa_started_at_utc: '2026-10-29T00:24:36.168083+00:00'
+  minimal: passed normal smoke/C8/source
+  last_observed_progress:
+    GPQA_native_samples: 198
+    ERQA_native_samples: 400
+    ERQA_unique_question_ids: 400
+    running: 0
+    waiting: 0
+    models_http: 200
+    source_exact: true
+  gpqa:
+    status: passed
+    correct: 127
+    samples: 198
+    score_percent: 64.14141414141415
+    threshold: 64
+    completed_at_utc: '2026-10-29T01:17:16.260899+00:00'
+    gate_check: 'PASS: formal accuracy acceptance verified'
+    native_result_sha256: faf96e2f6c40aa431270c8bad0bc4c8a20c9d21b5bcba4f32914f0ddafe442d2
+    native_samples_sha256: b96b9191c5cfe8210cefa315b5aa13b2bc0bc0823986ee0d2bc8ac2e3867d2db
+    result_sha256: 57350f5232edb72def033c6f99cacd51ef1387af3bbbfdbde17c77a7b1c6b840
+  erqa_started_at_utc: '2026-10-29T01:17:16.362254+00:00'
+  completed_at_utc: '2026-10-29T01:58:17.337362+00:00'
+  controller_exited: true
+  source_preserved: true
+  independent_audit_sha256: 204494ff17dcf04580111da3970306bca87e929411e1f16d25dac4c064c85870
+  completed_sha256: d0c7982b3c6995708f6421539676a3e2776c8d623209e578c42a06ccf190272b
+  source_final_sha256: b0a9df37c5b47380fd93baff2468f245a2733ca74d961cb8ea7dd037e2a64d14
+  erqa:
+    status: passed
+    correct: 176
+    samples: 400
+    scored_samples: 400
+    native_rejected: 0
+    score_percent: 44.0
+    all400_score_percent: 44.0
+    threshold: 40
+    result_sha256: 652cd532c300e93ab70255aff277994603386edfc431824671872cefba132886
+    native_result_sha256: c2adccb4bcd261599a4187af0924725eeb6a25ef8e1017e184a088240de3b53b
+  comparison_to_C64:
+    GPQA_correct_delta: 2
+    GPQA_percentage_point_delta: 1.01010101010101
+    ERQA_correct_delta: -6
+    ERQA_percentage_point_delta: -1.5
+    causal_claim: false
+metrics: []

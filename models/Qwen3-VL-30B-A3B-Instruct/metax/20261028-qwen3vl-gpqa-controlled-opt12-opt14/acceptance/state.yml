@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-gpqa-controlled-opt12-opt14
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: opt12-passed-attention-vs-opt14-current
+  topology: TP2:GPU0,1
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

@@ -1,0 +1,753 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-27b-mx104-plugin-regression
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-104
+  baseline_id: pre-migration-d1653d9-optimized
+  topology: TP2:GPU2-GPU3
+stage: baseline
+current:
+  status: incomplete
+  candidate: release02-7cb5599-contiguous-prefill
+  next_action: diagnose P1K median TTFT 10.015% spread before new comparable baseline; preserve complete first-run evidence
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 1162.7258019368135
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/output_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 2325.451603873627
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/total_token_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 5230.113986879587
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/mean_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 10936.986049544066
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/p99_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 49.90777721005104
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/mean_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 54.22700027149546
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/p99_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_itl_ms
+  value: 49.90777735751899
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/mean_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 45.86456432938575
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/p99_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: median_e2el_ms
+  value: 56260.329329408705
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/median_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 62146.53339808807
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p1024-d1024-c64-n128/metric_medians/p99_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 692.1013833697906
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/output_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 3460.5069168489526
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/total_token_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 14138.528529423638
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/mean_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 44571.96385836229
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/p99_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 78.47470971366779
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/mean_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 90.85039106883175
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/p99_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: mean_itl_ms
+  value: 78.47470987941453
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/mean_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 1424.728146865964
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/p99_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: median_e2el_ms
+  value: 94136.94303762168
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/median_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 134574.45830577984
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p4096-d1024-c64-n128/metric_medians/p99_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 230.0051055573704
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/output_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 3910.0867944752968
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/total_token_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 98312.22663301742
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/mean_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 253538.64131763577
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/p99_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 166.53699346137574
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/mean_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 240.64593754756123
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/p99_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: mean_itl_ms
+  value: 166.53699364117654
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/mean_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 1570.5361649766564
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/p99_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: median_e2el_ms
+  value: 262830.75525797904
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/median_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p16384-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 451686.2021176517
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p16384-d1024-c64-n128/metric_medians/p99_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 113.68311987996138
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/output_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 3751.5429560387256
+  unit: token/s
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/total_token_throughput
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 302420.17927151755
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/mean_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 523667.3704718612
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/p99_ttft_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 193.65055960464395
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/mean_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 257.8025676629061
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/p99_tpot_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: mean_itl_ms
+  value: 193.65055979555427
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/mean_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 1753.2835177145898
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/p99_itl_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: median_e2el_ms
+  value: 533334.9035624415
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/median_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 735072.9479982704
+  unit: ms
+  scope: 单 baseline 进程；原校验完整但 P1K TTFT 波动10.01%超5%，整套 incomplete，不能作为有效迁移收益
+  source_pointer: /performance/completed_case_summaries/cases/p32768-d1024-c64-n128/metric_medians/p99_e2el_ms
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+  result: incomplete
+  statistic: median
+remote_case_root: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression
+scope: migration-regression
+graph:
+  status: passed
+  instance: baseline-02
+  minimum_completed_replays_per_rank: 2
+  service_manifest: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/services/baseline-02.verified.service.json
+  service_manifest_sha256: 6d51898bb61a629fc2573c8793ee9e19f6db84c71b89106eee1c20e45f16cffb
+accuracy:
+  status: baseline_reference_verified_candidate_pending
+  rule: candidate full198 score >= first valid old-Plugin full198 score; seed42
+  active_job:
+    job_id: a1-formal-198-v2
+    status: completed_verified
+    client_container: qwen36-27b-regression-eval-20261022
+    job_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/a1-formal-198-v2
+    native_run_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/a1-reference-runs/Qwen3.6-27B-plugin-migration-A1-reference/c045b1ac65434591abf7ea4eabe63966
+    expected_samples: 198
+    formal_score: 0.7828282828282829
+    model_requests_started_at_utc: '2026-10-22T14:52:28Z'
+    correct_samples: 155
+    run_record_sha256: 2743ee0c19a55d05fd0fc231355192b5e022eb86ee9e76e4de0a859ea4fffb0b
+  minimal_regression: 'baseline-02 passed: GPQA10=9/10, arithmetic=2, all12 responses valid; doc8 length at30000 recorded
+    separately'
+  progress_snapshot:
+    observed_at_cst: 2026-10-23 00:04
+    native_score_timestamp_utc: '2026-10-22 15:32:04'
+    completed_samples: 198
+    expected_samples: 198
+    strict_correct_partial: 155
+    strict_score_partial: 0.7828282828282829
+    timeouts: 0
+    final_result_available: true
+  candidate_threshold:
+    value: 0.7828282828282829
+    metric: exact_match,strict-match
+    contract: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/b1-candidate-inputs/candidate-contract.json
+    sha256: 463fc984a6c11d1b0d5e3f640c7612d4ba9570209db4e2d9c320b710e10323eb
+    frozen_before_candidate_start: true
+  candidate_config:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/accuracy/b1-candidate-inputs/formal-config.json
+    sha256: 849040f206ac06fb9dbc3b8188ec89da8222ca5ab761871c6097a1fe5fec85ee
+performance:
+  status: incomplete_baseline_within_process_latency_noise
+  mode: checkpoint
+  max_regression: 0.05
+  max_drift: 0.05
+  min_processes_per_role: 2
+  warmup_rounds: 5
+  measured_rounds: 3
+  dry_run:
+    status: passed
+    artifact: commands/a1-performance-warmup5.dry-run.json
+    sha256: aa7ca72ec8174ed5222087054e50043a8ef9a044d425234244352fef0bb9c509
+    round_commands: 32
+    model_requests_sent: 0
+  active_job:
+    job_id: a1-performance-warmup5
+    status: completed_verified
+    client_container: qwen36-27b-regression-a-20261022
+    service_instance: baseline-02
+    job_path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/jobs/a1-performance-warmup5
+    run_record: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance-warmup5/run-record.json
+    scope: checkpoint migration regression; not original-anchor final acceptance
+    current_scenario: p32768-d1024-c64-n128
+    completed_rounds_observed: 32
+    total_rounds: 32
+    run_record_sha256: 851bf0cc0bb6e79c31f13d66b3b9e62fdf7961d2de68098ecc5b49b19f6cb5fe
+  warmup_stability_window: 3
+  current_plan:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/contracts/perf-plan-v2.json
+    sha256: 5eb9551b57544d357b95ca80401971dc42ddaff6085f0afd67451d31f6cd8571
+    revision_reason: previous3-warmup run failed steady-state admission; no admitted measurements; same revised plan required
+      for all roles
+  failed_attempts:
+  - job_id: a1-performance
+    native_status: failed
+    conclusion: incomplete-steady-state-not-admitted
+    run_record: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/a1-performance/run-record.json
+    sha256: e49e23f425433e9eb322f1c8422b6fe972b6b90b7643e0255c6277841fc8d288
+    completed_warmup_rounds: 3
+    measured_rounds: 0
+    scenario: p1024-d1024-c64-n128
+    output_throughput_tokens_per_second:
+    - 1015.9565786024328
+    - 1162.9849292399263
+    - 1162.652738285095
+    relative_spread: 0.12645938533147846
+    steady_state_limit: 0.05
+    migration_regression_conclusion: not_comparable_candidate_not_run
+  individual_run_verification:
+    path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/performance/verification/a1-performance-warmup5.json
+    sha256: 79c4e622cd6cfe13d9a7d49eec9041270eae797ac97c9447828cd59d9b305850
+    status: passed
+    scope: one native run only; independent repetition, candidate/revert comparison and drift decisions pending
+  completed_case_summaries:
+    observed_at_cst: 2026-10-23 06:08
+    scope: one complete baseline process native check_run passed; independent repetitions and migration comparison pending
+    cases:
+      p1024-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 1162.7258019368135
+        - 1162.3976945492814
+        - 1163.0130796207611
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 112.72821139916778
+          total_input_tokens: 131072
+          total_output_tokens: 131072
+          request_throughput: 1.1354744159539194
+          output_throughput: 1162.7258019368135
+          peak_output_throughput: 1472.0
+          total_token_throughput: 2325.451603873627
+          mean_ttft_ms: 5230.113986879587
+          median_ttft_ms: 5193.037930876017
+          p99_ttft_ms: 10936.986049544066
+          mean_tpot_ms: 49.90777721005104
+          median_tpot_ms: 50.05816461924438
+          p99_tpot_ms: 54.22700027149546
+          mean_itl_ms: 49.90777735751899
+          median_itl_ms: 44.41963788121939
+          p99_itl_ms: 45.86456432938575
+          median_e2el_ms: 56260.329329408705
+          p99_e2el_ms: 62146.53339808807
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+      p4096-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 692.1013833697906
+        - 692.1197304712318
+        - 692.044468598799
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 189.38265859521925
+          total_input_tokens: 524288
+          total_output_tokens: 131072
+          request_throughput: 0.6758802571970611
+          output_throughput: 692.1013833697906
+          peak_output_throughput: 1344.0
+          total_token_throughput: 3460.5069168489526
+          mean_ttft_ms: 14138.528529423638
+          median_ttft_ms: 5702.734394930303
+          p99_ttft_ms: 44571.96385836229
+          mean_tpot_ms: 78.47470971366779
+          median_tpot_ms: 86.97186088606439
+          p99_tpot_ms: 90.85039106883175
+          mean_itl_ms: 78.47470987941453
+          median_itl_ms: 48.92112500965595
+          p99_itl_ms: 1424.728146865964
+          median_e2el_ms: 94136.94303762168
+          p99_e2el_ms: 134574.45830577984
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+      p16384-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 230.0051055573704
+        - 229.9854057714065
+        - 230.07276704872345
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 569.8656109496951
+          total_input_tokens: 2097152
+          total_output_tokens: 131072
+          request_throughput: 0.22461436089586953
+          output_throughput: 230.0051055573704
+          peak_output_throughput: 874.0
+          total_token_throughput: 3910.0867944752968
+          mean_ttft_ms: 98312.22663301742
+          median_ttft_ms: 65059.79074630886
+          p99_ttft_ms: 253538.64131763577
+          mean_tpot_ms: 166.53699346137574
+          median_tpot_ms: 189.2591632278099
+          p99_tpot_ms: 240.64593754756123
+          mean_itl_ms: 166.53699364117654
+          median_itl_ms: 55.58604095131159
+          p99_itl_ms: 1570.5361649766564
+          median_e2el_ms: 262830.75525797904
+          p99_e2el_ms: 451686.2021176517
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+      p32768-d1024-c64-n128:
+        completed_rounds: 8
+        warmup_rounds: 5
+        measured_rounds: 3
+        all_native_validations_passed: true
+        measured_output_throughput_values:
+        - 113.68055829272322
+        - 113.68311987996138
+        - 113.76147416491291
+        metric_medians:
+          failed_requests: 0
+          successful_requests: 128
+          benchmark_duration: 1152.9592092335224
+          total_input_tokens: 4194304
+          total_output_tokens: 131072
+          request_throughput: 0.11101867175777479
+          output_throughput: 113.68311987996138
+          peak_output_throughput: 468.0
+          total_token_throughput: 3751.5429560387256
+          mean_ttft_ms: 302420.17927151755
+          median_ttft_ms: 322125.0790003687
+          p99_ttft_ms: 523667.3704718612
+          mean_tpot_ms: 193.65055960464395
+          median_tpot_ms: 206.601418604854
+          p99_tpot_ms: 257.8025676629061
+          mean_itl_ms: 193.65055979555427
+          median_itl_ms: 56.23758677393198
+          p99_itl_ms: 1753.2835177145898
+          median_e2el_ms: 533334.9035624415
+          p99_e2el_ms: 735072.9479982704
+        throughput_unit: output token/s
+        latency_unit: ms
+        latency_scope: median of three native round metrics; client proxies, not pure device phase timings
+  within_process_variability:
+    status: incomplete
+    path: performance/verification/a1-performance-warmup5-variability.json
+    sha256: 70d812e65a728d1a57598f057cf85c6c505302da8402a2c36a57f1c1dde3fcb9
+    scenario: p1024-d1024-c64-n128
+    metric: median_ttft_ms
+    values_ms:
+    - 5395.882333628833
+    - 4875.803179107606
+    - 5193.037930876017
+    relative_spread: 0.10014930787025744
+    limit: 0.05
+    data_integrity: native_check_run_passed_complete32
+    migration_regression: not_attributable_candidate_not_measured
+    next_action: diagnose measured latency variability before comparable performance reruns; retain every round, no threshold
+      relaxation
+environment:
+  image_lineage: verified
+  mount_parity: passed
+  snapshot_image: sha256:50b91afb5af0f4209c0d469930c392818654151c78e559c41d1adc7e2bde8838
+  evidence: clone-preparation/20261022T134301Z-b7d4dcad/result.json
+  source_container_preserved: true
+  baseline_container: qwen36-27b-regression-a-20261022
+  candidate_container: qwen36-27b-regression-b-20261022
+  model_manifest_sha256: d07003c7d4212744b2c5886479abf9236684b296cc5d0f022f3b0b55c79d5c21
+automation:
+  id: qwen27b
+  kind: heartbeat
+  status: ACTIVE
+  cadence: hourly
+  authorization: 'user: 每一个小时提醒一次吧'
+  stop_when: migration regression complete or user intervention required
+tools_root: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/tools-v3
+evaluation_launcher: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-plugin-regression/commands/launch-evaluation-job-v2.py
+baseline_service_stop:
+  status: released_after_term
+  receipt: services/stops/baseline-02-20261022T221016Z-092558fd/stop-receipt.json
+  script: commands/stop-service-v2.py
+  python: /usr/bin/python3 -I
+  container_stopped: false
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: incomplete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 35
+    - 36
+    - 37
+    - 38
+    - 39
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

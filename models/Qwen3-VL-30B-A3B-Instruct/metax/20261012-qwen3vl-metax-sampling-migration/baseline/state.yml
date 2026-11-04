@@ -1,0 +1,74 @@
+schema_version: 4
+identity:
+  case_id: 20261012-qwen3vl-metax-sampling-migration
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: qwen-vl-existing-sampling
+  topology: TP2:device4-device5
+stage: baseline
+current:
+  status: incomplete
+  candidate: null
+  next_action: 本任务为代码迁移；模型性能/精度未测，不签发正式验收
+experiments: []
+metrics: []
+policy_version: '0.40'
+acceptance_scope: diagnostic
+target:
+  source_container: qwen-vl
+  optimization_container: qwen-vl-sampling-opt-20261012
+  remote_work_root: /public-flash/jinghao/qwen3-VL
+  remote_case_dir: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration
+  image_lineage: verified
+  mount_parity: passed
+  snapshot_image_id: sha256:db3b38db4407ce8e51bcfa01ab4211d4d2930e12cc30334d10f5cea04326d11c
+source_repositories:
+  /workspace/vllm:
+    revision: ee0da84ab9e04ac7610e28580af62c365e898389
+    python_sha256: 147d5c3ee631aba0c72c5556c98bea1b134cf1e04e9149efb72ef2f57ea3ce65
+  /workspace/vllm-plugin-FL:
+    revision: 4d4645b33627f0859e4b2d0be319bedc4562932d
+    python_sha256: 5cb4d1edb30da8aee7bb8b144ebbbbb7f9886c14abd17fdc1942d79c0756190b
+  /workspace/FlagGems-vllm:
+    revision: f6fdb9b120787e12892ac67e54979cbf829c7d64
+    python_sha256: 455b540c810009d0d7931fa3d9e6fe149c4aa38029a63793d426298a21d802b7
+  /workspace/FlagGems:
+    revision: 9beec73856969aec8268a7a22788a17a119211fb
+    python_sha256: d02d9bbc7fedbeb7034427ce114dd3d4820648c03f4e8b420af7f433c17ae6c1
+formal_accuracy_status: not_run
+performance_status: incomplete
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: incomplete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 代码迁移及回退；模型性能/精度未测，组件时延不能替代 E2E。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 代码迁移及回退；模型性能/精度未测，组件时延不能替代 E2E。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 代码迁移及回退；模型性能/精度未测，组件时延不能替代 E2E。
+    evidence_pointer: state.yml#/current/next_action
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 代码迁移及回退；模型性能/精度未测，组件时延不能替代 E2E。
+    evidence_pointer: state.yml#/current/next_action
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: state.yml#/current/next_action
+    reason: 代码迁移及回退；模型性能/精度未测，组件时延不能替代 E2E。

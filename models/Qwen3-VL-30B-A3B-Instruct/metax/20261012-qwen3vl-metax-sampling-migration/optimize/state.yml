@@ -1,0 +1,1373 @@
+schema_version: 4
+identity:
+  case_id: 20261012-qwen3vl-metax-sampling-migration
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: qwen-vl-existing-sampling
+  topology: TP2:device4-device5
+stage: optimize
+current:
+  status: completed-requested-rollback
+  candidate: op-012-revert-plugin-sampler
+  next_action: Plugin采样恢复原HEAD PyTorch fallback，MoE保持op010；库算子保留但不再由Plugin采样入口调用。完整模型graph/C8与正式精度性能未测，不形成正式gate。
+experiments:
+- experiment_id: op-001-sampling-library-migration
+  document: op-001-sampling-library-migration.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/improve
+  scope: 源码归属调整与算子级正确性；不是端到端优化验收
+  command_file: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/prepare.py
+  prepare_sha256: bd52fd2b5023fbe7e83a8c11d3c4b026efcc40a21e5c8144b8045c10c3f540f3
+  environment_repair:
+    reason: --mount declaration differs from source --volume BindOptions
+    command: commands/recreate.py
+    sha256: b9e31a8fc3e685da0c3c5561711c56aefa27f8a2e70e236ca06ab20495543702
+    source_code_changed: false
+  apply_command:
+    path: commands/apply_candidate_v2.py
+    sha256: c47159dc83a70fde6e199a9cc3980c6b5ce57a87237ca7b09bd8a54ef06d1b4b
+  candidate_inputs:
+    plugin_topk_topp_sampler.py: 4a6ada2b094d02326e7ebcdf3fbeb74cd1bccf7fba0daac91085e7155486fbc9
+    metax_top_k_top_p.py: d342880b71c8c308085c477e70ca179acc9b28b6246dc5cd0e357704fb9b5515
+    test_top_k_top_p.py: a2f17ea2fbc37efcb73951d441f7384562e230877c5735b2181ef1537c0b9a35
+    top_k_top_p.py: 815cd20e17cd44e766b2c8285128aa17a3cadf97293d0fe0af78c45a2bf3a646
+    benchmark_top_k_top_p.py: 7e3eb32fb13dcd60c21e418645c541059df54427686a83809e16c577f67ad409
+  correctness:
+    operator_v1: passed
+    cases: 49
+    graph: M2 and M64; BF16/FP32/ties each replayed twice
+    service_minimal_regression: incomplete; no service run yet
+    evidence: logs/functional-v1.log
+    operator_final: passed
+    operator_final_cases: 49
+    plugin_cases: 7
+    plugin: passed
+    evidence_final:
+    - logs/functional-v3.log
+    - logs/plugin-v3.log
+  update_command:
+    path: commands/v2/update_candidate_v2.py
+    sha256: 2a15065f88f9079a37a9548de53d102472131845ec8e65ea27ca99881c0d6ae6
+  candidate_v2_inputs:
+    plugin_topk_topp_sampler.py: 285e3613103740b880f79216b767e9024f541e9fb52c4ca1c2d69685195c7f68
+    metax_top_k_top_p.py: b17de0558d78acd5446877a8f44ffcc7dc5a6d5b2409f58c793b4872cff9817c
+    test_top_k_top_p.py: a113717292921bc081c03edcfbb2bf6581d9a27c95bba56773c70138659c08f8
+    top_k_top_p.py: 815cd20e17cd44e766b2c8285128aa17a3cadf97293d0fe0af78c45a2bf3a646
+    test_metax_topk_topp_sampler.py: 46eee1f76abfcafc86761fcee4237e86ff67224c89402460db09cc7c97e7a139
+    benchmark_top_k_top_p.py: aaeec4949041f4f0322ea95a0b32d5543741c5929b8623a81ccc9522342bd8f0
+  validation_command:
+    path: commands/validate-v3.sh
+    sha256: 38e7271500583216633eeb06a23f96712ef70cab8450379f6b7756eae83db44a
+  deploy_command:
+    path: commands/deploy_to_qwen_vl.py
+    sha256: 164eff8922b48c342d2ea27d99ccd89d75dfb41af19110534b31a3833c2cad61
+    source_sha_guard: commands/source-expected.json
+    authorization: 用户当前“那你来调整下”指向 mx-59/qwen-vl 的已有采样代码归属；仅迁移该源码及必要正确性保护，独立容器已验证，不运行源容器性能/精度实验或重启服务
+  decision: retained-code-only
+  benchmark:
+    scope: operator-only; one process, 3 rounds, no profiler
+    model_service: false
+    reference: vLLM apply_top_k_top_p_pytorch under flag_gems.use_gems; registration outside timing loop
+    logits_restore: both paths include identical logits.clone()
+    parameters:
+      k: 20
+      p: 0.8
+      seed: 42
+    results:
+    - m: 2
+      vocab: 257
+      domain: bf16
+      reference_ms: 2.0703675746917725
+      candidate_ms: 0.4905545115470886
+      speedup: 4.283083093591262
+      rounds:
+      - reference_ms: 2.0670294761657715
+        candidate_ms: 0.4771246314048767
+        speedup: 4.332263186831239
+      - reference_ms: 2.1157429218292236
+        candidate_ms: 0.4939766228199005
+        speedup: 4.283083093591262
+      - reference_ms: 2.0703675746917725
+        candidate_ms: 0.4905545115470886
+        speedup: 4.220463834207417
+    - m: 2
+      vocab: 257
+      domain: fp32
+      reference_ms: 2.031235694885254
+      candidate_ms: 0.6396776437759399
+      speedup: 3.1755625832713816
+      rounds:
+      - reference_ms: 2.0721828937530518
+        candidate_ms: 0.6408560872077942
+        speedup: 3.2334605773685308
+      - reference_ms: 2.031235694885254
+        candidate_ms: 0.6396459341049194
+        speedup: 3.1755625832713816
+      - reference_ms: 1.9795551300048828
+        candidate_ms: 0.6396776437759399
+        speedup: 3.0946135905575938
+    - m: 64
+      vocab: 151936
+      domain: bf16
+      reference_ms: 28.691558837890625
+      candidate_ms: 1.8757048845291138
+      speedup: 15.296414203822632
+      rounds:
+      - reference_ms: 28.70261573791504
+        candidate_ms: 1.8719691038131714
+        speedup: 15.332846936121042
+      - reference_ms: 28.691558837890625
+        candidate_ms: 1.8757048845291138
+        speedup: 15.296414203822632
+      - reference_ms: 28.674610137939453
+        candidate_ms: 1.876171350479126
+        speedup: 15.283577446493197
+    - m: 64
+      vocab: 151936
+      domain: fp32
+      reference_ms: 28.73948097229004
+      candidate_ms: 22.478933334350586
+      speedup: 1.278457180409548
+      rounds:
+      - reference_ms: 28.73948097229004
+        candidate_ms: 22.48682403564453
+        speedup: 1.2780586945819576
+      - reference_ms: 28.738353729248047
+        candidate_ms: 22.478933334350586
+        speedup: 1.278457180409548
+      - reference_ms: 28.808141708374023
+        candidate_ms: 22.477827072143555
+        speedup: 1.2816248481631722
+  production_audit: 'passed: 11 torch calls all uninitialized allocations; no torch compute fallback'
+  engineering_review:
+    pr_readiness: needs_revision
+    reason: 当前仅MetaX硬件与算子graph验证；未完成模型级回归/正式精度/端到端复测，依赖FlagGems sort内部JIT API；保留已有实验开关
+    untested:
+    - NVIDIA/其他平台硬件
+    - 完整模型graph服务和TP2两个worker
+    - 完整GPQA与四场景端到端验收
+  deployment:
+    container: qwen-vl
+    changed_files: 9
+    vllm_worktree: clean
+    api_file: /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+    service_restarted: false
+    verification: actual API source file; rollback dry-run verified 10 files
+    manifest: manifests/qwen-vl-deployment.json
+  rollback:
+    command: docker exec qwen-vl /opt/conda/bin/python3 /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/rollback_qwen_vl.py
+      --dry-run
+    execute: 去掉 --dry-run，先确认服务/当前SHA；不自动重启服务
+    sha256: e9155e1bf1dfe9abe0edc93e52d220fd45aec4fd1232e93d2a688c9f5642e269
+    dry_run:
+      rollback_ready: true
+      verified_files: 10
+      mutated: false
+- experiment_id: op-002-moe-path-review
+  document: op-002-moe-path-review.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/replace
+  scope: read-only diagnosis of inherited MoE patch; no code or service changes
+  decision: diagnosis-only
+  selection:
+    default_impl_id: default.flagos
+    candidates:
+    - default.flagos
+    - vendor.metax
+    per_op_override: null
+    evidence_kind: runtime-metadata; not live kernel hit
+  validation:
+    source_and_config: executed_passed
+    default_dispatch: executed_passed
+    numerical_and_graph: not_run
+    model_accuracy_and_performance: not_run
+  pr_readiness: needs_revision
+- experiment_id: op-003-moe-library-switch
+  document: op-003-moe-library-switch.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/replace
+  scope: source integration only; two Plugin fused MoE entrypoints
+  decision: retained-code-only
+  accuracy_mode: minimal-regression
+  correctness: incomplete-model-service; operator-and-routing-passed
+  performance: not_run
+  pr_readiness: needs_revision
+  authorization: user explicitly requested changing current qwen-vl Plugin fused MoE source to FlagGems-vllm
+  optimization_container: qwen-vl-sampling-opt-20261012
+  image_lineage: verified-existing-case-snapshot
+  mount_parity: passed
+  command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op003
+  patch:
+    path: commands/op003/plugin.patch
+    sha256: 775d455a65fa6dd79726d724880f761162fdc11e1dba98c6a871627ff9a849af
+    changed_production_files: 2
+  apply:
+    command: commands/op003/apply-v2.py deploy
+    sha256: 760ccda1ad1c6224ba970b091602c099a3bb5cd3abfb67d7e28fd2aed136fbcd
+    manifest: results/op003-deploy-manifest.json
+    mount_diff: results/op003-deploy-mounts.json
+  validation:
+    command: commands/op003/validate-v2.sh
+    script_sha256: 75034387f8777f5b5534137da986465a36af479a0a4d2af2ae9c8b82726e9a2e
+    log: logs/op003-validation-v2.log
+    result: results/op003-validation-v2.json
+    routing_contract_checks: 3
+    device: MetaX C550 physical device 4
+    hardware_cases: 20
+    dtypes:
+    - bf16
+    - fp16
+    tokens:
+    - 1
+    - 8
+    - 64
+    - 257
+    - 1024
+    stages:
+    - gemm1
+    - gemm2
+    graph_replays_per_case: 2
+    max_abs_diff_old: 0.0
+    independent_fp32_reference: passed-with-predefined-tolerance
+    baseline_and_candidate_dependencies: results/op003-dependency-parity.json
+    source_postverify: results/op003-source-postverify.json
+    impl_id: default.flagos
+    numerical_quantized_paths: not_run
+    nvidia_full_path: mock-only
+    model_service_and_formal_gpqa: not_run
+  unchanged:
+  - dispatch policy
+  - existing MCTLLASS patch
+  - existing sampler migration
+  - FlagGems and FlagGems-vllm code
+  - vLLM code
+  service_restarted: false
+  rollback:
+    command: python3 commands/op003/rollback.py
+    execute_argument: --execute
+    sha256: 8f563eacd2e67d1cd0aa7d1a0b438092dacc76d2393aa721b411784bcd09873a
+    dry_run: passed; verified 2 files; mutated false
+  incidents:
+  - issue_id: op003-test-naive-assignment
+    classification: measurement-invalid
+    evidence: logs/op003-validation.log
+    cause: test used None padding count; original FlagGems failed before candidate invocation
+    correction: v2 uses actual Plugin assignment helper and BM16/BM128 configurations
+    revalidation: 20 hardware cases passed
+  - issue_id: op003-order-sensitive-mount-guard
+    classification: guard-validation
+    evidence: first deploy rejected before source writes; fresh inspect agrees
+    correction: use project canonical mount comparison; preserve all fields and compare sorted bind declarations
+    revalidation: results/op003-deploy-mounts.json passed
+- experiment_id: op-004-metax-full-moe
+  document: op-004-metax-full-moe.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/replace
+  scope: MetaX no-LoRA unquantized SiLU FlagOS full MoE; correctness integration only
+  decision: retained-code-only
+  accuracy_mode: minimal-regression
+  correctness: passed-scoped-operator-and-TP2-model-graph
+  performance: not_run
+  formal_gpqa: not_run
+  pr_readiness: needs_revision
+  command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op004
+  environment:
+    vllm_runtime: 0.24.0
+    MACA_host: 3.7.1.5
+    optimization_container: qwen-vl-sampling-opt-20261012
+    image_lineage: verified-existing-case-snapshot
+    mount_parity: passed
+    device_topology: TP2 physical GPUs4/5
+  dependencies:
+  - MetaX library shared-memory-capacity fix
+  - MetaX worker avoids unsupported upstream NVIDIA-specific kernel warmup
+  capability_scope:
+    activation: SiLU
+    dtypes:
+    - fp16
+    - bf16
+    - fp32
+    quantization: none
+    lora: none
+    policy: invoke/align/silu/sum selected default.flagos
+    input_side_preweighted: original stepwise path
+    other_platforms: existing branch unchanged
+  operator_validation:
+    result: results/op004-validation-v8.json
+    log: logs/op004-validation-v8.log
+    script_sha256: 655cabaa74d50754890260b48fdc4d0eb72f2c10572e75e4889398982c89a190
+    cases: 21
+    empty_cases: 2
+    nonempty_cases: 19
+    graph_changed_input_replays_per_nonempty: 2
+    routing_checks: 11
+    bf16_max_abs_diff_baseline: 0.00390625
+    fp16_max_abs_diff_baseline: 0.00048828125
+    fp32_reference: independent math; original stepwise baseline unsupported shared memory
+    numerical_quantized_paths: not_run
+  model_graph_validation:
+    result: results/op004-model-graph-validation.json
+    log: logs/op004-model-service-v2.log
+    launch: manifests/op004-service-launch-v2.json
+    mode: FULL_AND_PIECEWISE maxcapture128; torch.compile retained
+    requests: 18
+    single_requests: 2
+    c8_waves: 2
+    nonempty: 18
+    TP_worker_library_hit: true
+    native_replays_each_worker_at_least: 16
+    replay_observation: startup/warmup included; not a per-request count
+    observer: validation-only; production code not instrumented
+    output_health: sample answers coherent; some max_tokens=96 length truncation, not formal score
+  deployment:
+    container: qwen-vl
+    command: commands/op004/deploy_gate.py
+    manifest: results/op004-deploy-v9-manifest.json
+    mount_diff: results/op004-deploy-v9-mounts.json
+    tested_sha_gate: results/op004-deploy-gate.json
+    changed_production_files: 3
+    service_restarted: false
+    postverify: results/op004-source-postverify.json
+  patches:
+    plugin_moe: commands/op004/plugin-v6.patch
+    plugin_worker: commands/op004/worker-v9.patch
+    library: commands/op004/library-v7.patch
+  rollback:
+    command: python3 commands/op004/rollback-v9.py
+    execute_argument: --execute
+    sha256: 17c494bda50f604e4b3ce72df94d54d013c5a2ee01a801fe9b7104c5adcf8d21
+    expected_files: 3
+    dry_run: passed; verified 3 files; mutated false
+  incidents:
+  - v1 invalid test fixture omitted parent attribute
+  - v2-v4 MetaX shared memory/pair-layout unsupported
+  - v5 weighted test did not respect prepared-input/top-k1 contract; adapter guard added
+  - v6 FP32 byte-size underestimate
+  - v7 old FP32 baseline unsupported; independent reference used
+  - first model service blocked by unrelated MiniMax NVIDIA import in upstream warmup; MetaX worker boundary
+    fixed
+  remaining_gaps:
+  - formal GPQA
+  - formal no-profiler performance
+  - other MetaX models startup warmup coverage
+  - NVIDIA/other-platform hardware
+  - quantized MoE numerical coverage
+- experiment_id: op-005-remove-sampling-switch
+  document: op-005-remove-sampling-switch.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/replace
+  scope: 既有迁移代码整理，移除实验开关；minimal-regression，不声明性能收益
+  command_file: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op005-inline/apply.py
+  correctness:
+    mode: minimal-regression
+    status: passed
+    operator_cases: 49
+    plugin_cases: 8
+    actual_plugin_graph:
+      shape:
+      - 64
+      - 151936
+      dtype: float32
+      domains:
+      - BF16-grid
+      - FP32
+      - positive-ties
+      replays_each: 2
+      bitwise_equal_reference: true
+      legacy_env_present: false
+    model_graph:
+      status: passed
+      mode: FULL_AND_PIECEWISE
+      requests: 18
+      single: 2
+      c8_waves: 2
+      worker_replays_at_least: 2
+      replay_observation: includes startup/warmup, not per-request counts
+      nonempty: 18
+      length_limited: 15
+      errors_or_timeouts: 0
+      validation_devices:
+      - 0
+      - 1
+      source_devices:
+      - 4
+      - 5
+      device_difference_reason: 用户释放0/1；4/5有无关服务，只验证功能，不作性能归因
+  performance:
+    status: not_measured
+  decision: retained-code-only
+  baseline_parent_candidate: op-004-metax-full-moe
+  command_sha256: c745be17ad891a3cf3a2fb92ce7ef9ce7fe2cc39d573299cb7e8c67669f1430c
+  static_review:
+    sampler: whole AST equal after removing env conjunct/os import
+    worker: whole AST equivalent after removing diagnostic log and negating guard/branch
+    full_moe_adapter: r1 unchanged; r2 removes helper and inlines same conditions, compute tail unchanged
+    git_diff_check: passed
+    black_isort_flake8: passed for sampler and routing tests; no broad Worker formatting
+  worker_necessity:
+    error: 'TypeError: jit() got an unexpected keyword argument ''do_not_specialize_on_alignment'''
+    path: kernel_warmup -> minimax_m3_msa_warmup -> MiniMax NVIDIA model -> index_topk
+    source_and_clone_reproduced: true
+    effect: MetaX skips incompatible upstream kernel_warmup; model dummy-run/compile/capture preserved
+    removal_condition: upstream unconditional import compatibility fixed
+    broader_metax_models: not_run
+  deployment: &id001
+    container: qwen-vl
+    files:
+      /workspace/vllm-plugin-FL/vllm_fl/ops/fused_moe/fused_moe_utils.py: 0f270b9faf2883684bdb48bf1a075304e14eab41d8edb76a1f0c21e7d35066c0
+      /workspace/vllm-plugin-FL/vllm_fl/worker/worker.py: 0ca18d5c656fbaf24e1968e274cce14623f91f784fbf39efd1eb141f07a0752e
+    source_service_restarted: false
+  rollback:
+    command: python3 /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op005-inline/rollback.py
+    execute_option: --execute
+    sha256: db6093d6020f6b4955b527bdb3e3ef65e41ccc14e45f48cfa63b812664cad56e
+    dry_run:
+      verified_files: 2
+      mutated: false
+    scope: restore only r2 helper/comment cleanup to prior r1; prior rollback requires r2 restoration
+      first
+  cleanup:
+    validation_service_stopped: true
+    source_service_restarted: false
+    devices_0_1_released: true
+    both_target_containers_remaining_vllm_processes: 0
+    other_services_changed: false
+  engineering_review:
+    pr_readiness: needs_revision
+    scope: 代码整理与目标路径minimal-regression；非正式精度或端到端验收
+    untested:
+    - 正式GPQA
+    - 无profiler端到端性能
+    - 其他MetaX模型warmup
+    - 非目标平台硬件
+  control_corrections:
+  - AST checker selected no-filter BoolOp; corrected v2, source deployment gate halted before pass
+  - vLLM capture log wording differed; verified actual PIECEWISE/FULL 100% completion and two-worker native
+    replays from same 18 requests
+  artifact_index:
+    path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/manifests/op005-artifacts.json
+    items: 66
+  evidence:
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/op005-operator-validation.json
+    bytes: 815
+    sha256: d05564324ca80b6da1de46dd65143d7b524b5a8a91f207e85e103cedc11ad053
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/op005-model-graph-validation.json
+    bytes: 2030
+    sha256: 03915d74e320ad22299d34fc97993eaf618ecb8fa9a564be14ea8ca4ef89b5e5
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/op005-source-postverify.json
+    bytes: 757
+    sha256: 7077cd6d64e1ab7cb49bfd4b6803464d65b57ddc1bd390d65e1c29baf704a7f7
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/patches/op005-final-Plugin.patch
+    bytes: 12008
+    sha256: 2801aacdb5a624efb068bf1db89bdfbb422758707f31f5e2a2b576c802f03a87
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/patches/op005-final-FlagGems-vllm.patch
+    bytes: 25442
+    sha256: a5b8274dff25210bc41c32d01aa677f9c888a8cf988f4c0d54305696022234b8
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op005/apply-v3.py
+    bytes: 4198
+    sha256: 1ef68c2f79f047b67660fc39f97620e781829aff0d8a8781470053974ed0b974
+  - path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op005/rollback-v2.py
+    bytes: 1478
+    sha256: b547dc6c13d0386b884f7f699e6670f912d0b7d7d3664b1ed6564f641b16ef41
+  refinement:
+    revision: r2-inline-moe-guard
+    status: completed
+    command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op005-inline
+    change: remove private helper; inline same support/policy conditions; correct Worker comment only
+    correctness:
+      mode: minimal-regression
+      status: passed
+      routing_comparisons: 20
+      hardware_moe_graph_cases:
+      - dtype: torch.bfloat16
+        tokens: 64
+        bitwise_equal_last_replay: true
+        atol: 0.03
+        rtol: 0.03
+        changed_input_graph_replays: 2
+      - dtype: torch.float16
+        tokens: 1
+        bitwise_equal_last_replay: true
+        atol: 0.006
+        rtol: 0.01
+        changed_input_graph_replays: 2
+      model_graph_requests: 18
+      graph_mode: FULL_AND_PIECEWISE
+      two_rank_replays: at least two; includes startup/warmup
+      length_limited: 15
+      validation_devices:
+      - 0
+      - 1
+      formal_gpqa: not_run
+      performance: not_measured
+    helper_absent: true
+    worker_ast_unchanged: true
+    production_line_count_delta: -15
+    previous_deployment:
+      container: qwen-vl
+      changed:
+        /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/patches/topk_topp_sampler.py: 9c236e5f181c83997c0137b652962ebd543244be431ad4b77ed259669c88b869
+        /workspace/vllm-plugin-FL/tests/test_metax_topk_topp_sampler.py: 74ba925fe09c3560e064e11afed6bd32f23f0656cef6e1def140ed6c11a35ade
+        /workspace/vllm-plugin-FL/vllm_fl/worker/worker.py: 9af6ce18ed07c97cfadee0ed08c6ca8558ba2b5061bea07792a886341be35c25
+        /public-flash/jinghao/qwen3-VL/start-model.sh: 420e13f8986001e0ec5e3d8e42d49deacf59c9aff6d35b2bccb6011957da5c95
+      mount_parity: passed
+      image_lineage: verified-existing-case-snapshot
+      source_service_restarted: false
+      verification: source SHA, no active legacy references, unchanged MoE helper, vLLM worktree clean
+      manifest: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/op005-deploy-v2-manifest.json
+    deployment: *id001
+    source_postverify:
+      status: passed
+      files:
+        /workspace/vllm-plugin-FL/vllm_fl/ops/fused_moe/fused_moe_utils.py: 0f270b9faf2883684bdb48bf1a075304e14eab41d8edb76a1f0c21e7d35066c0
+        /workspace/vllm-plugin-FL/vllm_fl/worker/worker.py: 0ca18d5c656fbaf24e1968e274cce14623f91f784fbf39efd1eb141f07a0752e
+      helper_absent: true
+      worker_ast_unchanged: true
+      sampling_unchanged: true
+      vllm_worktree: clean
+      source_service_restarted: false
+    artifact_index:
+      path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/manifests/op005-inline-artifacts.json
+      items: 45
+    kernel_failure:
+      symbol: _index_block_score_kernel
+      definition: /workspace/vllm/vllm/models/minimax_m3/common/ops/index_topk.py:82
+      decorator_line: 81
+      keyword: do_not_specialize_on_alignment
+      phase: import, not kernel execution
+      NVIDIA_entry: minimax_m3_msa_warmup.py:7 imports nvidia.model.MiniMaxM3SparseAttention
+    cleanup:
+      validation_service_stopped: true
+      devices_0_1_released: true
+      source_service_restarted: false
+- experiment_id: op-006-flagtree-upgrade-review
+  document: op-006-flagtree-upgrade-review.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: framework
+  scope: runtime compatibility preflight only; no global package/source change
+  decision: diagnosis-only
+  command_file: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op006-flagtree-review/preflight.py
+  correctness:
+    status: passed
+    scope: API/module-import preflight only; not kernel or model gate
+    keyword_supported: true
+    minimax_import: passed
+    device_for_capability_query: 0
+    gpu_kernel_executed: false
+    model_service_started: false
+  performance:
+    status: not_measured
+  conclusion: 精确MetaX3.6 wheel的JIT API和原MiniMax warmup导入通过；该TypeError可由升级修复，全栈未验证，未替换任何全局安装
+  candidate:
+    flagtree: 0.7.0.post2+metax3.6
+    triton: 3.6.0
+    private_overlay: /workspace/op006-flagtree-runtime
+    wheel:
+      path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/wheels/op006-v2/flagtree-0.7.0.post2+metax3.6-cp312-cp312-linux_x86_64.whl
+      bytes: 425411075
+      sha256: 4e113cc9e94e5788400ccc11bbd3d8d29739255a517c801784115dff6bc4dda1
+      url: https://resource.flagos.net/repository/flagos-pypi-hosted/packages/flagtree/0.7.0.post2+metax3.6/flagtree-0.7.0.post2+metax3.6-cp312-cp312-linux_x86_64.whl#sha256=4e113cc9e94e5788400ccc11bbd3d8d29739255a517c801784115dff6bc4dda1
+  baseline:
+    qwen-vl:
+      flagtree: 0.5.1+metax3.0
+      triton: 3.1.0
+      path: /opt/conda/lib/python3.12/site-packages/triton/__init__.py
+    qwen-vl-sampling-opt-20261012:
+      flagtree: 0.5.1+metax3.0
+      triton: 3.1.0
+      path: /opt/conda/lib/python3.12/site-packages/triton/__init__.py
+  global_package_or_source_changed: false
+  evidence:
+    preflight:
+      triton_version: 3.6.0
+      triton_file: /workspace/op006-flagtree-runtime/triton/__init__.py
+      flagtree_version: 0.7.0.post2+metax3.6
+      jit_file: /workspace/op006-flagtree-runtime/triton/runtime/jit.py
+      jit_signature: '(fn: ''Optional[T]'' = None, *, version=None, repr: ''Optional[Callable]'' = None,
+        launch_metadata: ''Optional[Callable]'' = None, do_not_specialize: ''Optional[Iterable[int | str]]''
+        = None, do_not_specialize_on_alignment: ''Optional[Iterable[int | str]]'' = None, debug: ''Optional[bool]''
+        = None, noinline: ''Optional[bool]'' = None) -> ''KernelInterface[T]'''
+      keyword_supported: true
+      vllm_jit_keyword_supported: true
+      minimax_import: failed
+      traceback: "Traceback (most recent call last):\n  File \"<string>\", line 10, in <module>\n  File\
+        \ \"/workspace/vllm/vllm/model_executor/warmup/minimax_m3_msa_warmup.py\", line 7, in <module>\n\
+        \    from vllm.models.minimax_m3.nvidia.model import MiniMaxM3SparseAttention\n  File \"/workspace/vllm/vllm/models/minimax_m3/__init__.py\"\
+        , line 17, in <module>\n    from .nvidia.model import (\n  File \"/workspace/vllm/vllm/models/minimax_m3/nvidia/model.py\"\
+        , line 27, in <module>\n    from vllm.model_executor.layers.attention import Attention\n  File\
+        \ \"/workspace/vllm/vllm/model_executor/layers/attention/__init__.py\", line 13, in <module>\n\
+        \    from vllm.model_executor.layers.attention.mm_encoder_attention import MMEncoderAttention\n\
+        \  File \"/workspace/vllm/vllm/model_executor/layers/attention/mm_encoder_attention.py\", line\
+        \ 11, in <module>\n    from vllm.kernels.triton.qkv_padded_fp8_quant import (\n  File \"/workspace/vllm/vllm/kernels/__init__.py\"\
+        , line 5, in <module>\n    from . import aiter_ops, oink_ops, vllm_c, xpu_ops\n  File \"/workspace/vllm/vllm/kernels/oink_ops.py\"\
+        , line 18, in <module>\n    OINK_AVAILABLE = current_platform.has_device_capability(100) and hasattr(\n\
+        \                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/vllm/vllm/platforms/interface.py\"\
+        , line 432, in has_device_capability\n    current_capability = cls.get_device_capability(device_id=device_id)\n\
+        \                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/vllm-plugin-FL/vllm_fl/platform.py\"\
+        , line 435, in get_device_capability\n    major, minor = torch.cuda.get_device_capability(device_id)\n\
+        \                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/conda/lib/python3.12/site-packages/torch/cuda/__init__.py\"\
+        , line 607, in get_device_capability\n    prop = get_device_properties(device)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\
+        \  File \"/opt/conda/lib/python3.12/site-packages/torch/cuda/__init__.py\", line 623, in get_device_properties\n\
+        \    _lazy_init()  # will define _get_device_properties\n    ^^^^^^^^^^^^\n  File \"/opt/conda/lib/python3.12/site-packages/torch/cuda/__init__.py\"\
+        , line 419, in _lazy_init\n    torch._C._cuda_init()\nRuntimeError: No CUDA GPUs are available\n"
+    normal_device_import:
+      triton_version: 3.6.0
+      triton_file: /workspace/op006-flagtree-runtime/triton/__init__.py
+      flagtree_version: 0.7.0.post2+metax3.6
+      jit_file: /workspace/op006-flagtree-runtime/triton/runtime/jit.py
+      jit_signature: '(fn: ''Optional[T]'' = None, *, version=None, repr: ''Optional[Callable]'' = None,
+        launch_metadata: ''Optional[Callable]'' = None, do_not_specialize: ''Optional[Iterable[int | str]]''
+        = None, do_not_specialize_on_alignment: ''Optional[Iterable[int | str]]'' = None, debug: ''Optional[bool]''
+        = None, noinline: ''Optional[bool]'' = None) -> ''KernelInterface[T]'''
+      keyword_supported: true
+      vllm_jit_keyword_supported: true
+      minimax_import: passed
+      status: passed
+      scope: module import only; no kernel/model execution or global install change
+      device: 0
+    artifact_index: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/manifests/op006-artifacts.json
+    artifact_count: 26
+  runtime_upgrade_readiness: needs_model_operator_graph_regression
+  limitations:
+  - not MiniMax numerical/kernel test
+  - sampling/MoE with new compiler not_run
+  - normal kernel_warmup + target TP2 graph/C8 not_run
+  - formal GPQA/performance not_run
+  network_attempts:
+  - 'user-supplied transient proxy to FlagOS index: HTTP CONNECT500; no credential persisted'
+  - direct official FlagOS index succeeded; archive hash matches published fragment
+  control_correction: zero-GPU initial probe hit vLLM capability query; normal free device0 query completed
+    successfully
+  command_sha256: cb9ccb2540ab540c10822febc3a1e33e1fa58ef429e8f96dad6c2f0a454c2e37
+- experiment_id: op-007-worker-moe-cleanup
+  document: op-007-worker-moe-cleanup.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: framework
+  scope: FlagTree compatibility and removal of stale experimental Plugin code; no performance claim
+  accuracy_mode: minimal-regression
+  optimization_container: qwen-vl-sampling-opt-20261012
+  source_container: qwen-vl
+  command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op007
+  correctness:
+    mode: minimal-regression
+    result: passed
+    sampling_cases: 49
+    sampler_plugin_cases: 8
+    sampler_graph_domains:
+    - bf16
+    - fp32
+    - positive-ties
+    sampler_graph_replays_per_domain: 2
+    moe_routing_mock_cases: 20
+    moe_hardware_cases: 2
+    moe_graph_replays_per_case: 2
+    model_service_requests: 18
+    model_c8_waves: 2
+    model_nonempty: 18
+    model_length_limited: 15
+    model_client_errors: 0
+    graph_mode: FULL_AND_PIECEWISE
+    mixed_capture_sizes: 19
+    decode_capture_sizes: 11
+    worker_replay_ranks: 2
+    replay_scope: startup/warmup plus requests; not per-request counting
+    vendor_contract: mock dispatch passed; no mctlassEx import; no vendor hardware kernel claim
+    normal_kernel_warmup: unconditional original call; import fallback absent; subsequent capture/replay
+      completed
+    formal_gpqa: not_run
+  performance: not_run
+  pr_readiness: needs_revision
+  decision: retained-code-and-runtime-only
+  runtime:
+    old_flagtree: 0.5.1+metax3.0
+    old_triton: 3.1.0
+    new_flagtree: 0.7.0.post2+metax3.6
+    new_triton: 3.6.0
+    default_import: /opt/conda/lib/python3.12/site-packages/triton/__init__.py
+    activation: global private installation in both containers; not op006 overlay
+    wheel_sha256: 4e113cc9e94e5788400ccc11bbd3d8d29739255a517c801784115dff6bc4dda1
+    old_compiler_backup:
+      source:
+        archive: /workspace/op007-source-old-flagtree.tar
+        sha256: 14de252352b26869992fad3af8a3413c88c667e67e3037482414bb59a61e4698
+        old_version: 0.5.1+metax3.0
+        files: 129
+      candidate:
+        archive: /workspace/op007-candidate-old-flagtree.tar
+        sha256: 14de252352b26869992fad3af8a3413c88c667e67e3037482414bb59a61e4698
+        old_version: 0.5.1+metax3.0
+        files: 129
+  deployment:
+    container: qwen-vl
+    private_plugin_files: 3
+    source_sha256:
+      /workspace/vllm-plugin-FL/vllm_fl/ops/fused_moe/fused_moe_utils.py: 315707831d95a50036de935e8479583e3fe331dc82e3124823469cf4be58e1ff
+      /workspace/vllm-plugin-FL/vllm_fl/worker/worker.py: a1a296af0c00af79bef0dd8796a492cb7563127c155e470512e5068c18def651
+      /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/impl/fused_moe.py: 8539acfdc2aea05f9e009ed283d488b54f7263727698dc69196212e6a1763908
+    startup:
+      path: /public-flash/jinghao/qwen3-VL/start-model.sh
+      before: 420e13f8986001e0ec5e3d8e42d49deacf59c9aff6d35b2bccb6011957da5c95
+      after: 87d914ea639e945063248b926084ae8e0edb807b16206508237efd8118c6e4da
+      deleted_exports: 1
+      executed: false
+    service_restarted: false
+    vllm_worktree: clean
+    postverify: results/op007-postverify.json
+    legacy_docker_env:
+      qwen-vl:
+      - VLLM_FL_METAX_QWEN3VL_MCTLLASS_GEMM2=1
+      qwen-vl-sampling-opt-20261012:
+      - VLLM_FL_METAX_QWEN3VL_MCTLLASS_GEMM2=1
+    legacy_env_scope: immutable container Config.Env still declares MCTLLASS=1; all active Plugin references
+      and startup export removed; no source container recreation
+  rollback:
+    command: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op007/rollback.py
+    default: dry-run
+    execute: --execute; source idle and SHA guards required; no service restart
+    dry_run:
+      rollback_ready: true
+      mutated: false
+      compiler_backup_files: 129
+      source_files: 3
+      startup_files: 1
+      service_restarted: false
+    prior_rollbacks: op005/op004 old SHA guards will reject; restore op007 first if using older rollback
+      chain
+  evidence:
+  - results/op007-sampler-validation.json
+  - results/op007-validation.json
+  - results/op007-model-graph-validation.json
+  - results/op007-vendor-contract.json
+  - results/op007-final-audit.json
+  manifest:
+    path: manifests/op007-artifacts-final.json
+    artifacts: 72
+    scope: final after service exit; earlier op007-artifacts.json is a pre-exit snapshot
+  engineering_checks:
+    python_compile: passed
+    git_diff_check: passed
+    vendor_mcoplib_call_ast: unchanged
+    full_op_call_and_staged_tail_ast: unchanged
+    full_repo_lint: not claimed; preexisting vendor E501/E731; no unrelated rewrites
+    hardware_other_platforms: not_run
+- experiment_id: op-008-unquantized-entry-cleanup
+  document: op-008-unquantized-entry-cleanup.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: framework
+  scope: remove only proven duplicate unquantized configuration predicates; no algorithm or supported
+    legitimate input changes
+  accuracy_mode: minimal-regression
+  optimization_container: qwen-vl-sampling-opt-20261012
+  source_container: qwen-vl
+  command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op008
+  correctness:
+    mode: minimal-regression
+    status: passed
+    upstream_builder_cases: 4
+    prepare_cases: 6
+    routing_mock_cases: 19
+    hardware_moe_cases: 3
+    graph_replays_per_hardware_case: 2
+    fp32_reference: independent CPU float64 math on E4/H64/I32/K2/T3
+    model_requests: 18
+    model_nonempty: 18
+    model_client_errors: 0
+    model_length_limited: 15
+    model_c8_waves: 2
+    graph_mode: FULL_AND_PIECEWISE
+    real_worker_config_witnesses: 2
+    worker_replay_ranks: 2
+    replay_scope: startup/warmup and requests; not per-request counting
+    invalid_quantized_mock: artificially injecting quantized config into unquantized experts is outside
+      the current entry contract; not claimed supported
+    formal_gpqa: not_run
+  performance: not_run
+  decision: retained-code-only
+  removed_conditions:
+  - quant_dtype is None
+  - weight_quant_dtype is None
+  - block_shape is None
+  net_removed_lines: 3
+  retained_conditions:
+  - no LoRA
+  - MetaX platform
+  - no input-side router weight
+  - SiLU
+  - FP16/BF16/FP32
+  - four per-op selections default.flagos
+  upstream_guarantee: UnquantizedFusedMoEMethodFL inherits get_fused_moe_quant_config; real builder creates
+    unquantized config including biased variant; both real model workers witnessed None triple
+  deployment:
+    container: qwen-vl
+    changed_files: 1
+    sha256:
+      /workspace/vllm-plugin-FL/vllm_fl/ops/fused_moe/fused_moe_utils.py: 93188655b4445f6dfb020e8779abe5d621884a0aafb6028b131c883586a5cf98
+    source_service_restarted: false
+    vllm_worktree: clean
+    runtime_changed: false
+    postverify: results/op008-postverify.json
+  rollback:
+    command: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op008/rollback.py
+    default: dry-run
+    execute: --execute; idle source plus current SHA guards; restore only this file to op007
+    dry_run:
+      rollback_ready: true
+      mutated: false
+      files: 1
+      runtime_changed: false
+      source_service_restarted: false
+    prior_rollbacks: op007 rollback requires restoring op008 first due to SHA guard
+  engineering_checks:
+    python_compile: passed
+    git_diff_check: passed
+    full_op_call_and_staged_tail_ast: unchanged
+    production_code_surface: only 3 conjunct deletions; no helper/config/diagnostic code
+    other_platform_hardware: not_run
+  manifest:
+    path: manifests/op008-artifacts.json
+    artifacts: 51
+  evidence:
+  - commands/op008/upstream.json
+  - commands/op008/upstream-proof.json
+  - results/op008-validation.json
+  - results/op008-model-graph-validation.json
+  - results/op008-upstream-contract-pid*.json
+  - results/op008-postverify.json
+  - results/op008-rollback-dryrun.json
+  pr_readiness: needs_revision
+  cleanup: validation service18408 stopped; device0/1 released; source not restarted
+- experiment_id: op-009-moe-unification-review
+  document: op-009-moe-unification-review.md
+  scenario_id: p1024-d1024-c64-n128
+  direction: framework
+  status: completed
+  decision: diagnosis-only
+  scope: read-only NVIDIA/MetaX complete MoE contract and per-op policy/failure cache audit
+  source_changed: false
+  source_sha256: 93188655b4445f6dfb020e8779abe5d621884a0aafb6028b131c883586a5cf98
+  findings:
+    common_requirements: plain SiLU, FP16/BF16/FP32, no LoRA and no already-applied input router weights
+    nvidia_extra_activation: swigluoai_uninterleave requires finite alpha/beta/clamp; current Plugin call
+      does not supply these kwargs
+    per_op_guard: preserves policy-based primary choices, not numerical correctness; removing changes
+      per-op override behavior
+    failed_impl_guard_claim: incorrect; get_selected_impl_id resolves primary and ignores failed_impls,
+      confirmed on isolated real OpManager
+    unification: shared selection/contract for NVIDIA+MetaX; complete MoE dispatch/backend adapter rather
+      than checking four inner ops from apply
+    registry_current: only inner MoE ops registered; OpImpl is_available is backend-wide, no argument-dependent
+      full-MoE supports interface
+  validation:
+    static_contracts: passed
+    mock_failure_resolution: passed
+    probe:
+      status: passed
+      scope: isolated mock operator on real OpManager; no GPU kernel/model
+      selected_before: default.flagos
+      selected_after_fallback: default.flagos
+      actual_successful_impl: vendor.metax
+      failed_impls:
+        op009_failure_resolution_probe:
+        - default.flagos
+      per_op_check_after_failure_would_be_true: true
+      source_changed: false
+      global_manager_modified: false
+    device_kernel: not_run
+    model_graph: not_run
+    nvidia_hardware: not_run
+  command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op009
+  evidence: results/op009-failure-resolution-probe.json
+  manifest:
+    path: manifests/op009-artifacts.json
+    artifacts: 6
+  performance: not_run
+  pr_readiness: needs_revision
+- experiment_id: op-010-metax-nvidia-call-alignment
+  document: op-010-metax-nvidia-call-alignment.md
+  status: completed
+  direction: framework
+  scenario_id: p1024-d1024-c64-n128
+  scope: user explicitly requests MetaX complete-call admission identical to NVIDIA; no additional dispatch/capability/fallback
+    repairs
+  accuracy_mode: minimal-regression
+  optimization_container: qwen-vl-sampling-opt-20261012
+  command_directory: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op010
+  correctness:
+    mode: minimal-regression
+    status: passed
+    routing_mock_cases: 18
+    direct_existing_nv_route_comparisons: 18
+    hardware_cases: 3
+    graph_replays_per_case: 2
+    supported_validation_scope: SiLU FP16/BF16/FP32 with no pre-applied input router weights; current
+      Qwen BF16/TP2; no new support promises for other attrs
+    unsupported_library_rejections:
+    - dtype: torch.float32
+      activation: gelu
+      error: Only 'silu' activation is supported, got gelu
+      scope: library precondition rejection; no support claim
+    - dtype: torch.float8_e4m3fn
+      activation: silu
+      error: ''
+      scope: library precondition rejection; no support claim
+    model_requests: 18
+    model_nonempty: 18
+    model_length_limited: 15
+    model_client_errors: 0
+    graph_mode: FULL_AND_PIECEWISE
+    mixed_capture_sizes: 19
+    decode_capture_sizes: 11
+    worker_contract_witnesses: 2
+    worker_replay_ranks: 2
+    replay_scope: startup/warmup and requests; not per-request counting
+    nvidia_hardware: not_run
+    formal_gpqa: not_run
+  performance: not_run
+  decision: retained-code-only
+  authorization: user explicitly requested MetaX invocation identical to existing NVIDIA and no other
+    adjustments; per-inner-op checks intentionally removed
+  call_condition: self._lora_context is None and (current_platform.is_cuda() or current_platform.vendor_name
+    == metax)
+  removed: MetaX input-weight/activation/dtype/per-op guards and unused get_default_manager import
+  source_changed_files: 1
+  disable_config_diagnosis:
+    scope: real helper/selector runtime probe; no model startup or GPU kernel
+    cases:
+    - case: default
+      env: {}
+      use_flaggems: true
+      use_flaggems_op_fused_moe: true
+      oot_enabled: true
+      oot_blacklist:
+      - masked_fill
+      - masked_fill_
+      backend: UnquantizedMoeBackend.TRITON
+      expert_class: TritonExpertsFL
+      flagos_full_class_selected: true
+    - case: flagos_moe_blacklist
+      env:
+        VLLM_FL_FLAGOS_BLACKLIST: fused_moe,unquantized_fused_moe_method
+      use_flaggems: true
+      use_flaggems_op_fused_moe: false
+      oot_enabled: true
+      oot_blacklist:
+      - masked_fill
+      - masked_fill_
+      backend: UnquantizedMoeBackend.TRITON
+      expert_class: TritonExpertsFL
+      flagos_full_class_selected: true
+    - case: oot_moe_blacklist
+      env:
+        VLLM_FL_OOT_BLACKLIST: fused_moe
+      use_flaggems: true
+      use_flaggems_op_fused_moe: true
+      oot_enabled: true
+      oot_blacklist:
+      - fused_moe
+      backend: UnquantizedMoeBackend.TRITON
+      expert_class: TritonExpertsFL
+      flagos_full_class_selected: true
+    - case: oot_disabled
+      env:
+        VLLM_FL_OOT_ENABLED: '0'
+      use_flaggems: true
+      use_flaggems_op_fused_moe: true
+      oot_enabled: false
+      oot_blacklist:
+      - masked_fill
+      - masked_fill_
+      backend: UnquantizedMoeBackend.TRITON
+      expert_class: TritonExpertsFL
+      flagos_full_class_selected: true
+    - case: use_flaggems_off
+      env:
+        USE_FLAGGEMS: '0'
+      use_flaggems: false
+      use_flaggems_op_fused_moe: false
+      oot_enabled: true
+      oot_blacklist:
+      - masked_fill
+      - masked_fill_
+      selector_error_type: UnboundLocalError
+      selector_error: cannot access local variable '_AVAILABLE_BACKENDS' where it is not associated with
+        a value
+      flagos_full_class_selected: false
+    - case: prefer_enabled_off
+      env:
+        VLLM_FL_PREFER_ENABLED: '0'
+      use_flaggems: false
+      use_flaggems_op_fused_moe: false
+      oot_enabled: false
+      oot_blacklist:
+      - masked_fill
+      - masked_fill_
+      selector_error_type: UnboundLocalError
+      selector_error: cannot access local variable '_AVAILABLE_BACKENDS' where it is not associated with
+        a value
+      flagos_full_class_selected: false
+    - case: prefer_vendor
+      env:
+        VLLM_FL_PREFER: vendor
+      use_flaggems: false
+      use_flaggems_op_fused_moe: false
+      oot_enabled: true
+      oot_blacklist:
+      - masked_fill
+      - masked_fill_
+      selector_error_type: UnboundLocalError
+      selector_error: cannot access local variable '_AVAILABLE_BACKENDS' where it is not associated with
+        a value
+      flagos_full_class_selected: false
+    selective_moe_switch: none currently effective through tested existing helper/selector controls
+    global_off: USE_FLAGGEMS=0 disables all FlagOS selection; VLLM_FL_PREFER_ENABLED=0 and PREFER=vendor
+      also decline it
+    inherited_native_blocker: MetaX _get_priority_backends does not assign _AVAILABLE_BACKENDS when global
+      FlagOS is off, raises UnboundLocalError in selector probe
+    fix_applied: false
+    reason: user instructed no other adjustments
+  deployment:
+    container: qwen-vl
+    sha256:
+      /workspace/vllm-plugin-FL/vllm_fl/ops/fused_moe/fused_moe_utils.py: eee200132b6713b69d72180860806ccbc0ea0bc7f14d59fe079d252a1c3195fa
+    postverify: results/op010-postverify.json
+    source_service_restarted: false
+    runtime_changed: false
+    vllm_worktree: clean
+  rollback:
+    command: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/commands/op010/rollback.py
+    default: dry-run
+    execute: --execute after source idle/SHA checks; restore one file to op008
+    dry_run:
+      rollback_ready: true
+      mutated: false
+      files: 1
+      runtime_changed: false
+      source_service_restarted: false
+    older_rollback_dependency: restore op010 before op008 or op007 SHA-guarded rollback
+  evidence:
+  - results/op010-validation.json
+  - results/op010-nv-route-comparison.json
+  - results/op010-config-probe.json
+  - results/op010-model-graph-validation.json
+  - results/op010-postverify.json
+  - results/op010-rollback-dryrun.json
+  manifest:
+    path: manifests/op010-artifacts.json
+    artifacts: 53
+  pr_readiness: needs_revision
+  cleanup: op010 port18410 stopped; 0/1 released; source unchanged lifecycle
+- experiment_id: op-011-metax-official-image-moe-inspection
+  document: op-011-metax-official-image-moe-inspection.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/replace
+  scope: user-requested official-image call-source diagnosis only; no new model baseline or performance
+    comparison
+  remote_artifacts: /public-flash/jinghao/qwen3-VL/20261013-metax-native-moe-image-inspection
+  image: cr.metax-tech.com/public-ai-release/maca/vllm-metax:0.24.0-maca.ai3.8.2.5-torch2.10-py312-ubuntu22.04-amd64
+  image_id: sha256:d080f0f3aa7108b7e9d9cc23eec704bdb7828ec6bb731dab6129a77200238d1e
+  production_changed: false
+  decision: diagnosis-only
+  retained_container: metax-native-moe-inspect-20261013-io
+  platform:
+    class:
+      module: vllm_metax.platform
+      name: MxsmlMacaPlatform
+      file: /opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py
+    enum: PlatformEnum.OOT
+    device_type: cuda
+    is_cuda: false
+    is_cuda_alike: true
+    is_oot: true
+  defaults:
+    USE_VLLM_TRITON_EXPERT: false
+    MACA_VLLM_ENABLE_MCTLASS_PYTHON_API: true
+    MACA_VLLM_ENABLE_MCTLASS_FUSED_MOE: true
+    USE_PRECOMPILED_KERNEL: true
+  actual_call_witness:
+    shape:
+      T: 64
+      E: 128
+      H: 2048
+      I: 384
+      K: 8
+    default: MetaX TritonExperts -> MCTLLASS BF16 GEMM twice; finite output
+    USE_VLLM_TRITON_EXPERT_1: vLLM TritonExperts -> native vLLM Triton GEMM twice; finite output
+    scope: no numerical reference comparison, graph, full model or performance certification
+  summary_sha256: ab913e82bc97d323ff45e8d7c0d70e3fab3e9ea0b3f0ad341495db5d088d5ee3
+  commands:
+    commands/startio.py: 04d1cbb12ba1375ee8e84aca7ee2977e79abd68e648315d15b15e99dbe631c0c
+    commands/runtimefinal.py: 0bbc5d49c072117f2f6db69c3b8ba492adb4d0dbaa689a2db651a9d9b14f455a
+    commands/hardware.py: cab09e441575595a44178ddda5da9c15c0b0389d99053198aedd177fbf07d653
+    commands/hardwarenative.py: f82ccababfdbcb8ccf1009d26e5c6909bb7f985a84a82a5fec030209205d4cb1
+    commands/finishv2.py: 9534d47ddc8a1e9889d49b09f52916c42d089103c72d6789b1ab4c2aa705dd50
+  evidence:
+  - results/summary.json
+  - results/collect.json
+  - results/runtimefinal.json
+  - results/hardware.json
+  - results/hardwarenative.json
+  - results/artifacts-sha256.json
+  artifact_count: 35
+- experiment_id: op-012-revert-plugin-sampler
+  document: op-012-revert-plugin-sampler.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  direction: operator/replace
+  scope: user-requested Plugin sampling rollback only; no new performance candidate
+  remote_artifacts: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration
+  accuracy_mode: minimal-regression
+  original_plugin_revision: 4d4645b33627f0859e4b2d0be319bedc4562932d
+  sampler_target_sha256: 30535591ccd3e909371d0f921bb71fe94774dd8a10f53fa8f745df21629a57f5
+  decision: reverted-sampling-only
+  production_changed: true
+  source_container: qwen-vl
+  optimization_container: qwen-vl-sampling-opt-20261012
+  actual_function: _apply_top_k_top_p_no_triton
+  plugin_sampling_diff: empty vs HEAD
+  removed_test: tests/test_metax_topk_topp_sampler.py; prior untracked file archived with SHA guard
+  other_files_unchanged: true
+  correctness:
+    operator_function_and_graph: passed
+    cases:
+    - M64/V151936 BF16-grid
+    - M64/V151936 FP32
+    - M64/V151936 ties
+    - M1/V1024
+    - k-only/p-only/neither
+    graph_replays_each: 2
+    minimal_service_regression: incomplete; full model graph/C8 not run for requested rollback
+    formal_accuracy: not_run
+    formal_performance_allowed: false
+  commands:
+    commands/op012/apply.py: 00be71182f36de7c987aad9ca3fa1fb285c62374367107e5ec7ad40a482ecbdf
+    commands/op012/validate.py: 547d8f3631273cd4bf423290af5ceed7bed9bf89b907725f61bb13902553c583
+    commands/op012/run_validation.py: 3b8df84931b260cbf2fe8b5899b951626f43ef03d94f49c9716e7a6cf5857c82
+    commands/op012/postverify.py: 1deb39a8e9ecfce03975b9e7f92221275a4df7f0284292420e1ff9691928012d
+  backup: backups/op012/{qwen-vl,qwen-vl-sampling-opt-20261012}/optimized-sampler.py and optimized-test.py
+  evidence:
+  - results/op012-check.json
+  - results/op012-candidate.json
+  - results/op012-validation.json
+  - results/op012-source.json
+  - results/op012-postverify.json
+  - manifests/op012-artifacts.json
+  artifact_count: 21
+  source_service_restarted: false
+metrics:
+- scenario_id: operator-m2-v257-bf16
+  role: reference
+  metric: filter_latency
+  value: 2.0703675746917725
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m2-v257-bf16
+  role: candidate
+  metric: filter_latency
+  value: 0.4905545115470886
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m2-v257-fp32
+  role: reference
+  metric: filter_latency
+  value: 2.031235694885254
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m2-v257-fp32
+  role: candidate
+  metric: filter_latency
+  value: 0.6396776437759399
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m64-v151936-bf16
+  role: reference
+  metric: filter_latency
+  value: 28.691558837890625
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m64-v151936-bf16
+  role: candidate
+  metric: filter_latency
+  value: 1.8757048845291138
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m64-v151936-fp32
+  role: reference
+  metric: filter_latency
+  value: 28.73948097229004
+  unit: ms
+  scope: operator-only
+- scenario_id: operator-m64-v151936-fp32
+  role: candidate
+  metric: filter_latency
+  value: 22.478933334350586
+  unit: ms
+  scope: operator-only
+policy_version: '0.40'
+policy_date: '2026-09-22'
+acceptance_scope: diagnostic
+target:
+  source_container: qwen-vl
+  optimization_container: qwen-vl-sampling-opt-20261012
+  remote_work_root: /public-flash/jinghao/qwen3-VL
+  remote_case_dir: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration
+  image_lineage: verified
+  mount_parity: passed
+  snapshot_image_id: sha256:db3b38db4407ce8e51bcfa01ab4211d4d2930e12cc30334d10f5cea04326d11c
+source_repositories:
+  /workspace/vllm:
+    revision: ee0da84ab9e04ac7610e28580af62c365e898389
+    python_sha256: 147d5c3ee631aba0c72c5556c98bea1b134cf1e04e9149efb72ef2f57ea3ce65
+  /workspace/vllm-plugin-FL:
+    revision: 4d4645b33627f0859e4b2d0be319bedc4562932d
+    python_sha256: 5cb4d1edb30da8aee7bb8b144ebbbbb7f9886c14abd17fdc1942d79c0756190b
+  /workspace/FlagGems-vllm:
+    revision: f6fdb9b120787e12892ac67e54979cbf829c7d64
+    python_sha256: 455b540c810009d0d7931fa3d9e6fe149c4aa38029a63793d426298a21d802b7
+  /workspace/FlagGems:
+    revision: 9beec73856969aec8268a7a22788a17a119211fb
+    python_sha256: d02d9bbc7fedbeb7034427ce114dd3d4820648c03f4e8b420af7f433c17ae6c1
+accuracy_diagnosis:
+  issue_id: sampling-migration-collection-001
+  trigger: minimal-regression
+  classification: measurement-invalid
+  root_cause: 'confirmed: 两仓库 tests.conftest Python包名冲突'
+  failed_evidence: logs/functional-v2.log
+  fix: 相同测试分别在独立 pytest 进程运行
+  revalidation: passed; same 49+7 cases in separate pytest processes
+  source_changes_for_fix: false
+legacy_operator_issue:
+  issue_id: sampling-legacy-tail-count-002
+  classification: numerical/semantic regression in inherited experimental operator
+  formal_model_score: not_run
+  evidence: results/legacy-comparison.json
+  observations:
+    bf16_random_mismatch_entries: 40
+    positive_ties_mismatch_entries: 8192
+    positive_ties_legacy_kept_first_row: 129
+    reference_kept_first_row: 1
+    migrated_mismatch_entries: 0
+  root_cause: 'confirmed: 原 _threshold_counts 小于阈值的计数没有有效lane mask；V151936/B256尾部128lane污染计数'
+  single_variable_reproducer: commands/compare_legacy_causal.py
+  status: fixed and operator-regression passed
+  single_variable_result: 只补 &valid 后，两个原失败用例差异均为0；其余旧代码不变
+  causal_evidence: results/legacy-causal-comparison.json
+provenance:
+  semantic_reference: /workspace/vllm/vllm/v1/sample/ops/topk_topp_sampler.py:363-404
+  reference_revision: ee0da84ab9e04ac7610e28580af62c365e898389
+  original_candidate: untracked top_p_values_only_metax.py; git log --all has no entries; author/generation
+    history unknown
+  algorithm_source: migrated existing experimental counting-sort pipeline and three threshold kernels;
+    reused FlagGems sort helpers; this task added exact FP32 domain guard and precise radix alternative
+  reference_archive: patches/reference-vllm-ee0da84ab.py
+  torch_semantic_docs:
+  - https://docs.pytorch.org/docs/2.8/generated/torch.sort.html
+  - https://docs.pytorch.org/docs/2.8/generated/torch.cumsum.html
+artifacts:
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/manifests/preexisting-vllm-candidate.json
+  bytes: 500
+  sha256: c5e696b1d4e6b701f617c0140ec917eea7ba5316e428f90f8a7a273c4b026199
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/manifests/qwen-vl-deployment.json
+  bytes: 2785
+  sha256: 0192bd4763e227eb5d39ac4a395c100788aaf26c63f1f977c5fd039268725d40
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/logs/benchmark-v3.log
+  bytes: 4901
+  sha256: 5f52782f00e06fbff476a2145cc7c61bf9b7af6f0380ffccbf378a094b9d1acf
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/logs/functional-v3.log
+  bytes: 2918
+  sha256: 5d74fd72dfce717b139847da10d6a20d3ec3181bbadd0164356a6f89fbcfaa78
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/logs/plugin-v3.log
+  bytes: 487
+  sha256: 4229082358a81e83c0b12689e75ab5fad52388c0bf2783fdc61920b108b15cda
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/legacy-causal-comparison.json
+  bytes: 1218
+  sha256: 9a9782423e55f8a3e7fa9ba226dd82ec7c9f01a92c53717e6d903c15273136cc
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/production-torch-audit.json
+  bytes: 1925
+  sha256: 2e8b63838a6ba9a800ab8fc9019630c4df00962d7b8450be7785fefef7455f0e
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/results/rollback-dry-run.json
+  bytes: 65
+  sha256: 2c53c14ba2a3e18b79916478cc43632f05e0e3143b61d076c692aa37a7826c61
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/patches/final-FlagGems-vllm.patch
+  bytes: 22903
+  sha256: bf778c22517e35ad11d2d5601b1b50e8303e513263a58398b67fd6321631397d
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/patches/final-vllm-plugin-FL.patch
+  bytes: 4939
+  sha256: 48f5d9d46edf6d20e54accc52531cf993657aa0d79e6e86502fbdf3ec9de3a05
+- path: /public-flash/jinghao/qwen3-VL/20261012-qwen3vl-metax-sampling-migration/patches/reference-vllm-ee0da84ab.py
+  bytes: 19562
+  sha256: 35b9a1ffeb1e50b73b0ddd1ffc0f968910ee21cf9cc5455dd879fde547b6ddc1
+local_validation:
+  git_diff_check: passed
+  case_schema4_summary: passed
+  black_isort_flake8: passed
+  whole_repository_records_audit: failed due to preexisting unrelated cases/process artifacts
+  whole_repository_failure_count: 246
+  this_case_failures: 0
+cleanup:
+  rejected_mount_container: qwen-vl-sampling-opt-20261012-mount-rejected
+  action: stop idle task-owned rejected clone; files retained
+  valid_clone: qwen-vl-sampling-opt-20261012 idle; op010 port18410 stopped; device0/1 released
+planning_review:
+  review_id: planning-op007-20261013
+  status: incomplete-cumulative-performance
+  evidence_cutoff: 2026-10-13; op005 r2, op006 preflight, op007 deployed
+  current_candidate: op-010-metax-nvidia-call-alignment
+  ledger:
+  - op001 sampling kernel/library migration retained; historical operator-only timing
+  - op002 vendor patch diagnosis; no measurement
+  - op003 full MoE source switch retained
+  - op004 full MetaX MoE/resource fixes retained; warmup skip superseded by op007 compiler upgrade
+  - op005 sampling switch removal/helper inlining retained; original safety boundaries remain
+  - op006 isolated FlagTree import feasibility completed; overlay remains inactive
+  - op007 default compiler upgrade/normal warmup/old MCTLLASS cleanup retained; scoped correctness only
+  cumulative_improvement: null
+  phase_hotspots:
+    prefill: unknown; graph capture/correctness only
+    decode: unknown; capture/replay/correctness only
+    mixed: unknown; C8 output health only
+  next_directions:
+  - rank: 1
+    direction: formal accuracy for current runtime and combined candidate before performance promotion
+    first_falsification: freeze metric/threshold and execute full 198 GPQA
+    skills:
+    - inference-accuracy-evaluation/formal-gate
+    success: valid score >= frozen threshold gate
+    stop: score below threshold or evidence invalid; diagnosis/rollback
+  - rank: 2
+    direction: same-configuration P1K original vs combined graph service with Prefill/Decode/Mixed views
+    first_falsification: frozen baseline/candidate/revert milestone after valid accuracy gate
+    skills:
+    - inference-performance-evaluation/targeted
+    - inference-profiling if attribution missing
+    success: predeclared main improvement with other-stage guards
+    stop: no target hit, no steady-state admission or regression
+  - rank: 3
+    direction: shared-path compatibility for upstream PR
+    first_falsification: existing CI for other platforms/models and unsupported MoE configurations; real
+      vendor path hardware check
+    skills:
+    - inference-accuracy-evaluation/minimal-regression
+    success: preserved dispatch/fallback/default behavior
+    stop: broad scope or missing support; keep boundaries
+  immediate_next_experiment: no automatic formal run in this compatibility-cleanup scope; freeze formal
+    contract before performance work
+  next_review_trigger: formal data, new phase evidence or broader shared-path change
+  superseded_decision: op005 r2 helper cleanup retained; op006 isolated MetaX3.6 API/import preflight
+    passed, compiler globals unchanged; runtime upgrade and warmup guard removal await operator/model
+    graph validation, cumulative performance unknown; op007 now validates/activates new compiler and removes
+    warmup guard, old vendor MCTLLASS experiment removed by current user direction
+  cumulative_boundary: no combined E2E baseline/candidate/revert; do not sum old isolated operator speedups
+  post_review_update: op009 proposed complete dispatch integration is deferred by user. op010 explicitly
+    aligns MetaX call admission to existing NVIDIA, removing platform and per-inner-op checks; supported
+    Qwen config scoped regression passed and deployed. MoE-off config/native selector blocker diagnosed
+    only; no other code changes. Cumulative E2E gain unknown.

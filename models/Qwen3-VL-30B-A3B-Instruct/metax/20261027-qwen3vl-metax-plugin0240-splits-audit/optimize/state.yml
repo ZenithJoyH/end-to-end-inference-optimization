@@ -1,0 +1,77 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-plugin0240-splits-audit
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: image-a5d8d34d437e-original
+  topology: CPU-only-static-audit
+stage: optimize
+current:
+  status: completed-auto0-batch-numerical-variation-reproduced
+  candidate: Original metax-plugin0240-base:a5d8 image; no inference changes retained
+  next_action: No pending task. New-image full model accuracy/performance not evaluated;
+    do not transfer historical gates or claim vendor semantic bug.
+experiments:
+- experiment_id: op-001-original-image-split-audit
+  document: op-001-original-image-split-audit.md
+  status: completed
+  direction: diagnosis/static-image-comparison
+  scenario_id: no-model-workload
+  correctness: 24 native API cases passed frozen FP64 tolerances and ordinary repeats;
+    16 captures/48 replays passed; six same-logical-QKV B1/B8 pairs differ under auto0
+    and are exact under fixed1. Two real TP-rank input sets replayed on one GPU, not
+    a TP2 model test.
+  performance: not_run
+  decision: Original image still exhibits the observed auto0 cross-batch numerical
+    variation; no forced split1 patch installed; no model score, performance or vendorbug
+    conclusion
+  evidence: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/results/component-completed.json
+  command:
+    path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/commands/audit_image.py
+    sha256: 5953edc9f60d98665d3d6d8a7b86d2e64e57ebd2ec4946c0e66ac514b6c2cede
+  static_findings:
+    registry_latest_manifest_verified: true
+    plugin_exact_historical: true
+    native_python_exact_historical: false
+    native_binary_exact_historical: false
+    num_splits_default: 0
+    torch: 2.10.0+metax3.8.2.2
+    native_version: 2.6.3+metax3.8.2.2torch2.10
+  component_command:
+    path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/commands/run_component.py
+    sha256: 99c3ff636e4a1854b79aed5c5d213ccd9840da16a5d3645254ca5f05a1f11a0a
+  issue_id: accdiag-plugin0240-auto-split-001
+  formal_gate_blocking: no new formal evaluation; component behavior diagnosis only
+  artifacts:
+    static:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/results/image-static-audit.json
+      sha256: ee9e9f9ddf3a1fea92b24389b2c339e82b8a3c908c9d6ea6353cac8ca378f6f3
+    component:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/results/component-completed.json
+      sha256: e1805d351676cbdb5f266780530f68c34eef346c2e8686b4d8f7230af185c114
+    native_result:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/results/native-component.json
+      sha256: 2ac563c506c9510f985c9734dee4899027ca581324d8bb880f98996ccc1aaa88
+    cleanup:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/results/component-cleanup.json
+      sha256: 8c9b5f41211dd3c26be871da6338e146f0d8df0f00a91ed5c2ea8ac05af2a8ee
+    contract:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-plugin0240-splits-audit/configs/component-contract.json
+      sha256: 38156061f745a81d11134e6ed0db0ae20c71d99734a5726a5105d73b32da4e27
+  root_cause_confidence:
+    auto0_cross_batch_numerical_behavior: reproduced on new native API
+    gross_semantic_kernel_error: not established; all FP64 tolerances passed
+    new_image_GPQA_ERQA_impact: not evaluated
+metrics: []
+issue:
+  id: accdiag-plugin0240-auto-split-001
+  classification: observed native numerical variation, not established semantic regression
+  formal_gate_blocking: false
+  reproduction: confirmed for six frozen B1/B8 pairs under default0; fixed1 exact
+  fix_applied: false
+  model_formal_scores: not_run
+  new_gate_issued: false
+  gpu_resource: GPU7 initially idle; process gone after finally; temporary diagnostic
+    containers removed
+  source_protected_before_equals_after: true

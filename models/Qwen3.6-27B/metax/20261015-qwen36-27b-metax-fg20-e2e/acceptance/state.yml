@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261015-qwen36-27b-metax-fg20-e2e
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-59
+  baseline_id: script-fg20-de2298b
+  topology: TP2:GPU2-3
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

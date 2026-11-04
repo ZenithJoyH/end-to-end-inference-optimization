@@ -1,0 +1,27 @@
+schema_version: 4
+identity:
+  case_id: 20261026-qwen3vl-metax-release-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: release-image-202610191402
+  topology: TP2 GPU4,5 for full release-image GPQA/ERQA;component audit GPU7 completed
+stage: acceptance
+current:
+  status: incomplete
+  candidate: null
+  next_action: GPQA 126/198=63.6364% < 64%；ERQA 40.75% >= 40%。无完整端到端验收，详情见 optimize/op-002。
+  accuracy_status: failed
+  performance_status: not_run
+experiments: []
+metrics: []
+prior_identity:
+  case_id: 20261026-qwen3vl-metax-release-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: release-image-202610191402
+  topology: CPU inspection;bounded nativeAttention GPU7;no modelTP2
+record_maintenance:
+  date: '2026-11-02'
+  reason: 原阶段为空模板；optimize 后续已有 TP2 全量精度记录。统一案例导航身份，原组件检查身份保留在 prior_identity，不将其视为 TP2 baseline。

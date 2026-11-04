@@ -1,0 +1,68 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen3vl-metax-opt10-results
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt10-user-import-no-anchor
+  topology: TP2:GPU6,7
+stage: baseline
+current:
+  status: not-collected-new-baseline;human-results-reference-only
+  candidate: opt10 imported production snapshot is not an unoptimized anchor
+  next_action: Use this snapshot to define a future same-config entry baseline; do not infer formal cumulative gain
+experiments: []
+metrics: []
+baseline_status: not_run
+source_results:
+  path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/opt10-full-import.json
+  sha256: ef8e4e33bcfe3bf2bcb16377fb6e1cc38fb509e0178d9fc009ddb484e7574b50
+parent_controlled_baseline:
+  case: ../20261021-qwen3vl-metax-p1k-opt9
+  scenario: p1024-d1024-c64-n128
+  topology: TP2GPU0/1
+  output_TPS_median: 1455.101068101872
+  note: Different devicegroup/prewarm; not direct baseline for userGPU6/7CSV
+formal_scenarios:
+- scenario_id: p1024-d1024-c64-n128
+  anchor_status: not_run
+- scenario_id: p4096-d1024-c64-n128
+  anchor_status: not_run
+- scenario_id: p16384-d1024-c64-n128
+  anchor_status: not_run
+- scenario_id: p32768-d1024-c64-n128
+  anchor_status: not_run
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: historical-reference-only
+  original_status: not-collected-new-baseline;human-results-reference-only
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 原字段 formal_scenarios 的四项 anchor_status 均为 not_run；opt10 CSV 为已优化快照观测。
+    evidence_pointer: state.yml#/formal_scenarios
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 原字段 formal_scenarios 的四项 anchor_status 均为 not_run；opt10 CSV 为已优化快照观测。
+    evidence_pointer: state.yml#/formal_scenarios
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 原字段 formal_scenarios 的四项 anchor_status 均为 not_run；opt10 CSV 为已优化快照观测。
+    evidence_pointer: state.yml#/formal_scenarios
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 原字段 formal_scenarios 的四项 anchor_status 均为 not_run；opt10 CSV 为已优化快照观测。
+    evidence_pointer: state.yml#/formal_scenarios
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false
+  classification_basis:
+    source: state.yml#/formal_scenarios
+    reason: 原字段 formal_scenarios 的四项 anchor_status 均为 not_run；opt10 CSV 为已优化快照观测。

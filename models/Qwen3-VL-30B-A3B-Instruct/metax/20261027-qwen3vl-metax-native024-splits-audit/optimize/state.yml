@@ -1,0 +1,70 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-native024-splits-audit
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: vendor-image-d080f0f3aa71-original
+  topology: CPU-static-then-single-GPU-native-replay
+stage: optimize
+current:
+  status: completed-auto0-variation-reproduced-vendor-alias-confirmed
+  candidate: Original vendor image d080f0f3, unchanged; no new optimization
+  next_action: No pending runs. Model GPQA/ERQA/performance not evaluated; no kernel-semantic
+    bug or score conclusion.
+experiments:
+- experiment_id: op-001-vendor-attention-splits
+  document: op-001-vendor-attention-splits.md
+  status: completed
+  direction: diagnosis/native-backend-call-and-numerics
+  scenario_id: no-model-workload
+  correctness: 24 native cases pass frozen FP64 tolerance/repeats;16 graph captures48replays;6
+    B1/B8 pairs differ auto0 and exact fixed1. Actual vllm_metax fa_utils alias is
+    tested native function; platform MxsmlMacaPlatform/split-forwardTrue/defaultsplit0
+    verified.
+  performance: not_run
+  decision: Observed auto0 cross-batch numerical variation reproduced in original
+    official image; original code unmodified, temporary containers removed, no model
+    or service actions
+  command:
+    path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/commands/audit_image.py
+    sha256: 92064efdf6566b9ee0df91dda20ea868681670b359a79359a4940ae0e9dc2296
+  evidence: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/results/component-completed.json
+  component_command:
+    path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/commands/run_component.py
+    sha256: 61f55ba547c00832c52d44bd337030728f735dd747b6c063d3c3a2461db666be
+  issue_id: accdiag-native024-auto-split-001
+  formal_gate_blocking: not a new formal score evaluation
+  native_binary_matches_prior_base_image: true
+  artifacts:
+    static:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/results/static-audit.json
+      sha256: 04a4c87bfe4dc4895cba62e46b33fa07b2cad0a251aee9346fb44db7d771ec2c
+    component:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/results/component-completed.json
+      sha256: f4823eec05178bdce03097b057f3107c21adbba6c83849db50f8db5d82608ab3
+    native:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/results/native-component.json
+      sha256: 758a065b88365b2d9a900d752e9f80e33edb16decc6783620a46c3ec717feb1a
+    cleanup:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/results/component-cleanup.json
+      sha256: 8c9b5f41211dd3c26be871da6338e146f0d8df0f00a91ed5c2ea8ac05af2a8ee
+    contract:
+      path: /public-flash/jinghao/qwen3-VL/20261027-qwen3vl-metax-native024-splits-audit/configs/component-contract.json
+      sha256: 6f141d4ac00e87355f0440eb6a27e7dea2dc87dd998b06f999f493068368870c
+  runtime_vendor_binding:
+    same_function_object: true
+    platform_class: vllm_metax.platform.MxsmlMacaPlatform
+    split_forward_default: true
+    native_num_splits_default: 0
+  formal_model_accuracy: not_run
+metrics: []
+issue:
+  id: accdiag-native024-auto-split-001
+  classification: native numerical variation; semantic regression not established
+  gate_blocking: false
+  reproduction: 'six frozen B1/B8 pairs: auto0 differs fixed1 exact'
+  root_cause_confidence: API parameter controls observed numerical variation; does
+    not prove a model-score failure or vendorbug
+  fix_applied: false
+  new_gate_issued: false

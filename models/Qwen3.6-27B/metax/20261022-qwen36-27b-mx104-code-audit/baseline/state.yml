@@ -1,0 +1,118 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-27b-mx104-code-audit
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-104
+  baseline_id: audit-snapshot-cbfde87955ee
+  topology: service-not-running
+stage: baseline
+current:
+  status: completed
+  candidate: preserved-container-snapshot
+  next_action: none within requested scope
+experiments: []
+metrics: []
+scope: diagnostic-code-audit
+date: '2026-10-22'
+policy_source: AGENTS.md and current user scope
+user_decision: preserve_existing_implementation_package_and_explain
+environment:
+  container: qwen3.6-27B-verify
+  model_path: /data/Qwen3.6-27B
+  image: sha256:afcbdac2f632d7a37de05f318cfe804007cc0ce3a332be8ff36f0d1913c74a9e
+  service_status: not_running_at_audit
+  remote_workdir_supplied: /public-flash/jinghao/qwen3.6-27B
+  remote_workdir_canonical: /public-flash/jinghao/qwen3.6-27B
+  remote_case_dir: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit
+  source_root_mounts:
+    /workspace: container-private
+    /opt: container-private
+  mounts:
+  - source: /data
+    destination: /data
+    rw: true
+    propagation: rslave
+  - source: /public-flash
+    destination: /public-flash
+    rw: true
+    propagation: rprivate
+  repos:
+  - path: /workspace/vllm-plugin-FL
+    revision: d1653d9ff0450ce0366686bfcde5d8aecab44755
+    branch: main
+    git_status:
+    - ' M vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py'
+    - ' M vllm_fl/envs.py'
+  - path: /workspace/vllm
+    revision: bc150f50299199599673614f80d12a196f377655
+    branch: null
+    git_status: []
+  - path: /opt/FlagGems-vllm
+    revision: e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+    branch: null
+    git_status:
+    - ' M src/flaggems_vllm/runtime/backend/_metax/fused/gdn_chunk.py'
+  - path: /workspace/FlagGems
+    revision: null
+    git_status: no-git-metadata
+    installed_version: 5.0.2
+artifacts:
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/snapshots/code-snapshot.tar.gz
+  sha256: cbfde87955eefde60a67b755938a498b4718df675b1497ae6b9feaec3e2369f8
+  kind: source_snapshot
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/snapshots/supplement.tar.gz
+  sha256: 40fca2f2142d280c391714bec27c84e197e85316c538607863bac241864d1378
+  kind: call_chain_snapshot
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/source-unchanged.json
+  kind: source_integrity_verification
+  status: passed
+  unique_files: 4113
+  hash_comparisons: 4115
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/code-review-bundle.tar.gz
+  sha256: c4261380a0a7f58b19baeb31711a55c6a112fc14955fc071999bf3db86e1fe36
+  bytes: 7451988
+  kind: code-review-delivery
+  transfer_and_contents: passed
+accuracy:
+  status: not_run
+  gate: null
+performance:
+  status: not_run
+  gain: null
+  reason: code audit only; no running model service; historical numbers not inherited
+anchor_baseline: null
+baseline_kind: already-optimized-container-code-snapshot-not-performance-anchor
+delivery:
+  status: completed
+  bundle_files: 29
+  manifest_files_checked: 28
+  remote_expanded_dir: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/delivery
+  receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/delivery-receipt.json
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: completed
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

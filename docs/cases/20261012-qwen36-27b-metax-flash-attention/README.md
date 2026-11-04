@@ -45,3 +45,11 @@ OP005终态：当前新版GDN decode实例296014已通过实际FG命中、graph�
 2026-10-14 [OP009](../../../models/Qwen3.6-27B/metax/optimize/op-009-gdn-prefill-fp32-performance-cost.md)：全21项FlagGems不关闭，原BF16→PR925完整FP32→原BF16回退，36warm/21measured全部保留，最终恢复原正确FP32526267。Prefill总吞吐6183.139→5669.920→6233.579tok/s（−8.300%，回退漂移+.816%），meanTTFT8285.204→9031.047→8216.764ms（+9.002%，漂移−.826%），nativefailed为性能成本；Decode候选warmspread21.90%/0measured，Mixed原基线warmspread11.10%/0measured、回退已准入测量却50.73%吞吐spread，nativeincomplete，不能删异常351.367轮或算可靠Mixed比值。source8002不变，当前FP32source6ea/双rankgraph及C8等价验证通过；正式GPQA未补、PR不推送。终态results/op009-terminal-validation.json SHA54db01e6ee3572f4f875edbdf9f6b142fb0f1d43cd7d66397a95e1592c07e14e。rev008强调先恢复测量有效性，再用原容差优化FP32数据流；数值通过不意味着无E2E成本，旧BF16也存在时序波动。
 
 [OP010](../../../models/Qwen3.6-27B/metax/optimize/op-010-gdn-prefill-fp32-hotspot-optimization.md)三阶段及回退完成：87轮/27measured、9408请求0失败；候选Prefill+2.361%/TTFT−2.333%，Decode+0.648%/TPOT−0.198%/P99ITL+1.720%。Mixed名义+18.489%，相同原版回退+16.705%，baseline散差26.781%阻止E2E归因；PrefillmeanTTFT漂移1.010247%、DecodeP99ITL2.415935%超1%，三份原生比较incomplete，未晋级。原FP32 6ea/full21/原容差恢复于756537/1792034481.9并native166/198gate重绑定/check，监控PAUSED；所有慢轮/旧ENOSPC/候选patch保留，source8002不动，不追加测试。
+
+<!-- record-archive:start -->
+## 本地过程材料归档（2026-11-02）
+
+本案例 1 个过程文件已逐文件 SHA256 校验后移出记录目录。恢复副本：[归档目录](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261012-qwen36-27b-metax-flash-attention)；逐文件原路径、SHA 和恢复路径见[迁移清单](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json)。远端原始证据的位置保持不变。
+
+原文中未展开的 `commands/`、脚本文件名及历史命令属于执行时路径；查阅使用上述归档，重新执行前先核验环境和路径。该本地归档不随 Git 提交，也不能替代远端长期保存。
+<!-- record-archive:end -->

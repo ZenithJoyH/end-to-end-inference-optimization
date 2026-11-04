@@ -1,0 +1,2611 @@
+schema_version: 4
+identity:
+  case_id: 20261023-qwen3vl-metax-mx104-migration
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: mx59-pr943-a157-split1-source-snapshot
+  topology: TP2:GPU4,5
+stage: baseline
+current:
+  status: targeted-baselines-complete
+  candidate: Exact stopped mx-59 qwen3vl-pr977-20261022 writable-layer snapshot; scalar num_splits1, prefix cache ON, sampling/gems-opt/MoE
+    unchanged
+  next_action: Preserve two independent split0 baselines for this exact scope; new expanded workload requires matching new
+    baseline.
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 1599.3521083554203
+  unit: token/s
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: &id001
+    path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/performance-iv64-comparison.json
+    sha256: c2e362f2101cfa8945bb74c14c8fc1171926ab6b00f2a12b9104465c34807d94
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 3198.7042167108407
+  unit: token/s
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 1661.4832275736262
+  unit: ms
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 38.379025382303794
+  unit: ms
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+- scenario_id: p65536-d128-c8-n16-kv-sentinel
+  role: baseline
+  metric: output_throughput
+  value: 13.961980791378382
+  unit: token/s
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+- scenario_id: p65536-d128-c8-n16-kv-sentinel
+  role: baseline
+  metric: total_token_throughput
+  value: 7162.49614597711
+  unit: token/s
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+- scenario_id: p65536-d128-c8-n16-kv-sentinel
+  role: baseline
+  metric: mean_ttft_ms
+  value: 28216.505092161242
+  unit: ms
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+- scenario_id: p65536-d128-c8-n16-kv-sentinel
+  role: baseline
+  metric: mean_tpot_ms
+  value: 353.0850218353229
+  unit: ms
+  scope: targeted/performance_only;median of process medians,all rounds retained
+  evidence: *id001
+remote_workdir:
+  user_provided: /public-flash/jinghao/qwen3-VL
+  canonical: /public-flash/jinghao/qwen3-VL
+  case_dir: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration
+  owner_uid: 0
+  mode: '0755'
+  preflight_free_bytes: 429018578944
+  shared_NFS_evidence: Prior mx59 case manifests readable on mx104; exact artifact SHA to verify during import
+  case_permissions: 0700; snapshot archive0600
+source:
+  host: mx-59
+  container: qwen3vl-pr977-20261022
+  image: sha256:40cb617f8629a3829b3937a25c1d569d1a1ca0c91c40b6372fd3c1766fb77dd1
+  state: already-stopped-when-read; preserve; no restart
+  prior_case: 20261022-qwen3vl-metax-pr977
+  prior_accuracy: GPQA131/198=66.16 on mx59; not an mx104 gate
+migration:
+  authorization: User asked pause and move current container and related services to104; explicitly supplied target remote
+    workdir.
+  target_container: qwen3vl-pr943-split1-mx104-20261023
+  service_port: 18977
+  device_ids:
+  - '4'
+  - '5'
+  prefix_cache_enabled: true
+  source_mounts:
+  - /public-flash:/public-flash:rw,rprivate
+  - /data:/data:rw,rslave
+  image_lineage: verified
+  mount_parity: passed
+  GPU_preflight: GPU0,1 ~860MiB non-model baseline; no GPU process; GPU2,3 unrelated service preserved
+  driver: 3.8.1
+  MACA: 3.7.1.5
+  runtime_images: private docker save/load through user-authorized shared NFS; no external registry push
+  measurements: New host requires new instance/code/device validation; ERQA400 and performance0/1 same frozen scope to resume
+    after migration; do not combine mx59 partial results
+  images:
+    model: sha256:7aed06b40627c3ea4f507c1e01251944e29cbf1f2d7f1e932a1ca01178a8b3e1
+    ERQA: sha256:997570d1669fb03892961cbc1fb2688c676982eeb105d0f805ac82f5b53bc856
+    GPQA: sha256:6342cb93703b021cdbc24f2eae9f24654c79c58fd3fd9b1122ab067d7332d870
+  controller:
+    snapshot_host: mx-59
+    snapshot_command: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/snapshot_source_v2.py
+    target_host: mx-104
+    target_command: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/migrate_target_v4.py
+    status: images imported; placement revision before container creation
+  artifacts:
+    snapshot_source_v2.py:
+      path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/snapshot_source_v2.py
+      sha256: 2ad79b78a3fd5e242a599135074267c608e536ece44d1538313b5b4999858b29
+    migrate_target_v2.py:
+      path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/migrate_target_v2.py
+      sha256: 54d1706a3e05cf0767023c766738206be867bac338b8f7c596c920555be23d54
+    collect.py:
+      path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/collect.py
+      sha256: fe9e78c5df5beea34d477d50455ae9dfa21b3e2cd8050dbcc2f61c2d31185912
+    migrate_target_v3.py:
+      path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/migrate_target_v3.py
+      sha256: 17149168cb9950ecf03ab17ff08eafa781240e088b38699b52fedeffd4b9f9a1
+    migrate_target_v4.py:
+      path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/migrate_target_v4.py
+      sha256: b0abfabceb0f6e1ca89905b9007d335cf2a86c4ede8abb9ea99d51db76186089
+  implementation_note: First snapshot check stopped on Docker default User empty-string versus null. Equivalent root semantics
+    verified; failed receipt retained, v2 normalizes only User and reuses exact known image ID. No model code changes.
+  archive:
+    path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/snapshots/runtime-bundle.tar
+    bytes: 15818401792
+    sha256: bd960bae54b6ce3d7298018c66d8a12d8cacce936cbb041d1bb94a4b90cac3dc
+    target_sha_verified: true
+  topology_plan_revision:
+    original_plan: TP2 GPU0,1; no container created or measurements on these GPUs
+    evidence: 'target-resource-preflight.json at03:36:44UTC: GPU0,1=62091MiB, unrelated VLLM workers33906/33907'
+    new_target: GPU4,5; 859MiB baseline each, no GPU processes observed
+    changes: Only CUDA_VISIBLE_DEVICES and MACA_VISIBLE_DEVICES0,1→4,5; full service argv/TP2 and all model/kernel/sampling
+      settings preserved
+    rule: Target resource plan revised before any model container or performance baseline was created; no measurements combined
+      across placements
+  source_fingerprints: four source trees/model/tokenizer equal to frozen mx59 source; only GPU placement env changed
+  correctness: smoke + C8 passed; two ranks native num_splits1/FlagOS MoE observed; capture and >=16replay/rank
+  service_instance_id: qwen3vl-pr943-split1-mx104-20261023:32:1103764578
+  completed_evidence:
+    path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/migration-completed.json
+    source_sha256: 820efec25ebc91e441606264740fb7fecb18271551835d5b9e85645c9aab56ee
+    minimal_sha256: ad1e3afc770f00e33cc94862d2113cc8151cf0156e6e658b770666e1ccab1a5d
+    environment_gates_sha256: 9e8007e0e3bca0b8cddf5a24c468985ce6b06656a9e7318be7b9ac06a2e5bf73
+    sha256: 6879a3878efdfa41853b43a20f01a9ce77e21825652193140b5d75853bdcfd28
+  post_audit:
+    path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/post-migration-audit.json
+    status: passed
+    physical_gpu_worker_host_pids:
+    - 45526
+    - 45527
+    actual_GPU_ids:
+    - 4
+    - 5
+    same_moe_FV_FG_blacklist_per_rank: true
+local_validation:
+  git_diff_check: passed
+  case_records_summary: passed; no warnings for current case
+  whole_project_records: failed on pre-existing unrelated model records/process artifacts; not changed by this migration
+follow_up:
+  source_optimization_point: 20261022-qwen3vl-metax-pr977/op-006-kvcache-split1-gpqa
+  status: ERQA passed; initial targeted split comparison complete/failed; exact split1 restored and graph16/C8 passed; expanded
+    coverage not_run
+  ERQA:
+    samples: 400
+    images: 630
+    threshold_percent: 40
+    num_workers: 8
+    max_tokens: 18000
+    temperature: 0.7
+    response_cache: false
+    evaluator: qwen3vl-erqa-mx104-20261023
+    controller_pid: 55008
+    score_percent: 45.73
+    last_observation:
+      checked_at_utc: '2026-10-23T07:57:24Z'
+      status: passed; native evidence verified without inference rerun
+      raw_and_evaluated_unique_ids: 400
+      native_scored_samples: 398
+      native_rejected_samples: 2
+      SDK_retries_observed: 98
+      ERROR_log_entries: 2
+      service_identity_and_sources_unchanged_during_ERQA: true
+      score_instance_id: qwen3vl-pr943-split1-mx104-20261023:32:1103764578
+      native_metric_percent: 45.73
+      conservative_all400_percent: 45.5
+      action: Keep original native data, two timeout entries and collector failure; only result validation repaired. Performance
+        matrix now starting first independent service.
+    collector_recovery:
+      issue_id: env-001-erqa-collector-schema
+      classification: measurement-invalid; collector schema mismatch
+      status: resolved
+      native_reported_score_percent: 45.73
+      native_scored_samples: 398
+      rejected_samples: 2
+      correct: 182
+      conservative_all400_percent: 45.5
+      reason: Native evaluated400 includes two rejected timeout entries without correct. Original collector failed. Freeze
+        native artifacts; validate frozen native metric without inference rerun or native result changes.
+      original_failure: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/erqa-controller-failure.json
+      commands:
+        finalize_erqa_existing_v2.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/finalize_erqa_existing_v2.py
+          sha256: 34a200c3391e003852fc013892ab2e6117ce33a51ec1043faf1f25051a7ffa37
+        perf_controller_gpu45_resume1.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_resume1.py
+          sha256: bcbfba8a4900dd4f69eb6d65f0054f965a3d63bd05241e909c0e1d563a30a37c
+        start_perf_resume1.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/start_perf_resume1.py
+          sha256: bf1a81937bbb69017f8cd40e131e9cf1c9ab6d1df7aee0e4f69ffc8eede1446e
+      native_validation_sha256: c1dc7b6a41b1e4b6e480508cf1ad7f8c1e7269fa12868b30f5dce37b3c6b2498
+      evidence: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/erqa-collector-recovery.json
+      sha256: 2aeb8bf28ed4f4e45925a6d3942f2b48912890f12ff014486a6b13cdfddd9624
+      native_score_policy: Frozen native accuracy uses182/398 after unchanged native rejects; independently report182/400=45.50
+        with rejects incorrect; threshold40 unchanged.
+    status: passed
+    scored_samples: 398
+    native_rejected_samples: 2
+    correct: 182
+    all400_accuracy_counting_rejects_incorrect_percent: 45.5
+    native_rejected_ids:
+    - ERQA_115
+    - ERQA_213
+    completed_at_utc: '2026-10-23T07:53:40.127725+00:00'
+    result: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/erqa-completed.json
+    result_sha256: 74da2885f794baa5b2476f9d1c9456a87eb0085469e82641947a7f842b3d80c1
+    native_result_sha256: 8cf91588764d8436dd84644b8f3fb7f7506d988485d9bd9b2e75dab81feff66a
+  performance:
+    mode: targeted
+    scope: performance_only
+    scenarios:
+    - P1024/D1024/C64/N128
+    - P65536/D128/C8/N16 reduced sentinel
+    roles:
+    - IV64-B1:0
+    - IV64-C1:1
+    - IV64-R1:0
+    - IV64-B2:0
+    - IV64-C2:1
+    - IV64-R2:0
+    warmup_rounds: 12
+    measured_rounds: 3
+    primary: output_throughput
+    secondary: total_token_throughput
+    prefix_cache_enabled: true
+    device_ids:
+    - '4'
+    - '5'
+    controller_pid: 1434728
+    status: failed; complete comparable evidence confirms split1 regression in both measured workloads; exact split1 restored,
+      no current running controller
+    comparison_sha256: 025c85d4ef38f5a9cf871811d79fb48610ae49601c1062a6722a121ec77aa44f
+    prior_controller_pid: 326708
+    prior_failure_retained: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-controller-resume1-failure.json
+    controller_startticks: '1106675186'
+    controller_script: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_iv64.py
+    controller_script_sha256: 007d3e64c8f987383ae2f937f5d8ab1be0de5d67b80c4d9364d0895e7d4a1d99
+    controller_manifest: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/manifests/perf-controller-iv64.json
+    active_failure_artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-controller-iv64-failure.json
+    resume_started_at_utc: '2026-10-23T11:46:45.300408Z'
+    measured_rounds_completed: 36
+    current_trial:
+      label: IV64-RESTORED
+      num_splits: 1
+      service_instance_id: qwen3vl-pr943-split1-mx104-20261023:902026:1110336333
+      status: ready; exact original observer/helper restored
+      graph_capture_per_rank: true
+      graph_replays_per_rank_at_least: 16
+      C8: passed
+      active_case_id: null
+    restore_required: After matrix or failure restore exact split1 source/helper and prove graph/C8; no old-host GPQA gate
+      reuse.
+    five_warmup_attempt:
+      status: incomplete
+      reason: Last3 warmup spread32.30% exceeds5%, no measured rounds; request/token/source validation passed
+      record: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/B1/run-record.json
+      output_tps_all5:
+      - 949.9007679315398
+      - 1018.0865205892025
+      - 1380.4727724141776
+      - 1144.745874661517
+      - 1590.629261318711
+      native_warmup_check_relative_spread: 0.32299324953539715
+      measured_rounds: 0
+      over1s_token_gaps_per_round:
+      - 376
+      - 306
+      - 148
+      - 193
+      - 0
+      diagnosis: Runtime compilation observed; strong support for uncovered kernel shapes during warmup, not complete proof
+        of every wall-time fluctuation. No source/semantic config changes.
+      restore_evidence: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restored.json
+      restored_instance: qwen3vl-pr943-split1-mx104-20261023:92578:1105417090
+      graph_C8_restore: passed; both ranks capture and>=16replay
+      total_triton_compiled_artifacts_per_round:
+      - 260
+      - 207
+      - 52
+      - 136
+      - 2
+      diagnosis_artifact:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-warmup-diagnosis.json
+        sha256: ce21a3e3de66cedca4f18fe9ed3298e99073c4720a831332be08c853275785a2
+    warmup12_recovery:
+      status: incomplete; restored
+      change: Only warmup budget5→12 uniformly across all6 roles; same last3<=5%, measured3 and performance thresholds. New
+        run IDs; never merge original5 warmups.
+      stop_rule: If new fixed12 warmups fail, stop/recover split1 and diagnose remaining evidence; no adaptive lucky windows/threshold
+        loosening.
+      artifacts:
+        commands/perf_controller_gpu45_warmup12.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_warmup12.py
+          sha256: 898a31859c67ab709344c4de1bc1cea3c30def77af7172cf715c7f03e863c6c9
+        configs/plan-warmup12-v2.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/plan-warmup12-v2.json
+          sha256: 3b9210517491306a672a0307f86f78b96049d8a10c7f44f83c9479db2647b72f
+        configs/comparison-warmup12-v2.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/comparison-warmup12-v2.json
+          sha256: 348113e299c6c331cfd071ef989988bdfe446ba127465a7cc54846ba74d17dba
+        configs/cache-policy-warmup12-v2.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/cache-policy-warmup12-v2.json
+          sha256: ce7c679ed9a51327a29289dccff6ac4ddcf1706d672be0c29eb9fb0a80436560
+        commands/analyze_warmup_existing.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/analyze_warmup_existing.py
+          sha256: a394a4818bded45a0b6a9ab4b099aae911ed03ac2c33817d74dd92fce2f43105
+        commands/start_perf_warmup12.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/start_perf_warmup12.py
+          sha256: c4f8cf870eaa15ac115838fe6337a9047eee047aa6c3a57f3a66005541222091
+      controller_pid: 475511
+      last3_relative_spread: 0.17453480854115277
+      measured_rounds: 0
+      record_sha256: b38ac5687ae6fc61c580d92d42371282259cd03f71a8dcaedd08010a510f009c
+      output_tps_all12:
+      - 1097.9048624683032
+      - 1056.5182365283213
+      - 1039.644895593111
+      - 1220.0626957037725
+      - 1603.187540773152
+      - 1338.9206570021108
+      - 1586.271789453607
+      - 1437.9592809827607
+      - 1602.225458556765
+      - 1609.6395728462812
+      - 1609.9784865523807
+      - 1329.040351885392
+      compiled_artifacts_per_round:
+      - 182
+      - 195
+      - 185
+      - 112
+      - 0
+      - 65
+      - 2
+      - 42
+      - 0
+      - 2
+      - 0
+      - 74
+      over1s_token_gaps_per_round:
+      - 320
+      - 425
+      - 335
+      - 176
+      - 0
+      - 108
+      - 0
+      - 55
+      - 0
+      - 0
+      - 0
+      - 88
+      restore:
+        status: passed
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:174823:1105700599
+        at_utc: '2026-10-23T09:07:58.091149Z'
+        num_splits: 1
+        prefix_cache_enabled: true
+        graph_replays_per_rank: 16
+        C8: passed
+        artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restored-warmup12.json
+        sha256: 9675b4211c11c6d497808153f1452f028fa294e46eb083471706dadb7550f008
+      controller_startticks: '1105480822'
+      failure_artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-controller-warmup12-failure.json
+    completion_artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/performance-iv64-completed.json
+    restoration_artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restored-iv64.json
+    last_observation:
+      checked_at_utc: '2026-10-23T22:02:08.480893Z'
+      controller_alive: false
+      controller_startticks: '1106675186'
+      current_service_instance_id: qwen3vl-pr943-split1-mx104-20261023:902026:1110336333
+      trial: IV64-RESTORED
+      comparison_status: failed
+      data_validity: passed all180 native rounds and all6 source audits
+      restoration_status: passed
+      graph_capture_observed: true
+      graph_replays_per_rank_at_least: 16
+      C8_passed: true
+      prefix_cache_enabled: true
+      health_http_status: 200
+      action: Archive initial targeted result and stop completed monitor; expanded workload requires new frozen plan/preflight,
+        no further benchmark started.
+    sampling_compile_diagnosis:
+      status: confirmed mechanism; no new operator optimization
+      round12_new_M:
+      - 4
+      - 12
+      - 20
+      - 61
+      guarded_sweep_artifacts: 64
+      rank_pass_multiplier: 4 shapes x8 radix passes x2 TP processes
+      call_chain: Plugin common FlagGems adapter -> FV metax top_k_top_p._guarded_sweep -> FlagGems sort.sweep -> floating_to_uint
+      cross_process_cache_issue: FlagGems sort get_int_t and one_zeros use @tl.constexpr wrapping Python functions. FlagTree
+        JIT cache_key stringifies these constexpr globals including function addresses; identical source in two processes
+        yields different dependency and wrapper keys. Same generated IR/options exists under distinct cache keys.
+      sources_unchanged: true
+      sampling_sha256: 941bdc544401872327ee299aa0ab73387b43893e363f8c25b465fb607eb551eb
+      sort_sha256: 06208cc0d074bd5a38a9ed84afa5870ccbea062fe3d244a1b438c2dc5df2e184
+      evidence:
+      - path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-warmup12-diagnosis.json
+        sha256: 1c2a7da0286221cad9499b3d35beca3dcb5f965398abb0a6723194ec898ca0b3
+      - path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/sampling-cache-key-probe.json
+        sha256: 5c35aa17a405bcb7f18ab2bdd97ab8a089f64f71902cf5a5119beaf40ed87649
+      limitation: No profiler; compilation and >1s gaps correlate strongly, but not every elapsed-time difference attributed.
+        No split0/1 performance conclusion.
+    sampling64_preparation:
+      status: shape preparation passed; SC64 client namespace preflight failed, no benchmark requests
+      only_measurement_preparation_changes: true
+      all_roles:
+      - SC64-B1:0
+      - SC64-C1:1
+      - SC64-R1:0
+      - SC64-B2:0
+      - SC64-C2:1
+      - SC64-R2:0
+      shape_coverage: Each worker M1..64 twice after original compile/capture/KV allocation; unchanged original dummy sampler;
+        actual optimized _sorted_values calls proven all M; second complete sweep zero compile misses; RNG and KV unchanged;
+        temporary hooks removed before traffic.
+      semantic_source_changes: none except original split scalar variable
+      warmup_rounds: 12
+      measured_rounds: 3
+      steady_admission: last3 outputTPS spread<=5%; retain every measured round
+      stop_rule: Any coverage/graph/C8/source/steady gate failure stops and restores split1 exact original helper; no further
+        blind budget extension
+      artifacts:
+        commands/perf_controller_gpu45_sampling64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_sampling64.py
+          sha256: c35fe20d1d044522b564c51a8578371395293fd611ab1354e4361954d6395f5a
+        configs/observer.sampling64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/observer.sampling64.py
+          sha256: c0ec24332c1cf52615bfba146f1c77702b3741743d7687095e3f3558bc22dc99
+        configs/plan-sampling64-v3.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/plan-sampling64-v3.json
+          sha256: 3b9210517491306a672a0307f86f78b96049d8a10c7f44f83c9479db2647b72f
+        configs/comparison-sampling64-v3.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/comparison-sampling64-v3.json
+          sha256: 391eee0d8268272783bde8d4d13d352ce5bf8cbfde4d0c6928bedc4f13af71a7
+        configs/cache-policy-sampling64-v3.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/cache-policy-sampling64-v3.json
+          sha256: d99adbfae6cbaa59aeea91d081f53667abaf611a8c9784653966c67f65b9bc4f
+        commands/start_perf_sampling64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/start_perf_sampling64.py
+          sha256: cdeacb550001664cb9274f95456d57faacf0d556749d55ce455378bb02bba0f4
+      controller_pid: 914705
+      controller_startticks: '1105905979'
+      first_trial_proof:
+        trial: SC64-B1
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:183235:1105908823
+        both_ranks_actual_sampling_batch_shapes:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 25
+        - 26
+        - 27
+        - 28
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+        - 36
+        - 37
+        - 38
+        - 39
+        - 40
+        - 41
+        - 42
+        - 43
+        - 44
+        - 45
+        - 46
+        - 47
+        - 48
+        - 49
+        - 50
+        - 51
+        - 52
+        - 53
+        - 54
+        - 55
+        - 56
+        - 57
+        - 58
+        - 59
+        - 60
+        - 61
+        - 62
+        - 63
+        - 64
+        first_sweep_compile_misses_per_rank:
+        - 676
+        - 679
+        first_sweep_duration_s:
+        - 417.53308831341565
+        - 417.5357300043106
+        second_sweep_compile_misses_per_rank:
+        - 0
+        - 0
+        second_sweep_duration_s:
+        - 0.4542551524937153
+        - 0.4526363518089056
+        rng_preserved: true
+        temporary_hooks_removed: true
+        kv_bytes_before_and_after_per_rank: 27672947507.200005
+        kv_num_blocks_field: not available on worker.cache_config; do not treat None==None as direct block-count proof
+        gpu_kv_cache_capacity_tokens: 562992
+        capacity_evidence: Native model-service.log in SC64-B1,W12-B1,W12-RESTORED all state562992tokens; preparation executes
+          after original allocation; sampler does not execute KV attention
+        graph_capture_and_replay16_per_rank: true
+        C8: passed
+        artifacts:
+          coverage_rank0:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/SC64-B1/graph/sampling-coverage-pid183722.json
+            sha256: 96358ce51392a9d0b8cddefcaee3c05e633d16ae330a7127133cd287464382d6
+          coverage_rank1:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/SC64-B1/graph/sampling-coverage-pid183723.json
+            sha256: 551fcfe61164a2999c63f1727e845ad3a51ad6bc963df77bc0a9fc2d114f20b4
+          minimal:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/SC64-B1/results/minimal.json
+            sha256: 43479e041d0dbc0aebf30b754a8a911c700a4ecb74dd618cce5721adf559673e
+          source:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/SC64-B1/manifests/source-before.json
+            sha256: c29ac88b441e9a83f5576851328488731db55920ab0d44e690f7ac22610a60bc
+          service:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/SC64-B1/manifests/service.json
+            sha256: 6c1012216b84eb83e84a32dc4e8e8f00816aaecc4d2aff8d08dd2fc79ad14904
+          runtime:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/SC64-B1/manifests/runtime.json
+            sha256: 471e4b36411093ab8a5e07f41492ce530bab397d120c13f2d943aa7cf5fae9bb
+      client_failure:
+        record: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/SC64-B1/run-record.json
+        controller_failure: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-controller-sampling64-failure.json
+        classification: 'measurement-invalid: client cwd namespace shadow'
+        completed_rounds: 0
+        requests_sent: false
+        original_client_cwd: /public-flash/jinghao
+        shadow_namespace_path: /public-flash/jinghao/vllm
+        real_runtime_package: /workspace/vllm/vllm
+        shared_shadow_directory_untouched: true
+        restored:
+          status: passed
+          at_utc: '2026-10-23T09:56:11.200342Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:275914:1105990406
+          artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restored-sampling64.json
+          prefix_cache_enabled: true
+          num_splits: 1
+          graph_C8: passed; capture>=16replay eachrank
+    client_cwd_recovery:
+      status: incomplete on first measured input length; stopped and restored
+      method: Exact native runtime probe from case cwd must equal W12 successful interpreter/native source fingerprints; pin
+        only benchmark client cwd for every role. Preserve source/semantic settings, sampling64 helper and12warmup/5%/3measurements.
+      client_cwd: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration
+      roles:
+      - CWD64-B1:0
+      - CWD64-C1:1
+      - CWD64-R1:0
+      - CWD64-B2:0
+      - CWD64-C2:1
+      - CWD64-R2:0
+      diagnosis_command:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/verify_client_cwd.py
+        sha256: 9e8f54ae73b8b45b13b716d49787921186603f6ec60cea9852eb3a404bde42a2
+      artifacts:
+        commands/perf_controller_gpu45_cwd64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_cwd64.py
+          sha256: 2f27eafd7878503d37f07b7c5bdaa874dd72c0b10f58860314933a053f06454f
+        configs/observer.sampling64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/observer.sampling64.py
+          sha256: c0ec24332c1cf52615bfba146f1c77702b3741743d7687095e3f3558bc22dc99
+        configs/plan-cwd64-v4.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/plan-cwd64-v4.json
+          sha256: 3b9210517491306a672a0307f86f78b96049d8a10c7f44f83c9479db2647b72f
+        configs/comparison-cwd64-v4.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/comparison-cwd64-v4.json
+          sha256: 4110ed262a7b74a283e4d934d9dcadf41338760d7d5cc3483c157f32d5efddff
+        configs/cache-policy-cwd64-v4.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/cache-policy-cwd64-v4.json
+          sha256: 5610b3b0a02a02781c6b4f7df93ab68bd602a3a4b27659a0c2f2395d5d44a40b
+        commands/start_perf_cwd64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/start_perf_cwd64.py
+          sha256: 176119a0f03bb421d5bee863043e86fe0c46a70d23f83709297d2cbf92f793aa
+      stop_rule: Source identity, shape coverage, graph/C8, client binding, fixed steady admission or measured validation
+        fail -> preserve evidence and restore split1 exact helper. No threshold loosening or lucky-window retry.
+      controller_pid: 1244310
+      controller_startticks: '1106182655'
+      started_at_utc: '2026-10-23T10:24:39.995290Z'
+      manifest: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/manifests/perf-controller-cwd64.json
+      diagnosis:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/client-cwd-diagnosis.json
+        sha256: 38681d6a48ce2322e845dbcb28b270fb4e6e2b8c4a5564755999c3d445a351b9
+        status: passed; old cwd failure reproduced; case cwd interpreter/native benchmark source fingerprints exactly equal
+          W12
+      prior_SC64_rounds: 0
+      prior_SC64_requests_sent: false
+      outcome:
+        warmup_admission: passed
+        last3_relative_spread: 0.02499594319439299
+        warmup_rounds_completed: 12
+        invalid_measured_rounds_retained: 1
+        valid_measured_rounds: 0
+        failure: seed74295 request index64 input1025 instead1024; native total131073 vs131072
+        diagnosis:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/perf-cwd64-diagnosis.json
+          sha256: 2f0fd779541a416c7caec0c3216ebf1a4ea12782410445211c49a3cf339ca4dc
+        record:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/CWD64-B1/run-record.json
+          sha256: 6429b8a1ec47eb61a0f5614682b1b59611984dc85bfd41b4f7c7c40fbc0c1813
+        restore:
+          at_utc: '2026-10-23T11:07:12.712136Z'
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restored-cwd64.json
+          sha256: c88bf6b565ef18d0950427c6c1265eef59f3cdfc5d0af9a8134b261d63d5e314
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:366271:1106416538
+          graph16_C8: passed
+          current_live_sources_service_equal: true
+    restore_failure_artifact: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restore-iv64-failure.json
+    input_length_audit:
+      status: passed; native mismatch independently reproduced; all30 inputs exact under1042
+      command: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/audit_random_input_lengths.py
+      sha256: 678cb19647bb337af2a7c46edcb415ddcbf7b4503d27580ff0d6c37079d54902
+      scope: CPU-only native generation and independent tokenization; reproduce74295 mismatch at index64, then fixed1042/2042/3042/4042
+        base seeds until all30 exact-length inputs validate; no model requests
+      boundary: No relaxed token validator; no model/sampling/temperature/prefix/source changes; any new seed starts all roles
+        under new frozen plan and never reuses invalid measured data.
+      evidence:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/random-input-length-audit.json
+        sha256: a540328db52fdee5167636fd6d0e0c32f7a42575c5d58b280bfb576761f600a0
+      selected_base_seed: 1042
+      model_requests_sent: false
+      selection_used_performance: false
+    input_validated_recovery:
+      status: complete;comparison failed on performance,restored passed
+      old_base_seed: 42
+      new_base_seed: 1042
+      roles:
+      - IV64-B1:0
+      - IV64-C1:1
+      - IV64-R1:0
+      - IV64-B2:0
+      - IV64-C2:1
+      - IV64-R2:0
+      method: Only new measurement seed after CPU all30 exact-length preflight; all6 roles use identical new workload, original
+        native generator/validator unchanged. No performance-based selection. Existing invalid13 rounds retained, not mixed
+        into new result.
+      artifacts:
+        commands/perf_controller_gpu45_iv64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_iv64.py
+          sha256: 007d3e64c8f987383ae2f937f5d8ab1be0de5d67b80c4d9364d0895e7d4a1d99
+        configs/plan-iv64-v5.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/plan-iv64-v5.json
+          sha256: 7f7f7e3bbca3eb033ec012ea6a7618a65bb9bc2b8b22faf2e14b3a8065db1137
+        configs/comparison-iv64-v5.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/comparison-iv64-v5.json
+          sha256: 025c85d4ef38f5a9cf871811d79fb48610ae49601c1062a6722a121ec77aa44f
+        configs/cache-policy-iv64-v5.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/cache-policy-iv64-v5.json
+          sha256: 3822c2a577091e6740a97aeb81836c56e61c3e51b771371300c8af3bcaf30ee2
+        configs/observer.sampling64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/observer.sampling64.py
+          sha256: c0ec24332c1cf52615bfba146f1c77702b3741743d7687095e3f3558bc22dc99
+        results/random-input-length-audit.json:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/random-input-length-audit.json
+          sha256: a540328db52fdee5167636fd6d0e0c32f7a42575c5d58b280bfb576761f600a0
+        commands/start_perf_iv64.py:
+          path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/start_perf_iv64.py
+          sha256: fa678b67d459ef3979f04c30616a1ebca981b313a243b84d9c8c7a7b4b08634e
+      stop_rule: Any source, input-length, coverage, graph/C8, steady, or native validation failure retains evidence and restores
+        exact split1/helper. No wider tolerance, dropped rounds, or blind seed retries.
+      controller_pid: 1434728
+      controller_startticks: '1106675186'
+      started_at_utc: '2026-10-23T11:46:45.300408Z'
+      manifest: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/manifests/perf-controller-iv64.json
+      first_trial_proof:
+        trial: IV64-B1
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:375049:1106677999
+        shape_coverage: both ranks allM1..64
+        first_sweep_compile_misses:
+        - 504
+        - 504
+        second_sweep_compile_misses:
+        - 0
+        - 0
+        rng_preserved: true
+        hooks_removed: true
+        graph_capture_and_replay16_per_rank: true
+        C8: passed
+        artifacts:
+          minimal:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/results/minimal.json
+            sha256: f51e18b53700b21e81c1a9f9d231a09342f8c71b8954c055ea017efad6bc54f3
+          coverage_rank0:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/graph/sampling-coverage-pid375536.json
+            sha256: 00d4e46dfd39410912c934de5c7bbf3249179ef9a6ec173497876ae623d356bf
+          coverage_rank1:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/graph/sampling-coverage-pid375537.json
+            sha256: 0c3d349576e70a4e7c1e56297aef87f0ff998c1fdf09f46e8295e7862805c5b9
+          service:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/manifests/service.json
+            sha256: 5c0c4c65f718abbbaf799807173ee4568d466938b1f926098ca1310139885185
+          runtime:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/manifests/runtime.json
+            sha256: cfbb664089716bc85aac5f982c268ada35f107063fe410b1075946bd38dcd454
+          dry_run:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/logs/dry-run.json
+            sha256: 31b63f2bcd77b146195aa1e7427ab6dbd15949b19878d5617831ba3de0fcc0ae
+      p1k_first_process_partial_result:
+        status: baseline process complete; native evidence and post-run source audit passed; matrix incomplete
+        role: baseline
+        num_splits: 0
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:375049:1106677999
+        scenario_id: p1024-d1024-c64-n128
+        stage: mixed
+        warmup_rounds: 12
+        warmup_last3_output_tps:
+        - 1583.9526799360901
+        - 1579.8397547762027
+        - 1625.5871010949295
+        warmup_relative_spread: 0.028881763261117542
+        measured_rounds: 3
+        retained_all_measured_rounds: true
+        input_output_counts: all15 rounds128 requests,0failed,input131072/output131072; per-request1024/1024
+        native_command_and_CPU_audit_seeds_match: true
+        output_sha_validation_passed: true
+        measured_relative_spread: 0.01470660950510202
+        median_output_tps: 1600.6061583194557
+        median_total_token_tps: 3201.2123166389115
+        mean_ttft_ms_all3:
+        - 1663.535153347766
+        - 1665.8087172691012
+        - 1663.0350170016754
+        mean_tpot_ms_all3:
+        - 38.34345508176496
+        - 38.913592424255405
+        - 38.32075911843084
+        p99_ttft_ms_all3:
+        - 3546.09030790627
+        - 3565.5284699983895
+        - 3547.0635538734496
+        p99_tpot_ms_all3:
+        - 39.45690269881489
+        - 40.034286605461865
+        - 39.463059635885706
+        gaps_over1s_all3:
+        - 0
+        - 0
+        - 0
+        boundary: One baseline process only. Candidate/revert and independent repetitions remain incomplete; no speedup/acceptance.
+          TTFT/TPOT are client proxies including scheduling, not pure device stages.
+        rounds:
+        - round: 13
+          seed: 75295
+          output_tps: 1600.6061583194557
+          total_token_tps: 3201.2123166389115
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/p1024-d1024-c64-n128-r13.json
+            sha256: e1f76aec2e06b72c5dec5c448784ab527be2b15725fd3b85457c14120aae0bee
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/p1024-d1024-c64-n128-r13.validation.json
+            sha256: 427e5bb534bf4707cfd90864fb54430e697d2bd8c07eb3ddbf7074c72eb6c413
+        - round: 14
+          seed: 75296
+          output_tps: 1577.9690775779095
+          total_token_tps: 3155.938155155819
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/p1024-d1024-c64-n128-r14.json
+            sha256: b220e313a136e4ee2b18a854f83aa50c1ccfa03af4294966af5ab6817f21160a
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/p1024-d1024-c64-n128-r14.validation.json
+            sha256: 0deb2abcfac0a83dc4dd9d97b5c904fd68e213e97b786480d0d7362aebd772e0
+        - round: 15
+          seed: 75297
+          output_tps: 1601.5085673197752
+          total_token_tps: 3203.0171346395505
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/p1024-d1024-c64-n128-r15.json
+            sha256: 4283224b4d3a339bb1452f5f46476e373bb7d91669147a7901b2c0a1e3b4356c
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/p1024-d1024-c64-n128-r15.validation.json
+            sha256: 7cf5a398ab4e3d5ae6678e3005ed9c52d3b286f83c913cd1589776df7089d159
+      completed_processes:
+        IV64-B1:
+          role: baseline
+          num_splits: 0
+          status: complete
+          completed_at_utc: '2026-10-23T13:20:54.988662Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:375049:1106677999
+          record:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B1/run-record.json
+            sha256: e7b08b0e6741a9cbd158d42db9e64029a6960c46579deb131f4e5478c21d6dcc
+          native_rounds: 30
+          warmup_rounds: 24
+          measured_rounds: 6
+          all_raw_validation_output_sha: passed
+          inputs_verified_before_after: true
+          source_before_after_equal:
+          - service
+          - model
+          - tokenizer
+          - repositories
+          source_after:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B1/manifests/source-after.json
+            sha256: 392d2a954ebf9784b4ac1ffb0d98c5db99d4ffa8c6256a5d7dfc47df72a0f285
+          scenarios:
+            p1024-d1024-c64-n128:
+              warmup_relative_spread: 0.028881763261117542
+              measured_output_tps:
+              - 1600.6061583194557
+              - 1577.9690775779095
+              - 1601.5085673197752
+              median_output_tps: 1600.6061583194557
+              median_total_tps: 3201.2123166389115
+              measured_relative_spread: 0.01470660950510202
+            p65536-d128-c8-n16-kv-sentinel:
+              warmup_relative_spread: 0.0011484040271448025
+              measured_output_tps:
+              - 13.972821746862463
+              - 13.985250961719787
+              - 13.982846228347851
+              measured_total_tps:
+              - 7168.057556140444
+              - 7174.43374336225
+              - 7173.200115142448
+              median_output_tps: 13.982846228347851
+              median_total_tps: 7173.200115142448
+              measured_relative_spread: 0.0008888901911919641
+              mean_ttft_ms_all3:
+              - 28038.133043795824
+              - 28037.343529984355
+              - 28043.027082108893
+              mean_tpot_ms_all3:
+              - 353.6956469192881
+              - 353.1868988015564
+              - 353.2513067058442
+          prefix_counter_deltas:
+            queries: 17694720
+            hits: 2016
+            observed_hit_ratio: 0.00011393229166666667
+            boundary: Cache enabled throughout; observed nonzero hits, not assumed zero from intended random prefix reuse0.
+        IV64-C1:
+          role: candidate
+          num_splits: 1
+          status: complete
+          completed_at_utc: '2026-10-23T15:19:39.844052Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:463238:1107242784
+          record:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/run-record.json
+            sha256: 297f4cce33581c1b23d06bb396bbe6304ea997061e50f43d3e9947a9c2aa8493
+          native_rounds: 30
+          warmup_rounds: 24
+          measured_rounds: 6
+          all_raw_validation_output_sha: passed
+          inputs_verified_before_after: true
+          source_before_after_equal:
+          - service
+          - model
+          - tokenizer
+          - repositories
+          source_after:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C1/manifests/source-after.json
+            sha256: 40089ebfba2fe1e1a848cdbabc1d2b43bc8ecc11ab7c59b63f92fa2a3d003d1f
+          scenarios:
+            p1024-d1024-c64-n128:
+              warmup_relative_spread: 0.02065628200304394
+              measured_output_tps:
+              - 1418.8986308217222
+              - 1399.6175400912807
+              - 1415.9052090552177
+              measured_total_tps:
+              - 2837.7972616434445
+              - 2799.2350801825614
+              - 2831.8104181104354
+              median_output_tps: 1415.9052090552177
+              median_total_tps: 2831.8104181104354
+              measured_relative_spread: 0.013617501091974295
+              mean_ttft_ms_all3:
+              - 1642.6784873765428
+              - 1637.7767553931335
+              - 1678.6442879383685
+              mean_tpot_ms_all3:
+              - 43.4728141472994
+              - 44.10030524335043
+              - 43.53335341804796
+              gaps_over1s_all3:
+              - 0
+              - 0
+              - 0
+              rounds:
+              - round: 13
+                output_tps: 1418.8986308217222
+                total_tps: 2837.7972616434445
+                mean_ttft_ms: 1642.6784873765428
+                mean_tpot_ms: 43.4728141472994
+                p99_ttft_ms: 3551.684653237462
+                p99_tpot_ms: 44.8430255789561
+                p99_itl_ms: 45.149734038859606
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r13.json
+                  sha256: a7595c9e04c94da8b8b22ae2d8a614e053377e529050618545067420923bea28
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r13.validation.json
+                  sha256: 70889c62ee4813271d74d1cb2047571708f2b6a168d8db30ae52486f3115fbb1
+                gaps_over1s: 0
+              - round: 14
+                output_tps: 1399.6175400912807
+                total_tps: 2799.2350801825614
+                mean_ttft_ms: 1637.7767553931335
+                mean_tpot_ms: 44.10030524335043
+                p99_ttft_ms: 3538.7090389989316
+                p99_tpot_ms: 45.15169075396156
+                p99_itl_ms: 45.86506558582186
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r14.json
+                  sha256: d8ef0409389002e1e482a11963a9d8b9d3fe91bd89549f3de26d6048b8ba5070
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r14.validation.json
+                  sha256: 6adf1700241a4f4882b25c90abc486ec4d8d3ba2c37933347c7109ae8024f0f5
+                gaps_over1s: 0
+              - round: 15
+                output_tps: 1415.9052090552177
+                total_tps: 2831.8104181104354
+                mean_ttft_ms: 1678.6442879383685
+                mean_tpot_ms: 43.53335341804796
+                p99_ttft_ms: 3561.4289198815823
+                p99_tpot_ms: 44.63476362804775
+                p99_itl_ms: 45.13990318402648
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r15.json
+                  sha256: e1857a66694fb11d4429c3d1623eb4530c81e14a388f780bc296cc1af6c64269
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r15.validation.json
+                  sha256: c2a2b07f68a5fdbd47c4bd7af326e44d85d2d5cf53d2cbbec66af26d2efd8614
+                gaps_over1s: 0
+            p65536-d128-c8-n16-kv-sentinel:
+              warmup_relative_spread: 0.0007316455360019273
+              measured_output_tps:
+              - 8.611456725705844
+              - 8.61286527625511
+              - 8.608043728350838
+              measured_total_tps:
+              - 4417.677300287098
+              - 4418.399886718872
+              - 4415.92643264398
+              median_output_tps: 8.611456725705844
+              median_total_tps: 4417.677300287098
+              measured_relative_spread: 0.0005598992200564769
+              mean_ttft_ms_all3:
+              - 31468.049578834325
+              - 31473.412035498768
+              - 31495.06161105819
+              mean_tpot_ms_all3:
+              - 654.4185672147845
+              - 654.1452620986952
+              - 654.5193441300177
+              gaps_over1s_all3:
+              - 491
+              - 491
+              - 491
+              rounds:
+              - round: 13
+                output_tps: 8.611456725705844
+                total_tps: 4417.677300287098
+                mean_ttft_ms: 31468.049578834325
+                mean_tpot_ms: 654.4185672147845
+                p99_ttft_ms: 84615.64280409366
+                p99_tpot_ms: 784.8644328684964
+                p99_itl_ms: 1967.2701792791486
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p65536-d128-c8-n16-kv-sentinel-r13.json
+                  sha256: df71ee1d2524761e81733fdbf45bd50f1e17328f10cc0529863addcb93906005
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p65536-d128-c8-n16-kv-sentinel-r13.validation.json
+                  sha256: d50447de0d306aec4ca7751c68faa7cf6f0f0ad0a564b292b4e9dc1cda4277db
+                gaps_over1s: 491
+              - round: 14
+                output_tps: 8.61286527625511
+                total_tps: 4418.399886718872
+                mean_ttft_ms: 31473.412035498768
+                mean_tpot_ms: 654.1452620986952
+                p99_ttft_ms: 84603.6705722101
+                p99_tpot_ms: 784.6417207241528
+                p99_itl_ms: 1966.1388369090855
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p65536-d128-c8-n16-kv-sentinel-r14.json
+                  sha256: c5203520f6d8187af8e678d091f4a34bc9ece1f37517f6c7cd3e9e812d0a7468
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p65536-d128-c8-n16-kv-sentinel-r14.validation.json
+                  sha256: 7444c869818c628bf9dd48357789ff7e2a8a5a6a93942e7fc09b73c409ac20c3
+                gaps_over1s: 491
+              - round: 15
+                output_tps: 8.608043728350838
+                total_tps: 4415.92643264398
+                mean_ttft_ms: 31495.06161105819
+                mean_tpot_ms: 654.5193441300177
+                p99_ttft_ms: 84653.35879921913
+                p99_tpot_ms: 784.9369557391059
+                p99_itl_ms: 1966.451591718942
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p65536-d128-c8-n16-kv-sentinel-r15.json
+                  sha256: eb6c5825812191d22beaf906e03e9e024854c33bbc57f724f413c52adf363ff6
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p65536-d128-c8-n16-kv-sentinel-r15.validation.json
+                  sha256: d5e428bfba48c879c367dd65dc96ccfb2f5ff9c8e50f35d75cdd2ed215ebe9ec
+                gaps_over1s: 491
+        IV64-R1:
+          role: revert
+          num_splits: 0
+          status: complete
+          completed_at_utc: '2026-10-23T16:52:17.625643Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:551211:1107955264
+          record:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/run-record.json
+            sha256: b9a705332a921b820478d9e732065d3dbc67ddab4a1b6a8b8a77a1ab8a63564f
+          native_rounds: 30
+          warmup_rounds: 24
+          measured_rounds: 6
+          all_raw_validation_output_sha: passed
+          inputs_verified_before_after: true
+          source_before_after_equal:
+          - service
+          - model
+          - tokenizer
+          - repositories
+          source_after:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R1/manifests/source-after.json
+            sha256: 06a15db228b04b3b21959eb57e8444ae6a6e623c64e08a5542d89694a7289a6d
+          scenarios:
+            p1024-d1024-c64-n128:
+              warmup_relative_spread: 0.013472038373462485
+              measured_output_tps:
+              - 1615.287595740843
+              - 1607.7885533858864
+              - 1607.7220376214552
+              measured_total_tps:
+              - 3230.575191481686
+              - 3215.577106771773
+              - 3215.4440752429105
+              median_output_tps: 1607.7885533858864
+              median_total_tps: 3215.577106771773
+              measured_relative_spread: 0.004705567845631983
+              mean_ttft_ms_all3:
+              - 1727.8907576546771
+              - 1677.4470342206769
+              - 1661.8816066184081
+              mean_tpot_ms_all3:
+              - 37.896416051043474
+              - 38.15234203126239
+              - 38.16866715744666
+              gaps_over1s_all3:
+              - 0
+              - 0
+              - 0
+              rounds:
+              - round: 13
+                output_tps: 1615.287595740843
+                total_tps: 3230.575191481686
+                mean_ttft_ms: 1727.8907576546771
+                mean_tpot_ms: 37.896416051043474
+                p99_ttft_ms: 3531.2230244651437
+                p99_tpot_ms: 39.0715185072335
+                p99_itl_ms: 38.18465093150735
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r13.json
+                  sha256: 6baafb300e7e41c3dcdcd634ceb625d30737e6c50d7749b145a22273a26855fc
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r13.validation.json
+                  sha256: aac1997e327ac5e7cf24b507e52b3252b852996e90e1e4fe0ab503eae95a6819
+                gaps_over1s: 0
+              - round: 14
+                output_tps: 1607.7885533858864
+                total_tps: 3215.577106771773
+                mean_ttft_ms: 1677.4470342206769
+                mean_tpot_ms: 38.15234203126239
+                p99_ttft_ms: 3531.0361287742853
+                p99_tpot_ms: 39.24793529587335
+                p99_itl_ms: 38.22392487898469
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r14.json
+                  sha256: 8788a52de5f1ddf08d7b8d6e4590ec988241e01a288327da0119af5323029ba1
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r14.validation.json
+                  sha256: a8b3a70cd5f43a4bb33ebfe5687f67ce84957b3802435c11ab68c5f6a51f9128
+                gaps_over1s: 0
+              - round: 15
+                output_tps: 1607.7220376214552
+                total_tps: 3215.4440752429105
+                mean_ttft_ms: 1661.8816066184081
+                mean_tpot_ms: 38.16866715744666
+                p99_ttft_ms: 3552.9358464106917
+                p99_tpot_ms: 39.45580132189093
+                p99_itl_ms: 38.22322314605116
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r15.json
+                  sha256: f5d1fcb020c40f84b0e5e8ba2d49633af131c4cb6da1a2650a92802c126ba01c
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r15.validation.json
+                  sha256: 1441cd86260f69e7b9a6fdbc8dd1ec75303180b40a8444270625a1983d19a50f
+                gaps_over1s: 0
+            p65536-d128-c8-n16-kv-sentinel:
+              warmup_relative_spread: 0.007561426952284371
+              measured_output_tps:
+              - 13.906771546467748
+              - 13.923408603127822
+              - 13.929144748589177
+              measured_total_tps:
+              - 7134.173803337955
+              - 7142.708613404572
+              - 7145.651256026247
+              median_output_tps: 13.923408603127822
+              median_total_tps: 7142.708613404572
+              measured_relative_spread: 0.0016068767899552183
+              mean_ttft_ms_all3:
+              - 28407.802416128106
+              - 28159.899486927316
+              - 28424.32535602711
+              mean_tpot_ms_all3:
+              - 353.49293380671395
+              - 354.773238373693
+              - 352.4943346324501
+              gaps_over1s_all3:
+              - 339
+              - 344
+              - 333
+              rounds:
+              - round: 13
+                output_tps: 13.906771546467748
+                total_tps: 7134.173803337955
+                mean_ttft_ms: 28407.802416128106
+                mean_tpot_ms: 353.49293380671395
+                p99_ttft_ms: 68878.93840456381
+                p99_tpot_ms: 501.54579767194673
+                p99_itl_ms: 1692.006165329367
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p65536-d128-c8-n16-kv-sentinel-r13.json
+                  sha256: a66ccb89f130d0e9f1fa23d87bece408bcb181d3dbd197f7edd4a79c8233a15f
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p65536-d128-c8-n16-kv-sentinel-r13.validation.json
+                  sha256: d031a51dcf2c8a0fb5034f89d7b7cee783ed9a08616525dd298b546e6919b253
+                gaps_over1s: 339
+              - round: 14
+                output_tps: 13.923408603127822
+                total_tps: 7142.708613404572
+                mean_ttft_ms: 28159.899486927316
+                mean_tpot_ms: 354.773238373693
+                p99_ttft_ms: 68910.75927242637
+                p99_tpot_ms: 500.8126656979498
+                p99_itl_ms: 1687.2078252956271
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p65536-d128-c8-n16-kv-sentinel-r14.json
+                  sha256: 040d482573ef396d5fd33ece971c57b9d8e5f78259be35b3daf7fff382fec29f
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p65536-d128-c8-n16-kv-sentinel-r14.validation.json
+                  sha256: e9e60e5487c4043dac91099d35fd2a3bee5d2c4bd4fb330e2af019a0d27239d0
+                gaps_over1s: 344
+              - round: 15
+                output_tps: 13.929144748589177
+                total_tps: 7145.651256026247
+                mean_ttft_ms: 28424.32535602711
+                mean_tpot_ms: 352.4943346324501
+                p99_ttft_ms: 68930.89537592605
+                p99_tpot_ms: 500.7155617963024
+                p99_itl_ms: 1689.7446633689106
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p65536-d128-c8-n16-kv-sentinel-r15.json
+                  sha256: 0aebc7d529277d6077133e986ec808adbe016d7f5ad279e8095b9e2ca04b6d05
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p65536-d128-c8-n16-kv-sentinel-r15.validation.json
+                  sha256: 5e93e29357dee6c9c23e2c16880efcd4c8d6caad3c87a0fb0597417f82828ef5
+                gaps_over1s: 333
+        IV64-B2:
+          role: baseline
+          num_splits: 0
+          status: complete
+          completed_at_utc: '2026-10-23T18:25:14.573248Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:640539:1108511025
+          record:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/run-record.json
+            sha256: ebbf342b680e821e4a12fcd599467495099896d62aa0717107ed6a8d0c2351a8
+          native_rounds: 30
+          warmup_rounds: 24
+          measured_rounds: 6
+          all_raw_validation_output_sha: passed
+          inputs_verified_before_after: true
+          source_before_after_equal:
+          - service
+          - model
+          - tokenizer
+          - repositories
+          source_after:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B2/manifests/source-after.json
+            sha256: a03c76fd8e94b2f29882cba3b06d6dc25eb191ce6031f617d9b6150c09730233
+          scenarios:
+            p1024-d1024-c64-n128:
+              warmup_relative_spread: 0.010538074178782015
+              measured_output_tps:
+              - 1590.8617369142332
+              - 1598.098058391385
+              - 1599.9504817666927
+              measured_total_tps:
+              - 3181.7234738284665
+              - 3196.19611678277
+              - 3199.9009635333855
+              median_output_tps: 1598.098058391385
+              median_total_tps: 3196.19611678277
+              measured_relative_spread: 0.005687226015159589
+              mean_ttft_ms_all3:
+              - 1659.4313017994864
+              - 1655.2518803364364
+              - 1677.7993868745398
+              mean_tpot_ms_all3:
+              - 38.589848127011955
+              - 38.41459568284264
+              - 38.34466361051529
+              gaps_over1s_all3:
+              - 0
+              - 0
+              - 0
+              rounds:
+              - round: 13
+                output_tps: 1590.8617369142332
+                total_tps: 3181.7234738284665
+                mean_ttft_ms: 1659.4313017994864
+                mean_tpot_ms: 38.589848127011955
+                p99_ttft_ms: 3568.6718809232116
+                p99_tpot_ms: 40.0144558526277
+                p99_itl_ms: 39.25663454458116
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r13.json
+                  sha256: b25c91c55f806872b84830fac46fb22f60c8771af6184832b200629924527d27
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r13.validation.json
+                  sha256: 462958711de53b9b4b39b9311e6326a78879356988ca52e17ab587c471d76424
+                gaps_over1s: 0
+              - round: 14
+                output_tps: 1598.098058391385
+                total_tps: 3196.19611678277
+                mean_ttft_ms: 1655.2518803364364
+                mean_tpot_ms: 38.41459568284264
+                p99_ttft_ms: 3574.5223366469145
+                p99_tpot_ms: 39.64898640546631
+                p99_itl_ms: 38.91531927511095
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r14.json
+                  sha256: e39983ab47152606b5c2b7ccb168feda1092e87094a252349bd831eeedd3962a
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r14.validation.json
+                  sha256: f1f2f7a56fcdd3464ce90ece4823e279eb876c78292ff3c04f9b32d06233fafc
+                gaps_over1s: 0
+              - round: 15
+                output_tps: 1599.9504817666927
+                total_tps: 3199.9009635333855
+                mean_ttft_ms: 1677.7993868745398
+                mean_tpot_ms: 38.34466361051529
+                p99_ttft_ms: 3585.249093398452
+                p99_tpot_ms: 39.505195520210094
+                p99_itl_ms: 38.61149944365024
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r15.json
+                  sha256: 1edd31f68a98718cd2a8b899b6922ff67c70cea2da792a01cbcfc960ae96a11a
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r15.validation.json
+                  sha256: dbac81fd76ec627bb20277903c99d09a41dc4edee6026bfec2234b79800ae985
+                gaps_over1s: 0
+            p65536-d128-c8-n16-kv-sentinel:
+              warmup_relative_spread: 0.0007092910831700152
+              measured_output_tps:
+              - 13.920424189304725
+              - 13.94328488276361
+              - 13.941115354408913
+              measured_total_tps:
+              - 7141.177609113324
+              - 7152.905144857732
+              - 7151.792176811772
+              median_output_tps: 13.941115354408913
+              median_total_tps: 7151.792176811772
+              measured_relative_spread: 0.0016398037658912914
+              mean_ttft_ms_all3:
+              - 28414.238268742338
+              - 28130.869510001503
+              - 28394.87714052666
+              mean_tpot_ms_all3:
+              - 352.91873696480155
+              - 354.19053564812464
+              - 352.2252628422071
+              gaps_over1s_all3:
+              - 333
+              - 326
+              - 327
+              rounds:
+              - round: 13
+                output_tps: 13.920424189304725
+                total_tps: 7141.177609113324
+                mean_ttft_ms: 28414.238268742338
+                mean_tpot_ms: 352.91873696480155
+                p99_ttft_ms: 68897.83906340598
+                p99_tpot_ms: 500.9710824630391
+                p99_itl_ms: 1689.4478123262525
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p65536-d128-c8-n16-kv-sentinel-r13.json
+                  sha256: 9a528cedeef01e9387e850cdff8720505acec3a9b764499cffae07ab275e7459
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p65536-d128-c8-n16-kv-sentinel-r13.validation.json
+                  sha256: 87dc1bb8a2ce6d11702ff7119a2324b093143c38c96ec4963b1820cda5f88a97
+                gaps_over1s: 333
+              - round: 14
+                output_tps: 13.94328488276361
+                total_tps: 7152.905144857732
+                mean_ttft_ms: 28130.869510001503
+                mean_tpot_ms: 354.19053564812464
+                p99_ttft_ms: 68844.27155470474
+                p99_tpot_ms: 500.33243867737343
+                p99_itl_ms: 1684.983417764306
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p65536-d128-c8-n16-kv-sentinel-r14.json
+                  sha256: 6238abe8ca1dfb8506e2b25a2ca8dc9ab89d205f331a70a08597cb4d486083df
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p65536-d128-c8-n16-kv-sentinel-r14.validation.json
+                  sha256: ac05ec5ebf42ccd115f5c4802f25188847ca76ccee0b9ed9edd5af29bdf5172f
+                gaps_over1s: 326
+              - round: 15
+                output_tps: 13.941115354408913
+                total_tps: 7151.792176811772
+                mean_ttft_ms: 28394.87714052666
+                mean_tpot_ms: 352.2252628422071
+                p99_ttft_ms: 68863.81890513003
+                p99_tpot_ms: 500.38859832841234
+                p99_itl_ms: 1690.4493820108476
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p65536-d128-c8-n16-kv-sentinel-r15.json
+                  sha256: 2889a133fab88a664b2b6743a2a0f1967557893c367937376747183b9f34a3bc
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p65536-d128-c8-n16-kv-sentinel-r15.validation.json
+                  sha256: ed53530f8017e54b87a4418cc17d7369c54ee9f5d00bc4f269bcde4db81839cf
+                gaps_over1s: 327
+        IV64-C2:
+          role: candidate
+          num_splits: 1
+          status: complete
+          completed_at_utc: '2026-10-23T20:23:43.589393Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:727635:1109068799
+          record:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/run-record.json
+            sha256: 7b5dcdf25c65e9e5ec794076056b0d88cfcd57c6f2b6fd8d06d70e60747ec53c
+          native_rounds: 30
+          warmup_rounds: 24
+          measured_rounds: 6
+          all_raw_validation_output_sha: passed
+          inputs_verified_before_after: true
+          source_before_after_equal:
+          - service
+          - model
+          - tokenizer
+          - repositories
+          source_after:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C2/manifests/source-after.json
+            sha256: b62f13b3754fc743ac24e507c276718ec6aeafc8ba6849a2e4e311d7c7f5ecfe
+          scenarios:
+            p1024-d1024-c64-n128:
+              warmup_relative_spread: 0.022041762048102563
+              measured_output_tps:
+              - 1426.5089493987862
+              - 1419.2640034686729
+              - 1400.8454355613007
+              measured_total_tps:
+              - 2853.0178987975723
+              - 2838.5280069373457
+              - 2801.6908711226015
+              median_output_tps: 1419.2640034686729
+              median_total_tps: 2838.5280069373457
+              measured_relative_spread: 0.018082269242906145
+              mean_ttft_ms_all3:
+              - 1648.1270639778813
+              - 1649.3443221988855
+              - 1649.4068954198156
+              mean_tpot_ms_all3:
+              - 43.22676923131843
+              - 43.45526951266738
+              - 44.04700962654319
+              gaps_over1s_all3:
+              - 0
+              - 0
+              - 0
+              rounds:
+              - round: 13
+                output_tps: 1426.5089493987862
+                total_tps: 2853.0178987975723
+                mean_ttft_ms: 1648.1270639778813
+                mean_tpot_ms: 43.22676923131843
+                p99_ttft_ms: 3576.238964535296
+                p99_tpot_ms: 44.3578617146215
+                p99_itl_ms: 45.46904502436518
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r13.json
+                  sha256: 816bba3d21c2e66dd11d1c8e9e988e42439129f1ef5b9ad9f2f48fcbfdc0a9b3
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r13.validation.json
+                  sha256: 75ccaa728ce7aee5c5d66082852f9162fc0821723f95315df436137ee5bec6b1
+                gaps_over1s: 0
+              - round: 14
+                output_tps: 1419.2640034686729
+                total_tps: 2838.5280069373457
+                mean_ttft_ms: 1649.3443221988855
+                mean_tpot_ms: 43.45526951266738
+                p99_ttft_ms: 3570.986096020788
+                p99_tpot_ms: 44.55973148477043
+                p99_itl_ms: 44.905016850680106
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r14.json
+                  sha256: 1cf33c2166f5cc5e37642fcbfd14f5b895ff000b10220629042861aa0937b69c
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r14.validation.json
+                  sha256: 67f756a39d57cc95470b93c11665ecccbed6b7cd938cb4edbb073f26225ed461
+                gaps_over1s: 0
+              - round: 15
+                output_tps: 1400.8454355613007
+                total_tps: 2801.6908711226015
+                mean_ttft_ms: 1649.4068954198156
+                mean_tpot_ms: 44.04700962654319
+                p99_ttft_ms: 3577.479968070984
+                p99_tpot_ms: 45.21030744007868
+                p99_itl_ms: 45.926350392401204
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r15.json
+                  sha256: 6f0420db6f2fe330d9286bcad706c6a289f68802574976f5ee984472d7e69a87
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r15.validation.json
+                  sha256: 48c49aee7428822f4388cfbd88c179db7912122ba0af1bce6fc6cb96b3aba7c9
+                gaps_over1s: 0
+            p65536-d128-c8-n16-kv-sentinel:
+              warmup_relative_spread: 0.00012886380604488972
+              measured_output_tps:
+              - 8.619451568005381
+              - 8.614824334364997
+              - 8.617092606336419
+              measured_total_tps:
+              - 4421.7786543867605
+              - 4419.404883529243
+              - 4420.568507050582
+              median_output_tps: 8.617092606336419
+              median_total_tps: 4420.568507050582
+              measured_relative_spread: 0.0005369831626251737
+              mean_ttft_ms_all3:
+              - 31421.520049101673
+              - 31452.926392201334
+              - 31458.100090385415
+              mean_tpot_ms_all3:
+              - 653.8810173496897
+              - 654.0793525825042
+              - 653.8208246095414
+              gaps_over1s_all3:
+              - 491
+              - 491
+              - 491
+              rounds:
+              - round: 13
+                output_tps: 8.619451568005381
+                total_tps: 4421.7786543867605
+                mean_ttft_ms: 31421.520049101673
+                mean_tpot_ms: 653.8810173496897
+                p99_ttft_ms: 84482.27751869707
+                p99_tpot_ms: 783.9584320218955
+                p99_itl_ms: 1968.0088516138494
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p65536-d128-c8-n16-kv-sentinel-r13.json
+                  sha256: a01fcab14abad99fab2f789c03dbb4ca085d325abb206cfb6d398abb1508d369
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p65536-d128-c8-n16-kv-sentinel-r13.validation.json
+                  sha256: 9ebe43b418bdeb9c1688a9e44b607f18e17cb92b214bc727b1cc8a086dd59f73
+                gaps_over1s: 491
+              - round: 14
+                output_tps: 8.614824334364997
+                total_tps: 4419.404883529243
+                mean_ttft_ms: 31452.926392201334
+                mean_tpot_ms: 654.0793525825042
+                p99_ttft_ms: 84556.24277731404
+                p99_tpot_ms: 784.5057530269966
+                p99_itl_ms: 1968.3684842288494
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p65536-d128-c8-n16-kv-sentinel-r14.json
+                  sha256: a05882930de88e5964e00f00932e5cd96b0e58ae7af97d93e7d8413443b55fa7
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p65536-d128-c8-n16-kv-sentinel-r14.validation.json
+                  sha256: 0b2a49f45151ae09beecaad2759b427090f5992f148791777eb7fecc40b0beaa
+                gaps_over1s: 491
+              - round: 15
+                output_tps: 8.617092606336419
+                total_tps: 4420.568507050582
+                mean_ttft_ms: 31458.100090385415
+                mean_tpot_ms: 653.8208246095414
+                p99_ttft_ms: 84557.34871588647
+                p99_tpot_ms: 784.2173769006755
+                p99_itl_ms: 1965.4146840795875
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p65536-d128-c8-n16-kv-sentinel-r15.json
+                  sha256: 9e4964b1dcdd30516cbd781e39d0d16aa2ac833569231278aca02483c718e532
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p65536-d128-c8-n16-kv-sentinel-r15.validation.json
+                  sha256: 676ac23fd41ecc7124a7d4b62c5876e158c0d18828c28aa1b77bfbd1906739f1
+                gaps_over1s: 491
+        IV64-R2:
+          role: revert
+          num_splits: 0
+          status: complete
+          completed_at_utc: '2026-10-23T21:56:24.380410Z'
+          service_instance_id: qwen3vl-pr943-split1-mx104-20261023:814640:1109779601
+          record:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/run-record.json
+            sha256: 0681790dd2c4c3cd6bb2311ea7a3fc3441f4305da06f647266fb5f4778a14394
+          native_rounds: 30
+          warmup_rounds: 24
+          measured_rounds: 6
+          all_raw_validation_output_sha: passed
+          inputs_verified_before_after: true
+          source_before_after_equal:
+          - service
+          - model
+          - tokenizer
+          - repositories
+          source_after:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R2/manifests/source-after.json
+            sha256: 59b63397372b2b23cee16f7d65b0ac21cfffe844d675749567c781fd10a43605
+          scenarios:
+            p1024-d1024-c64-n128:
+              warmup_relative_spread: 0.022577039536852292
+              measured_output_tps:
+              - 1620.2142856880014
+              - 1587.0441112689093
+              - 1592.4050825918882
+              measured_total_tps:
+              - 3240.4285713760028
+              - 3174.0882225378186
+              - 3184.8101651837765
+              median_output_tps: 1592.4050825918882
+              median_total_tps: 3184.8101651837765
+              mean_tpot_ms_all3:
+              - 37.87275873046534
+              - 38.672389002206316
+              - 38.549785303976236
+              rounds:
+              - round: 13
+                seed: 75295
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r13.json
+                  sha256: 2e48cf2a52c4d2e72d5c80c9d3dbd5e916f7f881bc1e84b99a5ea33d9fb439b4
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r13.validation.json
+                  sha256: da62773f1633ea1ab2b41bff339ffbb9f326692303829c0507afb708a80f1663
+                output_throughput: 1620.2142856880014
+                total_token_throughput: 3240.4285713760028
+                mean_ttft_ms: 1650.538433372276
+                mean_tpot_ms: 37.87275873046534
+                p99_ttft_ms: 3558.0293317884207
+                p99_tpot_ms: 39.4981049312386
+                gaps_over1s: 0
+              - round: 14
+                seed: 75296
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r14.json
+                  sha256: 54f64482da63a73dfccf25043117993238e26aa12f93f3877ac71d959f0d3a2f
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r14.validation.json
+                  sha256: 73fb0550385e3e89be372a614855151436af1e6372cb55775b717cbc91c37cef
+                output_throughput: 1587.0441112689093
+                total_token_throughput: 3174.0882225378186
+                mean_ttft_ms: 1675.0282401626464
+                mean_tpot_ms: 38.672389002206316
+                p99_ttft_ms: 3576.6348879784346
+                p99_tpot_ms: 39.81998825686112
+                gaps_over1s: 0
+              - round: 15
+                seed: 75297
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r15.json
+                  sha256: 118761cee06fcd154ba306119aaa1f9bb0ce27a2287c51d32b68d4af0f2c5f46
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r15.validation.json
+                  sha256: 0c100034d8a2735d6b157fcf8d64a764618c6c02997eadb0e002d4021c2fa5e3
+                output_throughput: 1592.4050825918882
+                total_token_throughput: 3184.8101651837765
+                mean_ttft_ms: 1662.6675049192272
+                mean_tpot_ms: 38.549785303976236
+                p99_ttft_ms: 3567.6515636220574
+                p99_tpot_ms: 40.01602589013464
+                gaps_over1s: 0
+            p65536-d128-c8-n16-kv-sentinel:
+              warmup_relative_spread: 0.0008118297663032462
+              measured_output_tps:
+              - 13.977432229145384
+              - 13.974310533053263
+              - 13.987887661935114
+              measured_total_tps:
+              - 7170.4227335515825
+              - 7168.821303456324
+              - 7175.786370572713
+              median_output_tps: 13.977432229145384
+              median_total_tps: 7170.4227335515825
+              mean_tpot_ms_all3:
+              - 351.5472542705366
+              - 353.39629980020493
+              - 351.02283852504877
+              rounds:
+              - round: 13
+                seed: 664415
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p65536-d128-c8-n16-kv-sentinel-r13.json
+                  sha256: faaa502ea7f0b7db4e0d5cade6351a7f0aba3f01ad06f455033cce94247231bc
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p65536-d128-c8-n16-kv-sentinel-r13.validation.json
+                  sha256: ea7bc075510694e5e4aac1be163b549041d0f0ea35b164720881e2934e55c126
+                output_throughput: 13.977432229145384
+                total_token_throughput: 7170.4227335515825
+                mean_ttft_ms: 28289.02701626066
+                mean_tpot_ms: 351.5472542705366
+                p99_ttft_ms: 68607.23731275648
+                p99_tpot_ms: 499.19919375491537
+                gaps_over1s: 315
+              - round: 14
+                seed: 664416
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p65536-d128-c8-n16-kv-sentinel-r14.json
+                  sha256: 5161228eb8b6d5229a474d8e6a3ed1c456fc729e57151b568ed51def0c98e08b
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p65536-d128-c8-n16-kv-sentinel-r14.validation.json
+                  sha256: 7b4aa8116094ba1ad56604414189449572806e688220e91c7701fc63bab76cb9
+                output_throughput: 13.974310533053263
+                total_token_throughput: 7168.821303456324
+                mean_ttft_ms: 28066.363914171234
+                mean_tpot_ms: 353.39629980020493
+                p99_ttft_ms: 68652.14127786458
+                p99_tpot_ms: 498.69223345129745
+                gaps_over1s: 308
+              - round: 15
+                seed: 664417
+                raw:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p65536-d128-c8-n16-kv-sentinel-r15.json
+                  sha256: 2ea89c641bfcf04a66ccbd9f4d4bd04a0bd844ce488391d0a89bb260b0e9f814
+                validation:
+                  path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p65536-d128-c8-n16-kv-sentinel-r15.validation.json
+                  sha256: a6e156302faaf84885480051df5bb0d5ffea3683c0d5fea027b5d574031b5455
+                output_throughput: 13.987887661935114
+                total_token_throughput: 7175.786370572713
+                mean_ttft_ms: 28300.413934979588
+                mean_tpot_ms: 351.02283852504877
+                p99_ttft_ms: 68621.04805726558
+                p99_tpot_ms: 498.447179237718
+                gaps_over1s: 308
+      candidate1_preparation:
+        status: passed
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:463238:1107242784
+        allM1_to64_per_rank: true
+        first_sweep_misses:
+        - 504
+        - 504
+        second_sweep_misses:
+        - 0
+        - 0
+        rng_preserved: true
+        temporary_hooks_removed: true
+        graph_capture_and_replay16_per_rank: true
+        C8: passed
+        artifacts:
+          minimal:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C1/results/minimal.json
+            sha256: d32adc9884e46ab3fc8a3795875954724f55369d11e9eb6db8219aed8b772338
+          service:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C1/manifests/service.json
+            sha256: db80ad55ee7f1e81c07349a46fde54479c715d89a64e0d47bdf6b6bd61e7d5b5
+          runtime:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C1/manifests/runtime.json
+            sha256: ccf46b2411c4a66c0309123dfd8c63248040287316738853c008a1e1ce9d2fde
+          coverage_rank0:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C1/graph/sampling-coverage-pid463725.json
+            sha256: f7b334b73cac4c39edf857aed90953ac15c53657bc34ac712e17067cdc8f9e16
+          coverage_rank1:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C1/graph/sampling-coverage-pid463726.json
+            sha256: 8b5de28ead595cefd3c5bee8c3c9bf1a0134412a1f9e25cb674aaae8860be01a
+      p1k_candidate1_partial_result:
+        status: candidate process complete; all30 native rounds and post-source audit passed; matrix incomplete
+        role: candidate
+        num_splits: 1
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:463238:1107242784
+        warmup_relative_spread: 0.02065628200304394
+        measured_relative_spread: 0.013617501091974295
+        all15_request_lengths_commands_CPU_seeds_and_output_sha: passed
+        retained_all_measured_rounds: true
+        gaps_over1s_all3:
+        - 0
+        - 0
+        - 0
+        rounds:
+        - round: 13
+          output_tps: 1418.8986308217222
+          total_tps: 2837.7972616434445
+          mean_ttft_ms: 1642.6784873765428
+          mean_tpot_ms: 43.4728141472994
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r13.json
+            sha256: a7595c9e04c94da8b8b22ae2d8a614e053377e529050618545067420923bea28
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r13.validation.json
+            sha256: 70889c62ee4813271d74d1cb2047571708f2b6a168d8db30ae52486f3115fbb1
+        - round: 14
+          output_tps: 1399.6175400912807
+          total_tps: 2799.2350801825614
+          mean_ttft_ms: 1637.7767553931335
+          mean_tpot_ms: 44.10030524335043
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r14.json
+            sha256: d8ef0409389002e1e482a11963a9d8b9d3fe91bd89549f3de26d6048b8ba5070
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r14.validation.json
+            sha256: 6adf1700241a4f4882b25c90abc486ec4d8d3ba2c37933347c7109ae8024f0f5
+        - round: 15
+          output_tps: 1415.9052090552177
+          total_tps: 2831.8104181104354
+          mean_ttft_ms: 1678.6442879383685
+          mean_tpot_ms: 43.53335341804796
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r15.json
+            sha256: e1857a66694fb11d4429c3d1623eb4530c81e14a388f780bc296cc1af6c64269
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C1/p1024-d1024-c64-n128-r15.validation.json
+            sha256: c2a2b07f68a5fdbd47c4bd7af326e44d85d2d5cf53d2cbbec66af26d2efd8614
+      preliminary_p1k_pair:
+        status: regression signal; incomplete comparison, not yet causal confirmation
+        baseline_instance: IV64-B1
+        candidate_instance: IV64-C1
+        median_output_tps:
+          baseline: 1600.6061583194557
+          candidate: 1415.9052090552177
+          change_ratio: -0.11539437625190907
+        median_total_tps:
+          baseline: 3201.2123166389115
+          candidate: 2831.8104181104354
+          change_ratio: -0.11539437625190907
+        median_mean_ttft_ms:
+          baseline: 1663.535153347766
+          candidate: 1642.6784873765428
+          change_ratio: -0.012537556497829616
+        median_mean_tpot_ms:
+          baseline: 38.34345508176496
+          candidate: 43.53335341804796
+          change_ratio: 0.13535291290823626
+        median_p99_ttft_ms:
+          baseline: 3547.0635538734496
+          candidate: 3551.684653237462
+          change_ratio: 0.0013027957615718844
+        median_p99_tpot_ms:
+          baseline: 39.463059635885706
+          candidate: 44.8430255789561
+          change_ratio: 0.1363291643554705
+        initial_identity_equal:
+        - model
+        - tokenizer
+        - engine
+        - flaggems
+        - flaggems_vllm
+        - service.argv
+        - service.safe_env
+        only_plugin_changed_entry: dispatch/backends/vendor/metax/impl/attention/flash_attn.py
+        remaining: []
+        attribution: Difference manifests in client per-token latency; not pure device phase attribution or completed causal
+          proof.
+        expanded: false
+        notification_sent_at_utc: '2026-10-23T14:30:00Z'
+        next_notification: New material change or complete comparison; do not repeat this preliminary pair at each heartbeat.
+        candidate_post_run_source_audit: passed; service/model/tokenizer/repositories exactly equal
+        first_group_reversion_audit: passed; output median restored within0.5% of B1 in both workloads
+        superseded_by: follow_up.performance.final_comparison
+      preliminary_p64_pair:
+        status: regression signal; complete first baseline/candidate processes, comparison incomplete
+        scenario_id: p65536-d128-c8-n16-kv-sentinel
+        baseline_instance: IV64-B1
+        candidate_instance: IV64-C1
+        metrics:
+          output_throughput:
+            baseline_all3:
+            - 13.972821746862463
+            - 13.985250961719787
+            - 13.982846228347851
+            candidate_all3:
+            - 8.611456725705844
+            - 8.61286527625511
+            - 8.608043728350838
+            baseline_median: 13.982846228347851
+            candidate_median: 8.611456725705844
+            change_ratio: -0.38414135540963223
+          total_token_throughput:
+            baseline_all3:
+            - 7168.057556140444
+            - 7174.43374336225
+            - 7173.200115142448
+            candidate_all3:
+            - 4417.677300287098
+            - 4418.399886718872
+            - 4415.92643264398
+            baseline_median: 7173.200115142448
+            candidate_median: 4417.677300287098
+            change_ratio: -0.38414135540963235
+          mean_ttft_ms:
+            baseline_all3:
+            - 28038.133043795824
+            - 28037.343529984355
+            - 28043.027082108893
+            candidate_all3:
+            - 31468.049578834325
+            - 31473.412035498768
+            - 31495.06161105819
+            baseline_median: 28038.133043795824
+            candidate_median: 31473.412035498768
+            change_ratio: 0.12252167383388213
+          mean_tpot_ms:
+            baseline_all3:
+            - 353.6956469192881
+            - 353.1868988015564
+            - 353.2513067058442
+            candidate_all3:
+            - 654.4185672147845
+            - 654.1452620986952
+            - 654.5193441300177
+            baseline_median: 353.2513067058442
+            candidate_median: 654.4185672147845
+            change_ratio: 0.8525580933228516
+          p99_ttft_ms:
+            baseline_all3:
+            - 68590.84797883406
+            - 68589.77932753041
+            - 68613.55782365426
+            candidate_all3:
+            - 84615.64280409366
+            - 84603.6705722101
+            - 84653.35879921913
+            baseline_median: 68590.84797883406
+            candidate_median: 84615.64280409366
+            change_ratio: 0.2336287609420511
+          p99_tpot_ms:
+            baseline_all3:
+            - 499.3034105161279
+            - 498.3653493474905
+            - 498.7418423707443
+            candidate_all3:
+            - 784.8644328684964
+            - 784.6417207241528
+            - 784.9369557391059
+            baseline_median: 498.7418423707443
+            candidate_median: 784.8644328684964
+            change_ratio: 0.5736887627829315
+          p99_itl_ms:
+            baseline_all3:
+            - 1682.169849332422
+            - 1680.3017249517143
+            - 1680.0806200876832
+            candidate_all3:
+            - 1967.2701792791486
+            - 1966.1388369090855
+            - 1966.451591718942
+            baseline_median: 1680.3017249517143
+            candidate_median: 1966.451591718942
+            change_ratio: 0.170296716665842
+        all_measured_rounds_retained: true
+        source_before_after_audit: passed both instances
+        boundary: Reduced P64K/D128/C8/N16 only; no claim for full P64K/D1K/C64/N128. Revert and second independent group
+          pending; latency includes scheduling, not pure device phases.
+        expanded: false
+        notification_sent_at_utc: '2026-10-23T15:33:00Z'
+        next_notification: Only new material result/completion/failure; do not repeat same first-pair signal.
+        remaining: []
+        first_group_reversion_audit: passed; output median restored within0.5% of B1 in both workloads
+        superseded_by: follow_up.performance.final_comparison
+      revert1_preparation:
+        status: passed
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:551211:1107955264
+        minimal:
+          ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R1/results/minimal.json
+            sha256: 3b8b2c0c5fed70dffdaeafe55eb4c754b28cedee1cc9980c0011cb10b70be6c9
+          status: passed
+          num_splits: 0
+          C8_count: 8
+          graph_capture_per_rank: true
+          replays_per_rank_at_least: 16
+        coverage:
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R1/graph/sampling-coverage-pid551698.json
+            sha256: 840762f39b5da6893ba1f8d46603c21c5066c3168a1e2b117fcc1fd206dc10b9
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 213.315483270213
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.4514204114675522
+            compile_misses: 0
+            allM_actual_hits: true
+          after_original_graph_capture_and_KV_allocation: true
+          rng_preserved: true
+          hooks_removed: true
+          kv_bytes_before_after: 27672943411.200005
+          sampling_sha256: 941bdc544401872327ee299aa0ab73387b43893e363f8c25b465fb607eb551eb
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R1/graph/sampling-coverage-pid551699.json
+            sha256: d5c3410585d89462c0ad5547f607c3463a682a9b25a449058aadc6b215a40b2b
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 213.31706648878753
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.44953933730721474
+            compile_misses: 0
+            allM_actual_hits: true
+          after_original_graph_capture_and_KV_allocation: true
+          rng_preserved: true
+          hooks_removed: true
+          kv_bytes_before_after: 27672943411.200005
+          sampling_sha256: 941bdc544401872327ee299aa0ab73387b43893e363f8c25b465fb607eb551eb
+      revert1_p1k_partial_result:
+        status: all3 P1K measurements and whole R1 process/source audit complete; aggregate comparison pending
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:551211:1107955264
+        scenario_id: p1024-d1024-c64-n128
+        warmup_relative_spread: 0.013472038373462485
+        retained_all_measured_rounds: true
+        rounds:
+        - round: 13
+          output_tps: 1615.287595740843
+          total_tps: 3230.575191481686
+          mean_ttft_ms: 1727.8907576546771
+          mean_tpot_ms: 37.896416051043474
+          p99_ttft_ms: 3531.2230244651437
+          p99_tpot_ms: 39.0715185072335
+          p99_itl_ms: 38.18465093150735
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r13.json
+            sha256: 6baafb300e7e41c3dcdcd634ceb625d30737e6c50d7749b145a22273a26855fc
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r13.validation.json
+            sha256: aac1997e327ac5e7cf24b507e52b3252b852996e90e1e4fe0ab503eae95a6819
+          gaps_over1s: 0
+        - round: 14
+          output_tps: 1607.7885533858864
+          total_tps: 3215.577106771773
+          mean_ttft_ms: 1677.4470342206769
+          mean_tpot_ms: 38.15234203126239
+          p99_ttft_ms: 3531.0361287742853
+          p99_tpot_ms: 39.24793529587335
+          p99_itl_ms: 38.22392487898469
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r14.json
+            sha256: 8788a52de5f1ddf08d7b8d6e4590ec988241e01a288327da0119af5323029ba1
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r14.validation.json
+            sha256: a8b3a70cd5f43a4bb33ebfe5687f67ce84957b3802435c11ab68c5f6a51f9128
+          gaps_over1s: 0
+        - round: 15
+          output_tps: 1607.7220376214552
+          total_tps: 3215.4440752429105
+          mean_ttft_ms: 1661.8816066184081
+          mean_tpot_ms: 38.16866715744666
+          p99_ttft_ms: 3552.9358464106917
+          p99_tpot_ms: 39.45580132189093
+          p99_itl_ms: 38.22322314605116
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r15.json
+            sha256: f5d1fcb020c40f84b0e5e8ba2d49633af131c4cb6da1a2650a92802c126ba01c
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R1/p1024-d1024-c64-n128-r15.validation.json
+            sha256: 1441cd86260f69e7b9a6fdbc8dd1ec75303180b40a8444270625a1983d19a50f
+          gaps_over1s: 0
+        boundary: Complete first group only; need second independent group and frozen aggregate comparison before confirmed
+          regression/expansion.
+        all15_available_P1K_rounds_request_lengths_output_SHA_valid: true
+        median_output_tps: 1607.7885533858864
+        median_total_tps: 3215.577106771773
+        measured_relative_spread: 0.004705567845631983
+        provisional_baseline_to_revert_output_ratio: 0.004487296908798566
+      first_group_completed:
+        status: all B1/C1/R1 native and source audits passed; only one independent group complete
+        roles:
+        - IV64-B1
+        - IV64-C1
+        - IV64-R1
+        baseline_to_revert_output_drift:
+          p1024-d1024-c64-n128: 0.004487296908798566
+          p65536-d128-c8-n16-kv-sentinel: -0.0042507529761379725
+        drift_output_within_frozen5percent: true
+        boundary: Do not substitute first group for min2 independent processes per role. No full P64K extrapolation, expanded:false.
+        notification_sent_at_utc: '2026-10-23T17:03:00Z'
+      baseline2_preparation:
+        minimal:
+          ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B2/results/minimal.json
+            sha256: ce042df61cba1c0891485a731866cb39fc53086bc37c2e0af798fd729a2a23de
+          status: passed
+          num_splits: 0
+          C8_count: 8
+          graph_capture_per_rank: true
+          replays_per_rank_at_least: 16
+        coverage:
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B2/graph/sampling-coverage-pid641026.json
+            sha256: 325b5df4ac137d264e944efb004312bc69490797807cc22fd41242c71e3d4e69
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 216.32975012809038
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.4411780573427677
+            compile_misses: 0
+            allM_actual_hits: true
+          rng_preserved: true
+          hooks_removed: true
+          after_original_graph_capture_and_KV_allocation: true
+          kv_bytes_before_after: 27672947507.200005
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-B2/graph/sampling-coverage-pid641027.json
+            sha256: cd869c2d3a7dc8699e433eea09aa4ff29589010c0cf7fcdadab94483d53299ad
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 216.32821265235543
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.4423182923346758
+            compile_misses: 0
+            allM_actual_hits: true
+          rng_preserved: true
+          hooks_removed: true
+          after_original_graph_capture_and_KV_allocation: true
+          kv_bytes_before_after: 27672947507.200005
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:640539:1108511025
+      frozen_config_sha_rechecked:
+      - path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/commands/perf_controller_gpu45_iv64.py
+        sha256: 007d3e64c8f987383ae2f937f5d8ab1be0de5d67b80c4d9364d0895e7d4a1d99
+      - path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/plan-iv64-v5.json
+        sha256: 7f7f7e3bbca3eb033ec012ea6a7618a65bb9bc2b8b22faf2e14b3a8065db1137
+      - path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/comparison-iv64-v5.json
+        sha256: 025c85d4ef38f5a9cf871811d79fb48610ae49601c1062a6722a121ec77aa44f
+      - path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/configs/cache-policy-iv64-v5.json
+        sha256: 3822c2a577091e6740a97aeb81836c56e61c3e51b771371300c8af3bcaf30ee2
+      baseline2_p1k_warmup:
+        status: passed;12 native warmup rounds validated
+        last3_output_tps:
+        - 1597.8665466818914
+        - 1595.916350234693
+        - 1612.754786431421
+        last3_relative_spread: 0.010538074178782015
+        all_rounds128success_exact1024x1024_outputSHA: true
+        measured_rounds_completed: 0
+        boundary: Warmup results only; do not compare against measured candidate/revert or infer new performance conclusion.
+      baseline2_p1k_partial_result:
+        status: B2 whole process and source post-audit complete; C2/R2 pending
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:640539:1108511025
+        scenario_id: p1024-d1024-c64-n128
+        warmup_relative_spread: 0.010538074178782015
+        measured_relative_spread: 0.005687226015159589
+        all15_request_lengths_outputSHA_valid: true
+        retained_all_measured_rounds: true
+        median_output_tps: 1598.098058391385
+        median_total_tps: 3196.19611678277
+        rounds:
+        - round: 13
+          output_tps: 1590.8617369142332
+          total_tps: 3181.7234738284665
+          mean_ttft_ms: 1659.4313017994864
+          mean_tpot_ms: 38.589848127011955
+          p99_ttft_ms: 3568.6718809232116
+          p99_tpot_ms: 40.0144558526277
+          p99_itl_ms: 39.25663454458116
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r13.json
+            sha256: b25c91c55f806872b84830fac46fb22f60c8771af6184832b200629924527d27
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r13.validation.json
+            sha256: 462958711de53b9b4b39b9311e6326a78879356988ca52e17ab587c471d76424
+          gaps_over1s: 0
+        - round: 14
+          output_tps: 1598.098058391385
+          total_tps: 3196.19611678277
+          mean_ttft_ms: 1655.2518803364364
+          mean_tpot_ms: 38.41459568284264
+          p99_ttft_ms: 3574.5223366469145
+          p99_tpot_ms: 39.64898640546631
+          p99_itl_ms: 38.91531927511095
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r14.json
+            sha256: e39983ab47152606b5c2b7ccb168feda1092e87094a252349bd831eeedd3962a
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r14.validation.json
+            sha256: f1f2f7a56fcdd3464ce90ece4823e279eb876c78292ff3c04f9b32d06233fafc
+          gaps_over1s: 0
+        - round: 15
+          output_tps: 1599.9504817666927
+          total_tps: 3199.9009635333855
+          mean_ttft_ms: 1677.7993868745398
+          mean_tpot_ms: 38.34466361051529
+          p99_ttft_ms: 3585.249093398452
+          p99_tpot_ms: 39.505195520210094
+          p99_itl_ms: 38.61149944365024
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r15.json
+            sha256: 1edd31f68a98718cd2a8b899b6922ff67c70cea2da792a01cbcfc960ae96a11a
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-B2/p1024-d1024-c64-n128-r15.validation.json
+            sha256: dbac81fd76ec627bb20277903c99d09a41dc4edee6026bfec2234b79800ae985
+          gaps_over1s: 0
+        boundary: Baseline second process complete, no candidate2/revert2 or aggregate conclusion yet.
+      candidate2_preparation:
+        minimal:
+          ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C2/results/minimal.json
+            sha256: ddeedb3c63c15aafca4ebe398701e674f1f4f67183e805af9ed5cc2a9fd50601
+          status: passed
+          num_splits: 1
+          C8_count: 8
+          graph_capture_per_rank: true
+          replays_per_rank_at_least: 16
+        coverage:
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C2/graph/sampling-coverage-pid728122.json
+            sha256: baf54ac7b319f49288a0a9042096d1c4e2f5db04cd3101a6d0b853ae43406095
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 215.77610320784152
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.45647622644901276
+            compile_misses: 0
+            allM_actual_hits: true
+          rng_preserved: true
+          hooks_removed: true
+          after_original_graph_capture_and_KV_allocation: true
+          kv_bytes_before_after: 27672939315.200005
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-C2/graph/sampling-coverage-pid728123.json
+            sha256: 33c2578fbe275632a6a01f1cbc066e50d65dab43a7f26c6ab4e597ba0624e0fc
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 215.77451092377305
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.4577001202851534
+            compile_misses: 0
+            allM_actual_hits: true
+          rng_preserved: true
+          hooks_removed: true
+          after_original_graph_capture_and_KV_allocation: true
+          kv_bytes_before_after: 27672939315.200005
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:727635:1109068799
+      candidate2_p1k_partial_result:
+        status: C2 whole process and source post-audit complete; R2/final comparison pending
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:727635:1109068799
+        scenario_id: p1024-d1024-c64-n128
+        warmup_relative_spread: 0.022041762048102563
+        measured_relative_spread: 0.018082269242906145
+        all15_request_lengths_outputSHA_valid: true
+        retained_all_measured_rounds: true
+        median_output_tps: 1419.2640034686729
+        median_total_tps: 2838.5280069373457
+        rounds:
+        - round: 13
+          output_tps: 1426.5089493987862
+          total_tps: 2853.0178987975723
+          mean_ttft_ms: 1648.1270639778813
+          mean_tpot_ms: 43.22676923131843
+          p99_ttft_ms: 3576.238964535296
+          p99_tpot_ms: 44.3578617146215
+          p99_itl_ms: 45.46904502436518
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r13.json
+            sha256: 816bba3d21c2e66dd11d1c8e9e988e42439129f1ef5b9ad9f2f48fcbfdc0a9b3
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r13.validation.json
+            sha256: 75ccaa728ce7aee5c5d66082852f9162fc0821723f95315df436137ee5bec6b1
+          gaps_over1s: 0
+        - round: 14
+          output_tps: 1419.2640034686729
+          total_tps: 2838.5280069373457
+          mean_ttft_ms: 1649.3443221988855
+          mean_tpot_ms: 43.45526951266738
+          p99_ttft_ms: 3570.986096020788
+          p99_tpot_ms: 44.55973148477043
+          p99_itl_ms: 44.905016850680106
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r14.json
+            sha256: 1cf33c2166f5cc5e37642fcbfd14f5b895ff000b10220629042861aa0937b69c
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r14.validation.json
+            sha256: 67f756a39d57cc95470b93c11665ecccbed6b7cd938cb4edbb073f26225ed461
+          gaps_over1s: 0
+        - round: 15
+          output_tps: 1400.8454355613007
+          total_tps: 2801.6908711226015
+          mean_ttft_ms: 1649.4068954198156
+          mean_tpot_ms: 44.04700962654319
+          p99_ttft_ms: 3577.479968070984
+          p99_tpot_ms: 45.21030744007868
+          p99_itl_ms: 45.926350392401204
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r15.json
+            sha256: 6f0420db6f2fe330d9286bcad706c6a289f68802574976f5ee984472d7e69a87
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-C2/p1024-d1024-c64-n128-r15.validation.json
+            sha256: 48c49aee7428822f4388cfbd88c179db7912122ba0af1bce6fc6cb96b3aba7c9
+          gaps_over1s: 0
+        boundary: Second candidate complete; final independent reversion R2 and full comparison still required.
+      second_pair_partial:
+        status: B2/C2 full native and source audits passed; R2 missing, no final regression verdict
+        change_vs_B2:
+          p1024-d1024-c64-n128:
+            output_tps: -0.11190430648712701
+            total_tps: -0.11190430648712701
+          p65536-d128-c8-n16-kv-sentinel:
+            output_tps: -0.38189360124538085
+            total_tps: -0.38189360124538096
+        expanded: false
+        remaining: []
+        superseded_by: follow_up.performance.final_comparison
+      revert2_preparation:
+        minimal:
+          ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R2/results/minimal.json
+            sha256: 7890216daaf7482010da24c4fef4b62a2ed0e65a92995f104120d8d4bc6ea27c
+          status: passed
+          num_splits: 0
+          C8_count: 8
+          graph_capture_per_rank: true
+          replays_per_rank_at_least: 16
+        coverage:
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R2/graph/sampling-coverage-pid815127.json
+            sha256: 6dd4cf34cb05e2b22298e581c49506828acff35180ec4dc45c0c07775166d625
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 211.98802307620645
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.45593537017703056
+            compile_misses: 0
+            allM_actual_hits: true
+          rng_preserved: true
+          hooks_removed: true
+          after_original_graph_capture_and_KV_allocation: true
+          kv_bytes_before_after: 27672947507.200005
+        - ref:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-R2/graph/sampling-coverage-pid815128.json
+            sha256: cf42fecf0b8dd5dd4950bad0ea4626d737d3e6b4a0972ebd6bae9ab7c3bd44a8
+          status: passed
+          allM1_to64: true
+          phases:
+          - phase: prepare
+            duration_s: 211.9881102349609
+            compile_misses: 504
+            allM_actual_hits: true
+          - phase: verify_reuse
+            duration_s: 0.45533253252506256
+            compile_misses: 0
+            allM_actual_hits: true
+          rng_preserved: true
+          hooks_removed: true
+          after_original_graph_capture_and_KV_allocation: true
+          kv_bytes_before_after: 27672947507.200005
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:814640:1109779601
+      revert2_p1k_partial_result:
+        status: R2 full30rounds and post-source audit passed;final comparison complete
+        service_instance_id: qwen3vl-pr943-split1-mx104-20261023:814640:1109779601
+        scenario_id: p1024-d1024-c64-n128
+        warmup_relative_spread: 0.022577039536852292
+        measured_relative_spread: 0.020830236465398878
+        all15_request_lengths_outputSHA_valid: true
+        retained_all_measured_rounds: true
+        median_output_tps: 1592.4050825918882
+        median_total_tps: 3184.8101651837765
+        rounds:
+        - round: 13
+          output_tps: 1620.2142856880014
+          total_tps: 3240.4285713760028
+          mean_ttft_ms: 1650.538433372276
+          mean_tpot_ms: 37.87275873046534
+          p99_ttft_ms: 3558.0293317884207
+          p99_tpot_ms: 39.4981049312386
+          p99_itl_ms: 38.4311998821795
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r13.json
+            sha256: 2e48cf2a52c4d2e72d5c80c9d3dbd5e916f7f881bc1e84b99a5ea33d9fb439b4
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r13.validation.json
+            sha256: da62773f1633ea1ab2b41bff339ffbb9f326692303829c0507afb708a80f1663
+          gaps_over1s: 0
+        - round: 14
+          output_tps: 1587.0441112689093
+          total_tps: 3174.0882225378186
+          mean_ttft_ms: 1675.0282401626464
+          mean_tpot_ms: 38.672389002206316
+          p99_ttft_ms: 3576.6348879784346
+          p99_tpot_ms: 39.81998825686112
+          p99_itl_ms: 38.83688002824783
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r14.json
+            sha256: 54f64482da63a73dfccf25043117993238e26aa12f93f3877ac71d959f0d3a2f
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r14.validation.json
+            sha256: 73fb0550385e3e89be372a614855151436af1e6372cb55775b717cbc91c37cef
+          gaps_over1s: 0
+        - round: 15
+          output_tps: 1592.4050825918882
+          total_tps: 3184.8101651837765
+          mean_ttft_ms: 1662.6675049192272
+          mean_tpot_ms: 38.549785303976236
+          p99_ttft_ms: 3567.6515636220574
+          p99_tpot_ms: 40.01602589013464
+          p99_itl_ms: 39.140319395810366
+          raw:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r15.json
+            sha256: 118761cee06fcd154ba306119aaa1f9bb0ce27a2287c51d32b68d4af0f2c5f46
+          validation:
+            path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/runs/IV64-R2/p1024-d1024-c64-n128-r15.validation.json
+            sha256: 0c100034d8a2735d6b157fcf8d64a764618c6c02997eadb0e002d4021c2fa5e3
+          gaps_over1s: 0
+        boundary: Superseded by final_comparison; measured workload only.
+    warmup_rounds_completed: 144
+    all_rounds_completed: 180
+    final_comparison:
+      mode: targeted
+      scope: performance_only
+      stage: mixed
+      status: failed
+      evidence_validity: passed;native compare exit1 is performance failure, not infrastructure failure
+      comparison: *id001
+      completion:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/performance-iv64-completed.json
+        sha256: dc4d1184d603376b4659bc4898f42138d4722ae35cd8c325f1f04e02af95985e
+      aggregation: median of per-process round medians; each round and process spread retained
+      all180_native_rounds_revalidated: true
+      independent_processes_per_role: 2
+      measured_rounds_per_process_case: 3
+      retained_all_measured_rounds: true
+      aggregate:
+        p1024-d1024-c64-n128:
+          output_throughput:
+            baseline: 1599.3521083554203
+            candidate: 1417.5846062619453
+            revert: 1600.0968179888873
+            candidate_change_ratio: -0.1136507096491608
+            revert_drift: 0.0004656320703717576
+            process_spreads:
+              baseline: 0.0015681974688174396
+              candidate: 0.0023693784474085183
+              revert: 0.00961408748586426
+          total_token_throughput:
+            baseline: 3198.7042167108407
+            candidate: 2835.1692125238906
+            revert: 3200.1936359777746
+            candidate_change_ratio: -0.1136507096491608
+            revert_drift: 0.0004656320703717576
+            process_spreads:
+              baseline: 0.0015681974688174396
+              candidate: 0.0023693784474085183
+              revert: 0.00961408748586426
+          mean_ttft_ms:
+            baseline: 1661.4832275736262
+            candidate: 1646.0114047877141
+            revert: 1670.057269569952
+            candidate_change_ratio: -0.009312054752732335
+            revert_drift: 0.005160474601267673
+            process_spreads:
+              baseline: 0.00246999276319675
+              candidate: 0.004049689329584215
+              revert: 0.008849714061156392
+          mean_tpot_ms:
+            baseline: 38.379025382303794
+            candidate: 43.49431146535767
+            revert: 38.351063667619314
+            candidate_change_ratio: 0.13328337632597842
+            revert_drift: -0.0007285676070704072
+            process_spreads:
+              baseline: 0.0018536322996488101
+              candidate: 0.0017952670763111832
+              revert: 0.010363292036914586
+          p99_ttft_ms:
+            baseline: 3560.792945260182
+            candidate: 3563.961808886379
+            revert: 3549.4372940436006
+            candidate_change_ratio: 0.0008899320109063691
+            revert_drift: -0.0031890793402343798
+            process_spreads:
+              baseline: 0.007711423605805461
+              candidate: 0.006889611228888655
+              revert: 0.010263187130547538
+          p99_tpot_ms:
+            baseline: 39.55602302067601
+            candidate: 44.70137853186327
+            revert: 39.533961776367235
+            candidate_change_ratio: 0.13007767511151913
+            revert_drift: -0.0005577214953395027
+            process_spreads:
+              baseline: 0.004700340311851362
+              candidate: 0.006337480039541458
+              revert: 0.014469912330661984
+        p65536-d128-c8-n16-kv-sentinel:
+          output_throughput:
+            baseline: 13.961980791378382
+            candidate: 8.614274666021132
+            revert: 13.950420416136602
+            candidate_change_ratio: -0.3830191579019716
+            revert_drift: -0.0008279896251481844
+            process_spreads:
+              baseline: 0.0029888935218065527
+              candidate: 0.0006542490051780168
+              revert: 0.003872544655003548
+          total_token_throughput:
+            baseline: 7162.49614597711
+            candidate: 4419.12290366884
+            revert: 7156.565673478077
+            candidate_change_ratio: -0.3830191579019716
+            revert_drift: -0.0008279896251482954
+            process_spreads:
+              baseline: 0.0029888935218066646
+              candidate: 0.0006542490051780017
+              revert: 0.0038725446550036836
+          mean_ttft_ms:
+            baseline: 28216.505092161242
+            candidate: 31463.16921385005
+            revert: 28348.414716194384
+            candidate_change_ratio: 0.11506258876088649
+            revert_drift: 0.004674910078420247
+            process_spreads:
+              baseline: 0.012643100042532976
+              candidate: 0.0006510991679889672
+              revert: 0.004189842749816741
+          mean_tpot_ms:
+            baseline: 353.0850218353229
+            candidate: 654.1497922822371
+            revert: 352.5200940386253
+            candidate_change_ratio: 0.8526693340940679
+            revert_drift: -0.0015999766678322924
+            process_spreads:
+              baseline: 0.000941897051633438
+              candidate: 0.000821753475177816
+              revert: 0.005519343631980778
+          p99_ttft_ms:
+            baseline: 68727.33344198205
+            candidate: 84585.94279070385
+            revert: 68765.90366484597
+            candidate_change_ratio: 0.23074675757803487
+            revert_drift: 0.0005612064506546055
+            process_spreads:
+              baseline: 0.003971795683392858
+              candidate: 0.0007022446616998636
+              revert: 0.0042130067332902844
+          p99_tpot_ms:
+            baseline: 499.56522034957834
+            candidate: 784.5409048845859
+            revert: 499.7524495746236
+            candidate_change_ratio: 0.570447406918343
+            revert_drift: 0.00037478434730542354
+            process_spreads:
+              baseline: 0.0032963783117562115
+              candidate: 0.0008247574648973033
+              revert: 0.004242965188979463
+      issues:
+      - 'p1024-d1024-c64-n128/output_throughput: primary improvement below threshold'
+      - 'p1024-d1024-c64-n128/total_token_throughput: guardrail regression'
+      - 'p1024-d1024-c64-n128/mean_tpot_ms: guardrail regression'
+      - 'p1024-d1024-c64-n128/p99_tpot_ms: guardrail regression'
+      - 'p65536-d128-c8-n16-kv-sentinel/output_throughput: primary improvement below threshold'
+      - 'p65536-d128-c8-n16-kv-sentinel/total_token_throughput: guardrail regression'
+      - 'p65536-d128-c8-n16-kv-sentinel/mean_ttft_ms: guardrail regression'
+      - 'p65536-d128-c8-n16-kv-sentinel/mean_tpot_ms: guardrail regression'
+      - 'p65536-d128-c8-n16-kv-sentinel/p99_ttft_ms: guardrail regression'
+      - 'p65536-d128-c8-n16-kv-sentinel/p99_tpot_ms: guardrail regression'
+      changed_paths:
+      - /plugin_sha256
+      project_acceptance: not_evaluated
+      boundary: P1K full and reducedP64K only; no fullP64K/D1K or cross-host/anchor gain claim; no new GPQA gate
+      expanded: not_run
+    restoration:
+      status: passed
+      at_utc: '2026-10-23T22:00:25.610528Z'
+      record:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/results/restored-iv64.json
+        sha256: 34327048e1548e91b9c8436d30148614f2dcc2f96f75b3b8ce07b4617f78cb07
+      service:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-RESTORED/manifests/service.json
+        sha256: a7001135ee8b895cb6f19d4c446875904ff24c3420d0362b79fafb76d80ed1f9
+      minimal:
+        path: /public-flash/jinghao/qwen3-VL/20261023-qwen3vl-metax-mx104-migration/perf/trials/IV64-RESTORED/results/minimal.json
+        sha256: 1d37d63dac408507a493363b736a03e70f7041f84d3da55274fd8096dc43f683
+      source_sha_rechecked:
+        /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py: 2eaec0be03b16ad1d4b5e24851655eea53d0fb90db83a5ccaeff04011dcb3002
+        /opt/conda/lib/python3.12/site-packages/gpqa_controlled_observer.py: cfa7553e6444af816cf9e23023df910708d25075bcb8ac431cacfe790a828245
+        /workspace/FlagGems-vllm-pr943-runtime/src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py: bbc2eddedc93a608a899653c5acca0b1cb4f5293436a5d6136a06401ce50e462
+      controller_exited: true
+      graph16_C8: passed
+      prefix_cache_enabled: true
+      ERQA_binding: original measured instance only; no invented new evaluated score
+      GPQA_gate_on_mx104: not_issued
+  monitor:
+    id: qwen3-vl-gpqa-erqa
+    cadence_minutes: 30
+    status: PAUSED
+    stop_reason: All initial targeted controllers/evaluation/comparison/restoration terminal; expanded experiment not started
+    stopped_at_utc: '2026-10-23T22:04:34.477000Z'
+  accuracy_binding: ERQA score bound to original mx104 measured instance32:1103764578; no automatic rebind to later restarts.
+    No old-host GPQA gate reuse. Performance targeted only, no final/formal project acceptance.
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: targeted-baselines-complete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

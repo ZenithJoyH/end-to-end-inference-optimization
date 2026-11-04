@@ -1,0 +1,19 @@
+# delivery-008-flaggems-vllm-editable
+
+User explicitly requests editable installation at `/workspace/FlagGems-vllm`. Target is private container writable-layer directory, not bind-mounted/symlink; site-packages also private. Current installed delivery007 commitde2298b plus5patches is the source of truth. Preserve385 Python/config bytes and original tolerances/patches exactly. Existing target4ea/e63 and both untracked tests are fully archived and renamed intact before switching. No cleanup, source8002/other repositories/dependencies/startup script/cache changes, restart or model requests.
+
+Command: `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/commands/delivery008-20261015-fgvllm-editable.py`, SHA256 `86b0ea921e4b367e70e07ef8b3443fe2ec69e2530b4ecd591d18db53d7c03e2c`. Backup old source including Git/untracked files and installed distribution before replacement. Install no-index/no-deps/no-build-isolation editable, validate fresh imports without PYTHONPATH, five patched module paths/hashes, all11 public APIs, pip editable location, source bytes, other3repositories, dependency versions and precise service identity. On failure restore old source/install while retaining failed source evidence. No new numerical/graph/GPQA/performance claim. State: prepared.
+
+V1 failed at directory rename with EXDEV (overlay lower directory), before target/install changes. Both full backups and stage already exist. V2 reuses and verifies them, makes and verifies an additional full source copy including Git/untracked files before replacing the exact target. No lost files or dependency/service change. Saved v2 command `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/commands/delivery008-20261015-fgvllm-editable-v2.py` SHA256 `a297dd308713f6bd5989769600ea1d4a8bf3e5d673e030cb7f74994ffc767eee`.
+
+Editable install/import verification completed. Stage copy dereferenced three Git-tracked documentation links (.github/copilot-instructions.md, CLAUDE.md, GEMINI.md), producing type-only Git changes. Saved metadata repair `commands/delivery008-20261015-fgvllm-editable-links.py` SHA256 `ad5fa3cc6361f6960c10250fae1fb9cc06f2242016650f141d6853177f26f668`: verify identical contents and exact original Git link targets, then restore links atomically; no model code changes.
+
+## 完成结果
+
+优化容器 `qwen36-27b-fa-opt-20261012` 已将 delivery007 的同一份优化代码安装为 editable，安装目录 `/workspace/FlagGems-vllm`，实际导入 `/workspace/FlagGems-vllm/src/flaggems_vllm/__init__.py`。`direct_url.json` 确认为 `editable=true`、`file:///workspace/FlagGems-vllm`，`pip list --editable` 返回该路径。上游仍为 de2298be 加5处原有 MetaX 补丁，Python 源码 SHA256 仍为 cb45b31de3637f049bf621c81d77563f1362efb0dffb6a37fd04317177d07482；版本标记仍为0.3.0.dev1。
+
+385个 Python/配置文件与原安装来源完全一致，无 PYTHONPATH 的新解释器中11个公共 API 可用，GDN chunk/WY/recurrent 及 FA scheduling/splitkv 五个模块均从目标源码目录加载，SHA 与旧安装相同。三项文档链接类型已恢复为 Git 原样，最终工作区只剩该5处预期算子补丁。依赖版本、Plugin/FlagGems/vLLM 三仓库内容不变。用户服务 PID832568/出生1792052263.08 仍运行，未重启、未发送模型请求、未运行 GPU 数值/graph/GPQA/性能评测；新进程使用新安装，历史 gate 未重绑定。
+
+原目录（含 Git、未跟踪文件）完整保留在 `/workspace/FlagGems-vllm-before-delivery008-20261015-fgvllm-editable`，并导出远端案例目录 `commands/delivery008-20261015-fgvllm-editable/previous-source.tar.gz`，SHA256 `4e2a1c8a716b262c6b700a0e82c0d2ab77010baace2e4c10453c1c65e3ed6425`。旧安装备份同目录 `previous-install.tar.gz`，SHA256 `f29f17ea89d07519714b00934fe8e5ea5e650a484470ba8000ed7a4ced8df30f`。未清理或丢失历史测试/补丁。
+
+主回执 `results/delivery008-20261015-fgvllm-editable-receipt.json`，SHA256 `59459e201788f2a4e610201c03fc78d337cb5ee4e8403d25f2d18f9b97ef5854`；日志 `logs/delivery008-20261015-fgvllm-editable-v2.log`，SHA256 `aa1210ed8df540cc88e0cc91686065d73e7322f6ee8be144391ea2b3c544bd43`。文档链接修正回执 `results/delivery008-20261015-fgvllm-editable-links.json`，SHA256 `6cb28e5f92e97aa7fb6fe9327a4b5051667f0e5e5d7aa21ae02a4013d5090871`。全部相对路径基于本案例已登记的远端根目录。

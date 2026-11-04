@@ -1,0 +1,52 @@
+schema_version: 4
+identity:
+  case_id: 20261026-qwen3vl-metax-release-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: release-image-202610191402
+  topology: TP2 GPU4,5 for full release-image GPQA/ERQA;component audit GPU7 completed
+stage: baseline
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []
+prior_identity:
+  case_id: 20261026-qwen3vl-metax-release-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: release-image-202610191402
+  topology: CPU inspection;bounded nativeAttention GPU7;no modelTP2
+record_maintenance:
+  date: '2026-11-02'
+  reason: 原阶段为空模板；optimize 后续已有 TP2 全量精度记录。统一案例导航身份，原组件检查身份保留在 prior_identity，不将其视为 TP2 baseline。
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: not_run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

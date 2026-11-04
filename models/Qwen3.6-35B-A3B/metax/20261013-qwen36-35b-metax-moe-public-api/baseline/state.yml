@@ -1,0 +1,42 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen36-35b-metax-moe-public-api
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: source-sha-5bb687951274
+  topology: TP2:device6-device7
+stage: baseline
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: not_run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

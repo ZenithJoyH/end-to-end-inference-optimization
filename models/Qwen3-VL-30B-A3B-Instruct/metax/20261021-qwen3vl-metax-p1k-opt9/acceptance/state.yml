@@ -1,0 +1,21 @@
+schema_version: 4
+identity:
+  case_id: 20261021-qwen3vl-metax-p1k-opt9
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt9-entry
+  topology: TP2:GPU0,1
+stage: acceptance
+current:
+  status: incomplete-not-formal-acceptance
+  candidate: op005 localhist retained;targeted P1K only,not final formal acceptance
+  next_action: Current task is P1K performance_only; full GPQA deferred and full four-scenario final matrix not
+    run
+experiments: []
+metrics: []
+formal_accuracy: 'not_run: explicitly deferred by user'
+formal_performance: 'not_run: currenttarget P1K diagnostic/targeted BCR only'
+missing:
+- formalGPQA accuracy gate
+- four-scenario anchor baseline and final combination acceptance

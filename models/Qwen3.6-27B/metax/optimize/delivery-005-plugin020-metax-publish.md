@@ -1,0 +1,15 @@
+# delivery-005-plugin020-metax-publish
+
+User explicitly requested committing current code toZenithJoyH/vllm-plugin-FL:020plugin-opt-metax. Remote head8b059122 matches current base, enabling a non-force fast-forward. Current private Plugin fingerprintb46d8e1b after manager fastpath rollback; snapshot14files (8tracked modifications,6new source/tests), no logs/data/weights/secrets/host-specific paths. Preserve exact current source bytes in an independent local checkout, review diff, compile syntax and run CPU/mocked GDN routing/state contracts plus original manager tests. No GPU/model/graph/GPQA/performance requests, service restart or public PR.
+
+Scope: GDN shared dispatch hook, MTP=fwd/nonMTP=packed and in-place error contracts; MetaX V-major state ABI; FlagGems-vLLM BF16 attention bridge; opt-in contiguous single-prefill; per-rank KV initialization compatibility. Package implementation/FP32 kernels remain a separate FlagGems-vllm dependency. Other platforms and current post-rollback full-model graph/accuracy/performance are not rerun or claimed. Experimental branch publication, not upstream readiness/full acceptance.
+
+Test command `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/commands/delivery005-20261015-plugin020-metax-publish-test.py` SHA `26786a7f24e6ea862869ac26485f971198a75e3a881a3b92e23ae2f64ca17523`. Currentstateprepared; no push yet. Remote branch lease must be rechecked before normal push; do not force.
+
+## Published
+
+Commit [f99f9db](https://github.com/ZenithJoyH/vllm-plugin-FL/commit/f99f9dbbb4db72ea3ba93aa53e19a48f1ad4f641) pushed by normal fast-forward to [020plugin-opt-metax](https://github.com/ZenithJoyH/vllm-plugin-FL/tree/020plugin-opt-metax); git ls-remote confirmed exact head. Parent8b059122,14files/1000insertions/22deletions. Committed blobs match all14 current-container snapshot hashes; manager.py equals original baseline, no_ready_pid feature/test included. No log/dataset/weight/trace or host-specific artifact paths published.
+
+51CPU/mocked tests passed in30.76s: latestGDN routing5, MetaXGDN contracts8, manager38. All Plugin Python sources compile and git diff --check passes. Test receipt `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/delivery005-20261015-plugin020-metax-publish-test-receipt.json` SHA `1d2bd9a10f5ed2dd34b1839ead44502aab9248b2a5f1555992daba10f00780d9`; test logSHA `75c0e7a96f9e8ae7279f9c1908e96cd16d9abeb62f0bb6d0e81de17c794ddecd`. No GPU graph/numerical/fullGPQA/E2E rerun; this branch is an exact experimental snapshot, not final four-scene acceptance or upstream-ready claim. FP32 kernel dependency remains separate FG-vLLM package.
+
+Commit/push performed from independent local checkout; container source/install/runtime unchanged, source checkout remains020plugin-opt plus local patches. Public commit now captures those exact patches. No service restart, force push or PR creation. Recovery of working source remains prior backups; reverting a public commit/remote branch would require a separate user request.

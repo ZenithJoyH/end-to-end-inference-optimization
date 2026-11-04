@@ -1,0 +1,18 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen3vl-metax-flaggems-e2e-opt1
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: qwen3vl-opt1-current-flaggems
+  topology: TP2:device0-device1
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: Formal accuracy deferred by user 2026-10-14; continue performance-only
+    diagnostics in optimize, no formal acceptance claim
+experiments: []
+metrics: []
+accuracy_status: not_run-user-deferred
+user_directive: '2026-10-14: 先不进行精度评测; primary steady-state output throughput confirmed'

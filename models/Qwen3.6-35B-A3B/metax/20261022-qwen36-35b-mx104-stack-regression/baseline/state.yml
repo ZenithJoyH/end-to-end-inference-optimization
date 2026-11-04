@@ -1,0 +1,1457 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-35b-mx104-stack-regression
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-104
+  baseline_id: original-optimized-d1653d9-site-packages-fgv
+  topology: TP2:GPU0-GPU1
+stage: baseline
+current:
+  status: historical_baseline_preserved_current_shortlist_NV_reference_passed
+  candidate: release02-editable-sampler-fixed
+  next_action: Historical baselineC32160/candidate147 and incomplete performance remain unchanged. Separate current combined
+    stack shortlist+MoE/GDN/FlagTree/Gems independently passed one original-native C64/full198158/198>=predeclared NV77.53
+    reference; no oldC32 causal resolution or new formal performance claim. See optimize/sampler-shortlist-001.md and acceptance
+    current_formal_result. Task complete/monitor deleted; no automatic work.
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 1500.2496605103297
+  unit: token/s
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_ttft_ms
+  value: 1941.0504114348441
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 3740.857904739678
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_tpot_ms
+  value: 40.68825538566619
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 42.11236411701972
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_itl_ms
+  value: 40.68825552905164
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 40.25421550497413
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: mean_e2el_ms
+  value: 43565.13567097136
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 45333.94738264382
+  unit: ms
+  scope: 单实例3轮中位数观测；波动超限且整套incomplete，不作为完整验收
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  result: incomplete
+scope: post-cleanup-installation-migration-regression
+remote_case_root: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression
+authorization: 用户要求完整精度和性能回归，且明确接受精度>=整理前198题实测、吞吐下降<=5%、TTFT/TPOT/ITL上升<=5%、回退复测。
+accuracy:
+  status: candidate_full_failed_threshold
+  candidate_threshold: 0.8080808080808081
+  threshold_rule: first valid original optimized full198 score
+  reference_quality_gate_eligible: false
+  reference_collection_threshold: 0.0
+  task: gpqa_diamond_generative_cot
+  expected_samples: 198
+  gate: null
+  reference_job_id: accuracy-a1-full-001
+  native_run_id: e6f7f0aee0584edbbc4e32626ffcb811
+  progress_observation:
+    completed: 198
+    expected: 198
+    observed_at: '2026-10-22T15:58:17Z'
+    timeout_count: 0
+    strict_correct: 160
+    strict_score: 0.8080808080808081
+    interim_score_is_not_final: false
+    evidence: native results+198 unique samples reverified by acceptance.verify_run; progress final0/0 display ignored
+  reference_score: 0.8080808080808081
+  reference_correct: 160
+  reference_samples: 198
+  reference_status: verified_reference_only
+  reference_completed_at: '2026-10-22T15:58:17Z'
+  reference_record: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy/a1/outputs/qwen36-35b-regression-a1-gpqa-full-graph-c32/e6f7f0aee0584edbbc4e32626ffcb811/run-record.json
+  reference_record_sha256: 99dd3845707b2ef5d92ade3393a1cf245f5e59f2c9db5f43783bc5e4dd104202
+  reference_receipt: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy/reference-calibration.json
+  reference_receipt_sha256: f2fccb6d4b93861501b0e50610930d2a98c69f5cb221af1322dc957d943c17b6
+  candidate_status: failed_threshold
+  candidate_job_id: candidate-01-accuracy-after-incomplete-001
+  candidate_service_instance: candidate-01
+  candidate_manifest: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/services/candidate-01/service-manifest.json
+  candidate_contract: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy/candidate-contract.json
+  candidate_manifest_sha256: a157a6ff2832ef9c77f051a0f7307f549f99704b4a46c15a18c3ea6db4d5736c
+  candidate_contract_sha256: 3fcedaa1e5580d8275515f3c425523e94f8b1034f5d891c75ef2f7e73b1f2d52
+  candidate_native_run_id: 02c6a37398c94edb9203d97f21d08eb2
+  candidate_started_at: '2026-10-22T18:05:28Z'
+  candidate_progress_observation:
+    completed: 198
+    expected: 198
+    strict_correct: 147
+    strict_score: 0.7424242424242424
+    interim_score_is_not_final: false
+    observed_at: '2026-10-22T20:13:00Z'
+    evidence: native results/samples and original validator final threshold rejection; progress final0/0 display ignored
+  candidate_score: 0.7424242424242424
+  candidate_correct: 147
+  candidate_samples: 198
+  candidate_completed_at: '2026-10-22T19:16:43.818617Z'
+  candidate_native_result: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy/candidate/outputs/qwen36-35b-regression-candidate-gpqa-full-graph-c32/02c6a37398c94edb9203d97f21d08eb2/gpqa_diamond_generative_cot/qwen36-35b-regression/results_2026-10-22T19-16-43.818617.json
+  candidate_native_result_sha256: 8bca1b48f4747b95c7eabf6e5a4c426c66987f6ce9a0c2e8cf014a0395478ed4
+  candidate_samples_artifact: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy/candidate/outputs/qwen36-35b-regression-candidate-gpqa-full-graph-c32/02c6a37398c94edb9203d97f21d08eb2/gpqa_diamond_generative_cot/qwen36-35b-regression/samples_gpqa_diamond_generative_cot_2026-10-22T19-16-43.818617.jsonl
+  candidate_samples_sha256: 03b35d5a239e15b199f16a79a3575aac5089eb86cca34ffb7ceb6b7b6c66faff
+  native_threshold_rejection: candidate score is below the frozen threshold
+performance:
+  status: incomplete_baseline_unstable_and_blocked_by_accuracy
+  mode: formal
+  scenarios:
+  - p1024-d1024-c64-n128
+  - p4096-d1024-c64-n128
+  - p16384-d1024-c64-n128
+  - p32768-d1024-c64-n128
+  primary: output_throughput
+  max_regression: 0.05
+  max_drift: 0.05
+  min_processes_per_role: 2
+  warmup_rounds: 4
+  measured_rounds: 3
+  warmup_spread: 0.05
+  measurement_spread: 0.1
+  performance_objective: steady_state
+  baseline_01_dry_run: passed
+  active_run_id: null
+  active_job_id: null
+  active_service_instance: null
+  measured_completed_runs: []
+  started_at: '2026-10-22T16:49:58Z'
+  measurement_mode: baseline
+  comparison_scope: formal migration regression; no unoptimized anchor claim
+  last_run_id: baseline-01
+  native_status: failed
+  logical_result: incomplete
+  reason: P4K predeclared last3-warmup spread18.255% exceeded5%; P1K latency guard spreads also exceed10%; no migration regression
+    attribution
+  valid_completed_rounds: 11
+  rounds_all_requests_successful: true
+  p1k_completed_warmup_rounds: 4
+  p1k_completed_measured_rounds: 3
+  p4k_completed_warmup_rounds: 4
+  p4k_completed_measured_rounds: 0
+  p16k_status: not_run
+  p32k_status: not_run
+  p1k_measured_medians:
+    output_throughput: 1500.2496605103297
+    mean_ttft_ms: 1941.0504114348441
+    p99_ttft_ms: 3740.857904739678
+    mean_tpot_ms: 40.68825538566619
+    p99_tpot_ms: 42.11236411701972
+    mean_itl_ms: 40.68825552905164
+    p99_itl_ms: 40.25421550497413
+    mean_e2el_ms: 43565.13567097136
+    p99_e2el_ms: 45333.94738264382
+  p1k_measured_relative_spread:
+    output_throughput: 0.07921492394355562
+    mean_ttft_ms: 0.4920058393552599
+    p99_ttft_ms: 0.40482250101660616
+    mean_tpot_ms: 0.059315154572066243
+    p99_tpot_ms: 0.14201182150734473
+    mean_itl_ms: 0.05931515434346189
+    p99_itl_ms: 0.02133459435533282
+    mean_e2el_ms: 0.07859374555513245
+    p99_e2el_ms: 0.09632717354518074
+  p4k_last3_warmup_output_throughput:
+  - 1178.0521039781768
+  - 987.9129303164067
+  - 1202.966890094889
+  p4k_warmup_relative_spread: 0.1825504653421223
+  native_record: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/run-record.json
+  incomplete_summary: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/performance/baseline-01/incomplete-summary.json
+  incomplete_summary_sha256: 0ee79cabda9da4a1736f8e376760948e4beee6997cd41a807fd146353d040189
+  formal_comparison_eligible: false
+  native_record_sha256: 4c85833970b031d09cb0b14905c485b1d4a85de3d80ee726a50d3b66c998b661
+  accuracy_blocker: candidate full147/198 below frozen160/198; no gate
+environment:
+  source_container: qwen3.6-35B-verify
+  source_preserved: true
+  baseline_container: qwen36-35b-regression-a-20261022
+  candidate_container: qwen36-35b-regression-b-20261022
+  image_lineage: verified
+  mount_parity: passed
+  snapshot_image_id: sha256:bc7895c3519736d02b24fc847fafcf172c6a1b2b3905fdb001308483dac219e0
+launch:
+  max_model_len: 69632
+  max_num_batched_tokens: 8192
+  max_num_seqs: 64
+  tensor_parallel_size: 2
+  dtype: bfloat16
+  gpu_memory_utilization: 0.9
+  enable_prefix_caching: false
+  graph: FULL_DECODE_ONLY/max_capture64
+  environment_source: source container login environment + user Feishu reference
+  launch_config_sha256: 23227939f78bf988b754d11857d5da6d55b7868a2f2f3ded917046a4628e61ff
+provenance:
+  model_file_list_sha256: 16e8dbeae21d80675607ddfb67a5c5fa3de2afb15401525468840d534223f092
+  model_files: 35
+  weight_shards: 21
+  model_identity_receipt_sha256: d020008c7daf3cdab679afafbad38211938a8ce092de28e386f217491017fafb
+  code_lineage_receipt_sha256: e8d466055f0de2812a43ec7d30c65ee3c02b8172bf2cdc932ebaff05bc02f5ba
+  gpqa_provenance_sha256: a68282103af2fe317d0e2262cd3adc5da30b5007c98b08897bd63678511c4a31
+  max_formatted_prompt_tokens: 2891
+  max_generation_tokens: 65536
+  context_requirement: 68427
+  lm_eval_seed: 42
+  actual_http_seed: 1234
+minimal_regression:
+  status: passed
+  service_instance: baseline-01-r2
+  workers: 2
+  captured_graphs_per_worker: 11
+  successful_replays_per_worker: 2
+  c8_successful_requests: 8
+  c8_exact_answers: 8
+  observer_removed: true
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/services/baseline-01-r2/qualification-and-smoke.json
+  sha256: dc47768cb05a28649205d83ba6deea9e68aae2d1dbeea12475f4280b61874d82
+monitor:
+  id: qwen35b-flaggems-vllm-moe-c64
+  kind: heartbeat
+  status: DELETED
+  deleted_in_app: true
+  cadence: hourly
+  current_job_id: null
+  last_completed_job_id: accuracy-fgv-moe-c64-followup-003
+  last_checked_at: '2026-10-26T08:14:38.292292+00:00'
+  last_decision: NOTIFY_FGV_MOE_NATIVE_C64_160_OF198_INDEPENDENTLY_PASSED
+  stop_reason: Requested backend switch and one native full198 C64 validation independently complete; no automatic performance
+    work
+  previous_monitor_snapshot:
+    id: qwen35b
+    kind: heartbeat
+    status: ACTIVE
+    cadence: hourly
+    user_authorization: 用户明确要求每一个小时检查一次
+    notify: meaningful stage completion, failure or required user action only
+    stop_on: task complete, user cancel/pause, or failure preventing safe continuation
+    last_checked_at: '2026-10-23T17:10:53.737377+00:00'
+    last_decision: NOTIFY
+    next_trigger: Read-only/CPU concrete native198 reproducibility proposal and identity/gate lifecycle; no model traffic
+      or completed job replay
+    current_job_id: null
+    last_completed_job_id: accuracy-ordered-loss-001
+continuation:
+  path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/continuation.json
+  initial_sha256: 4e32da2e10fb0ad2609b4cd93adeae6d975ba9317bc87ba864bfd0ddd979b1ab
+  latest_observed_sha256: 191fec992471383c08260183ca08eaaa43c709d065f02fe920e4b5c667bcbfcf
+  latest_observed_at: '2026-10-26T08:14:38.292292+00:00'
+  phase_at_observation: fgv_moe_independently_verified_passed
+  checkpoint: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/operator/fgv-moe-001/followup-003/independent-closeout-001.json
+  checkpoint_sha256: bf9801f4a334bd817dce179a915866f44caded75ffebb7fef2194e97a23eb55e
+  checkpoint_script_sha256: 01e8899fd98fe6d47eb9cde6eeb4207bfc2392c40caba4bf1de0a25ea3083618
+runtime_coverage:
+  baseline_sampler: MetaXTopKTopPSampler/use_shortlist=true
+  baseline_moe: Plugin call_op/default.flagos -> flag_gems.fused.fused_moe; source-chain+dispatch log evidence
+  baseline_flaggems_vllm_worker_loaded: false
+  fgv_installed_content_identity: verified; inactive kernels not covered by current baseline service
+  source_preserved: true
+  candidate_flaggems_vllm_worker_loaded: false
+  candidate_shortlist_kernel_execution:
+    scope: two B profiled windows, each first128 steps, fixed first32/C32; not all198
+    prepare_candidates_per_rank: 128
+    scatter_candidates_per_rank: 128
+    ranks:
+    - 0
+    - 1
+    source_files_verified_against_manifest: true
+    evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/profile-comparison-001/comparison.json
+    sha256: 4763b4ce64797265b702f1eb3bb35f899cea5d968a63d6a9a2fb474ab0e48734
+    not_full198_or_FGV_kernel_coverage: true
+    captures: 2
+candidate_minimal_regression:
+  status: passed
+  instance: candidate-01
+  workers: 2
+  graph_replays_per_worker: 2
+  c8_successful_requests: 8
+  c8_exact_answers: 8
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/services/candidate-01/qualification-and-smoke.json
+  sha256: d61171a5fdaba234a3919ddc323cc70e4147c60f131a94050952715805412476
+accuracy_diagnosis:
+  issue_id: accuracy-regression-001
+  trigger: formal-gate
+  covered_experiment_ids:
+  - regression-001
+  classification: verified_score_regression_root_cause_unresolved
+  gate_blocking: true
+  baseline_correct: 160
+  candidate_correct: 147
+  expected_samples: 198
+  baseline_score: 0.8080808080808081
+  candidate_score: 0.7424242424242424
+  threshold: 0.8080808080808081
+  delta_percentage_points: -6.565656565656567
+  root_cause_confidence: unresolved_for_full198_score
+  incident: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/incident.json
+  incident_sha256: 8012b5b5ee206c067fff70c06aee6155ce4b5b928da7203db0a3a0ad1dfe606e
+  measurement_validity: 'Original native validator reached final score_check; all198 documents/prompts/targets/arguments,396
+    strict+flex rows, result/sample/provenance/service identities verified. Only expected failure: candidate below frozen
+    threshold; no native failed run-record or quality gate published.'
+  flip_counts:
+    both_correct: 134
+    a_correct_b_wrong: 26
+    a_wrong_b_correct: 13
+    both_wrong: 25
+  reproducer:
+    status: two_ordered_cohorts_BAB_equal_cross_cohort_context_sensitivity
+    doc_id: 13
+    native_http_seed: 1234
+    lm_eval_seed: 42
+    temperature: 1
+    top_p: 0.95
+    top_k: 20
+    max_completion_tokens: 65536
+    stop:
+    - </s>
+    - <|endoftext|>
+    concurrency: 1
+    repetitions_per_arm: 3
+    full_gate: false
+    request: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/doc-13-native-request.json
+    request_sha256: 8f8c853220df03dec39e01804baed596fdf9e4548ee8471b34e5a6289c4698a9
+    candidate_initial:
+      instance: candidate-01
+      three_responses_equal: true
+      response_sha256: dcf9643435e8296f6a41fe67b4984ca85b7ec72252dd06d7897f093cd59f05e3
+      completion_tokens_each: 2831
+      summary: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/candidate-initial-single-001/summary.json
+    current_job: null
+    planned_arms:
+    - original-reference/revert-01
+    - candidate-reenabled/candidate-01-r2
+    controller: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-accuracy-reproducer-bab-001.py
+    controller_sha256: 9938c57472ad2769bfd41f730dd959d683aec4540dd5f1453f4afb3f02c94105
+    scope: Single-request seeded repeatability and reversible A/B comparison; C1 differs from formal C32, cannot close full
+      failure.
+    active_service_instance: candidate-01-r21
+    original_reference:
+      instance: revert-01
+      three_responses_equal: true
+      equal_to_initial_candidate: true
+      completion_tokens_each: 2831
+      finish_reason_each: stop
+      summary: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/original-reference-single-001/summary.json
+      summary_sha256: 26f9a60bc24c8b67555805ab890c0ea4f95c48d81f4b53431d64deb2b9eaa019
+    c1_comparison:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/bab-controller-001/comparison.json
+      sha256: 20c7df8ae25dc97b46ee1a5d55315f17b49f185a6494b89d616429149fbd1521
+      all_nine_responses_equal: true
+      reproduction_status: not-reproduced at C1 only; full C32 gate remains failed
+    candidate_reenabled:
+      instance: candidate-01-r2
+      three_responses_equal: true
+      equal_to_initial_B_and_original_A: true
+      summary: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/candidate-reenabled-single-001/summary.json
+      summary_sha256: 71e42d2a3d30d6030e57032d407117e5e9eef073e354be890c7aa6b5a2b25d6c
+  bisection_result: 'Both orderedC32 cohorts (first32 and all26loss+6controls) have all six outputs equal per doc in B/A/re-enabledB.
+    No stable migration distinguisher, so numerical code rollback not started. Cross-cohort10 common requests changed text10/strict3
+    under same request bytes and stable source/launch identities: execution-context sensitivity supported, original13-question
+    mechanism unresolved.'
+  supporting_evidence:
+  - Exact same198 task/doc/prompt/target/generation arguments
+  - All full responses differ between A and B; net strict loss13
+  - Current candidate C1 identical request+seed produces same full text three times
+  opposing_evidence:
+  - Full stochastic sampling+C32 batching may differ; C1 alone does not localize mechanism
+  - Both worker ranks use MetaX optimized sampler and FlagGems MoE; FGV not loaded, install consistency does not prove kernel
+    coverage
+  - Mixed C8 original A strict6/8,7/8,6/8; score variance exists without migration. This does not establish explanation of
+    full13-question loss.
+  fix_or_rollback: none; failed candidate preserved; diagnostic service swaps only
+  required_revalidation: Mechanism and one-variable re-enable proof, affected graph/C8/ranks, minimal regression then new
+    native full198 gate at unchanged threshold160/198; do not select best rerun
+  performance_may_continue: false
+  updated_at: '2026-10-23T17:10:53.737377+00:00'
+  c8_reproducer:
+    status: completed_verified_within_arm_score_and_text_variance
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/c8-cohort-001/plan.json
+    plan_sha256: 5c15a2d11f64f902ae745dff8d4e89fae1435d868b089592ceff127e28848354
+    doc_ids:
+    - 13
+    - 139
+    - 129
+    - 121
+    - 92
+    - 29
+    - 44
+    - 49
+    selection_rule: Original3 minimum examples plus5 shortest remaining discordant pairs by max(A_tokens,B_tokens), tie doc_id;
+      frozen before C8 traffic, diagnostic only
+    concurrency: 8
+    repetitions_per_arm: 3
+    total_planned_requests: 72
+    service_order:
+    - candidate-01-r2
+    - revert-01-r2
+    - candidate-01-r3
+    native_generation_parameters_unchanged: true
+    max_completion_tokens: 65536
+    seed: 1234
+    request_timeout_seconds: 7200
+    actual_concurrency_evidence: each group requires native metrics max_running_requests=8; no pass inferred from client threads
+      alone
+    controller: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-accuracy-c8-bab-001.py
+    controller_sha256: 66e95150a529753f62bf61208214508ce35a5875babb0a58c811d8e6d7e47859
+    arm_runner: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-accuracy-c8-arm-001.py
+    arm_runner_sha256: 04e8480580038940658c8f746d138c74ef86bae584c37e5ec5a42bb88b244b99
+    job_id: accuracy-repro-c8-bab-001
+    job_command_sha256: 6677e9b6d19e3856179174618948e4425479b3e99c31a5e75624cd78ead0e29d
+    full_gate: false
+    next_if_no_difference: Freeze original first32 cohort and run C32; do not declare score recovery
+    stop_on: Any request/identity/runtime/concurrency evidence failure; preserve all in-flight outputs, no retry
+    progress_observation:
+      arm: candidate-initial
+      completed_requests: 12
+      expected_requests_per_arm: 24
+      completed_groups: 1
+      first_group_successful_requests: 8
+      first_group_actual_max_running: 8
+      first_group_receipt: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/c8-cohort-001/candidate-initial/repeat-0/receipt.json
+      first_group_receipt_sha256: 8314527beff86bd2d8a12a4b49c4b0cea6d46d3168c322caaaf20fd59b929b75
+      observed_at: '2026-10-22T21:09:11Z'
+      interim_only: true
+    completed_requests: 72
+    completed_groups: 9
+    comparison:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/c8-cohort-001/controller/comparison.json
+      sha256: 0616dc8d2941566db4c636a6d7715612b5d3482c2533569ccefe4f015f0d5e3b
+    verified_native_diagnostic:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/c8-cohort-001/verified-native-diagnostic.json
+      sha256: b3258d2da7c565af56c2ab9bdee076d111c8b2337d508deb4ebab11acd8d3082
+    original_full_native_filter_metric_reproduction:
+      a_correct: 160
+      b_correct: 147
+      samples_each: 198
+      all_per_sample_values_match_original: true
+    strict_correct_counts:
+      candidate_initial:
+      - 7
+      - 8
+      - 6
+      original_reference:
+      - 6
+      - 7
+      - 6
+      candidate_reenabled:
+      - 7
+      - 6
+      - 6
+    strict_counts_scope: All three repeats of selected8, diagnostic only; not original198 gate or statistical proof explaining13
+      lost full samples
+    all_9_groups_actual_C8: true
+    both_rank_snapshots_verified: true
+    each_doc_unique_texts_per_arm: 3
+    classification: batch_seeded_repeatability_variance_observed_not_causal_proof
+  static_sampling_boundary:
+    shortlist_supported_batch:
+    - 8
+    - 64
+    c1_shortlist_branch_covered: false
+    a_b_guard_functions_ast_equal: true
+    a_b_shortlist_file_sha256: bed706146946a24aa457002d9d5997b9d87e1e227b4e75298f85ba1d2aef1227
+    scope: Source equality and eligibility only, not actual per-request kernel-hit evidence; runtime sampler objects verified
+      on both ranks.
+  homogeneous_reproducer:
+    status: completed_verified
+    job_id: accuracy-repro-homogeneous-001
+    instance: candidate-01-r3
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/homogeneous-batch-001/plan.json
+    plan_sha256: 61d30d5bbbf4cf68d1522a91aa426c994c195fee7f435b1c254eab502c5ca227
+    runner: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-accuracy-homogeneous-batch-001.py
+    runner_sha256: e650e62ecfd9f74440a35bd856abf4f186ffb4bf2335846412671dbeac0c232f
+    job_command_sha256: f62a661e37f085a7889f2aca17e1358184747c4cff58824ea18d28e9829ad4f2
+    concurrency_order:
+    - 1
+    - 7
+    - 8
+    repetitions_each: 3
+    total_requests: 48
+    doc_id: 13
+    identical_payload_copies: true
+    native_generation_parameters_unchanged: true
+    sampling_seed: 1234
+    max_completion_tokens: 65536
+    admission: Original barrier/free-admission; no scheduler pause/resume
+    scope: Composition/concurrency diagnostic, not full gate; C7/C8 also alter model numerical kernel shapes, not isolated
+      sampler proof
+    progress_observation:
+      completed_requests: 17
+      completed_C1_groups: 3
+      C1_all_three_equal_to_original_hash: true
+      completed_C7_groups: 2
+      C7_unique_outputs_within_groups:
+      - 6
+      - 6
+      actual_max_running_each_group_matches: true
+      interim_only: true
+      observed_at: '2026-10-22T22:13:19Z'
+    completed_requests: 48
+    completed_groups: 9
+    summary:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/homogeneous-batch-001/summary.json
+      sha256: 87ff588b17a0526620d63d1c233b24d665edfb165fe3293ddbc4244c8e41fd10
+    unique_outputs_across_repeats:
+      '1': 1
+      '7': 11
+      '8': 19
+    C7_unique_outputs_within_each_group:
+    - 6
+    - 6
+    - 6
+    C8_unique_outputs_within_each_group:
+    - 6
+    - 7
+    - 6
+    all_group_actual_concurrency_verified: true
+  native_rng_component:
+    status: passed_reference_only
+    report: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/homogeneous-batch-001/native-rng-probe-001.json
+    sha256: c975375ff67d1cfaff8b12fbde5f5ad5be4e37855f18f60b66d69fc144602d1c
+    devices:
+    - cpu
+    - cuda:0
+    batch_sizes:
+    - 1
+    - 7
+    - 8
+    vocab: 248320
+    dtype: float32
+    seed: 1234
+    repetitions: 3
+    all_seeded_exponential_rows_equal: true
+    all_q_repeats_equal: true
+    all_native_uniform_samples_equal: true
+    actual_model_inference: false
+    FlagGems_registration: false
+    scope: Native RNG reference; does not establish actual worker generator offsets/dispatch or full sampler correctness
+    runner: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/native-sampler-rng-probe-001.py
+    runner_sha256: 1a02547310a551b4c6ce116d7b783a55ecdbf021bc44a674384e6794cc41ae1c
+  logprobs_reproducer:
+    status: completed_verified
+    job_id: accuracy-repro-logprobs-001
+    instance: candidate-01-r3
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/homogeneous-logprobs-001/plan.json
+    plan_sha256: ff246ee734356ce01ddd1ab40e76efafc7e3d88f192e608f8c8b4e7e3436fe51
+    runner: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-homogeneous-logprobs-001.py
+    runner_sha256: ee2c3ad1933da0e3e6c68c0cbdee74a09e4565d27ac434a53091b5115334bb1e
+    job_command_sha256: 2f7895d7cb47eb1ced876bb236757369d57183cfb0fcf59754c12c37134a6357
+    doc_id: 13
+    concurrency: 7
+    repetitions: 3
+    requests: 21
+    observability_delta:
+      logprobs: true
+      top_logprobs: 20
+    sampling_and_generation_budget_unchanged: true
+    scope: Native API reported raw probabilities at finite precision, not exact model logits or generator-state capture; observability
+      may affect timing. Not a full gate.
+    progress_observation:
+      completed_requests: 14
+      expected_requests: 21
+      completed_groups: 2
+      expected_groups: 3
+      job_identity_matches: true
+      native_result_not_yet_available: true
+      interim_only: true
+      observed_at: '2026-10-22T22:22:57Z'
+    completed_requests: 21
+    completed_groups: 3
+    summary:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/homogeneous-logprobs-001/summary.json
+      sha256: 7513f08612cc5ff62ef1f98d7d2ffe21dbe1b7e0cbca3228eb54874fdf907699
+    step0_nonzero_anchor_pairs: 17
+    anchor_pairs: 18
+    maximum_reported_raw_logprob_delta_at_step0: 0.7874298095703125
+    first_divergent_token_index_range:
+    - 257
+    - 301
+    runtime_mode: raw_logprobs observed via /server_info; native code computes before temperature/penalties/RNG
+    all_output_and_actual_C7_rank_evidence_verified: true
+  admission_cycle:
+    status: verified
+    report: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/admission-parity-001/admission-cycle-verified.json
+    sha256: 2f08ce6d581c17064e9f8bce5af325a1d0da3a6c3fc46eb5cb7f424b8c412aa9
+    instance: candidate-01-r3
+    doc_id: 13
+    concurrency: 7
+    same_service_rank_processes_source_launch_and_HTTP_body: true
+    sequence:
+    - free
+    - pause_keep_no_clear_queue_then_resume
+    - free_reenabled
+    requests_each: 21
+    queued_unique_complete_texts: 1
+    queued_unique_complete_reported_logprobs: 1
+    queued_tokens_each: 2907
+    free_reenabled_unique_complete_texts: 14
+    free_reenabled_step0_nonzero_anchor_pairs: 16
+    boundary_reproduced: true
+    full198_score_root_cause: unresolved
+    exact_device_shape_or_first_divergent_layer_proven: false
+    all_admin_commands_preserved_and_unpaused_restored: true
+    queued_plan:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/queued-logprobs-001/plan.json
+      sha256: e1fb36e1b8c2ea2bbde5f2bde7b9b6815bb743d425321c80ca578b7ca5a31b0b
+    queued_summary:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/queued-logprobs-001/summary.json
+      sha256: 03a83734abce73aa7b11be572b3b92ac6878e60ca1cc2ede35d299a3cbb88d22
+    free_reenabled_summary:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/free-reenabled-logprobs-001/summary.json
+      sha256: 5a2994a905af84c226ae005bb9b7a2a1cf7ab6750978478791b1cc5457650b13
+    scope: Current-B C7 one-prompt admission boundary only; no code-cause conclusion or full gate
+  admission_parity:
+    status: completed_independently_verified_parity_C7_C8
+    job_id: accuracy-admission-parity-001
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/admission-parity-001/plan.json
+    plan_sha256: cb500a547ad9b39338dc695bd9d790223d214c529fa5278bdc2fea177ee144f5
+    controller: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-admission-parity-001.py
+    controller_sha256: 7cfd6a672c5a28edc8c23e11f22c91ce251cce09e48bce5252df245e39e177de
+    job_command_sha256: 9781f5d35f6e790cb89a68af4517145b9caac86d4d45d2fffe024472722d6004
+    case_order:
+    - candidate-01-r3/C8
+    - revert-01-r3/C7
+    - revert-01-r3/C8
+    - candidate-01-r4/C7
+    - candidate-01-r4/C8
+    repetitions_each: 3
+    new_requests: 114
+    B_C7_initial_reference_reuses_all21_queued_outputs: true
+    sampling_HTTP_body_and_launch_unchanged: true
+    same_native_pause_keep_clear_cache_false_and_finally_resume: true
+    scope: One homogeneous prompt under controlled C7/C8 only; no exact device-shape/kernel-hit/full198 proof
+    progress_observation:
+      completed_cases:
+      - b-c8-initial
+      - a-c7
+      - a-c8
+      - b-c7-reenabled
+      - b-c8-reenabled
+      completed_new_responses: 114
+      completed_new_groups: 15
+      native_result_exit_code: 0
+      current_service_after_completion: candidate-01-r4
+      is_paused_after_completion: false
+      observed_at: '2026-10-23T03:12:17.161836+00:00'
+    comparison: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/admission-parity-001/comparison.json
+    comparison_sha256: 83b939a6e62a2635e78ffe13901f8ee80e3983340cdd2d8625398b3a720b0918
+    independent_verification: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/admission-parity-001/independent-verification-002.json
+    independent_verification_sha256: 7bf34b35bfffa630ae1450a53cfa220f4bcd7ac6e5f678f34fd44f7aef6d1ca6
+    verified_responses: 135
+    verified_admin_command_results: 90
+    C7_all_texts_and_complete_reported_logprobs_equal: true
+    C8_all_texts_and_complete_reported_logprobs_equal: true
+  first32_queued:
+    status: completed_verified_not_repeatable
+    job_id: accuracy-repro-first32-queued-001
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/first32-queued-001/plan.json
+    plan_sha256: 086fbbf21bdfbd7ade713950cacf79dd60c17fa9371c40795127b551018e4338
+    summary: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/first32-queued-001/candidate-initial/summary.json
+    summary_sha256: 1133554550019bfe58b69748b317a4b9a9977e27980ba8298dfca4e524887148
+    verification: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/first32-queued-001/verified-native-diagnostic.json
+    verification_sha256: 98325b4bddb155a933abd09120c29da0250fbcbcaabe122e4bf69da1dc3f3692
+    doc_ids:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    - 30
+    - 31
+    concurrency: 32
+    repetitions: 3
+    verified_responses: 96
+    repeatable_docs: 2
+    variable_docs: 30
+    native_strict_correct_counts:
+    - 26
+    - 25
+    - 24
+    samples_per_repeat: 32
+    all3_actual_C32: true
+    ranks_before_after_verified: true
+    all_admin_restore_receipts_verified: true
+    original198_native_strict_scores_reproduced:
+    - 160
+    - 147
+    request_generation_parameters_unchanged: true
+    logprobs_observability_added: false
+    formal_gate: false
+    full198_cause: unresolved
+    next_decision: Do not expand controlled homogeneous assumption into full198; capture actual execution shapes after explicit
+      profiler-only authorization.
+  execution_profile:
+    status: completed_independently_verified_and_original_restored
+    mode: capture_then_analyze
+    experiment_id: regression-001
+    scenario_id: diagnostic-first32-c32-original-requests
+    job_id: null
+    job:
+      job_id: accuracy-execution-profile-003
+      directory: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-execution-profile-003
+      launch:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-execution-profile-003/launch.json
+        sha256: f4aadb907eea780df244f6f797028d2648fbb4fbcf15b0a2582f4d8139a156b4
+      command:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-execution-profile-003/command.json
+        sha256: 34b04ae0ca7e3e084269c8331f70ea1e17093a7d4e9b7f424eab4f626d2b6338
+      result_when_complete: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-execution-profile-003/result.json
+    plan:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/profiling/accuracy-execution-003/plan.json
+      sha256: 8ff564b8020c346ce0fc0a5840dab8281b2075f65afa04eb7782ff821355b6a3
+    authorization:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/environment/profile-001-authorization.json
+      sha256: 730941388a6064602fa59fa74a7ae5262a2fae3b76d68f7e52f59e25b1eb49bf
+    user_reply: 允许临时取证并恢复（推荐）
+    authorization_scope: temporary native profiler config only; then restore original launch; no model/code/sampling/threshold
+      change
+    controller:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/run-accuracy-execution-profile-003.py
+      sha256: 0ff20f4e60b256ec982e37562fcd6fb3aca31bf345c91335b20e8b664deac1c9
+    profile_launch_config:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/environment/launch-config-profile-001.json
+      sha256: 77eef9d759b40a7391a8f401f894147a63bbb6ddeed5648efd1a106b19119ad6
+    native_config_class_validation:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/execution-profile-proposal-001/config-validation-frozen-env.json
+      sha256: 18d7da11ccb5e9ba781a662855eddbfe9dedb638dad5823c59b085714562e8a2
+    validation_limit: BothB profiled windows only; no causal original13-score-loss resolution, no full198 gate or profiler-free
+      performance claim
+    profile_service: candidate-01-r7
+    restore_service: candidate-01-r9
+    same_original_request_inputs: true
+    concurrency: 32
+    planned_repetitions: 2
+    planned_requests: 64
+    profiled_worker_steps_each: 128
+    expected_ranks:
+    - 0
+    - 1
+    trace_dir: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/profiling/accuracy-execution-001/traces
+    source_frozen_tools_preserved: true
+    current_service:
+      instance: candidate-01-r9
+      launch:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/services/candidate-01-r9/launch.json
+        sha256: 795c052c0db9e130fa477c71ca1d42c98a2dad61b955fe20e8a13c9c0bef8263
+      manifest:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/services/candidate-01-r9/service-manifest.json
+        sha256: 639856ed77790b150fb42323e88c1af52a82e1d9726f48aa722d56c83f721565
+      qualification:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/services/candidate-01-r9/qualification-and-smoke.json
+        sha256: 4a2228b673657371da50989922aed6226257d196e2e195e04b2625586e3c6503
+    completed_requests_at_observation: 64
+    trace_files_at_observation: 4
+    graph_qualification_pending: false
+    restoration_status: passed_original_r9; profiler=None/no_hooks; all_stable_manifest_fields_equal_to_r4
+    formal_accuracy_gate: false
+    performance_eligible: false
+    observed_at: '2026-10-23T06:00:21.307938+00:00'
+    profile_graph_C8_manifest_passed: true
+    controller_identity_matches: true
+    trace_validation_status: all64_and_four_traces_verified
+    is_paused_at_observation: false
+    actual_running_requests_at_observation: 0.0
+    first_profile_service: candidate-01-r5
+    completed_first_requests: 32
+    remaining_authorized_requests: 0
+    cumulative_authorized_request_limit: 64
+    first_capture_verified:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/profiling/accuracy-execution-001/plugin-phase-verification-v2.json
+      sha256: 95e7aeec077b89350bd9338fe7cf5d44b2bc3119ae3340dde067ca573dcaab50
+      requests: 32
+      ranks:
+      - 0
+      - 1
+      CPU_Plugin_steps_per_rank: 128
+      shortlist_prepare_scatter_calls_each_rank:
+      - 128
+      - 128
+      graph_launches_each_rank: 126
+      GDN_chunk_calls_each_rank: 60
+      GDN_packed_decode_calls_each_rank: 3780
+      trace_new_before_after_native_epoch_PID_source_verified: true
+      cached_count_is_not_decode_token_count: true
+      mixed_attribution: new/cached proxy only; exact per-request order not established
+      full198_or_unprofiled_root_cause_proof: false
+    retained_control_failures:
+    - job_id: accuracy-execution-profile-001
+      status: incomplete
+      actual_failure: mtime>=Host start without clock-domain calibration; Plugin marker interface is independent mismatch
+      error:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/profiling/accuracy-execution-001/capture-error.json
+        sha256: eca38cb246ba71bca51ccfd9f4c600d8b701de410fcdab72a535c2ade5f545d1
+      completed_requests: 32
+      raw_data_retained_and_separately_verified: true
+      original_restore: candidate-01-r6/passed
+    - job_id: accuracy-profile-followup-001
+      status: failed_guard_before_additional_capture
+      reason: Expected marker failure guard correctly rejected different first failure; no GPU request or service switch
+      additional_requests: 0
+    - job_id: accuracy-execution-profile-002
+      status: launch_guard_failed_before_capture
+      error:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/profiling/accuracy-execution-002/capture-error.json
+        sha256: 810338f1e84e22946dccda14cac373a1e87467380889ae2831b9db42903f8ec6
+      reason: Actual command referenced001 launcher allowingr5, blockedr7; corrected real AST command to002 in new003
+      additional_requests: 0
+      r7_directory_created_by_failed_job: false
+      original_restore: candidate-01-r8/passed
+    shared_filesystem_clock:
+      filesystem_minus_host_seconds_observed:
+      - -214.83336353302002
+      - -214.79078650474548
+      calibration_artifacts: First capture start/resume/stop commands/results
+      validation: before inventory empty, native export epoch and trace base+CPU ts/PID within capture window, per-capture
+        FS offset spread<1s then normalized mtime window
+      clock_or_file_times_modified: false
+      old_failure_overwritten: false
+    last_completed_job_id: accuracy-execution-profile-003
+    completed_second_requests: 32
+    current_profiler:
+      profiler: null
+      torch_profiler_dir: ''
+      torch_profiler_with_stack: true
+      torch_profiler_with_flops: false
+      torch_profiler_use_gzip: true
+      torch_profiler_dump_cuda_time_total: true
+      torch_profiler_record_shapes: false
+      torch_profiler_with_memory: false
+      ignore_frontend: false
+      delay_iterations: 0
+      max_iterations: 0
+      warmup_iterations: 0
+      active_iterations: 5
+      wait_iterations: 0
+    combined_verification:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/profile-comparison-001/comparison.json
+      sha256: 4763b4ce64797265b702f1eb3bb35f899cea5d968a63d6a9a2fb474ab0e48734
+    restored_runtime:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/profile-comparison-001/current-restored-runtime.json
+      sha256: 8a217f4baef2921b29c3a85df2e153871075704062e16dbc04298d57f79eb7a5
+    native_scoring:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/profile-comparison-001/native-strict-scores.json
+      sha256: bfe54ca2709629b5b7bbd6e84ebb8a2f2de0772147e12e1e92bb156fec1d143f
+    native_diagnostic_strict_counts:
+    - 24
+    - 26
+    same_text_docs: 4
+    changed_text_docs: 28
+    actual_new_request_groups:
+    - - 24
+      - 8
+    - - 23
+      - 9
+    final_restoration:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/profiling/accuracy-execution-003/restoration.json
+      sha256: c4c0c2a659717671db2067c955873aba0640816afbcab358db86bc0eb1fefe03
+  ordered_bab:
+    status: incomplete_collector_namespace_shadow_partial64_verified
+    authorization: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/environment/ordered-bab-001-authorization.json
+    authorization_sha256: dbfe9de81de8c00b0542ec2787cd2f6178868581eecb6da50a4eaea707750615
+    user_authorization: 相同有序准入比较base与当前；稳定差异后单变量回退；临时日志后恢复；不改vLLM和阈值
+    initial_matrix_requests: 192
+    qualification_requests: 32
+    job_id: accuracy-ordered-bab-001
+    execution_plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/ordered-bab-001-execution-plan.json
+    execution_plan_sha256: 246d89a17f9abb6afa6dd4a81547cf9c2d50eb28d5b536bbb91d1a6f6f833ac7
+    controller_sha256: 6bb0de797c6e569528998e18de2fc3d3ca5085ee99b4e4e6c20a828c5d5f200c
+    native_launch_sha256: 97a2aede4566108805da8726d6733dd5997551b646f1aee8100e8cdf75ecf809
+    native_command_sha256: d9b8fa05c49ea29c999c431859ad387018635406f4ac63c24606ea091fa0a1ba
+    job_process_identity_verified: false
+    native_result: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-ordered-bab-001/result.json
+    arms:
+    - candidate-01-r14
+    - revert-01-r4
+    - candidate-01-r15
+    repetitions_each: 2
+    doc_ids:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    - 30
+    - 31
+    current_service: candidate-01-r14
+    restore_instance: candidate-01-r16
+    restoration_status: r16_original_fully_verified_then_normally_stopped_by_remaining_job
+    diagnostic_outputs_observed: 64
+    formal_gate: false
+    conditional_bisection_authorized: true
+    vllm_source_readonly: true
+    threshold: 0.8080808080808081
+    next_action: Historical completed partial, do not replay; see ordered_bab_remaining
+    added_receipts_observed: 32
+    current_manifest_sha256: 17cdbbaa52c281a348a109375636aaf9c76ce4018dc4dfe6bcb5ddfbe180e895
+    current_qualification_sha256: 03483bfcefbed7a10532c058f469f4c208c93891f02f2d0b7fcccede898c1e9a
+    independent_verification_plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/ordered-bab192-independent-verification-plan-001.json
+    independent_verification_plan_sha256: 39c5ca3c06dd6ef580b63a4f17c4002473dabe785bae406455119c04b6742578
+    independent_verification_status: partial64_verified_full192_old_verifier_inapplicable
+    progress_observed_at: '2026-10-23T09:38:20.492648+00:00'
+    group_progress:
+    - arm: b1
+      repeat: 0
+      completed: 24
+      passed: 24
+      added: 32
+    - arm: b1
+      repeat: 1
+      completed: 0
+      passed: 0
+      added: 0
+    - arm: a
+      repeat: 0
+      completed: 0
+      passed: 0
+      added: 0
+    - arm: a
+      repeat: 1
+      completed: 0
+      passed: 0
+      added: 0
+    - arm: b2
+      repeat: 0
+      completed: 0
+      passed: 0
+      added: 0
+    - arm: b2
+      repeat: 1
+      completed: 0
+      passed: 0
+      added: 0
+    native_result_sha256: 6efd555c3a1100d5e98514eedbf9d8b103327e0705a4780bb998acf10ce2c086
+    native_exit_code: 2
+    independent_verification: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-001/partial64-verification-001/verification.json
+    independent_verification_sha256: 0fabefc4b2b24ae690fa7a53b7bae9a3f334749adf69ed7182b99dc4ecead480
+    strict_correct_counts:
+    - 25
+    - 25
+    same_text_docs: 32
+    same_text_as_prior_ordered_B64: 32
+    observer_failure:
+      cause: python -c default cwd namespace /public-flash/jinghao/vllm shadows correct editable finder; not actual worker
+        source drift
+      inspection_report_sha256: d7687b4b13ccec269b762bb8294931b1f8050ca64cb0dea49299096dcb87b2f9
+      fix: Only separate disk collector adds -P; original tools and service/model/source unchanged
+      numerical_root_cause: false
+    restoration_verification:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-001/partial64-verification-001/restoration.json
+      sha256: 777dab72eb7219acd0e15a9d1b39f7eda2c691046a012a846dd855b99ad223b8
+  ordered_bab_remaining:
+    status: completed_independently_verified
+    job_id: accuracy-ordered-bab-remaining-001
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/ordered-bab-remaining-001-execution-plan.json
+    plan_sha256: ddfe1a237527fc31c2ec7ab82634405289e658001348bba20e17d5894af2ec83
+    controller_sha256: 4689786a088a4fdd99a2c02bdd15d5c4d85427d87c53a704d204df44d88ead81
+    launch:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-ordered-bab-remaining-001/launch.json
+      sha256: 74067da548d92b95e2288f41a1332e35308d422dec2445db6e3a2818de794023
+    command:
+      path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/jobs/accuracy-ordered-bab-remaining-001/command.json
+      sha256: 963324f1cd5f99d9fc36c9a998045eb5f73b6ee513cc2616bf72c500df1fb0d3
+    identity_verified: true
+    native_result: null
+    new_diagnostic_requests: 128
+    preserved_initial_B_requests: 64
+    total_diagnostic_requests: 192
+    new_qualification_requests: 24
+    old_qualification_requests: 24
+    current_service: candidate-01-r18
+    groups_observed:
+      a:
+      - 19
+      - 0
+      b2:
+      - 0
+      - 0
+    added_observed:
+      a:
+      - 32
+      - 0
+      b2:
+      - 0
+      - 0
+    restore_instance: candidate-01-r18
+    restoration_status: passed
+    combined_verification_plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/ordered-bab-combined192-verification-plan-001.json
+    combined_verification_plan_sha256: 747e5370354079c9064022dcd11e3531129a4a06a15b585f32cf46efc57021ab
+    combined_verifier_sha256: f8e969c2b851261c3593ba24bd91d22f85ca09714de2f214f50b0e8ee1082e85
+    stable_AB_difference: null
+    single_variable_rollback_started: false
+    formal_gate: false
+    next_action: 旧BAB001因collector默认目录同名namespace遮蔽而native2中断；已修正观察层-P，原B64独立通过（两轮25/32，全文32/32一致），r16原配置完整恢复核验通过。唯一remaining-001接续原未提交A/B128：当前A-r5
+      graph/C8/完整源码清单已通过，首轮32Added、19/32响应；后续B-r17及finally原B-r18自动继续。无稳定A/B结论，单变量回退尚未开始；147<160和无gate不变。
+    group_progress:
+    - arm: a
+      repeat: 0
+      completed: 19
+      passed: 19
+      added: 32
+    - arm: a
+      repeat: 1
+      completed: 0
+      passed: 0
+      added: 0
+    - arm: b2
+      repeat: 0
+      completed: 0
+      passed: 0
+      added: 0
+    - arm: b2
+      repeat: 1
+      completed: 0
+      passed: 0
+      added: 0
+    progress_observed_at: '2026-10-23T11:50:15.683707+00:00'
+    native_receipt_refs:
+    - admission-receipt:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-remaining-001/a/cohort-0/admission-receipt.json
+        sha256: 6267741416d6f8d5afc4555d69faf9e2496c571d21b7b9bcd780baa58965a702
+      same-engine-fifo-barrier.result:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-remaining-001/a/cohort-0/same-engine-fifo-barrier.result.json
+        sha256: be596b02e293e214f4a92ca0826d32dbff0e06b191a7202c21cf2ba48b17b5ab
+      resume.result:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-remaining-001/a/cohort-0/resume.result.json
+        sha256: ecb937f7d4e76de5aca181c6c8f283da166df8915729ef17159a5cd6f07412aa
+      verify-unpaused.result:
+        path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-remaining-001/a/cohort-0/verify-unpaused.result.json
+        sha256: 5a10f8eaf86cc25ca5247665ae5beda22a8411a58ff372fbb0a472196d15ade1
+    diagnostic_outputs_observed: 128
+    independent_verification_status: passed_all192
+  ordered_bab_combined:
+    status: verified192_no_stable_AB_difference
+    report: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-bab-remaining-001/independent-verification-001/verification.json
+    sha256: 96d4db976123c3ef06228466cf3afb13ba4f64188edfaef465e07f00903c86d2
+    native_result_sha256: ff731dda9cb69cd2e6d6df9bf1d459b3fbe11450be17d23afaf2860edb62b938
+    verified_outputs: 192
+    native_added: 192
+    strict_correct_counts:
+    - 25
+    - 25
+    - 25
+    - 25
+    - 25
+    - 25
+    all_six_equal_docs:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    - 30
+    - 31
+    stable_ab_difference_docs: []
+    stable_ab_score_loss_docs: []
+    unstable_docs: []
+    restored_instance: candidate-01-r18
+    restoration_sha256: ba7c1792fc5f5e2651c8a5ea0fbcc6c4ba0737b852c4202b466b35f480f4a3c7
+    manifest_sha256: 10d386238d08f8a076abd6d818a270e97a44a465169b0fbfb66bfd9f533dec7e
+    fresh_runtime_sha256: 13bac870a4efcd5762fe35e3d8c800e84edb964707b32e03998b5ec9c509ce2b
+    native_score_sha256: 7a43eb04a5f4576d3f0112dfe5e7c88d14ed0a078d25b6b34cef962f6011f751
+    original_full198_scores_reproduced:
+    - 160
+    - 147
+    formal_gate: false
+    FGV_loaded:
+    - false
+    - false
+    bisection_started: false
+  ordered_loss:
+    status: completed_independently_verified_no_stable_AB_difference
+    job_id: accuracy-ordered-loss-001
+    plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/ordered-loss-001-execution-plan.json
+    plan_sha256: 8ffa4abbf792baacd4983298ed788a34a6ad60a3cdc4ee86d3ce09f054f12a93
+    selection: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-loss-inputs-001/selection.json
+    selection_sha256: 4399632492a4d76f0027018efbffbce88916c0a81acd9251c56cc77733537efc
+    doc_ids:
+    - 1
+    - 4
+    - 8
+    - 12
+    - 13
+    - 22
+    - 25
+    - 28
+    - 29
+    - 31
+    - 32
+    - 44
+    - 45
+    - 48
+    - 49
+    - 60
+    - 66
+    - 71
+    - 74
+    - 78
+    - 85
+    - 90
+    - 97
+    - 100
+    - 121
+    - 126
+    - 127
+    - 130
+    - 139
+    - 142
+    - 174
+    - 182
+    diagnostic_requests: 192
+    qualification_requests: 32
+    arms:
+    - candidate-01-r19
+    - revert-01-r6
+    - candidate-01-r20
+    restore_instance: candidate-01-r21
+    controller_sha256: ffa485de28e60f6458069b8eace713f24a1c5ea9cbe41af041bf184666d2c7dc
+    formal_gate: false
+    original_formal_protocol_unchanged: true
+    all26_original_loss_docs_covered: true
+    excluded_inverse_flip_count: 7
+    authorization: Existing human ordered AB diagnosis and temporary logging authorization; no new code rollback until stable
+      AB difference.
+    current_service: candidate-01-r21
+    native_launch_sha256: 530aee224921fb090d6edf186e8f61a94dab68e5a7b82618be7b6204b2c266c9
+    native_command_sha256: d5c0ec69b2318cfecd1d1e8aca8fce694504dfcbc7f6785a804f88f568268346
+    job_process_identity_verified: false
+    native_result:
+      exit_code: 0
+      sha256: 5d8d6fb984afc306074677c66b5b482885a6bb47177bcfa6fe1fe3eb23611b52
+    diagnostic_outputs_observed: 192
+    current_manifest_sha256: a15c0cc661e12c6ba61b60f8df226089fef2c6e01fd06408bd55f16c86f5eb1f
+    current_qualification_sha256: 41ce13023f06a101c73a28b9df990819f137f3daec17239b5d4e92184bc34e13
+    restoration_status: passed_original_frozen_v2
+    independent_verification_plan: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/commands/ordered-loss192-independent-verification-plan-001.json
+    independent_verification_plan_sha256: 462480b4d8e27ddfe19a273e533bccbcb04bc2ec165593d04e04f9812633a5de
+    independent_verification_status: passed_all192_original_restore_native_strict
+    current_cohort_outputs_observed: 32
+    current_cohort_added_receipts_verified: 32
+    current_cohort_admission_sha256: 469a27cb5c616a5e272bac33425e468be205c3259954d897612a99f16836b395
+    ordered_doc_ids_verified: true
+    resume_unpaused_verified: true
+    observer_error: null
+    completed_cohorts:
+      b1:
+      - 32
+      - 32
+      a:
+      - 32
+      - 32
+      b2:
+      - 32
+      - 32
+    completed_B_cohort_receipt_sha256:
+    - 36ce92263a7759b954ca2e95ade21c24be024897afffae1767394579f2f47508
+    - 6c91bece2319f786eefda38a276e3c59f05f2df8272bd65640b688a43db13656
+    partial_text_body_check:
+      checked_at: '2026-10-23T15:38:23.948876+00:00'
+      B_repeat_equal: 32
+      A_first_vs_B_both_equal: 32
+      A_second_available: 27
+      A_second_available_matching: 27
+      native_score_computed: false
+      final192_verification: false
+      B_reenabled_available: false
+    completed_A_cohort_receipt_sha256:
+    - 38c27345fd81efb448deb8696e473bebdab98ad745c3376768d449604021b058
+    - 21bc9fd25ccebc717568ac24fa252c97db4117a36b078e3d5ca5ef4db84891cb
+    job_process_status: completed_native0; absence is expected
+    restoration_sha256: 1a58cdd4bc147cd294f99f448db2fe199b0b2944f822b3c07ae84b1aedde957d
+    verification: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-loss-001/independent-verification-001/verification.json
+    verification_sha256: 9a9658a4acbfc88d05808d0cb79f68e9dd0f4eb79c3830b3590a1bb548d2ec43
+    native_score_sha256: 80c5d40e7bb6d98ad209a861b373facc688bd0afb74a73e95acedf549dc9a1f3
+    fresh_runtime_sha256: 019b203377a260ef8d4e1c0fb66195970495ddaf0a018ab733912219a0a78388
+    strict_correct_counts:
+    - 24
+    - 24
+    - 24
+    - 24
+    - 24
+    - 24
+    all_six_equal_docs:
+    - 1
+    - 4
+    - 8
+    - 12
+    - 13
+    - 22
+    - 25
+    - 28
+    - 29
+    - 31
+    - 32
+    - 44
+    - 45
+    - 48
+    - 49
+    - 60
+    - 66
+    - 71
+    - 74
+    - 78
+    - 85
+    - 90
+    - 97
+    - 100
+    - 121
+    - 126
+    - 127
+    - 130
+    - 139
+    - 142
+    - 174
+    - 182
+    stable_ab_difference_docs: []
+    stable_ab_score_loss_docs: []
+    unstable_docs: []
+    original_loss_correct_each_arm: 19
+    original_loss_incorrect_each_arm: 7
+    included_inverse_correct_each_arm: 5
+    FGV_worker_loaded:
+    - false
+    - false
+    new_formal_gate: false
+    bisection_started: false
+    conclusion: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-loss-001/independent-verification-001/diagnostic-conclusion-001.json
+    conclusion_sha256: db05b2e8ec3666662a3a575853e81baec7c9c0943d96cfff9d706727989b05a1
+  cross_cohort_context:
+    status: verified_readonly_existing_outputs
+    report: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy-diagnosis/accuracy-regression-001/ordered-loss-001/independent-verification-001/cross-cohort-readonly-001.json
+    sha256: 0a13844b50e393d538087210fb5590d6a0ee23b7958d30c7e56e3c288da8e76f
+    shared_doc_ids:
+    - 1
+    - 4
+    - 8
+    - 12
+    - 13
+    - 22
+    - 25
+    - 28
+    - 29
+    - 31
+    same_request_body: true
+    all_stable_manifest_and_launch_fields_equal_per_role: true
+    changed_text_count: 10
+    strict_changed_docs:
+    - 8
+    - 13
+    - 22
+    new_model_requests: 0
+    direct_device_shape_evidence: false
+    root_cause_for_original13_confirmed: false
+    limit: Different cohort membership/execution context; do not compare aggregate32 scores as one frozen workload, or identify
+      a specific kernel. A/B equal within both.
+related_current_candidate_accuracy:
+  status: passed
+  mode: formal-gate
+  service_instance: candidate-01-r39
+  correct: 160
+  samples: 198
+  score: 0.8080808080808081
+  threshold: 0.7753
+  threshold_source: User NV-native77.53 reference frozen before current new full run
+  also_meets_original160_of198_absolute_threshold: true
+  num_concurrent: 64
+  native_filter_rows: 396
+  native_run_id: 9e2936f03294452898d8a30833e004e6
+  one_original_native_invocation: true
+  cached_answers_reused: 0
+  gate:
+    path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/operator/fgv-moe-001/followup-003/accuracy-gate.json
+    sha256: 4f23550de1ae0d062dca376adfdd049f307f9813f7b280dfdc91113632bcf42f
+  independent_verification:
+    path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/operator/fgv-moe-001/followup-003/independent-verification-001/verification.json
+    sha256: 2bec056ec4dd667f3e501fbee106ba079bd874de612890d424a8daa19c3c12a8
+  native_scoring:
+    path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/operator/fgv-moe-001/followup-003/independent-verification-001/native-strict-scores.json
+    sha256: f8feb8304c52f650ee8f4b239f7479c6b1f677e7d95a8f51e12634ef9d1f63a5
+  fresh_runtime:
+    path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/operator/fgv-moe-001/followup-003/independent-verification-001/fresh-runtime.json
+    sha256: b692e2ad5f507bdb553c472f5de2396075a554d86eb918d3823077eaa409b474
+  fresh_source_files_verified: 5756
+  same_service_during_eval: true
+  no_hooks_or_profiler: true
+  unpaused: true
+  both_rank_FGV_loaded: true
+  prior_scores_reproduced:
+  - 160
+  - 147
+  - 161
+  - 154
+  timeout_doc_ids: []
+  empty_doc_ids: []
+  completion_budget_reached_doc_ids:
+  - 81
+  - 185
+  - 195
+  health_observations_do_not_change_native_strict: true
+  performance_allowed_by_current_accuracy_gate: true
+  performance_not_measured_or_automatically_started: true
+  causal_or_isolated_performance_attribution: false
+  logging_only_launch_exception:
+    PYTHONUNBUFFERED: '1'
+    gate_binds_exact_launch: true
+  completed_review_at: '2026-10-26T08:14:38.292292+00:00'
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: historical_baseline_preserved_current_shortlist_NV_reference_passed
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

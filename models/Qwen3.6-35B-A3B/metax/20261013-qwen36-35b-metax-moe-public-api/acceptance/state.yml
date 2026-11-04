@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen36-35b-metax-moe-public-api
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: source-sha-5bb687951274
+  topology: TP2:device6-device7
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

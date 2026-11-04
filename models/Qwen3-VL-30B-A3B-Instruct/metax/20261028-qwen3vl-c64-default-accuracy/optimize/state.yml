@@ -1,0 +1,172 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: opt14-rollback-pr638-user-service
+  topology: TP2:GPU0,1
+stage: optimize
+current:
+  status: completed;accuracy-failed-GPQA;ERQA-passed
+  candidate: qwen3vl-opt14:1597993:1146418910
+  next_action: User-requested evaluation finished;keep model running. GPQA cause remains
+    unconfirmed;no automatic rerun/new optimization.
+experiments:
+- experiment_id: acc-001-opt14-c64-default
+  document: acc-001-opt14-c64-default.md
+  scenario_id: GPQA198-C64;ERQA400-C64
+  status: completed
+  mode: formal-gate
+  decision: GPQA-failed;ERQA-passed;no-formal-accuracy-gate
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-c64-default-accuracy
+  service:
+    container: qwen3vl-pr943-split1-mx104-20261023
+    model: qwen3vl-opt14
+    pid: 1597993
+    ticks: '1146418910'
+    port: 8030
+    prefix_cache: true
+    GPU: 0,1
+    TP: 2
+  thresholds:
+    GPQA: 64
+    ERQA: 40
+  sampling: model defaults; no client sampling overrides or request seed
+  output_cap: 18000
+  per_dataset_runs: 1
+  skill_bundle_sha256: 1ed06a57f1f6e1ef39fb7fd872f579122b098a18f0255ade0a1160d6432c2b66
+  bootstrap_sha256: ce90caf7b36d8d4d540f1dac2bb34c961d6cae922abd1ffdbe1ac7798b4c98dc
+  source_changes: false
+  restart_model: false
+  controller:
+    pid: 1150442
+    startticks: '1146494144'
+    script: commands/accuracy_controller.py
+    sha256: 0613f98ec249501a6ce0c96053f95a7f2663859fda70e74b153d46756df8405a
+  prepared_sha256: baf204475a2ea8c7c93db882ea2a7a689f166496d9c60235da9df857776380be
+  execution_contract_sha256: 886b4e5076cb50f6712953e42ba0eb506b704e5b2f663590fb62275a77eca6ad
+  cpu_provenance: passed;two captures identical;198original questions
+  erqa_source: passed;400questions/630images/original scoring SHA
+  minimal: smoke/C8/source passed
+  graph_evidence: current startup capture plus graph-configured smoke/C8;no direct
+    replay-counter observation
+  evaluators:
+  - qwen3vl-opt14-gpqa-mx104-20261028
+  - qwen3vl-opt14-erqa-mx104-20261028
+  defaults:
+    temperature: 0.7
+    top_p: 0.8
+    top_k: 20
+    repetition_penalty: 1
+  source_revision:
+    plugin: 08da21cb39601752040196232b60a152382c0f8f
+    flaggems: c3c5f5ab274f7d1a8a95e3d3ba7bbac28e4a9fd4
+    fgv: bad340d67a35e583989fcebf56326f60edc85c9c
+    vllm: ee0da84ab9e04ac7610e28580af62c365e898389
+  gpqa_started_at: '2026-10-28T10:23:43+08:00'
+  latest_observation:
+    at: '2026-10-28T11:17:55+08:00'
+    stage: terminal
+    ERQA_native_items: 400
+    ERQA_attempts: 449
+    ERQA_completed_responses: 449
+    ERQA_downstream_errors: 49
+    ERQA_unique_message_payloads: 399
+    interpretation: native400unique question IDs determine coverage;retries/downstream
+      errors do not override valid score
+    user_model_http: 200
+    controller_and_adapter: exited
+  gpqa:
+    status: completed
+    correct: 118
+    samples: 198
+    score_percent: 59.59595959595959
+    threshold_percent: 64
+    threshold_status: failed
+    result_sha256: 8d79586704e7d2401b12c4caa59cfa279455ca6b85cb3286a9b0ec2e9f00a89e
+    native_result_sha256: 8837883b8dd708d236f674bc6095411fc88f9bc13f0371dcc3cfe36c0553f7ae
+    native_samples_sha256: 5a438de884095a595e3e11209c75b7ae3e8ae3895f065a2d7de042f82222ee75
+    sampling_audit_sha256: f2b91da07f8cc925a70ff3ea945165d6a25bac152b842f6086334d15364e2b83
+    independent_cpu_audit: passed;native198unique/perdocsum/source before-after exact;198
+      upstream no sampling or seed overrides
+    gate_issued: false
+    completed_at: '2026-10-28T10:41:07+08:00'
+  erqa:
+    status: completed
+    correct: 181
+    samples: 400
+    scored_samples: 400
+    native_rejected_samples: 0
+    native_rejected_ids: []
+    score_percent: 45.25
+    all400_score_percent: 45.25
+    threshold_percent: 40
+    threshold_status: passed
+    completed_at: '2026-10-28T11:16:30+08:00'
+    result_sha256: f65ffdf10006f651b84e57ff5fcd744f2f4964e5f8fd173c84da0615ba51b1af
+    sampling_audit_sha256: 2bf92c5083fbcd2706fa26776fed2499e04d8f3c5f7ee620ee22399c85ae93a9
+    native_data_source_images_scoring_sha: passed;400unique/630images/no native reject
+      branch verified
+  terminal:
+    completed_sha256: 4716b66595148dce51ecc86a6d941cd62883e0a20353ba818b962b7b9324e577
+    user_service_final_sha256: c91c399e23c543bef30447307a664ac6607749eed17309442d984f191139296e
+    adapter_stopped_sha256: 4d029a681e0881d30a397fbae3d81670391556dc830328710cb7bad1c5c3cf15
+    independent_readonly_audit: passed;GPQA118/198;ERQA181/400;all native provenance;sampling
+      fields;source before/final/current exact;controller+adapter exited;userPID1597993/ticks1146418910;models200
+    source_unchanged: true
+    user_model_left_running: true
+    new_audit_generation_requests: 0
+metrics:
+- scenario_id: GPQA198-C64-model-defaults
+  role: current-opt14
+  metric: strict-match
+  value: 59.59595959595959
+  unit: percent
+  scope: 198unique;118correct;threshold64;valid failure
+- scenario_id: ERQA400-C64-model-defaults
+  role: current-opt14
+  metric: native-accuracy
+  value: 45.25
+  unit: percent
+  scope: 181/400,0native rejects;threshold40;passed
+- scenario_id: ERQA400-C64-model-defaults
+  role: current-opt14
+  metric: all400-accuracy
+  value: 45.25
+  unit: percent
+  scope: 181/400,all questions counted;passed
+progress_monitor:
+  kind: heartbeat
+  automation_id: qwen3-vl-opt14-c64
+  interval_minutes: 30
+  status: deleted
+  last_notification_at: '2026-10-28T11:17:55+08:00'
+  cleanup_evidence: automation_update mode=delete returned deleteStatus=deleted after
+    both native results and user model retention were independently verified
+accuracy_diagnosis:
+  skill: inference-accuracy-diagnosis
+  entry_sha256: dae96b45b710eece923608299f41d09bc893883afedbab527af32f7b95183e54
+  invocation: Repository entry fully read and applied;no machine interface available
+  issue_id: accdiag-opt14-c64-gpqa-001
+  trigger: formal-gate score below64
+  status: controlled comparison running
+  classification: formal-score-failure with valid provenance;not measurement-invalid
+  gate_blocking: true
+  last_known_good: opt12 C64/defaults129/198=65.1515;prior service/source;not a single-variable
+    control or transferable gate
+  failing_candidate: qwen3vl-pr943-split1-mx104-20261023:1597993:1146418910,opt14,8030
+  evidence_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-c64-default-accuracy
+  minimal_reproducer: not_run;complete requested ERQA first,no extra model requests
+  isolated_boundary_or_change: null
+  root_cause_confidence: unconfirmed;one unseeded run cannot attribute to FLA rollback
+    or latest library
+  fix_or_rollback: not_run
+  revalidation: Future fixed candidate requires same formal contract,not unchanged
+    automatic rerun
+  performance_may_resume: false
+  remaining_gaps: GPQA formal score valid but root cause unconfirmed;ERQA passed does
+    not clear GPQA failure;no additional diagnosis controller launched.
+  next_case: 20261028-qwen3vl-gpqa-controlled-opt12-opt14
+  next_action: User newly authorized temporary source stop for B1/C1/R1,then restore
+    original opt14;original118/198 result preserved

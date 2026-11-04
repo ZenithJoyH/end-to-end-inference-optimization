@@ -1,0 +1,18 @@
+schema_version: 4
+identity:
+  case_id: 20261015-qwen38-flash-next-ppu07-master
+  model: Qwen3.8-Flash-Next
+  platform: ppu
+  host: PPU-07
+  baseline_id: source-snapshot-20261015-unmeasured
+  topology: TP8:PPU8-15
+stage: acceptance
+current:
+  status: incomplete
+  candidate: master-85cc5ef-plus-required-model-extensions-normal-fallback
+  next_action: Await acc-012 formal score and binding; final four-scenario performance is not run.
+  accuracy_status: running
+  performance_status: not_run
+  final_acceptance_passed: false
+experiments: []
+metrics: []

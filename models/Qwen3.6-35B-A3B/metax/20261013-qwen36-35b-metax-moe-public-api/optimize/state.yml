@@ -1,0 +1,582 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen36-35b-metax-moe-public-api
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: source-sha-5bb687951274
+  topology: TP2:device6-device7
+stage: optimize
+current:
+  status: retained
+  candidate: op-002-moe-unified-call
+  next_action: 端到端收益未证实；先冻结同配置 P4K A/B/A（双方保留 buffer），P1K 为哨兵，定位中途慢轮。当前源码仅保留为调用维护性重构。
+policy_version: '0.40'
+policy_date: '2026-09-22'
+acceptance_scope: diagnostic
+authorization:
+  source: User explicitly requested modifying qwen3.6-35B container Plugin via public
+    fused_experts_impl while preserving workspaces and compatibility.
+  container: qwen3.6-35B
+  source_container_edit_exception: explicitly_authorized
+  service_restart: not_requested
+environment:
+  plugin_revision: 8b059122e32b9ac47b9820a9c7b1bb95077481a4
+  flaggems_vllm_revision: 05d0ff0547dc9cc7cce18f47c6f57cc9d04f0777
+  flaggems_revision: c6f46cc970ea0bef8927ee657c021bd8621e3bb0
+  vllm_revision: bc150f50299199599673614f80d12a196f377655
+  plugin_worktree: preexisting_modified
+  source_path: /workspace/vllm-plugin-FL/vllm_fl/ops/fused_moe/fused_moe_utils.py
+  source_sha_before: 5bb687951274c01d69b41391898cfc3a9991d0afb1a2d643fff6545af1b56532
+  source_sha_after: 926a55449a14e3fbde52c6a999b4e537a92a02ab367d05e812199eb91706032e
+  source_isolation: Container-private /workspace outside /public-flash and /data bind
+    mounts.
+  actual_public_impl: flaggems_vllm.runtime.backend._metax.ops.fused_moe.fused_experts_impl
+experiments:
+- experiment_id: op-002-moe-unified-call
+  document: op-002-moe-unified-call.md
+  scenario_id: p4096-d1024-c64-n128
+  direction: framework
+  status: retained
+  correctness: operator_and_route_passed
+  performance: operator_graph_comparison_passed
+  evidence: /private/tmp/qwen36-moe-unified-call-20261013
+  buffer_reuse:
+    origin: present_in_container_before_op001
+    original_plugin_sha256: 5bb687951274c01d69b41391898cfc3a9991d0afb1a2d643fff6545af1b56532
+    library_buffer_api_added_by_this_task: false
+    task_change: Preserve reuse through public API and unify NV/MetaX call body.
+    argument_mapping:
+      out: output
+      workspace13: workspace2
+      workspace2: workspace13
+    compatibility_helper: supports_fused_experts_workspace
+    helper_role: Buffer metadata and alias compatibility; no platform/kernel dispatch.
+    supported_result_handling: Skip copy when returned object is output.
+    unsupported_result_handling: Public call without optional buffers then copy result.
+    detail: op-002-moe-unified-call.md
+  operator_contract:
+    tool: /workspace/FlagGems-vllm/benchmark/test_moe_workspace.py
+    stage: prefill_decode_operator_proxies
+    rows:
+    - 1
+    - 17
+    - 64
+    - 512
+    - 2048
+    - 4096
+    - 8192
+    dtype: bfloat16
+    experts: 256
+    hidden: 2048
+    intermediate_per_tp_rank: 256
+    topk: 8
+    hardware: MetaX_C550_device4_idle_at_preflight
+    measurement_mode: cudagraph
+    repetition_ms: 300
+    processes: 3
+    random_seed: 20261013
+    small_impact_criterion: Each shape median allocating latency no more than 5 percent
+      above caller-owned; variability no more than 5 percent.
+    stop_rule: No simplification that drops workspace reuse if any measured shape
+      exceeds the predeclared bound.
+    conclusion_scope: Operator-only; no end-to-end or full-model acceptance.
+    warmup_processes: 1
+  patch_sha256: 9a4bf3e44613a9d7af9ef7361f8f0d6cde39ee8b638f857a2438490974ccb7fd
+  source_sha_before: 4466f9b6811a363951a2603a0629fbf3748f9201b9127c8db9a6f66e88cc3dda
+  source_sha_after: 926a55449a14e3fbde52c6a999b4e537a92a02ab367d05e812199eb91706032e
+  rollback: /private/tmp/qwen36-moe-unified-call-20261013/rollback_remote.py
+  validation:
+    route_and_contract_tests: 29_passed
+    operator_output_alias_tests: 2_passed
+    functional_tests: 4_passed_8_deselected
+    graph: capture_and_two_replays_in_operator_tests
+    nvidia_hardware: not_run
+    nvidia_contract: mock_passed
+    full_model_accuracy: not_run
+    end_to_end_performance: user_provided_results_reviewed_incomplete
+    remote_diff_check: passed
+  comparison_attempts:
+  - id: allocation
+    result: failed_small_impact_criterion
+    rows1_overhead_percent: 25.789840639260685
+    rows64_overhead_percent: 3.666990411366
+    native_dir: /tmp/qwen36-moe-call-compare-20261013-2k22udaa
+    summary: /private/tmp/qwen36-moe-unified-call-20261013/allocation-summary.json
+  - id: unified-v1
+    result: incomplete
+    reason: candidate rows8192 process spread 5.0155599062636975 percent exceeds frozen
+      5 percent
+    native_dir: /tmp/qwen36-moe-unified-graph-20261013-g09d8dja
+    summary: /private/tmp/qwen36-moe-unified-call-20261013/unified-v1-summary.json
+  - id: unified-v2
+    result: incomplete
+    reason: 1000ms repeated graph capture timed out after 180s; no complete native
+      JSON
+    native_dir: /tmp/qwen36-moe-unified-graph-20261013-xajctbox
+    log: /private/tmp/qwen36-moe-unified-call-20261013/unified-comparison-v2-all.log
+  - id: unified-v3
+    result: passed_operator_scope
+    reason: 300ms, predeclared warmup plus three complete measured processes meet
+      unchanged 5 percent bounds
+    native_dir: /tmp/qwen36-moe-unified-graph-20261013-h2_9ljj0
+    summary: /private/tmp/qwen36-moe-unified-call-20261013/unified-v3-summary.json
+    candidate_sha256: 926a55449a14e3fbde52c6a999b4e537a92a02ab367d05e812199eb91706032e
+  operator_results:
+  - rows: 1
+    before_ms: 0.03853598358810589
+    candidate_ms: 0.03850566265629787
+    candidate_change_percent: -0.0786821276760663
+    before_spread_percent: 0.4600137020089189
+    candidate_spread_percent: 0.5506806634091777
+  - rows: 17
+    before_ms: 0.2525932087617762
+    candidate_ms: 0.25221826069390596
+    candidate_change_percent: -0.14843948881613223
+    before_spread_percent: 0.05104974857251975
+    candidate_spread_percent: 0.027775911122977726
+  - rows: 64
+    before_ms: 0.4868115941318897
+    candidate_ms: 0.4863590989157418
+    candidate_change_percent: -0.09295078868341022
+    before_spread_percent: 0.05213834566602913
+    candidate_spread_percent: 0.045055935479715224
+  - rows: 512
+    before_ms: 0.6575337521315832
+    candidate_ms: 0.6573786604295083
+    candidate_change_percent: -0.02358688076042892
+    before_spread_percent: 0.11639397456516505
+    candidate_spread_percent: 0.10689593567855783
+  - rows: 2048
+    before_ms: 1.2695451819378398
+    candidate_ms: 1.2677724289791779
+    candidate_change_percent: -0.13963685451162666
+    before_spread_percent: 0.04028759953332605
+    candidate_spread_percent: 0.0427925936364259
+  - rows: 4096
+    before_ms: 2.3448664347330728
+    candidate_ms: 2.343249245295449
+    candidate_change_percent: -0.06896723044303998
+    before_spread_percent: 1.3895074221729178
+    candidate_spread_percent: 1.5381070800766292
+  - rows: 8192
+    before_ms: 5.364774703979492
+    candidate_ms: 5.371431662819603
+    candidate_change_percent: 0.12408645670007878
+    before_spread_percent: 0.291644770479427
+    candidate_spread_percent: 0.5147819397076441
+  service_restarted: false
+  end_to_end_review:
+    review_id: review-001-user-e2e-variance
+    result: incomplete
+    decision: performance_promotion_pending
+    evidence: /private/tmp/qwen36-moe-e2e-review-20261013.VqBEzh
+- experiment_id: op-001-moe-public-api
+  document: op-001-moe-public-api.md
+  scenario_id: p4096-d1024-c64-n128
+  direction: operator/replace
+  status: superseded
+  correctness: operator_and_route_passed
+  performance: not_run
+  evidence: /private/tmp/qwen36-moe-public-api-20261013
+  validation:
+    route_and_compatibility_tests: 26_passed
+    operator_workspace_alias_tests: 2_passed
+    operator_public_and_staged_tests: 4_passed_8_deselected
+    hardware: MetaX_C550_device4_idle_at_preflight
+    graph: capture_and_two_replays_passed_in_operator_tests
+    service_minimal_regression: not_run
+    full_model_accuracy: not_run
+    end_to_end_performance: not_run
+    remote_diff_check: passed
+    ruff: unavailable
+  service_restarted: false
+  patch_sha256: 9e609ea6a7e23705a3d0c99fc30fdd1058149f3f1b6c53522663baf29e716c46
+  rollback: /private/tmp/qwen36-moe-public-api-20261013/rollback_remote.py
+  evidence_manifest: /private/tmp/qwen36-moe-public-api-20261013/evidence-manifest.json
+  superseded_by: op-002-moe-unified-call
+accuracy_status: incomplete
+performance_status: incomplete
+pr_readiness: needs_revision
+metrics:
+- scenario_id: moe-e256-h2048-n256-top8-m1
+  role: baseline
+  metric: operator_graph_latency
+  value: 0.03853598358810589
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m1
+  role: candidate
+  metric: operator_graph_latency
+  value: 0.03850566265629787
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m17
+  role: baseline
+  metric: operator_graph_latency
+  value: 0.2525932087617762
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m17
+  role: candidate
+  metric: operator_graph_latency
+  value: 0.25221826069390596
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m64
+  role: baseline
+  metric: operator_graph_latency
+  value: 0.4868115941318897
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m64
+  role: candidate
+  metric: operator_graph_latency
+  value: 0.4863590989157418
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m512
+  role: baseline
+  metric: operator_graph_latency
+  value: 0.6575337521315832
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m512
+  role: candidate
+  metric: operator_graph_latency
+  value: 0.6573786604295083
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m2048
+  role: baseline
+  metric: operator_graph_latency
+  value: 1.2695451819378398
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m2048
+  role: candidate
+  metric: operator_graph_latency
+  value: 1.2677724289791779
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m4096
+  role: baseline
+  metric: operator_graph_latency
+  value: 2.3448664347330728
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m4096
+  role: candidate
+  metric: operator_graph_latency
+  value: 2.343249245295449
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m8192
+  role: baseline
+  metric: operator_graph_latency
+  value: 5.364774703979492
+  unit: ms
+  scope: operator_only
+- scenario_id: moe-e256-h2048-n256-top8-m8192
+  role: candidate
+  metric: operator_graph_latency
+  value: 5.371431662819603
+  unit: ms
+  scope: operator_only
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 994.65
+  unit: token/s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: batch_duration
+  value: 131.77
+  unit: s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: output_throughput
+  value: 898.61
+  unit: token/s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p4096-d1024-c64-n128
+  role: baseline
+  metric: batch_duration
+  value: 145.89
+  unit: s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: output_throughput
+  value: 1140.97
+  unit: token/s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: batch_duration
+  value: 114.88
+  unit: s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p4096-d1024-c64-n128
+  role: candidate
+  metric: output_throughput
+  value: 719.87
+  unit: token/s
+  scope: user_csv_run2_run3_observation_uncontrolled
+- scenario_id: p4096-d1024-c64-n128
+  role: candidate
+  metric: batch_duration
+  value: 196.59
+  unit: s
+  scope: user_csv_run2_run3_observation_uncontrolled
+launch_path_audit:
+  date: '2026-10-13'
+  script: /public-flash/jinghao/qwen3.6-35B/start-model-flagos.sh
+  container: qwen3.6-35B
+  service_process_observed: false
+  source_sha256: 926a55449a14e3fbde52c6a999b4e537a92a02ab367d05e812199eb91706032e
+  prediction: With default use_flaggems=True, nonquantized BF16 TP2 no-LoRA no-expert-map
+    selects TritonExpertsFL and calls public flaggems_vllm.fused_experts_impl.
+  public_impl: flaggems_vllm.runtime.backend._metax.ops.fused_moe.fused_experts_impl
+  whitelist_boundary: Does not directly gate the complete experts fast path; missing
+    fused_moe OOT registration patches the upstream oracle to the Plugin selector.
+  runtime_hit_status: not_observed_no_running_service
+planning_review:
+  review_id: review-001-user-e2e-variance
+  date: '2026-10-13'
+  skill: inference-optimization-planning
+  result: incomplete
+  source: user_provided_existing_measurements_read_only_review
+  performance_skill_new_measurement: not_run
+  source_sha_on_disk: 926a55449a14e3fbde52c6a999b4e537a92a02ab367d05e812199eb91706032e
+  baseline_source_at_measurement: unknown
+  causal_attribution: not_established
+  buffer_reuse_increment: none_added_by_this_task
+  evidence: /private/tmp/qwen36-moe-e2e-review-20261013.VqBEzh
+  evidence_manifest: /private/tmp/qwen36-moe-e2e-review-20261013.VqBEzh/evidence-manifest.json
+  csv_summary_rule: Run2/Run3 arithmetic mean; all three raw rounds retained
+  steady_state_admission: unproven
+  revert_measurement: missing
+  runtime_buffer_acceptance: unobserved
+  end_to_end_promotion: pending
+  runs:
+  - path: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35B-begin-novllmconfig-addattention/qwen36-35B-begin-novllmconfig-addattention_1024in_1024out_c64_n128_20261013_145815.csv
+    sha256: 3f5a8c49ab9ed5b6f1c83bf016068358f944336abc5e06ccc79877f4860bb0ae
+    prefill: 1024
+    runs:
+    - Run: Run1(SUCCESS)
+      Benchmark Duration (s): 181.2
+      Output tok/s: 723.35
+      Mean TTFT (ms): 22807.21
+      Mean TPOT (ms): 66.21
+      Median ITL (ms): 53.04
+      P99 ITL (ms): 56.15
+    - Run: Run2(SUCCESS)
+      Benchmark Duration (s): 131.45
+      Output tok/s: 997.1
+      Mean TTFT (ms): 4193.65
+      Mean TPOT (ms): 60.08
+      Median ITL (ms): 53.07
+      P99 ITL (ms): 56.68
+    - Run: Run3(SUCCESS)
+      Benchmark Duration (s): 132.1
+      Output tok/s: 992.2
+      Mean TTFT (ms): 4495.05
+      Mean TPOT (ms): 60.1
+      Median ITL (ms): 53.23
+      P99 ITL (ms): 56.53
+    csv_summary:
+      Benchmark Duration (s): 131.77
+      Output tok/s: 994.65
+      Mean TTFT (ms): 4344.35
+      Mean TPOT (ms): 60.09
+      Median ITL (ms): 53.15
+      P99 ITL (ms): 56.61
+    all_three_mean:
+      Benchmark Duration (s): 148.25
+      Output tok/s: 904.2166666666667
+      Mean TTFT (ms): 10498.636666666665
+      Mean TPOT (ms): 62.129999999999995
+      Median ITL (ms): 53.11333333333333
+      P99 ITL (ms): 56.45333333333333
+    all_three_output_tokens_over_duration: 884.1281618887015
+    range_over_mean_output_percent: 30.274823512063847
+  - path: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35B-begin-novllmconfig-addattention/qwen36-35B-begin-novllmconfig-addattention_4096in_1024out_c64_n128_20261013_145815.csv
+    sha256: 53220c7990e3735f58c25c171a2c071300c2a0e5bfc3aadb35955b6b8368e641
+    prefill: 4096
+    runs:
+    - Run: Run1(SUCCESS)
+      Benchmark Duration (s): 289.95
+      Output tok/s: 452.06
+      Mean TTFT (ms): 42912.74
+      Mean TPOT (ms): 99.5
+      Median ITL (ms): 56.15
+      P99 ITL (ms): 502.97
+    - Run: Run2(SUCCESS)
+      Benchmark Duration (s): 143.73
+      Output tok/s: 911.95
+      Mean TTFT (ms): 4890.33
+      Mean TPOT (ms): 65.2
+      Median ITL (ms): 55.95
+      P99 ITL (ms): 497.75
+    - Run: Run3(SUCCESS)
+      Benchmark Duration (s): 148.06
+      Output tok/s: 885.26
+      Mean TTFT (ms): 5015.29
+      Mean TPOT (ms): 67.19
+      Median ITL (ms): 55.93
+      P99 ITL (ms): 497.69
+    csv_summary:
+      Benchmark Duration (s): 145.89
+      Output tok/s: 898.61
+      Mean TTFT (ms): 4952.81
+      Mean TPOT (ms): 66.19
+      Median ITL (ms): 55.94
+      P99 ITL (ms): 497.72
+    all_three_mean:
+      Benchmark Duration (s): 193.91333333333333
+      Output tok/s: 749.7566666666667
+      Mean TTFT (ms): 17606.12
+      Mean TPOT (ms): 77.29666666666667
+      Median ITL (ms): 56.01
+      P99 ITL (ms): 499.47
+    all_three_output_tokens_over_duration: 675.93082820504
+    range_over_mean_output_percent: 61.33856762416251
+  - path: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35B-begin-novllmconfig-addattention-fusedmoeopt/qwen36-35B-begin-novllmconfig-addattention-fusedmoeopt_1024in_1024out_c64_n128_20261013_171526.csv
+    sha256: 6fb13380d91b036b33411afa78aa080b4401520e7af8ddb6d050e82755060476
+    prefill: 1024
+    runs:
+    - Run: Run1(SUCCESS)
+      Benchmark Duration (s): 115.3
+      Output tok/s: 1136.83
+      Mean TTFT (ms): 2229.38
+      Mean TPOT (ms): 54.1
+      Median ITL (ms): 52.26
+      P99 ITL (ms): 56.29
+    - Run: Run2(SUCCESS)
+      Benchmark Duration (s): 114.54
+      Output tok/s: 1144.38
+      Mean TTFT (ms): 1874.34
+      Mean TPOT (ms): 54.08
+      Median ITL (ms): 52.5
+      P99 ITL (ms): 55.49
+    - Run: Run3(SUCCESS)
+      Benchmark Duration (s): 115.22
+      Output tok/s: 1137.57
+      Mean TTFT (ms): 1882.95
+      Mean TPOT (ms): 54.4
+      Median ITL (ms): 52.76
+      P99 ITL (ms): 57.01
+    csv_summary:
+      Benchmark Duration (s): 114.88
+      Output tok/s: 1140.97
+      Mean TTFT (ms): 1878.64
+      Mean TPOT (ms): 54.24
+      Median ITL (ms): 52.63
+      P99 ITL (ms): 56.25
+    all_three_mean:
+      Benchmark Duration (s): 115.02
+      Output tok/s: 1139.5933333333332
+      Mean TTFT (ms): 1995.5566666666666
+      Mean TPOT (ms): 54.193333333333335
+      Median ITL (ms): 52.50666666666667
+      P99 ITL (ms): 56.263333333333335
+    all_three_output_tokens_over_duration: 1139.5583376804034
+    range_over_mean_output_percent: 0.662517038241728
+  - path: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35B-begin-novllmconfig-addattention-fusedmoeopt/qwen36-35B-begin-novllmconfig-addattention-fusedmoeopt_4096in_1024out_c64_n128_20261013_171526.csv
+    sha256: 7517c2cba691f8435d3345e11713883d2f5769e498258bae49beb77ce243847e
+    prefill: 4096
+    runs:
+    - Run: Run1(SUCCESS)
+      Benchmark Duration (s): 143.84
+      Output tok/s: 911.22
+      Mean TTFT (ms): 5082.6
+      Mean TPOT (ms): 65.07
+      Median ITL (ms): 55.35
+      P99 ITL (ms): 498.2
+    - Run: Run2(SUCCESS)
+      Benchmark Duration (s): 250.01
+      Output tok/s: 524.27
+      Mean TTFT (ms): 38995.81
+      Mean TPOT (ms): 83.81
+      Median ITL (ms): 55.42
+      P99 ITL (ms): 497.59
+    - Run: Run3(SUCCESS)
+      Benchmark Duration (s): 143.17
+      Output tok/s: 915.47
+      Mean TTFT (ms): 4949.14
+      Mean TPOT (ms): 64.87
+      Median ITL (ms): 55.37
+      P99 ITL (ms): 494.15
+    csv_summary:
+      Benchmark Duration (s): 196.59
+      Output tok/s: 719.87
+      Mean TTFT (ms): 21972.47
+      Mean TPOT (ms): 74.34
+      Median ITL (ms): 55.39
+      P99 ITL (ms): 495.87
+    all_three_mean:
+      Benchmark Duration (s): 179.00666666666666
+      Output tok/s: 783.6533333333333
+      Mean TTFT (ms): 16342.516666666666
+      Mean TPOT (ms): 71.25
+      Median ITL (ms): 55.38
+      P99 ITL (ms): 496.64666666666665
+    all_three_output_tokens_over_duration: 732.2185393467655
+    range_over_mean_output_percent: 49.92003266750605
+  phase_views:
+    prefill: P4K candidate Run2 prompt fill/queue remains slow for almost two minutes;
+      root cause unresolved
+    decode: P4K candidate median ITL 55.35/55.42/55.37 ms; mean TPOT regresses with
+      mixed stall
+    mixed: P1K summary improves 14.71%; P4K summary regresses 19.89%; all-three P4K
+      throughput mean improves 4.52%, revealing aggregation sensitivity
+  decision: Code remains present as maintenance refactor; no confirmed end-to-end
+    benefit and no causal claim about buffer reuse. No remote changes in this review.
+  prior_decision: Operator graph comparison passed only; this remains valid within
+    its measured scope.
+  ranked_next_directions:
+  - rank: 1
+    direction: framework
+    hypothesis: Public call refactor causes P4K intermittent stalls
+    first_experiment: Exact original 5bb68795 versus retained 926a5544 A/B/A, both
+      retaining buffers
+    scenario_id: p4096-d1024-c64-n128
+    sentinel: p1024-d1024-c64-n128
+    performance_skill_mode: checkpoint
+    accuracy_skill_mode: minimal-regression
+    threshold: Freeze before new measurements; no retroactive threshold for old CSV
+    stop_condition: No performance promotion if steady state or revert drift is unproven;
+      stalls surviving revert reject exclusive attribution
+    prerequisites: Isolated optimization container and comparable service/config/source
+      fingerprints
+  - rank: 2
+    direction: framework_or_operator_pending_trace
+    first_experiment: Capture reproducible slow P4K fill/Mixed phase, compare normal
+      phase, cover both TP ranks
+    profiling_skill_modes:
+    - capture
+    - analyze
+    stop_condition: No kernel attribution without path/time evidence; profiler time
+      excluded from performance benefit
+  - rank: 3
+    direction: framework
+    first_experiment: Public API buffer reuse enabled versus disabled, independent
+      of entrypoint refactor
+    performance_skill_mode: targeted
+    accuracy_skill_mode: minimal-regression
+    stop_condition: Preserve numerical/alias/graph guards; no E2E conclusion from
+      M1 microbenchmark alone
+  next_review_trigger: Comparable A/B/A results, trace attribution, or stalls persisting
+    after revert
+launch_path_audit_latest:
+  date: '2026-10-13'
+  service_present: true
+  served_model_name: qwen36-35B-begin-novllmconfig-addattention-fusedmoeopt
+  service_log_start: 2026-10-13 17:12
+  source_sha_on_disk: 926a55449a14e3fbde52c6a999b4e537a92a02ab367d05e812199eb91706032e
+  runtime_buffer_acceptance: not_observed
+  agent_restarted_service: false
+  evidence: /private/tmp/qwen36-moe-e2e-review-20261013.VqBEzh/path-check.json

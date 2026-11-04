@@ -1,0 +1,238 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-35b-mx104-sampler-fix
+  model: /data/Qwen3.6-35B-A3B-nomtp
+  platform: metax
+  host: mx-104
+  baseline_id: plugin-release02-7cb559947-preserved-8file-optimizations
+  topology: TP2:GPU0,GPU1 (MetaX C550)
+stage: baseline
+current:
+  status: completed
+  candidate: release/0.2@7cb559947+existing-8-file-optimizations
+  next_action: 修复前快照与第一版失败证据保留；后续当前状态见optimize/acceptance。
+experiments: []
+metrics: []
+scope: plugin-import-lifecycle-bugfix-and-live-service-verification
+date: '2026-10-22'
+policy_source: AGENTS.md and current explicit user request
+authorization: 在 qwen3.6-35B-verify 容器内修复 Plugin 采样导入顺序；不改 vLLM 源码，保持原采样优化逻辑，并验证实际服务调用。
+environment:
+  container: qwen3.6-35B-verify
+  model_path: /data/Qwen3.6-35B-A3B-nomtp
+  remote_workdir_supplied: /public-flash/jinghao/qwen3.6-35B
+  remote_case_dir: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix
+  plugin_root: /workspace/vllm-plugin-FL
+  plugin_base_revision: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+  plugin_baseline_local_changes: 8 existing optimization files preserved; before.json snapshot captured
+  service_instance: service-001 (identity in remote launch manifest)
+  topology_observation: TP2 on physical GPU0,1; two workers verified
+  endpoint: http://127.0.0.1:18104
+  runtime_identity_status: verified
+  service_manifest: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/launch.json
+  endpoint_status: temporary verification endpoint closed after tests
+  current_service_status: stopped_after_verification
+  container_running: true
+  module_origins:
+    vllm_fl: /workspace/vllm-plugin-FL/vllm_fl/__init__.py
+    vllm: /workspace/vllm/vllm/__init__.py
+    flaggems_vllm: /opt/FlagGems-vllm/src/flaggems_vllm/__init__.py
+    flag_gems: /workspace/FlagGems/src/flag_gems/__init__.py
+  all_four_installations_editable: true
+container_policy:
+  kind: explicitly_requested_target_container_bugfix
+  new_performance_container: false
+  performance_experiment: false
+  reason: 本轮是指定容器中的导入生命周期修复和服务启动取证，不新增端到端性能优化。
+accuracy:
+  mode: minimal-regression
+  status: passed
+  formal_status: not_run
+  gate: null
+  gate_reuse_allowed: false
+  formal_performance_allowed: false
+  reason: 'minimal-regression passed: 25 numerical/boundary checks, 6 fresh-import tests and live TP2 C1/C8 sampler/shortlist/graph
+    evidence. Formal accuracy/performance not_run; no gate issued.'
+  numerical_regression_status: passed
+  numerical_regression_passed_checks: 25
+  numerical_regression_failed_checks: 0
+  service_smoke: passed
+  service_c8: passed
+  graph_capture_and_two_replays: passed
+performance:
+  status: not_run
+  gain: null
+  reason: 不测性能，不引用其他案例或历史优化收益。
+artifacts:
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/implementation-v2.json
+  sha256: 56e7f0e61282e79b2447652f5b12da2eba8925fa4c5034faccbb85adb684daad
+  kind: implementation_receipt
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/numerical-regression.json
+  sha256: 34deb691d54b7136a6f09a25d57e517c41ed7501342f0fe9e0b92a9fc66d6dcc
+  kind: numerical_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/numerical-regression-execution.json
+  sha256: 33ce07845ad7dfb57c5fd70eae6fd902610693896c04487a7a07d66d1ee9c9ff
+  kind: numerical_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/numerical-regression.log
+  sha256: 126f19a2bc8e700455935efd613a9c20500d7e360ea086f9bb2d31a29037247a
+  kind: numerical_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/import-tests.xml
+  sha256: 9dc4f2f82d35bf06e7c4aa66858a74445f13e724d481aa6cc030b39e7234cc5f
+  kind: first_import_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/import-tests.log
+  sha256: 646635a60dc795c55081a3ab0fd272b12fe349e7b1efed4c98e389cc8f59b6a3
+  kind: first_import_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/import-chain-diagnosis.log
+  sha256: 2c64bd92f17b220af25d997a31b8163731e09e00806253592564e51fb9e7b904
+  kind: import_chain_diagnosis
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/before.json
+  sha256: 88cbf9c128cae39a47776a7806456d3a2e4bdadda28b071a0369f611eaf36e5c
+  kind: prechange_snapshot
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/verification.json
+  sha256: 56c74b5a2834ad5b2a8fb043b5be07905c19082afaea71be29171d41c66d0f7e
+  kind: service_verification
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/launch.json
+  sha256: 2d0a1f226b080b019c889247cf70ac86fb8478162c11ce6fccf97e013cfd9a0c
+  kind: service_identity_manifest
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/launch-plan.json
+  sha256: 95b1887a8b92e13bbb6e1daab613c5634dfc10daba346b8b135fc89d11dc7f1f
+  kind: frozen_launch_configuration
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/requests.json
+  sha256: 307eded998ee853425ae61900e609611f34c66fcaf149a264274c6a2592a2a1b
+  kind: request_evidence
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/final-source-audit.json
+  sha256: 8b1e2022e851d118555b819d1918d40b722cdbdb20c79351b5036a01e983d7da
+  kind: final_source_integrity
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/import-tests-v2.xml
+  sha256: 5fba5e100215dc958eff19cf2fe89feffeb3dd2dde3c9cbce0a5ef3a4d968ede
+  kind: second_import_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/import-tests-v2.log
+  sha256: 5b4cb3ac543eb29dc5fcf92aceb050c676c6759112fa50f4277e09ff4631a3b1
+  kind: second_import_regression
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/commands/rollback-sampler-fix.py
+  sha256: 9e32e8b256fabe0da07a5fea3d33929e7b3175640cd1ea3c90baa9469f210610
+  kind: guarded_rollback_not_executed
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/sampler-lifecycle-only.patch
+  sha256: 4daa8bc041b2944fe608271ac3b9ca56826c333d3bc59c2f96219263087c6c80
+  kind: scoped_patch
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/shutdown.json
+  sha256: eb533d915d16e673a838aa0f9d042541a5003b5256f139042b599f4129b3eddc
+  kind: temporary_service_shutdown
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/closeout.json
+  sha256: 03d89228f2515c33619c07f947f94e19b3f89ccfea88fa4c3ff3588c2e835e17
+  kind: final_closeout
+  retained: true
+- path: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/observer/sitecustomize.py
+  sha256: 3ba4dfc301a8a5575c6439526938d0157c95ccdccbe51662c3e1365147b4c6c9
+  kind: external_diagnostic_observer
+  retained: true
+pr_readiness: reviewable_target_verified
+pr_readiness_scope: target Plugin lifecycle fix and tests are reviewable with actual TP2 evidence; other model/platform hardware
+  and custom runner lifecycles not tested
+formal_acceptance_status: not_run
+closeout:
+  status: passed
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/closeout.json
+  temporary_service_stopped: true
+  port_closed: true
+  gpu_no_process_found: true
+  container_running: true
+  code_retained: true
+  rollback_executed: false
+  model_config_unchanged: true
+source_integrity:
+  status: passed
+  vllm_git_clean: true
+  unchanged_package_files:
+    vllm: 2176
+    flaggems_vllm: 276
+    flag_gems: 2985
+  plugin_package_files: 317
+  plugin_package_changed_files: 3
+  new_test_files: 1
+  scope: package source/config fingerprints; git status additionally checked
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/final-source-audit.json
+service_verification:
+  status: passed
+  evidence: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/verification.json
+  service_manifest: /public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-sampler-fix/service-001/launch.json
+  topology: TP2:GPU0,GPU1; MetaX C550
+  sampler_class: vllm_fl.dispatch.backends.vendor.metax.patches.topk_topp_sampler.MetaXTopKTopPSampler
+  workers_verified: 2
+  shortlist_enabled_both_workers: true
+  gdn_instances_per_worker:
+  - 30
+  - 30
+  gdn_class: vllm_fl.dispatch.backends.vendor.metax.patches.gdn_linear_attn.MacaGatedDeltaNetAttention
+  requests: 17
+  http_200_nonempty: 17
+  c1_answer: '2'
+  c8_rounds: 2
+  actual_shortlist_shape:
+  - 8
+  - 248320
+  successful_shortlist_calls: 504
+  successful_shortlist_calls_per_round:
+  - 252
+  - 252
+  successful_request_graph_replays_recorded: 512
+  counter_semantics: observed lower bounds; observer cap 128 per worker/phase/event/shape
+  graph_mode: FULL_AND_PIECEWISE
+  capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  capture: both workers each PIECEWISE 5/5 and FULL 5/5
+  no_circular_patch_warning: true
+  limits:
+  - diagnostic observer adds CPU overhead; no timing/performance conclusion
+  - C8 ignore_eos=true and max_tokens=128 intentionally maintain cohort; length termination is expected
+  - only this TP2 text service/model/platform verified; formal model accuracy not_run
+  - custom runners bypassing ModelRunnerFL lifecycle not covered
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: completed
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

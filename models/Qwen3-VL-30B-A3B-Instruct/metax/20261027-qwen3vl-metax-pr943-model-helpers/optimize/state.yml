@@ -1,0 +1,47 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-pr943-model-helpers
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: pr943-a1570dfb
+  topology: CPU-host-helper-refactor
+stage: optimize
+current:
+  status: completed-pr943-updated-no-runtime-deployment
+  candidate: 'PR943 commit97da71f9: independent Qwen-VL shape/config helpers; original
+    Qwen functions upstream-identical'
+  next_action: No pending work; retain formal review state. GPU/graph/model tests
+    not rerun; current containers retain prior source.
+experiments:
+- experiment_id: op-001-separate-qwenvl-tp2-helpers
+  document: op-001-separate-qwenvl-tp2-helpers.md
+  status: completed-pr-updated
+  direction: operator/improve-maintainability-host-refactor
+  scenario_id: host-selector-equivalence-no-device-workload
+  correctness: 553360 real host-helper comparisons passed; old Qwen AST exactly upstream;
+    five kernels/public op and other functions unchanged; repo style checks passed
+  performance: not_run;no performance claim
+  decision: Published model-specific helper split to existing PR943; safe code-only
+    description accepted; no runtime/container changes
+  evidence: /public-flash/jinghao/qwen3-VL/20261027-flaggems-vllm-pr943-model-helpers/results/validation.json
+  pr: https://github.com/flagos-ai/FlagGems-vllm/pull/943
+  original_head: a1570dfb367d186f9b07b7173e3b362c19dd5b8d
+  remote_root: /public-flash/jinghao/qwen3-VL/20261027-flaggems-vllm-pr943-model-helpers
+  candidate_sha256: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+  validation_sha256: 27351d6e1b9bc418a585888cb74c1380be86723ee84a617baa2a7481eeaa6f22
+  archive_sha256: 62c2b5cf030c738cf845bf797c16197f9a0548a8a817a83b69dd4eebfdb0cb31
+  deployment_to_container: false
+  new_head: 97da71f95d72941a29a5b9b256a35521115b8a2b
+  new_blob: 02d02ae7d17f367a3b802a0ca64e624b40abc232
+  mergeable_at_final_check: true
+  draft: false
+  gpu_graph_model_tests: not_run
+  publication:
+    path: /public-flash/jinghao/qwen3-VL/20261027-flaggems-vllm-pr943-model-helpers/results/publication.json
+    sha256: 3d17799e4915e073fadcafc13f78d280f5e28a76d4e26771caa0630d644453aa
+  description_approval:
+    initial: rejected by automatic approval because detailed operational metadata
+    safe_alternative: accepted code structure and generic validation summary only
+    blocked: false
+metrics: []

@@ -1,0 +1,87 @@
+# diag-004：分离采样随机状态与批次轨迹
+
+用户新指令：继续最小复现，先区分采样和批次轨迹影响，其他配置保持不变。沿用accuracy-diagnosis，非新正式GPQA，不签gate。
+
+当前源码random_sample对无requestseed的整批probs形状生成q.exponential_，然后原sample_with_exponential_noise执行p/q argmax；因此噪声消耗与batch shape、row和先前采样步骤耦合。此前seeded-request的-4回退不能直接解释本次无独立Generator路径。先用组件最小反证，之后才做模型窗口，避免再跑整套数据集。
+
+## Stage A 预冻结
+
+新子目录sampling-batch-minimal；同1c00快照新私有容器，mount/source校验，Attention私有副本仅设与E1/E67精确同f49(PR638/default0)，不执行模型。仅GPU6（重新实查空闲），原opt14/GPU0,1继续运行且源码不动。固定FP32词表151936、20个非零归一化概率；实际原random_sample，generators={}，use_fp64_gumbel=False及同FlagGems黑名单。
+
+恰好6次调用：A批次[1,1]、B[8,8]、C[8,1]；各分支在独立组件进程中从相同默认RNG状态开始，捕获实际q/probs原地修改前副本和selected。比较首步同row不同batch、同批不同row、第二步变化、相同当前batch但不同前序batch及B0/C0重放一致。这里私有进程seed0/reset是组件反事实控制，不改模型requestseed/T/P/K或生产RNG。实际MetaX函数入口日志必须命中，CPU64 p/q复核实际selected；没有模型请求、无性能计时。300秒硬预算，不重试/增call；失败保留证据。仅停自己的clone，finally检查原source PID/源码/配置不变和models200。
+
+仅证明采样器组件机制，不能直接证明当前GPQA错题、卡差异或正式分数原因。正式配置不变；后续模型级最小复现须新有限合同并证明实际tokens/batch/metadata/观察中性，不能拿合成分布宣称问题解决。
+
+执行前归档：parent commands/sampling_shape_control.py SHA63275414bd3bd49bc3490e0460a8a6c8706fa45542cdcdc2f19ff4e94be8ca63；probe sampling_shape_probe.py SHA056085286fb79f0ab8193de1a362fc999e36ea6ae47f37d2c171483af99616e8。两脚本CPU compile通过；复用冻结原source collector/mount检查，不调用旧controller start/run。
+
+
+## Stage A 完成与 Stage B CPU准备冻结
+
+StageA实际6calls completed，component SHA9a83917e308c05e9fcb09ec5ea78083f33a2243a15d49b4134970f43a4e576e6。固定相同probs，首步同row M1/M8的q完全一致、选中5；同M8 row0/7噪声151936元素全部不同、选5/6；第二步M1前序推进37984而M8推进303872，固定当前M1仍选15/12。B0/C0同状态重放qexact。actualMetaX入口与原random_sample证明通过，私有defaultstate恢复；原source未停且源码/配置/PID与models200通过，clone已停止。这是批轨迹通过globalRNG改变采样的组件机制，不是当前GPQA归因。
+
+StageB只用同一空闲GPU6/7串行4fresh私有实例C1off/C1on/C8off/C8on，PR638+default0不变。每实例相同smoke/C8/graph16准备，正文仅doc21或doc21+doc0..6，分别1/1/8/8共18次；启动护栏另36次显式记录，不重试，不补入，不完整GPQA。原opt14保持运行不临停。默认采样参数和无requestseed不变；全部目标request显式streamFalse/return_token_idsTrue。原官方factory构造且剥离采样覆盖后SHA必须匹配实际formal上游请求，CPUtokenizer预测222promptID必须API实证相同，绝不重分词冒充生成IDs。
+
+on角色仅首8accepted窗口/最多32target采样调用，两rank真实Plugin ModelRunnerFL与moduleglobalnoise入口，原调用once，无RNG/setoffset。克隆rawlogits在温度/过滤之前，probs/q在p.div_(q)之前，selected后捕获；第8步bookkeeping之后才CPU传输。默认generator seed/offset、动态row、batchids/shape、computed/scheduled/discard与actualAPI IDs绑定。off/on全文/usage/实际IDs对照，不相等不单怪观察器，因为默认RNG和调度本身可变；只在同actualprefix比较logits/probs/actualnoise与CPU交叉p/q选中。HTTP并发8不当真实GPUbatch8。缺mapping/hit/capture/IDjoin即incomplete，停止自有clone，source始终不动。总启动预算90min，每HTTP600/client660，启动1200；结果不签gate、不证明原C64正式因果。CPU测试及mount/source/factory全部passed才可启动唯一controller。
+
+执行前归档脚本（parent commands/default_window_*.py，CPU准备后不可变副本default-sampler-window/commands/）：
+{
+  "observer": "a2f92db81bfb4d99b73140ba380dea2e2efb62821dd109c3de3d371ffbbad8b8",
+  "control": "a4c7e3d154fa5ea3c89bee814c360bacdb406a12600e03e869f31074f6a48b77",
+  "client": "3172fff1ec2808255e56e03cc3f815dfe9266f93199ed7b9116a77c7c9110fe0",
+  "factory": "da23d0c751f419409d3bfd0c3a0533bd590033a1b21ebd9482e9b168744edc0d",
+  "analysis": "9893cefb668130c1c8f5c67292481cb9458a92e7fac1fc89e1bb61dd894fdcb8",
+  "test": "d6be177d5206d78c900ea3ce035f31b521a6594dab040db8e34b05a4e6f0135e",
+  "prepare": "cb8400c12f2e7589e792c1692a2246e41891b08cf2c9a3e85bafd6a7719ac36f"
+}
+
+CPU准备在正文指纹检查保护退出，0模型启动/请求、尚未创建StageB容器。独立检查证实8原payload按实际proxy json.dumps(out,ensure_ascii=False)字节全部匹配；此前检查误用排序compact JSON，不是请求参数不一致。保留旧prepare/日志，新commands/default_window_finish.py SHA1752d36bfa6d09bbd592267e5dc548290c913b347944b1c061c462f33881970c从已通过factory/CPUtests继续，不重跑旧准备，不改payload。
+
+第二CPU guard确认是transformers返回BatchEncoding，len=2为键数，真正input_ids长度222，与formal一致；不是模板/模型差异。C1off仅sleep未启动模型，其他3尚未创建。保留旧日志，新commands/default_window_finish_v2.py SHA38b8bb2a903b63602908ee5af862062f70e1aeb533e705923f3166a19b6c11a4从已验证C1off继续，提取实际input_ids并要求API后验逐位确认。0模型请求/源服务不动。
+
+StageB执行前最终准备passed：prepared c33643bbdbf9bba26ee3e7fd44e331439f3778628235ca0ab05b9d344c11da5d；contract 4787cad29d39db7b8c772668f2408367da05571e6e4a20d98bee9d9ea13b84fc；CPUtests fabf248a3522df8f3836ca4cbb037fb5c8ebaf3196ede26c14d163b01fbb66de。四个clone lineage/mount/source一致、正式factory全部8payload实际字节SHA匹配、prompt222。唯一controller为default-sampler-window/commands/controller.py SHAa4c7e3d154fa5ea3c89bee814c360bacdb406a12600e03e869f31074f6a48b77，启动前重新检查6/7无进程；只清理自有clone，原source不临停。
+
+15:47:33BJT唯一StageB controller2053443/ticks1148439851已启动，C1off实例922/ticks1148440002加载，后续C1on/C8off/C8on按原合同顺序。events为当前证据，当前无failure。GPU6/7从空闲分配，0/1源workers仍1992184/1992185，其他2/3、4/5服务不触碰。监控qwen3-vl-gpqa已更新为本诊断、每30min报告。
+
+15:52BJT只读检查：唯一controller2053443/ticks1148439851仍运行，无failure；C1off已15:51:35完成，实际prompt222与fixture相同，生成111token，startup native0/graph16/移除/smoke/source通过，自有C1off已停。C1on于15:51:57以120/ticks1148466399开始加载。完成1/4，尚无模型采样因果结果；原8030models200仍qwen3vl-opt14，未对源发generation。距上一用户更新不足30min，本次静默保留监控。
+
+StageB已16:08:35完成四角色、18正文请求，source保留通过，旧controller退出。当前CPU独立审计执行前归档：default-sampler-window/commands/independent_window_audit.py SHAe6aaa7114822c1465d54004d713443fa95a21b3c6df2b8e0941f6471db8660eb，仅在既有CPU evaluator读取原始张量/实际IDs，不发模型请求、不调用RNG、不覆盖旧结果。重点核对首8步概率支持、两rank、一致前缀和窗口外首次分歧。
+
+## StageB终态与独立CPU复盘
+
+四角色18正文请求全部完成，16:08:36source-preserved passed：completed SHA7d9ffacaa0d735c6b323cb1b4be57491166e57d39c359890c17e8c1f7359b8f1；joint32299e4565abfc5bb8b22d309b7e60182bad21f9ed96c8e85ad899ba1695f212；source90e297c1a525cdd81ae04dc08f19e115b0d784f18fb3425e2b13d64d8c7b7d1d。16:22独立核验controller退出、四clone停止、原source PID1707852/ticks1148172233、源码f81和8030models200仍正确。0停源/0新完整评测。
+
+独立CPU审计independent-window-audit.json SHAa5d3a5050aac1585d6fa089dd8b72a76895fdc3a73c56fa1e15e4224dc5d04ac：两rank实际数据一致；四角色prompt222 exact。C1off/on完整111IDs相同；C8off183/C8on252IDs不同，common9；无观察C1/C8 common30（第31token374/320），有观察C1/C8 common9（第10token12893/8170）。完整C8观察中性未证，不能把差异单归因观察器或直接外推原C64。
+
+实际first8：index0/1两组都是M1，logits/probs/noise精确同；index2 C8变M8，logits已异(max.5)，q仍同；index3起defaultoffset轨迹37984vs303872每步推进、actualnoise不同。关键反证：全部8步过滤后prob支持数恰1、概率1.0、选择相同。因此已证明模型batch→globalRNG噪声的链路，但捕获窗口内无可受噪声影响的选词，不能声称解释分数。
+
+规划复盘plan-sampler-batch-window5-20261028：诊断仍incomplete，不重复first8。下一步先CPU设计覆盖已知第10/31token的最窄first32窗口，并把D2H/flush移出该窗口，测试原调用once/无额外RNG/动态row/实际IDjoin。现有第8步CPU传输可能改变调度但未证其独立因果；保留所有控制差异。新的有限GPU执行须另冻结合同/脚本/预算，不由本CPU设计自动启动，不改采样/MoE/prefix，不试新split/fullGPQA/性能。原source保留，无新gate/E2E结论。
+
+16:52BJT下一步仅CPU实现/测试执行前归档，远端保存到default-sampler-window/commands/唯一新名，不修改旧脚本/结果，不启动GPU或模型：
+filter_reference_cpu.py SHAbfa200cb34f1c19553c47d9da22615126335e5ad24f12ec879ba6baf10f71c27
+observer32.py SHAb8abb5b5d171e8d1652d87f0925481ab0bac04c9def7ad8ea5223d505adf98ae
+test32.py SHAd69af00b4992e87f3b8f4665272e0d15e4ceca83e8e38b9cbbb58b0a8d1f90a0
+observer32仅将固定accepted窗口8->32、最大目标调用32->64、幂等标识新名，成功路径D2H严格在第32accepted bookkeeping之后；CPU fakeRunner原始方法once/samereturn/动态row/kwargs/async-1/discard/无RNG/延迟回传和卸hook测试。此处不是新GPU执行合同。filter reference只读取旧张量，CPUFP64 T.7/K20/P.8，任何差异保留不硬认GPU错误。
+
+CPU FP64参考filter-reference-cpu.json SHAf9011210cf229633e112ab88fc9a56186480a7c9c50b9ede80d90a4e0adfa72c：32个rank/window参考支持数都1，与实际probs maxerror0；top-k后最大概率范围.97554755..1，经原top-p.8合法保留唯一候选，非误设greedy的证明或完整GPU过滤实现证明。
+
+## StageC执行前有限范围
+
+新目录default-sampler-window32；4fresh同GPU6/7 C1off/on C8off/on，仅重新18正文+36启动护栏、无retry/补位；目标与8邻居payload复用原字节/fixture，不重跑正式GPQA。新问题是第10/31token的实际首次分歧，不能重跑旧8窗口当解答。on first32accepted、max64calls/rank，GPUclone缓冲上限约117MB/rank，第32bookkeeping前无D2H；仍可能有host/clone调度影响，要求off/on实际first32及fullIDs中性检查，任何不一致保留不盲加轮。其余参数/默认采样/prefixON/PR638+default0不变，source0/1不动、仅cleanup自己clone。
+
+执行前脚本：parent commands/default_window32_prepare.py SHA39d06700fa4d325e7a7096d3c47484b9639397f564429125ce9c70cb8b8b0bfe；analysis SHA8564d626ccbe748566bd0ad5d8c9072a5a5ada43af76fe0c114133712c1a4805；controller复用原冻结a4c7e3d逻辑但独立新root/manifest/log，绝不重新启动旧controller。observer32/test32已CPU passed，现在只准备新4clone睡眠态及lineage/mount/source测试，prepared/contract通过后再单次启动。
+
+StageC正式启动前准备passed：prepared7cb0f88ff5b0d921414a96025a3d748b42c687f5461d33169887c76452ff30cd，contract3c2dd50cb69014f5877270d987c63f2934bc213ca2884d44fd633434892e7c70，CPUtests2636ed1defa390c3653e243a4057163fe809a5df1b2175b21b4652b9d8e63cf3；6/7实际无GPU进程，8037未监听，原8030正常。只启动新root唯一controller，旧StageA/B不重跑。
+
+16:59:43BJT StageC唯一controller2260581/ticks1148872900启动，新C1off模型121/ticks1148873054正在加载。17:02只读events无failure，原8030models200正常，未停源。监控已从旧StageB终态更新到StageC路径/身份/预算；不复用旧8窗口控制器。
+
+StageC四角色已17:25:50终态且source-preserved；joint报告firstdifference index29、probs exact但q不同、交叉p/q选词随q切换，off/on两组全文/IDs均同。独立CPU因果核验执行前归档：default-sampler-window32/commands/independent_causal_audit.py SHA1d7a13af054b134835505b08b47b50d1084812831c38af44ec15bad9c8ca3ae3，仅读原张量/IDs/metadata并写唯一新结果，0GPU/0模型请求/0RNG；核验全部18正文、两rank、首次actualprefix、4组合选择/margin和实际batch对offset累计解释。
+
+## StageC完成：同概率下首个选词分歧由实际噪声决定
+
+17:25:50全部终态：completed SHA611d9c5be3f7f401fd07cefdf14a025bdfa1a1151518fd5baf19a440454d3629，joint50d8c296ef0f32e2b35c77acf15d7e3bf5f72122fc9eba28e3b3c02873c3865f，source-preserved90e297c1a525cdd81ae04dc08f19e115b0d784f18fb3425e2b13d64d8c7b7d1d。独立CPU因果审计independent-causal-audit.json SHA1f17a0932820f3cc4903d9d0ec1087a29fcbb3ae40f493a881e58f83e3b62521 passed；原18正文/两rank/完整actualIDs全部核验。
+
+C1 off/on所有文本和目标111IDs相同；C8 off/on全部8响应文本及目标210IDs相同，first32均相同，观察中性在本组输出范围通过。两组实际prompt222一致、共同生成29token，第30token首次分歧23552/279。在该相同实际前缀：过滤后概率逐位完全相同，P23552=.5883487463/P279=.4116512537；实际q分别(.3555713892,2.5900709629)与(4.0179452896,.2671720982)，CPU p/q四组合：只换prob不换选择，只换q即23552↔279，FP32/FP64同选择且margin约1.50/1.39，非边界舍入争议。两rank证据一致。默认seed均0但offset22828384/30045344不同，实际批次历史每步num_reqs*37984累计精确解释offset差；无targetdiscard。
+
+结论仅限同GPU6/7的这个最小复现：批轨迹通过默认RNG实际噪声改变首个选词，不能把同seed当同采样轨迹；该位置的过滤后概率变化不是直接原因。先前logits差异仍存在，不排除其他位置的数值影响。不能外推原GPU0/1与6/7的198题净7题差异全部由此产生，也不是vendorbug或新正式scoregate。
+
+收尾再次只读核验：四StageC clone全停止、controller已退出，SOURCE service/repos/model/tokenizer/generation/import/git/versions与运行前exact，API1707852/ticks1148172233，8030models200。源未停、未改采样/源码/prefix，0额外评测。规划复盘plan-sampler-batch-causal6-20261028：本次用户要求的“先区分采样与批次轨迹”最小复现阶段完成，无待运行任务，停止该轮监控；保留正式精度问题未完全归因及性能阻塞，不自动追加模型请求/新split/生产修改。

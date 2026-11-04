@@ -1,0 +1,17 @@
+# op009 NVIDIA/MetaX完整MoE路径统一审查
+
+用户询问为何CUDA仅is_cuda而MetaX有多项条件，要求检查能否统一并评估直接删除四个per-op选择检查。本轮只读审查与独立OpManager最小mock复现，不修改生产代码。source仍op008 SHA93188655b4445f6dfb020e8779abe5d621884a0aafb6028b131c883586a5cf98，当前candidate保持op008。
+
+当前实际FlagGems-vllm revision f6fdb9b...：通用/NVIDIA完整入口仅支持silu和swigluoai_uninterleave，后者必须传有限alpha/beta/clamp三个标量，当前Plugin完整调用未传这三个关键字；MetaX入口仅silu。两者均限制FP16/BF16/FP32。vLLM modular prepare在输入路由权重标志为True时已乘权重，完整入口会按同一flag再执行输入权重计算，语义问题不属于MetaX专属。故原CUDA只判断平台并不是严格能力契约，不能拿它作为MetaX删除支持条件的依据。
+
+可以统一普通SiLU未量化无LoRA的公共选择条件，平台仅决定backend；NVIDIA专有SwiGLU扩展保留在backend适配中。共同条件也应处理unsupported激活/dtype和已预乘权重，不让CUDA一直无条件进入完整算子。若仅将现有支持/策略条件提到平台or表达式外，MetaX路由保持，CUDA部分原先错误/绕策略的配置会改走staged；这属于行为变化，不能当纯格式化，也没有NVIDIA硬件实测。
+
+四op检查不是数学正确性条件。对默认全部FlagOS的Qwen路径，删除不会改变默认选择；但比如invoke_fused_moe_triton_kernel显式vendor:metax时，当前会走staged并遵守该选择，删除后会仍调用完整FlagGems-vllm且忽略这个覆盖。直接删除等于接受完整算子不再受内部四个op策略控制，需要明确这项策略语义；不是无条件等价清理。
+
+现有registry只有四个分算子等key，没有完整fused_experts key，OpImpl.is_available只判断backend可用性，supported_dtypes只是元信息未用于按参数筛选。建议在既有registry/backend机制接入完整MoE，并定义完整算子选择与分算子override的兼容策略；apply只保留LoRA插入点和完整/分段执行组织，平台实现与支持范围由backend承载。不要再把全部条件包成_can_use_metax... helper，也不要通过宽泛异常把真实计算错误吞成fallback。当前框架没有现成的按调用参数支持回调，不能假称已有能力接口。纯平台合并不能证明所有配置兼容。
+
+## 纠正此前failed-fallback注释
+
+此前注释“Preserve per-op vendor/reference and failed-impl fallback”的后半句不准确。OpManager.get_selected_impl_id调用_resolve_impl，后者根据策略解析/cache首选并未查看_failed_impls；实际call才过滤失败项。独立registry/OpManager中设default.flagos故意失败、vendor.metax成功：call返回7，failed cache包含default.flagos，get_selected_impl_id在fallback后仍返回default.flagos。因此原all检查仍True，不能证明完整路径尊重已失败fallback。该结论来自真实manager逻辑加mock函数，不是硬件kernel失败复现。
+
+证据commands/op009/source-review.json（源码/revision指纹）、results/op009-failure-resolution-probe.json与日志；manifests/op009-artifacts.json记录SHA。本轮没有修改容器源码、编译器、启动脚本，没有启动模型或GPU kernel，没有新增精度/性能gate。后续若实施统一，需要在独立容器覆盖共同正例、各平台负例、policy覆盖/strict/失败缓存、LoRA、graph/C8，再决定回写。NVIDIA硬件当前未测。

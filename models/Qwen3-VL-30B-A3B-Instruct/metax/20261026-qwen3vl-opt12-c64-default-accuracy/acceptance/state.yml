@@ -1,0 +1,78 @@
+schema_version: 4
+identity:
+  case_id: 20261026-qwen3vl-opt12-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: opt12-pr638-user-started-default-sampling
+  topology: TP2:GPU0,1
+stage: acceptance
+current:
+  status: completed-user-requested-accuracy-only
+  candidate: opt12/GPU0,1/TP2/9999/prefixON/PR638+decode1/gemsopt/MoE;C64 server model defaults
+  next_action: No pending evaluation. User model retained;no performance acceptance or automatic rerun. Old gate binds measured adapter19964,not future direct endpoint or restart.
+experiments: []
+covered_experiment_ids: [acc-001-opt12-c64-default]
+source_experiment_document: optimize/acc-001-opt12-c64-default.md
+accuracy:
+  status: passed
+  service_instance_id: qwen3vl-pr943-split1-mx104-20261023:1188871:1133556479
+  C: 64
+  prefix_cache_enabled: true
+  sampling: Model-default0.7/0.8/20/repetition1;client sampler/seed fields stripped byfrozen loopback adapter;task cap18000/stops retained
+  GPQA:
+    correct: 129
+    samples: 198
+    score_percent: 65.15151515151516
+    threshold_percent: 64
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/gpqa-completed.json
+      sha256: 73665c96419ca54c50f80e84aaba863735fe8e748854eb8609493cd00c82eca7
+  ERQA:
+    correct: 168
+    samples: 400
+    scored_samples: 398
+    native_rejected_samples: 2
+    native_rejected_ids: [ERQA_105, ERQA_50]
+    score_percent: 42.21
+    all400_score_percent: 42.0
+    threshold_percent: 40
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/erqa-completed.json
+      sha256: ef1e508cf35e203ecb932d676147726077426c48abf30e453d55a8165ba06eb8
+  final_evidence:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/completed-recovered.json
+    sha256: 5e337ce4156964f4956a969fa6b92be0a34de08fb38b6f31e7a44f98777a6504
+  evidence_scope: Full native samples/provenance/source/default-sampling audit;403ERQA files byteverified;collectordrain failure resolved CPU-only,0new generations
+  graph_scope: Existing startupcapture andnormal graph-configured smoke/C8;direct replay count not observed,no fabricated proof
+  gate_scope: GPQA record/gate binds measured instance andadapter19964;adapter nowstopped;no new direct9999/future-restart binding
+service_final:
+  model_service_left_running: true
+  model_restarted: false
+  source_and_launch_unchanged: true
+  models_http: 200
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/manifests/source-after-recovered-audit.json
+    sha256: 5a080c303819a949a6097c82274910266424f71c318f96f9ad1c7a2c0978d853
+performance:
+  status: not_run
+  conclusion: Accuracy-only task;no performance or PR638 single-variable attribution
+metrics:
+- scenario_id: gpqa198-c64-model-defaults
+  role: candidate
+  metric: strict_match_accuracy
+  value: 65.15151515151516
+  unit: percent
+  scope: 129/198;threshold64;full
+- scenario_id: erqa400-c64-model-defaults
+  role: candidate
+  metric: native_accuracy
+  value: 42.21
+  unit: percent
+  scope: 168/398;2native timeout rejects preserved;threshold40;400raw/evaluated IDs verified
+- scenario_id: erqa400-c64-model-defaults
+  role: candidate
+  metric: all400_accuracy_timeout_incorrect
+  value: 42.0
+  unit: percent
+  scope: 168/400;conservative supplementary denominator

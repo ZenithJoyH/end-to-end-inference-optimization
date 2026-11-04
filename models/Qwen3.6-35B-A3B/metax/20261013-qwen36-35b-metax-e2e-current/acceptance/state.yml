@@ -1,0 +1,58 @@
+schema_version: 4
+identity:
+  case_id: 20261013-qwen36-35b-metax-e2e-current
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: current-926a5544
+  topology: TP2:device6-device7
+stage: acceptance
+current:
+  status: preparing
+  candidate: current-926a5544
+  next_action: Snapshot current state; run baseline-sanity, steady P1K milestone and
+    full GPQA before formal promotion.
+experiments: []
+metrics: []
+policy_version: '0.40'
+policy_date: '2026-09-22'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+remote_case_dir: /public-flash/jinghao/qwen3.6-35B/20261013-qwen36-35b-metax-e2e-current
+authorization:
+  in_place_container: qwen3.6-35B
+  source: User explicitly requested continued E2E optimization in current container
+    on 2026-10-13
+  isolation_exception: In-place requested by user; no cloned model container. Mount
+    comparison is continuity against same-container initial inspect.
+  remote_work_root: /public-flash/jinghao/qwen3.6-35B
+  formal_accuracy:
+    task: gpqa_diamond_generative_cot
+    limit: 0
+    samples: 198
+    threshold: 0.8
+  vllm_source: read_only
+  no_commit_or_push: true
+current_target_scenario_id: p1024-d1024-c64-n128
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+commands:
+  prepare_local: /private/tmp/qwen36-e2e-control-20261013.pJBH3q/prepare.py
+  prepare_remote: /public-flash/jinghao/qwen3.6-35B/20261013-qwen36-35b-metax-e2e-current/commands/prepare.py
+constraints:
+  user_instruction: Do not optimize by disabling FlagGems operators; optimizing FlagGems
+    operator performance is permitted.
+  flaggems_enablement: Preserve current model-service enablement and whitelist; no
+    operator-disable or native/vendor replacement as optimization.
+  allowed_directions:
+  - framework_without_disabling_flaggems
+  - operator/improve_in_flaggems_or_flaggems_vllm
+  operator_replace_to_native: prohibited
+  unsupported_existing_fallback: Preserve existing compatibility semantics; not a
+    performance strategy
+  client_changes: Client probe timeout/profile temperature only; model FlagGems enablement
+    unchanged

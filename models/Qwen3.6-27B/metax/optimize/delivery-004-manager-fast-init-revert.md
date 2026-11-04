@@ -1,0 +1,11 @@
+# delivery-004-manager-fast-init-revert
+
+User requests reverting _ready_pid fast initialization because no isolated E2E benefit is established. Restore only manager.py to current020plugin-opt HEAD8b059122, with SHA guard and backup; archive/remove added test_manager_fast_init.py since its4tests only cover the removed fast path. Verify all other Python files unchanged and run existing native manager unit tests (CPU/mocks, no model requests). Preserve Plugin/GDN/layout/FA integration, FG-vLLM FP32 wheel, startup script and service. Existing running processes retain in-memory code until a later user restart; no automatic restart.
+
+Command `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/commands/delivery004-20261015-manager-fast-init-revert.py` SHA `e06bf2d594ad58b60b332903903e205aff1216baa2003754efceda7ce49142fa`. Statusprepared; backup and exact result receipt remain in remote case. Historical OP010 source/gates remain immutable evidence; changed source cannot reuse their live binding automatically.
+
+## Completed
+
+manager.py restored exactly to020plugin-opt HEAD (SHA `2884b063a0a4d2890eb63ac32fa929b62ce79af0d701860d1ecc8d126ad9e64c`), no remaining git diff for this file. Only manager.py and the archived/removed untracked fastpath test changed; all other Python files verified unchanged. Original dispatch manager test suite38passed in25.57s, exit0; logSHA `91b4cc71e662542fb7cec03eb2fda5932d0a148ff3b6f7c3f4c1247a1fb69bc8`. No new numerical/graph/performance/gate claim.
+
+Plugin on-disk PythonSHA `b46d8e1b8b42eacd3884a55e0c047525dee6372a147ad7c4e64173518aa10bc7`. Previous manager/test saved under `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/commands/delivery004-20261015-manager-fast-init-revert`, SHAs remain59f5fa67/93f4e8d5. Receipt `/public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/delivery004-20261015-manager-fast-init-revert-receipt.json` SHA `8af199c606e77ac67d54febf11d8db519e56ab4c049929afccffc465ef5d8a5c`. Existing running process keeps previously loaded class until next restart; no restart performed. Historical source identities and experiment results preserved; new on-disk identity does not silently rebind oldgate.

@@ -1,0 +1,29 @@
+schema_version: 4
+identity:
+  case_id: 20261024-qwen3vl-metax-fixed-splits
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: mx104-source-split1-20261023
+  topology: TP2-C550-GPU4-5
+stage: acceptance
+current:
+  status: preparing-independent-validation
+  candidate: Fixed explicit native KV-cache splits2/4/8/16 vs reference1; not yet
+    applied
+  next_action: Clone exact source without pausing it, verify image/mount/content/import
+    parity; component minimal-regression before any model patch or GPQA
+experiments: []
+metrics: []
+remote_workdir:
+  user_provided_root: /public-flash/jinghao/qwen3-VL
+  case_dir: /public-flash/jinghao/qwen3-VL/20261024-qwen3vl-metax-fixed-splits
+  host: mx-104
+source:
+  container: qwen3vl-pr943-split1-mx104-20261023
+  previous_case: 20261023-qwen3vl-metax-mx104-migration
+  preserve_service: true
+  optimization_container: qwen3vl-fixed-splits-mx104-20261024
+  image_lineage: unverified
+  mount_parity: pending
+  device_difference: IndependentGPU2/3; no numeric comparison against historicalGPU4/5

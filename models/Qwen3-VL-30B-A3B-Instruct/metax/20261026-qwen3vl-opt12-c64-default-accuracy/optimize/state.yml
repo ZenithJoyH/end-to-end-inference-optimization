@@ -1,0 +1,175 @@
+schema_version: 4
+identity:
+  case_id: 20261026-qwen3vl-opt12-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: opt12-pr638-user-started-default-sampling
+  topology: TP2:GPU0,1
+stage: optimize
+current:
+  status: completed-both-accuracy-passed-user-service-retained
+  candidate: User-started opt12 on9999/GPU0,1/prefixON;PR638+decode1+canonicalFGV+gemsopt/MoE
+  next_action: No pending model work;both full datasets once passed;CPU-only collector recovery verified;stop monitor;no performance claim or automatic rerun
+experiments:
+- experiment_id: acc-001-opt12-c64-default
+  document: acc-001-opt12-c64-default.md
+  direction: validation/formal-accuracy
+  scenario_id: GPQA198-C64-and-ERQA400-C64-server-default-sampling
+  status: completed
+  correctness: GPQA129/198=65.151515passed64;ERQA168/398=42.21passed40,2native timeout rejects;all400incorrect42.00passed40;400unique/source/images/scorer/default-sampling audit andunchanged live user service verified
+  performance: not_run/not requested
+  decision: Both requested full datasets passed once;collector failure preserved andCPUrecoveryresolved;user service originalPID/source/models200 retained;no performance or PR638 single-variable attribution
+monitor:
+  automation_id: qwen3-vl-opt12-c64
+  cadence_minutes: 30
+  status: DELETED
+  stop_reason: Both full datasets terminal andCPUfinal identity/native score/source/sampling audit passed;user service retained;automation delete confirmed
+  notification_policy: User explicitly requests a progress update each30minutes,including normal unchanged state
+  last_observation_utc: '2026-10-26T18:11:39Z'
+  last_progress: Both formal scores passed;ERQA full400/native168correct398scored2timeoutrejected;CPUrecoverysource/images/sampling/defaults verified;controller+adapter exited;original user service unchanged/models200
+remote_case_dir: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy
+runtime:
+  actual_service_instance: qwen3vl-pr943-split1-mx104-20261023:1188871:1133556479
+  model_name: qwen3vl-opt12
+  upstream: http://127.0.0.1:9999/v1/chat/completions
+  evaluation_transport: http://127.0.0.1:19964/v1/chat/completions
+  prefix_cache_enabled: true
+  CUDA_VISIBLE_DEVICES: 0,1
+  controller:
+    pid: 2924802
+    startticks: '1133720501'
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/commands/accuracy_controller_v4.py
+    sha256: d2f24a65e4081b760738f2a8ffa6eef73df9e031ea7228af8739bcc5b98f412a
+  prepared:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/prepared.json
+    sha256: 79e081b54786d5bf5b234c29701ac5ba00cf36ee99a1c8ee0600b0b3210d0ed6
+  execution_contract:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/configs/execution-contract.json
+    sha256: 8b99955a20effc691364443868817061149e273a2e621a5f6edc268c26754f18
+sampling:
+  policy: inherit model defaults by omitting sampling fields and seed upstream
+  temperature: 0.7
+  top_p: 0.8
+  top_k: 20
+  repetition_penalty: 1.0
+  request_seed: null
+  task_seed: 42
+  task_output_cap: 18000
+accuracy_results:
+  GPQA:
+    status: completed
+    samples: 198
+    correct: 129
+    score_percent: 65.15151515151516
+    threshold_percent: 64
+    threshold_status: passed
+    C: 64
+    completed_at_utc: '2026-10-26T15:27:28Z'
+    source_unchanged: true
+    native_provenance_and_unique_samples_verified: true
+    actual_forwarded_requests: 198
+    upstream_sampling_overrides_or_seed_sent: false
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/gpqa-completed.json
+      sha256: 73665c96419ca54c50f80e84aaba863735fe8e748854eb8609493cd00c82eca7
+    sampling_audit:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/gpqa-sampling-audit.json
+      sha256: d661c7ed5b2952521d39ad49346d331bbd1fb9090353334dbf4f4281b96604a3
+    gate:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/gpqa-accuracy-gate.json
+      sha256: 868159a853355d76cbcd515c2eff94d856bbd48da1f2e1b1735a943438052e72
+    independent_gate_check: passed at15:35UTC;binds exact current measured service and transport,not historical comparisons or future restarts
+  ERQA:
+    status: completed
+    samples_expected: 400
+    threshold_percent: 40
+    C: 64
+    started_at_utc: '2026-10-26T15:27:28Z'
+    progress_native_item_files: 398
+    samples: 400
+    scored_samples: 398
+    correct: 168
+    native_rejected_samples: 2
+    native_rejected_ids: [ERQA_105, ERQA_50]
+    score_percent: 42.21
+    all400_score_percent_counting_rejects_incorrect: 42.0
+    threshold_status: passed
+    native_completed_at_utc: '2026-10-26T17:59:42Z'
+    final_recovered_audit_at_utc: '2026-10-26T18:11:39Z'
+    raw_and_evaluated_unique_question_ids: 400
+    data_images_and_original_scoring_source_verified: true
+    all_native_artifact_files_byte_verified: 403
+    result:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/erqa-completed.json
+      sha256: ef1e508cf35e203ecb932d676147726077426c48abf30e453d55a8165ba06eb8
+    sampling_audit:
+      path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/erqa-sampling-audit-recovered.json
+      sha256: 997e55cefa4d451f0a875cd244bcadbb6b5ca6b6177c084ddc083e8c39c93c2f
+    request_health: Native client APITimeoutError retries;proxy BrokenPipeError after upstream200 when client already disconnected;preserve original retry/concurrency/sampling/timeout contract
+    interpretation: Native reject filter preserved;2timeouts excluded byoriginal scorer;all400countingwrong42also passes;544forwardattempts/399uniquepayload/398responses/142BrokenPipe and4unfinishedattempts are transport health,not sampleID coverage or extra accuracy gate
+diagnosis:
+  issue_id: accdiag-opt12-c64-erqa-collector-drain
+  classification: measurement-invalid collector lifecycle assertion;not a model score failure
+  status: resolved-native-evidence-verified-no-rerun
+  failing_evidence:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/failure.json
+    sha256: 2824c42a1142432824b08eed46faab23da64f776757d841a8e14fdbcf702dfe9
+  trigger: Native ERQA exited0 at17:59:42UTC;controller idle_proxy waited300sec for orphan retry requests then asserted before harvest at18:04:42UTC
+  original_outputs: Full400raw/evaluatedIDs,168correct/398scored=42.21 with2native timeout rejects;403files copied/byteverified;all400score42.00;no model rerun
+  source_final:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/user-service-final.json
+    sha256: 0486db5864e2dc475908c37225ad3b471c4b575e1f64d18977e8f4783c79a29f
+  scope: Native score/threshold/filter unchanged;CPU native400/source/images/sampling andcurrent model identity verified;collector lifecycle cause confirmed,not a model regression or kernel attribution
+  recovery_result:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/collector-recovery.json
+    sha256: 4c722b600409cc5231248a8c28522b746b2f3addbc139d5bece246643538acf0
+  native_files_manifest:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/manifests/erqa-native-recovered-files.json
+    sha256: ae19beb309995bbc3483d73f63d3324310fa17dd20e6f418a5dc40bf4ece6d03
+completion:
+  status: completed
+  accuracy_status: passed
+  final:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/results/completed-recovered.json
+    sha256: 5e337ce4156964f4956a969fa6b92be0a34de08fb38b6f31e7a44f98777a6504
+  source_after:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/manifests/source-after-recovered-audit.json
+    sha256: 5a080c303819a949a6097c82274910266424f71c318f96f9ad1c7a2c0978d853
+  original_user_service_retained: true
+  model_restarted: false
+  new_model_requests_during_recovery: 0
+  HTTP_models: 200
+  controller_and_adapter_stopped: true
+  gate_scope: GPQA gate binds measured adapter19964/service instance;adapter now stopped,not a new direct9999 or future-restart gate
+  recovery_command:
+    path: /public-flash/jinghao/qwen3-VL/20261026-qwen3vl-opt12-c64-default-accuracy/commands/final_accuracy_audit.py
+    sha256: 24ad8ba482d950b9c0702503e3e38b8591839ab1d899fbe8d62699d63bf87237
+  skill:
+    entry_sha256: dae96b45b710eece923608299f41d09bc893883afedbab527af32f7b95183e54
+    content_bundle_sha256: 640f928fecc687f0e05c645f9e066d9db22bbb6800ea4b4b6db0f9984c6a92a0
+    machine_interface: absent in repository skill;full method read manually andcontent frozen;do not claim machine-selected invocation passed
+evaluator_storage:
+  gpqa: qwen3vl-release-gpqa-mx104-20261026
+  erqa: qwen3vl-release-erqa-mx104-20261026
+  location: Current case exists as private same-absolute-path copies in evaluator containers;native outputs harvested toHost after each dataset;do not assume Host gpqa directory contains live progress
+  progress: Host logs/events.jsonl andfull-gpqa.log/full-erqa.log;request-audit.jsonl unique completed messageSHA perstage;private ERQA native item counts via docker exec
+metrics:
+- scenario_id: gpqa198-c64-model-defaults
+  role: candidate
+  metric: strict_match_accuracy
+  value: 65.15151515151516
+  unit: percent
+  scope: full198 questions;129correct;threshold64;measured instance only
+- scenario_id: erqa400-c64-model-defaults
+  role: candidate
+  metric: native_accuracy
+  value: 42.21
+  unit: percent
+  scope: full400 questions;168correct/398scored;2native timeout rejects;threshold40
+- scenario_id: erqa400-c64-model-defaults
+  role: candidate
+  metric: all400_accuracy_timeout_incorrect
+  value: 42.0
+  unit: percent
+  scope: full400 questions;168correct;2timeouts incorrect;conservative supplementary denominator

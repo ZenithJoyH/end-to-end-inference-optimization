@@ -1,0 +1,41 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-opt15-c64-default-accuracy
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: user-opt15-restart
+  topology: TP2:GPU0-GPU1
+stage: baseline
+current:
+  status: not_run
+  next_action: Await new full accuracy results; performance out of scope.
+experiments: []
+metrics: []
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: not_run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

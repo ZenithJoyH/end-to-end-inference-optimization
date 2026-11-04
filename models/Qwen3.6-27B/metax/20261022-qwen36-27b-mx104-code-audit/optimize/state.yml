@@ -1,0 +1,262 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen36-27b-mx104-code-audit
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-104
+  baseline_id: audit-snapshot-cbfde87955ee
+  topology: service-not-running
+stage: optimize
+current:
+  status: completed
+  candidate: release/0.2@7cb55994+preserved-contiguous-prefill
+  next_action: migration completed; model graph/accuracy/performance not_run
+experiments:
+- experiment_id: audit-001
+  document: audit-001.md
+  status: completed
+  decision: preserved
+  direction: code-audit
+  scenario_id: not_applicable
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/delivery/manifests/patch-validation.json
+  performance_effect: null
+- experiment_id: audit-002
+  document: audit-002.md
+  status: completed
+  decision: no_migration_required
+  direction: vllm-source-audit
+  scenario_id: not_applicable
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/vllm-tree-audit-002.json
+  performance_effect: null
+- experiment_id: env-003
+  document: env-003.md
+  status: completed
+  direction: plugin-base-migration
+  scenario_id: not_applicable
+  decision: installed
+  evidence: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/env-003-v4-result.json
+  performance_effect: null
+metrics: []
+scope: code-audit-and-requested-plugin-base-migration
+date: '2026-10-22'
+policy_source: AGENTS.md and current user scope
+user_decision: preserve existing optimization and migrate container Plugin to latest
+  release/0.2
+environment:
+  container: qwen3.6-27B-verify
+  model_path: /data/Qwen3.6-27B
+  image: sha256:afcbdac2f632d7a37de05f318cfe804007cc0ce3a332be8ff36f0d1913c74a9e
+  service_status: not_running_at_audit
+  remote_workdir_supplied: /public-flash/jinghao/qwen3.6-27B
+  remote_workdir_canonical: /public-flash/jinghao/qwen3.6-27B
+  remote_case_dir: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit
+  source_root_mounts:
+    /workspace: container-private
+    /opt: container-private
+  mounts:
+  - source: /data
+    destination: /data
+    rw: true
+    propagation: rslave
+  - source: /public-flash
+    destination: /public-flash
+    rw: true
+    propagation: rprivate
+  repos:
+  - path: /workspace/vllm-plugin-FL
+    revision: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+    branch: release/0.2
+    git_status:
+    - ' M vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py'
+    - ' M vllm_fl/envs.py'
+    installed_version: 0.2.2rc2.post1+g7cb559947.d20261022
+  - path: /workspace/vllm
+    revision: bc150f50299199599673614f80d12a196f377655
+    branch: null
+    git_status: []
+  - path: /opt/FlagGems-vllm
+    revision: e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+    branch: null
+    git_status:
+    - ' M src/flaggems_vllm/runtime/backend/_metax/fused/gdn_chunk.py'
+  - path: /workspace/FlagGems
+    revision: null
+    git_status: no-git-metadata
+    installed_version: 5.0.2
+artifacts:
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/snapshots/code-snapshot.tar.gz
+  sha256: cbfde87955eefde60a67b755938a498b4718df675b1497ae6b9feaec3e2369f8
+  kind: source_snapshot
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/snapshots/supplement.tar.gz
+  sha256: 40fca2f2142d280c391714bec27c84e197e85316c538607863bac241864d1378
+  kind: call_chain_snapshot
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/source-unchanged.json
+  kind: source_integrity_verification
+  status: passed
+  unique_files: 4113
+  hash_comparisons: 4115
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/code-review-bundle.tar.gz
+  sha256: c4261380a0a7f58b19baeb31711a55c6a112fc14955fc071999bf3db86e1fe36
+  bytes: 7451988
+  kind: code-review-delivery
+  transfer_and_contents: passed
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/commands/verify-vllm-tree-audit-002.py
+  sha256: 8983f8e3edbdea688e6385370b8e17cfafda4cccf091b4ea1dfccc7bdf4a553e
+  kind: vllm-source-followup
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/vllm-tree-audit-002.json
+  sha256: c26dd26339978066c14cb2e34e83e67275abd9e9799ca9093f74d2db782fb680
+  kind: vllm-source-followup
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/vllm-extra-audit-002.json
+  sha256: 5561961143afa0ab88332b7340c549384367c5e62905dbc8ae074b630d362d72
+  kind: vllm-source-followup
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/review/vllm-source-audit-002.md
+  sha256: 0e048f514c6e52b40b1069e1c17792e506e71632241709c3f88a05c8d0f8fea4
+  kind: vllm-source-followup
+- &id001
+  path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/env-003-release02-bundle.tar.gz
+  sha256: 9b59f11fedb339af09a9a677fb0d1fc79678431fc80399d9b5ba31993c7859e9
+  bytes: 2114413
+  kind: plugin-migration-delivery
+  files: 10
+  remote_integrity: passed; 9 manifest files
+  receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/env-003-delivery-receipt.json
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/snapshots/env-003-v4-original-plugin-and-metadata.tar.gz
+  sha256: 520e78ceb5dfe8c2d05d3785a5fedcd91d9e74e140f71a7c594432c1a6e6bbd8
+  kind: plugin-original-backup
+- path: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/env-003-final-check.json
+  kind: plugin-final-source-and-command-integrity
+accuracy:
+  status: not_run
+  gate: null
+performance:
+  status: not_run
+  gain: null
+  reason: code audit only; no running model service; historical numbers not inherited
+anchor_baseline: null
+pr_readiness: needs_revision
+runtime_path_evidence: CLI entry points and vendor.metax attention backend routing
+  passed; no model/kernel execution evidence
+findings:
+- id: plugin-contiguous-prefill
+  kind: operator/replace
+  state: present-default-off
+  guard: MetaX vendor; one prefill; total KV length>=2048; unquantized; non-cascade;
+    DCP1
+  runtime_hit: not_proven
+- id: gdn-model-route
+  kind: routing
+  state: static-vllm-native-FLA
+  note: model does not use legacy Plugin FLA wrappers or FGV imports
+- id: fg-fused-gdn
+  kind: operator/improve
+  state: library-present-not-connected-by-observed-model-path
+  baseline: null
+- id: fgv-fixed-gdn
+  kind: operator/improve
+  state: installed; no observed caller; H8/H16 vs TP2 value-head H24
+- id: fgv-installed-moe
+  kind: operator/improve
+  state: installed-only-overlay; not-applicable-to-dense27B
+- id: old-startup-materials
+  kind: configuration
+  state: stale-names-paths; preserved-not-executed
+validation:
+  snapshot_entries: 4116
+  patch_replay_representations: 4
+  patch_replay: passed
+  installed_source_files_compared: 276
+  installed_source_differences: 1
+  hardware: not_run
+  graph: not_run
+  source_unchanged: audit-001 snapshot was unchanged; env-003 intentionally changed
+    only Plugin
+  unique_files_rechecked: 4113
+  local_case_records: passed
+  git_diff_check: passed
+  global_records:
+    status: failed_outside_this_case
+    other_case_errors: 371
+    this_case_errors: 0
+    scope: existing or concurrent unrelated records not modified
+  plugin_migration:
+    status: passed
+    unit_tests_passed: 10
+    semantic_ast_equal_original: true
+    actual_editable_import: passed
+    CLI_and_vendor_metax_routing: passed
+    protected_source_files: 5690
+    protected_sources_unchanged: true
+    other_package_versions_unchanged: true
+    offline_bundle_replay: passed
+    graph: not_run
+    model: not_run
+delivery:
+  status: completed
+  bundle_files: 29
+  manifest_files_checked: 28
+  remote_expanded_dir: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/delivery
+  receipt: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/manifests/delivery-receipt.json
+vllm_source_audit:
+  head: bc150f50299199599673614f80d12a196f377655
+  local_tag: v0.20.2
+  tracked_files_compared: 4737
+  content_or_mode_differences: 0
+  hidden_index_flags: 0
+  untracked: 0
+  ignored_python: generated vllm/_version.py only; verified unchanged
+  related_plugin_files_unchanged: 5
+  migration_required: false
+  implementation_changed: false
+plugin_migration:
+  experiment_id: env-003
+  status: installed
+  from_revision: d1653d9ff0450ce0366686bfcde5d8aecab44755
+  to_revision: 7cb559947cb61fd8b69fa5027d8ec113e528a644
+  installed:
+    path: /workspace/vllm-plugin-FL/vllm_fl/__init__.py
+    version: 0.2.2rc2.post1+g7cb559947.d20261022
+    entry_points:
+    - - vllm.general_plugins
+      - fl
+      - vllm_fl:register_model
+    - - vllm.platform_plugins
+      - fl
+      - vllm_fl:register
+    runtime_check:
+      plugin_file: /workspace/vllm-plugin-FL/vllm_fl/__init__.py
+      vendor: metax
+      attention_backend: vllm_fl.dispatch.backends.vendor.metax.impl.attention.flash_attn.MacaFlashAttentionBackend
+      backend_file: /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py
+      repeated_dispatch: passed
+      entry_points: loaded
+      vllm_cli: vllm.entrypoints.cli.main:main
+      cuda_initialized: true
+      model_execution: not_run
+  protected_sources:
+    vllm:
+      path: /workspace/vllm/vllm
+      files: 2156
+      digest: d965efd8b6bb5ca962e0d9de3dcb5b0751d730753fad89ec461ebf3922df01a5
+    FlagGems:
+      path: /workspace/FlagGems/src/flag_gems
+      files: 2982
+      digest: cce96c703b67f3198127ce2d7709b1bffdd198650d74fe08f9f680630f3247c9
+    FGV_source:
+      path: /opt/FlagGems-vllm/src/flaggems_vllm
+      files: 276
+      digest: 8aa08f44343db070bbd95b0c81d620c8cb248103347bae40330f6a7c590e2b40
+    FGV_installed:
+      path: /opt/conda/lib/python3.12/site-packages/flaggems_vllm
+      files: 276
+      digest: f613716819ba5a96b458f2a12f6bc82bb49d918fdff88cd967fd72afd1c6cb64
+    vllm_git:
+      head: bc150f50299199599673614f80d12a196f377655
+      status: ''
+    fgv_git:
+      head: e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+      status: M src/flaggems_vllm/runtime/backend/_metax/fused/gdn_chunk.py
+  backup_container: /opt/plugin-release02-env003/activation-v4/backup
+  rollback_script: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/commands/env-003-rollback.py
+  delivery: *id001
+  original_audit_bundle_preserved: true
+  command_archive: /public-flash/jinghao/qwen3.6-27B/20261022-qwen36-27b-mx104-code-audit/commands

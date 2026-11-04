@@ -1,0 +1,2591 @@
+schema_version: 3
+case_id: 20261012-qwen36-27b-metax-flash-attention
+policy_version: '0.40'
+policy_date: '2026-09-22'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+status: diagnostic_phase_baseline_acquired; formal_four_scenarios_not_run
+target:
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-59
+  source_container_name: qwen3.6-27B
+  model_path: /public-flash/models/Qwen3.6-27B
+  remote_work_root: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention
+  remote_case_dir: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention
+  image_lineage: verified
+  mount_parity: passed
+historical_observations:
+- input_tokens: 4096
+  output_tps_begin: 584.92
+  output_tps_addattention: 329.78
+  output_tps_change_percent: -43.619640292689596
+  mean_ttft_ms_begin: 14395.42
+  mean_ttft_ms_addattention: 15562.32
+  mean_tpot_ms_begin: 95.15
+  mean_tpot_ms_addattention: 178.38
+  duration_ratio: 1.7736968939664404
+- input_tokens: 16384
+  output_tps_begin: 216.56
+  output_tps_addattention: 100.55
+  output_tps_change_percent: -53.56944957517547
+  mean_ttft_ms_begin: 106993.33
+  mean_ttft_ms_addattention: 191048.03
+  mean_tpot_ms_begin: 173.43
+  mean_tpot_ms_addattention: 395.38
+  duration_ratio: 2.153804213135068
+- input_tokens: 65536
+  output_tps_begin: 53.1
+  output_tps_addattention: 14.46
+  output_tps_change_percent: -72.7683615819209
+  mean_ttft_ms_begin: 807003.43
+  mean_ttft_ms_addattention: 2820228.75
+  mean_tpot_ms_begin: 200.05
+  mean_tpot_ms_addattention: 765.03
+  duration_ratio: 3.6731394863608924
+historical_evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/historical-comparison.json
+current_baseline: diagnostic_P1K_phase_entry_only; formal_four_scenarios_not_run
+source_revisions:
+  /workspace/vllm:
+    sha256_py: 7fd5f31a335b71576338c1eeaecc33168cbc5cca036b0c9c777931a4557a8896
+    files: 3050
+    revision: bc150f50299199599673614f80d12a196f377655
+    status: ' M vllm/model_executor/layers/fla/ops/fused_recurrent.py
+
+      '
+  /workspace/vllm-plugin-FL:
+    sha256_py: 2416f838b5d07c7fbc628cf3ef2eb9b36a121cbccb31455e219534289ed56211
+    files: 399
+    revision: 8b059122e32b9ac47b9820a9c7b1bb95077481a4
+    status: " M vllm_fl/dispatch/backends/flaggems/flaggems.py\n M vllm_fl/dispatch/backends/flaggems/impl/attention.py\n\
+      \ M vllm_fl/dispatch/backends/flaggems/register_ops.py\n M vllm_fl/dispatch/backends/vendor/metax/impl/attention/flash_attn.py\n\
+      \ M vllm_fl/dispatch/backends/vendor/metax/metax.py\n M vllm_fl/dispatch/backends/vendor/metax/register_ops.py\n M vllm_fl/dispatch/config/metax.yaml\n\
+      \ M vllm_fl/dispatch/manager.py\n M vllm_fl/worker/worker.py\n?? tests/functional_tests/ops/test_gdn_state_layout.py\n\
+      ?? tests/functional_tests/ops/test_metax_contiguous_prefill.py\n?? tests/unit_tests/dispatch/test_manager_fast_init.py\n\
+      ?? tests/unit_tests/dispatch/test_metax_gdn.py\n?? vllm_fl/dispatch/backends/flaggems/impl/gdn_state_layout.py\n?? vllm_fl/patches/gdn_linear_attn.py\n"
+  /workspace/FlagGems:
+    sha256_py: 3a7e89738b76c483d379b57062f1f0df571641903f692056bbd4aa864e0dd0f7
+    files: 5680
+    revision: 7599dd130046f84df099aa771e91d35d5991e69a
+    status: " M benchmark/test_sort.py\n M src/flag_gems/ops/sort.py\n?? tests/test_sort_histogram.py\n?? tests/test_sort_payload.py\n"
+  /workspace/FlagGems-vllm:
+    sha256_py: 7b2be2d3da6338b26589d6aac9763f81ff602570a1b6fe8a6e47f38a04b613ed
+    files: 597
+    revision: 4ea1b95b80efa2012fc5d82365f38a03ed691f09
+    status: '?? benchmark/test_flash_attn_varlen_gqa_decode.py
+
+      ?? tests/test_metax_flash_attention_scheduler.py
+
+      '
+diagnostic_scenario_entry:
+  parent_scenario: P1024/D1024/C64/N128
+  retained_source: OP001 e63fa0c
+  comparison_contract:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/commands/combo001-comparison-contract.json
+    sha256: 9ff52da91a1083856309081c53589cc5ca6721d8393ce2c1f196f043d692a16a
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance
+  baseline_records:
+  - role: baseline
+    phase: prefill
+    record: &id001
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-E2E/combo001-baseline-prefill/run-record.json
+      sha256: 686c12e992337a5b0bbfa08a8603e4187610ded22e2a9c8908c133214315c3fa
+    status: complete
+    warmup:
+      status: passed
+      metric: output_throughput
+      values:
+      - 5.9707689939268125
+      - 5.969975847023472
+      relative_spread: 0.0001328471404264171
+      max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    median:
+      output_throughput: 5.972303888674042
+      mean_ttft_ms: 8367.329767017509
+    measured_relative_spread:
+      output_throughput: 0.00013469338961887546
+      mean_ttft_ms: 0.0001749139500890474
+  - role: baseline
+    phase: decode
+    record: &id002
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-E2E/combo001-baseline-decode/run-record.json
+      sha256: 2075bdd1440793e22f6eb04800e5d70ecdf10a0e50d70d0c18e2ad9ffc116b2c
+    status: complete
+    warmup:
+      status: passed
+      metric: output_throughput
+      values:
+      - 929.8134984412383
+      - 930.2244406748889
+      relative_spread: 0.0004418643566441661
+      max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    median:
+      output_throughput: 929.5259409027419
+      mean_ttft_ms: 6394.51100784936
+      mean_tpot_ms: 56.22020841910711
+      p99_itl_ms: 50.58824219740927
+    measured_relative_spread:
+      output_throughput: 0.0001653547071121568
+      mean_ttft_ms: 0.0004642673342204585
+      mean_tpot_ms: 0.00023719250940324382
+      p99_itl_ms: 0.008676682995947614
+  - role: baseline
+    phase: mixed
+    record: &id003
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-E2E/combo001-baseline-mixed/run-record.json
+      sha256: 048c7809dbe98ca0fd71b16c6c026234563518a4230200733795c3ab03cf897c
+    status: complete
+    warmup:
+      status: passed
+      metric: output_throughput
+      values:
+      - 707.890292997815
+      - 705.0237341175617
+      - 707.8933345676096
+      relative_spread: 0.0040537361204594545
+      max_relative_spread: 0.1
+    warmup_rounds: 6
+    measured_rounds: 3
+    median:
+      output_throughput: 706.6461340620436
+      mean_ttft_ms: 5438.074094745389
+      mean_tpot_ms: 69.27743577307054
+      p99_itl_ms: 1381.2794481310996
+    measured_relative_spread:
+      output_throughput: 0.000854879399121293
+      mean_ttft_ms: 0.001791085239718402
+      mean_tpot_ms: 0.0009547580375060651
+      p99_itl_ms: 0.002559073015106597
+  revert_records:
+  - role: revert
+    phase: prefill
+    record: &id004
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-E2E/combo001-revert-prefill/run-record.json
+      sha256: 0f52f726cd85df279ae04c5c6cf0544168858bb46c5abd735f0adac65e1c7109
+    status: complete
+    warmup:
+      status: passed
+      metric: output_throughput
+      values:
+      - 5.979079655428226
+      - 5.979522673013337
+      relative_spread: 7.409186674888418e-05
+      max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    median:
+      output_throughput: 5.9799156681079495
+      mean_ttft_ms: 8355.716048063186
+    measured_relative_spread:
+      output_throughput: 0.0007464475909985151
+      mean_ttft_ms: 0.0007861885516198967
+  - role: revert
+    phase: decode
+    record: &id005
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-E2E/combo001-revert-decode/run-record.json
+      sha256: 6a5b71c5a05ae24d7f3239f7a37adc888d05170f0dde57f9ec6d6a2963bbdb70
+    status: complete
+    warmup:
+      status: passed
+      metric: output_throughput
+      values:
+      - 930.66798415702
+      - 932.1032330199224
+      relative_spread: 0.0015409824348451846
+      max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    median:
+      output_throughput: 931.5941798721243
+      mean_ttft_ms: 6391.122026441735
+      mean_tpot_ms: 56.09158872751566
+      p99_itl_ms: 50.381908835843205
+    measured_relative_spread:
+      output_throughput: 0.0006883825636795353
+      mean_ttft_ms: 0.0011068344754453308
+      mean_tpot_ms: 0.0008680159517369426
+      p99_itl_ms: 0.011164755783239168
+  - role: revert
+    phase: mixed
+    record: &id006
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-E2E/combo001-revert-mixed/run-record.json
+      sha256: 8d2cc500ecd8445cef21cba49a530208367497040acadaec20ad08b6fdb25efe
+    status: complete
+    warmup:
+      status: passed
+      metric: output_throughput
+      values:
+      - 705.3647633230777
+      - 706.1985773381653
+      - 707.641430288123
+      relative_spread: 0.003223833972629453
+      max_relative_spread: 0.1
+    warmup_rounds: 6
+    measured_rounds: 3
+    median:
+      output_throughput: 705.8768651881777
+      mean_ttft_ms: 5444.170852344541
+      mean_tpot_ms: 69.3661726518436
+      p99_itl_ms: 1386.3476772140712
+    measured_relative_spread:
+      output_throughput: 0.0005877599936996819
+      mean_ttft_ms: 4.236633234396181e-05
+      mean_tpot_ms: 0.0007171452927989019
+      p99_itl_ms: 0.0015963558453763102
+  terminal_validation:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/combo001-terminal-validation.json
+    sha256: e0dcdfc4341703a614ba1f4e9e0a4f8afcf4c88470e9ae2beec53ad47ea12b48
+  original_anchor: Historical begin/addattention unchanged; requires new full anchor measurement for final acceptance
+framework001_scenario_entry:
+  parent_target: p1024-d1024-c64-n128
+  scope: diagnostic reduced3phase; not originalanchor or formal target
+  source: OP001 e63fa0c,FGenabled,8192
+  baseline_records:
+  - phase: prefill
+    role: baseline
+    record: &id007
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-E2E/fw001-baseline-prefill/run-record.json
+      sha256: 3093b1aaaea1d303fdd03ed0a5f80fca65fbbd0b2613fbaf49b80c2480d288f5
+    status: complete
+    warmup_check:
+      p1024-d1-c64-n128-prefill:
+        status: passed
+        metric: output_throughput
+        values:
+        - 5.980191929215592
+        - 5.980911507687383
+        relative_spread: 0.00012031974735215931
+        max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    native_revalidation: passed
+    median:
+      output_throughput: 5.9814164487585515
+      mean_ttft_ms: 8353.338965236617
+    measured_relative_spread:
+      output_throughput: 0.0006929907114550919
+      mean_ttft_ms: 0.0007124635774118098
+    instance: qwen36-fa-opt:162168:1791898639.1
+  - phase: decode
+    role: baseline
+    record: &id008
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-E2E/fw001-baseline-decode/run-record.json
+      sha256: 59f6f5d327b8ad583907057e538b5f58c43752b242a6885ba21881853bf70e48
+    status: complete
+    warmup_check:
+      p1024-d512-c64-n64-decode:
+        status: passed
+        metric: output_throughput
+        values:
+        - 934.8009677420105
+        - 932.7339560419775
+        relative_spread: 0.0022136257520097872
+        max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    native_revalidation: passed
+    median:
+      output_throughput: 931.7688147443101
+      mean_ttft_ms: 6386.535265337443
+      mean_tpot_ms: 56.0692465423179
+      p99_itl_ms: 50.41535192169249
+    measured_relative_spread:
+      output_throughput: 0.0012030612219995215
+      mean_ttft_ms: 0.0016244323187519063
+      mean_tpot_ms: 0.0017226652394984417
+      p99_itl_ms: 0.004875812153082811
+    instance: qwen36-fa-opt:162168:1791898639.1
+  - phase: mixed
+    role: baseline
+    record: &id009
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-E2E/fw001-baseline-mixed/run-record.json
+      sha256: 617f5e109b5a3d2c4d5ca52b964284490c4ed5812cceda16ad09c34a20663c57
+    status: complete
+    warmup_check:
+      p1024-d256-c64-n128-mixed-milestone:
+        status: passed
+        metric: output_throughput
+        values:
+        - 705.7298705012398
+        - 706.6301913654595
+        - 707.6422119582627
+        relative_spread: 0.0027062832587545628
+        max_relative_spread: 0.1
+    warmup_rounds: 6
+    measured_rounds: 3
+    native_revalidation: passed
+    median:
+      output_throughput: 708.3170323577627
+      mean_ttft_ms: 5352.699464645411
+      mean_tpot_ms: 69.30716433456766
+      p99_itl_ms: 1384.395263446495
+    measured_relative_spread:
+      output_throughput: 0.00445285860895559
+      mean_ttft_ms: 0.016808340000306555
+      mean_tpot_ms: 0.0022953757886761345
+      p99_itl_ms: 0.00022493217787335215
+    instance: qwen36-fa-opt:162168:1791898639.1
+  revert_records:
+  - phase: prefill
+    role: revert
+    record: &id010
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-E2E/fw001-revert-prefill/run-record.json
+      sha256: 03cba54553b1b01d0256ce9e69af67d20c352b93412d403ce1c13ffa835cc3e0
+    status: complete
+    warmup_check:
+      p1024-d1-c64-n128-prefill:
+        status: passed
+        metric: output_throughput
+        values:
+        - 5.977061963324654
+        - 5.979077472056685
+        relative_spread: 0.00033715042266342383
+        max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    native_revalidation: passed
+    median:
+      output_throughput: 5.971806915293675
+      mean_ttft_ms: 8367.44487049873
+    measured_relative_spread:
+      output_throughput: 0.00027251069216313866
+      mean_ttft_ms: 0.0003167308868397056
+    instance: qwen36-fa-opt:212498:1791904066.54
+  - phase: decode
+    role: revert
+    record: &id011
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-E2E/fw001-revert-decode/run-record.json
+      sha256: 39c66701f981403f439803dedada75f5deca271e4be0692784e72499ab6c5b4c
+    status: complete
+    warmup_check:
+      p1024-d512-c64-n64-decode:
+        status: passed
+        metric: output_throughput
+        values:
+        - 934.3232548074163
+        - 934.5710521814486
+        relative_spread: 0.0002651807254221345
+        max_relative_spread: 0.1
+    warmup_rounds: 3
+    measured_rounds: 3
+    native_revalidation: passed
+    median:
+      output_throughput: 933.2458309971548
+      mean_ttft_ms: 6383.6962016357575
+      mean_tpot_ms: 55.97521667328842
+      p99_itl_ms: 50.57608497329056
+    measured_relative_spread:
+      output_throughput: 0.0004788374580302751
+      mean_ttft_ms: 0.0011602300409923934
+      mean_tpot_ms: 0.00035003954593853956
+      p99_itl_ms: 0.022527855865083542
+    instance: qwen36-fa-opt:212498:1791904066.54
+  - phase: mixed
+    role: revert
+    record: &id012
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-E2E/fw001-revert-mixed/run-record.json
+      sha256: 1142e51850344c6701bc6be5b1f98071c46f7cb35c0bab0349b590acbe4faefd
+    status: complete
+    warmup_check:
+      p1024-d256-c64-n128-mixed-milestone:
+        status: passed
+        metric: output_throughput
+        values:
+        - 707.6272610691892
+        - 643.0656930163933
+        - 709.2453961588197
+        relative_spread: 0.09352339400044062
+        max_relative_spread: 0.1
+    warmup_rounds: 6
+    measured_rounds: 3
+    native_revalidation: passed
+    median:
+      output_throughput: 710.9387020323065
+      mean_ttft_ms: 5419.304622519121
+      mean_tpot_ms: 68.86583227474772
+      p99_itl_ms: 1384.793538171798
+    measured_relative_spread:
+      output_throughput: 0.002219877407900618
+      mean_ttft_ms: 0.015202412943089471
+      mean_tpot_ms: 0.002280468310179481
+      p99_itl_ms: 0.0010157113738158774
+    instance: qwen36-fa-opt:212498:1791904066.54
+  terminal_validation:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/fw001-terminal-validation.json
+    sha256: 58fc818fc1c5f2c057561b5dfff521c7287a09b3abffa3eed96ca92ca9b8ecea
+op009_precision_cost_reference:
+  experiment_id: op-009-gdn-prefill-fp32-performance-cost
+  scope: diagnostic reduced scenario reference before precision fix; all21 FG; not original anchor/full formal
+  source_py_sha256: f23993c24c7ba937e1d0b5cfd0fef13d9b24315032a3bea40e8d348379e338b3
+  phases:
+  - role: baseline
+    phase: prefill
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+    sha256: 5a52fb3bfa0c5e0cfa33dfef9549156e373337748c93bad4e9b3243c5f136ab7
+    native_status: complete
+    native_revalidation: passed
+    service_instance_id: qwen36-fa-opt:398081:1791958358.04
+    case_id: p1024-d1-c64-n128-prefill
+    metrics:
+      mean_ttft_ms:
+        median: 8285.203922037908
+        all_measured:
+        - 8285.203922037908
+        - 8266.820117030875
+        - 8290.15251029341
+        spread: 0.0028161519598175772
+      median_ttft_ms:
+        median: 10464.311940129846
+        all_measured:
+        - 10464.311940129846
+        - 10448.210721835494
+        - 10471.063920296729
+        spread: 0.002183917929051243
+      output_throughput:
+        median: 6.032330595302132
+        all_measured:
+        - 6.032330595302132
+        - 6.045128088470474
+        - 6.02914760206967
+        spread: 0.002649139689600114
+      p99_e2el_ms:
+        median: 10819.595539337024
+        all_measured:
+        - 10819.595539337024
+        - 10787.140135997906
+        - 10820.363048026338
+        spread: 0.0030706242121198222
+      p99_ttft_ms:
+        median: 10819.595924792811
+        all_measured:
+        - 10819.595924792811
+        - 10787.140311989933
+        - 10820.363440774381
+        spread: 0.0030706441363783287
+      request_throughput:
+        median: 6.032330595302132
+        all_measured:
+        - 6.032330595302132
+        - 6.045128088470474
+        - 6.02914760206967
+        spread: 0.002649139689600114
+      total_token_throughput:
+        median: 6183.138860184686
+        all_measured:
+        - 6183.138860184686
+        - 6196.256290682236
+        - 6179.876292121412
+        spread: 0.0026491396896000845
+    warmup_check:
+      p1024-d1-c64-n128-prefill:
+        status: passed
+        metric: output_throughput
+        values:
+        - 6.042194036063491
+        - 6.047969613323123
+        relative_spread: 0.0009554175488641923
+        max_relative_spread: 0.1
+    round_counts:
+      warmup: 3
+      measured: 3
+    conclusion_boundary: native sample/round validity only; frozen comparison separately enforces measured spreads and drift
+  - role: revert
+    phase: prefill
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+    sha256: 8655c146c9891d72572771748a0f35781359d15255d28977f37711c68088bba0
+    native_status: complete
+    native_revalidation: passed
+    service_instance_id: qwen36-fa-opt:481486:1791961414.67
+    case_id: p1024-d1-c64-n128-prefill
+    metrics:
+      mean_ttft_ms:
+        median: 8216.763846037793
+        all_measured:
+        - 8216.763846037793
+        - 8221.173511177767
+        - 8215.61847362318
+        spread: 0.0006760614834105281
+      median_ttft_ms:
+        median: 10382.150588091463
+        all_measured:
+        - 10382.150588091463
+        - 10391.988284885883
+        - 10375.47966465354
+        spread: 0.0015900963959508926
+      output_throughput:
+        median: 6.0815404302525025
+        all_measured:
+        - 6.081542942592309
+        - 6.075939501484168
+        - 6.0815404302525025
+        spread: 0.0009213851609481573
+      p99_e2el_ms:
+        median: 10725.498161586002
+        all_measured:
+        - 10725.498161586002
+        - 10719.97559341602
+        - 10725.505561465397
+        spread: 0.0005155907880515151
+      p99_ttft_ms:
+        median: 10725.498358150944
+        all_measured:
+        - 10725.498358150944
+        - 10719.975864188746
+        - 10725.506185563281
+        spread: 0.0005156237211423132
+      request_throughput:
+        median: 6.0815404302525025
+        all_measured:
+        - 6.081542942592309
+        - 6.075939501484168
+        - 6.0815404302525025
+        spread: 0.0009213851609481573
+      total_token_throughput:
+        median: 6233.5789410088155
+        all_measured:
+        - 6233.581516157116
+        - 6227.837989021272
+        - 6233.5789410088155
+        spread: 0.0009213851609481632
+    warmup_check:
+      p1024-d1-c64-n128-prefill:
+        status: passed
+        metric: output_throughput
+        values:
+        - 6.0831786859750965
+        - 6.018078089736887
+        relative_spread: 0.010759311606191242
+        max_relative_spread: 0.1
+    round_counts:
+      warmup: 3
+      measured: 3
+    conclusion_boundary: native sample/round validity only; frozen comparison separately enforces measured spreads and drift
+  - role: baseline
+    phase: decode
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+    sha256: 239cb1429aa249c169d8c51e76dc4885fd8aaae0007fe7fe0a31d6a2a1073d3c
+    native_status: complete
+    native_revalidation: passed
+    service_instance_id: qwen36-fa-opt:398081:1791958358.04
+    case_id: p1024-d512-c64-n64-decode
+    metrics:
+      mean_tpot_ms:
+        median: 56.572526788629254
+        all_measured:
+        - 56.567553872507524
+        - 56.572526788629254
+        - 56.69236892123854
+        spread: 0.002206283788549156
+      mean_ttft_ms:
+        median: 6155.490725170239
+        all_measured:
+        - 6153.270986862481
+        - 6191.21347356122
+        - 6155.490725170239
+        spread: 0.006164006801860607
+      output_throughput:
+        median: 930.0700573072509
+        all_measured:
+        - 931.2284941152587
+        - 930.0700573072509
+        - 929.4324310735868
+        spread: 0.001931105111449234
+      p99_e2el_ms:
+        median: 35216.54535276815
+        all_measured:
+        - 35173.04938443005
+        - 35216.54535276815
+        - 35242.61059370823
+        spread: 0.0019752422783489588
+      p99_itl_ms:
+        median: 51.87719942070545
+        all_measured:
+        - 51.4707777556032
+        - 52.24701349623502
+        - 51.87719942070545
+        spread: 0.014962946136255848
+      p99_tpot_ms:
+        median: 66.15050360513031
+        all_measured:
+        - 66.13613724165438
+        - 66.15050360513031
+        - 66.25746834017117
+        spread: 0.0018341674198135802
+      p99_ttft_ms:
+        median: 10744.503636388108
+        all_measured:
+        - 10740.558671513572
+        - 10784.97938407585
+        - 10744.503636388108
+        spread: 0.004134273119126651
+      request_throughput:
+        median: 1.8165430806782243
+        all_measured:
+        - 1.8188056525688647
+        - 1.8165430806782243
+        - 1.8152977169405993
+        spread: 0.001931105111449234
+      total_token_throughput:
+        median: 2790.2101719217526
+        all_measured:
+        - 2793.685482345776
+        - 2790.2101719217526
+        - 2788.2972932207604
+        spread: 0.001931105111449234
+    warmup_check:
+      p1024-d512-c64-n64-decode:
+        status: passed
+        metric: output_throughput
+        values:
+        - 932.987580377969
+        - 935.6834492605901
+        relative_spread: 0.002885332773786859
+        max_relative_spread: 0.1
+    round_counts:
+      warmup: 3
+      measured: 3
+    conclusion_boundary: native sample/round validity only; frozen comparison separately enforces measured spreads and drift
+  - role: revert
+    phase: decode
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+    sha256: 6897f262cfdbd53fd22fa5ae659010c34c3c1151fc3cd845de2e60abbd7c42cf
+    native_status: complete
+    native_revalidation: passed
+    service_instance_id: qwen36-fa-opt:481486:1791961414.67
+    case_id: p1024-d512-c64-n64-decode
+    metrics:
+      mean_tpot_ms:
+        median: 56.3126409154316
+        all_measured:
+        - 56.35613265980755
+        - 56.22964071750859
+        - 56.3126409154316
+        spread: 0.0022462441867878895
+      mean_ttft_ms:
+        median: 6148.695533149294
+        all_measured:
+        - 6155.5766873352695
+        - 6148.695533149294
+        - 6146.294879421475
+        spread: 0.0015095572489731237
+      output_throughput:
+        median: 934.9480051684494
+        all_measured:
+        - 934.0643883384676
+        - 935.9267193927527
+        - 934.9480051684494
+        spread: 0.001991908687959207
+      p99_e2el_ms:
+        median: 35035.24185379036
+        all_measured:
+        - 35062.75654335506
+        - 34995.559548577294
+        - 35035.24185379036
+        spread: 0.0019179829001379938
+      p99_itl_ms:
+        median: 51.92457548342645
+        all_measured:
+        - 51.92457548342645
+        - 52.13263125158852
+        - 51.32272035814822
+        spread: 0.0155978337020553
+      p99_tpot_ms:
+        median: 65.88757525836053
+        all_measured:
+        - 65.9338173074666
+        - 65.79087639982043
+        - 65.88757525836053
+        spread: 0.0021694668089645014
+      p99_ttft_ms:
+        median: 10735.767879337072
+        all_measured:
+        - 10740.45044937171
+        - 10731.379551403224
+        - 10735.767879337072
+        spread: 0.0008449230712173403
+      request_throughput:
+        median: 1.8260703225946278
+        all_measured:
+        - 1.8243445084735694
+        - 1.8279818738139701
+        - 1.8260703225946278
+        spread: 0.001991908687959207
+      total_token_throughput:
+        median: 2804.844015505348
+        all_measured:
+        - 2802.1931650154024
+        - 2807.7801581782583
+        - 2804.844015505348
+        spread: 0.001991908687959329
+    warmup_check:
+      p1024-d512-c64-n64-decode:
+        status: passed
+        metric: output_throughput
+        values:
+        - 934.7763572890879
+        - 935.2209208449297
+        relative_spread: 0.0004754697357478566
+        max_relative_spread: 0.1
+    round_counts:
+      warmup: 3
+      measured: 3
+    conclusion_boundary: native sample/round validity only; frozen comparison separately enforces measured spreads and drift
+  - role: baseline
+    phase: mixed
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-mixed/run-record.json
+    sha256: 2da33aafb1cc54423b79c63cba5aa4abd399a74e86b31f5400bea815214b13b9
+    native_status: failed
+    native_revalidation: incomplete
+    reason: run is incomplete or failed
+    warmup_check:
+      p1024-d256-c64-n128-mixed-milestone:
+        status: failed
+        metric: output_throughput
+        values:
+        - 713.5041208832939
+        - 715.988610514534
+        - 636.7653447627567
+        relative_spread: 0.11103406894651364
+        max_relative_spread: 0.1
+    round_counts:
+      warmup: 6
+      measured: 0
+    conclusion_boundary: native sample/round validity only; frozen comparison separately enforces measured spreads and drift
+  - role: revert
+    phase: mixed
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+    sha256: 011894b233032aff856151f6219deacd078b93442698b1958644571403b2c528
+    native_status: complete
+    native_revalidation: passed
+    service_instance_id: qwen36-fa-opt:481486:1791961414.67
+    case_id: p1024-d256-c64-n128-mixed-milestone
+    metrics:
+      mean_tpot_ms:
+        median: 69.33770927711271
+        all_measured:
+        - 69.33245319144358
+        - 74.97382129042627
+        - 69.33770927711271
+        spread: 0.08136075099390143
+      mean_ttft_ms:
+        median: 5237.0443937325035
+        all_measured:
+        - 5237.0443937325035
+        - 27439.921893397695
+        - 5226.728005611221
+        spread: 4.241551573320704
+      output_throughput:
+        median: 712.4528997450406
+        all_measured:
+        - 712.4528997450406
+        - 351.3666453941316
+        - 712.7736938510579
+        spread: 0.5072714962438359
+      p99_e2el_ms:
+        median: 28265.305495923385
+        all_measured:
+        - 28258.890270302072
+        - 75921.63471920416
+        - 28265.305495923385
+        spread: 1.6862631983856085
+      p99_itl_ms:
+        median: 1326.9478664640337
+        all_measured:
+        - 1326.9478664640337
+        - 1330.900894831866
+        - 1325.4518897552043
+        spread: 0.0041064198634885845
+      p99_tpot_ms:
+        median: 86.21987443884798
+        all_measured:
+        - 86.21017726076147
+        - 224.68594978742513
+        - 86.21987443884798
+        spread: 1.6060771768448645
+      p99_ttft_ms:
+        median: 10752.407026514411
+        all_measured:
+        - 10752.407026514411
+        - 57733.18776498549
+        - 10731.345981834456
+        spread: 4.37128557980078
+      request_throughput:
+        median: 2.7830191396290647
+        all_measured:
+        - 2.7830191396290647
+        - 1.3725259585708265
+        - 2.784272241605695
+        spread: 0.5072714962438359
+      total_token_throughput:
+        median: 3562.2644987252024
+        all_measured:
+        - 3562.2644987252024
+        - 1756.8332269706577
+        - 3563.8684692552897
+        spread: 0.507271496243836
+    warmup_check:
+      p1024-d256-c64-n128-mixed-milestone:
+        status: passed
+        metric: output_throughput
+        values:
+        - 713.9435522845484
+        - 714.2362990275573
+        - 713.2710254548379
+        relative_spread: 0.001352030660730294
+        max_relative_spread: 0.1
+    round_counts:
+      warmup: 6
+      measured: 3
+    conclusion_boundary: native sample/round validity only; frozen comparison separately enforces measured spreads and drift
+  terminal_validation:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-terminal-validation.json
+    sha256: 54db01e6ee3572f4f875edbdf9f6b142fb0f1d43cd7d66397a95e1592c07e14e
+    status: incomplete/current-FP32-restored
+op010r2_scenario_entry:
+  parent_candidate: OP007 originalFP326ea/all21
+  parent_scenario: p1024-d1024-c64-n128
+  mode: targeted/reducedP1K phase diagnostics
+  baseline_instance: qwen36-fa-opt:665551:1792030306.4
+  revert_instance: qwen36-fa-opt:756537:1792034481.9
+  current_gate:
+    path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-revert-01-rebound-accuracy-gate.json
+    sha256: 1470dc49a4190d9cc6732d416f6871955115782b92a166db865a4b56db0ef8fa
+  gate_score_reused: 0.8383838383838383
+  formal_four_scenarios: not_run
+  phase_comparison_status:
+    prefill: incomplete
+    decode: incomplete
+    mixed: incomplete
+  phase_evidence:
+    prefill:
+      baseline:
+        record:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-E2E/op010r2-baseline-prefill/run-record.json
+          sha256: b143bb4753fc30e4de86f0b5e213fb96415aafb6e5090c125209efa8c28778ab
+        service_instance_id: qwen36-fa-opt:665551:1792030306.4
+        native_check:
+          status: passed
+        run_status: complete
+        warmups: 6
+        measurements: 3
+        warmup_check:
+          p1024-d1-c64-n128-prefill:
+            status: passed
+            metric: output_throughput
+            values:
+            - 5.508900441101975
+            - 5.506017027553654
+            - 5.4956779305076795
+            relative_spread: 0.002401465619907535
+            max_relative_spread: 0.1
+        rounds: 9
+        all_round_counts_match: true
+      revert:
+        record:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-E2E/op010r2-revert-prefill/run-record.json
+          sha256: 6bbffd6a24e3e3ec78c57be75df5a6526c4fa2ce236dba72b0471d8c5b11df1d
+        service_instance_id: qwen36-fa-opt:756537:1792034481.9
+        native_check:
+          status: passed
+        run_status: complete
+        warmups: 6
+        measurements: 3
+        warmup_check:
+          p1024-d1-c64-n128-prefill:
+            status: passed
+            metric: output_throughput
+            values:
+            - 5.4493403111607925
+            - 5.450522749687679
+            - 5.4469686000898605
+            relative_spread: 0.0006522164876617457
+            max_relative_spread: 0.1
+        rounds: 9
+        all_round_counts_match: true
+      native_result: &id013
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-prefill-comparison-result.json
+        sha256: 7eedf4313f7a0c91d033ed75c3ca4d83b37711aecb132bc85edfa50ffcf205c1
+      metrics:
+        total_token_throughput:
+          baseline: 5636.349978673761
+          candidate: 5769.414836504828
+          revert: 5584.051954799324
+          candidate_change: 0.023608338434366827
+          revert_change: -0.009278704138727445
+          revert_drift: 0.009278704138727445
+          rounds:
+            baseline:
+            - 5634.79954191486
+            - 5636.349978673761
+            - 5636.926649773411
+            candidate:
+            - 5764.698849664887
+            - 5769.414836504828
+            - 5775.428505862752
+            revert:
+            - 5584.051954799324
+            - 5586.872615926598
+            - 5583.4906356861875
+          spreads:
+            baseline: 0.00037739101840709814
+            candidate: 0.0018597477390557655
+            revert: 0.0006056498520762821
+        mean_ttft_ms:
+          baseline: 9085.534648802422
+          candidate: 8873.543762201734
+          revert: 9177.321023285913
+          candidate_change: -0.02333279160722046
+          revert_change: 0.010102473660764666
+          revert_drift: 0.010102473660764666
+          rounds:
+            baseline:
+            - 9085.534648802422
+            - 9086.092393001309
+            - 9084.12537885306
+            candidate:
+            - 8886.697118156007
+            - 8873.543762201734
+            - 8864.9679355658
+            revert:
+            - 9177.321023285913
+            - 9170.553133786598
+            - 9177.505057072267
+          spreads:
+            baseline: 0.00021649954837919922
+            candidate: 0.0024487604019901854
+            revert: 0.000757511180880547
+        p99_ttft_ms:
+          baseline: 11853.526981109753
+          candidate: 11574.127848027274
+          revert: 11971.473527103662
+          candidate_change: -0.0235709703557212
+          revert_change: 0.009950333447747095
+          revert_drift: 0.009950333447747095
+          rounds:
+            baseline:
+            - 11850.849210461602
+            - 11859.53606940806
+            - 11853.526981109753
+            candidate:
+            - 11604.176861280575
+            - 11574.127848027274
+            - 11566.71332881786
+            revert:
+            - 11976.167321000248
+            - 11962.530322084203
+            - 11971.473527103662
+          spreads:
+            baseline: 0.0007328501432781336
+            candidate: 0.0032368341662219924
+            revert: 0.0011391245100421752
+        p99_e2el_ms:
+          baseline: 11853.526864293963
+          candidate: 11574.127383995801
+          revert: 11971.473261807114
+          candidate_change: -0.023570999880195065
+          revert_change: 0.00995032101951332
+          revert_drift: 0.00995032101951332
+          rounds:
+            baseline:
+            - 11850.84879655391
+            - 11859.535796334967
+            - 11853.526864293963
+            candidate:
+            - 11604.17668168433
+            - 11574.127383995801
+            - 11566.7129368335
+            revert:
+            - 11976.167122879997
+            - 11962.530077109113
+            - 11971.473261807114
+          spreads:
+            baseline: 0.0007328620317405141
+            candidate: 0.003236852646242038
+            revert: 0.0011391284491600682
+    decode:
+      baseline:
+        record:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-E2E/op010r2-baseline-decode/run-record.json
+          sha256: a493641d9faacba4af87927afd3043332a89281609394af97fca7ed1427ae6a3
+        service_instance_id: qwen36-fa-opt:665551:1792030306.4
+        native_check:
+          status: passed
+        run_status: complete
+        warmups: 6
+        measurements: 3
+        warmup_check:
+          p1024-d512-c64-n64-decode:
+            status: passed
+            metric: output_throughput
+            values:
+            - 892.739170933294
+            - 896.0353429632803
+            - 896.0440900599973
+            relative_spread: 0.0036883803218895747
+            max_relative_spread: 0.1
+        rounds: 9
+        all_round_counts_match: true
+      revert:
+        record:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-E2E/op010r2-revert-decode/run-record.json
+          sha256: d9b54e7acbb35155e7b3ac21307ca02d9891807398dedccca77df74a427200e4
+        service_instance_id: qwen36-fa-opt:756537:1792034481.9
+        native_check:
+          status: passed
+        run_status: complete
+        warmups: 6
+        measurements: 3
+        warmup_check:
+          p1024-d512-c64-n64-decode:
+            status: passed
+            metric: output_throughput
+            values:
+            - 890.2006016148001
+            - 891.4789985688576
+            - 891.0800477610876
+            relative_spread: 0.0014346600591827441
+            max_relative_spread: 0.1
+        rounds: 9
+        all_round_counts_match: true
+      native_result: &id014
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-decode-comparison-result.json
+        sha256: 5cdeed4fd4e1466b204efb6bd797a962f6c9964f2f001ad3525ce434c8f3e37a
+      metrics:
+        output_throughput:
+          baseline: 896.4143952820822
+          candidate: 902.2270154354946
+          revert: 890.8146385479832
+          candidate_change: 0.006484300323605696
+          revert_change: -0.006246839367563761
+          revert_drift: 0.006246839367563761
+          rounds:
+            baseline:
+            - 896.4143952820822
+            - 895.1976233852572
+            - 896.7002800526659
+            candidate:
+            - 902.2270154354946
+            - 902.1488517946764
+            - 902.6980237547972
+            revert:
+            - 890.7950938470295
+            - 890.8289196744678
+            - 890.8146385479832
+          spreads:
+            baseline: 0.0016762968949598888
+            candidate: 0.0006086848993939037
+            revert: 3.7971791183612975e-05
+        mean_ttft_ms:
+          baseline: 6963.16936922085
+          candidate: 6787.686669427785
+          revert: 7018.272555244039
+          candidate_change: -0.02520155556875403
+          revert_change: 0.007913520855425515
+          revert_drift: 0.007913520855425515
+          rounds:
+            baseline:
+            - 6965.774284151848
+            - 6963.16936922085
+            - 6960.608360779588
+            candidate:
+            - 6790.637866972247
+            - 6784.908911169623
+            - 6787.686669427785
+            revert:
+            - 7018.272555244039
+            - 7018.325191907934
+            - 7016.417029110016
+          spreads:
+            baseline: 0.0007418925346114825
+            candidate: 0.000844021841554315
+            revert: 0.0002718849664069881
+        mean_tpot_ms:
+          baseline: 57.64818556841195
+          candidate: 57.53392482334416
+          revert: 58.00139633854947
+          candidate_change: -0.0019820354091143466
+          revert_change: 0.006127005848577172
+          revert_drift: 0.006127005848577172
+          rounds:
+            baseline:
+            - 57.64818556841195
+            - 57.74663044059437
+            - 57.63930345334932
+            candidate:
+            - 57.53392482334416
+            - 57.54815853420583
+            - 57.49882171793938
+            revert:
+            - 58.00139633854947
+            - 57.99555011218802
+            - 58.001480283308595
+          spreads:
+            baseline: 0.0018617582875645913
+            candidate: 0.0008575256497438811
+            revert: 0.00010224186821229065
+        p99_itl_ms:
+          baseline: 50.902338167652495
+          candidate: 51.777781238779426
+          revert: 52.13210564106703
+          candidate_change: 0.01719848444375116
+          revert_change: 0.024159351371329185
+          revert_drift: 0.024159351371329185
+          rounds:
+            baseline:
+            - 50.561923990026116
+            - 51.91953691653907
+            - 50.902338167652495
+            candidate:
+            - 52.235776605084546
+            - 51.777781238779426
+            - 51.342339897528305
+            revert:
+            - 51.78554501384497
+            - 52.13210564106703
+            - 52.83825592137878
+          spreads:
+            baseline: 0.026670934487164576
+            candidate: 0.017255214228590648
+            revert: 0.02019313999671907
+        p99_e2el_ms:
+          baseline: 36537.257829066366
+          candidate: 36303.31108992919
+          revert: 36768.75981274061
+          candidate_change: -0.006402963797438099
+          revert_change: 0.006336052496257016
+          revert_drift: 0.006336052496257016
+          rounds:
+            baseline:
+            - 36537.257829066366
+            - 36591.41132757999
+            - 36527.013648077846
+            candidate:
+            - 36303.31108992919
+            - 36305.546592073515
+            - 36284.49344438501
+            revert:
+            - 36768.82575712167
+            - 36768.75981274061
+            - 36766.62099334411
+          spreads:
+            baseline: 0.0017625208712547219
+            candidate: 0.0005799236228440974
+            revert: 5.996296281905245e-05
+    mixed:
+      baseline:
+        record:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-E2E/op010r2-baseline-mixed/run-record.json
+          sha256: f27bd62d585b8db900ce2550df317672a715986cc3ef20637965e987e1822cff
+        service_instance_id: qwen36-fa-opt:665551:1792030306.4
+        native_check:
+          status: passed
+        run_status: complete
+        warmups: 8
+        measurements: 3
+        warmup_check:
+          p1024-d256-c64-n128-mixed-milestone:
+            status: passed
+            metric: output_throughput
+            values:
+            - 668.7330357260233
+            - 617.5946284478481
+            - 670.0493996919297
+            relative_spread: 0.07843903088641797
+            max_relative_spread: 0.1
+        rounds: 11
+        all_round_counts_match: true
+      revert:
+        record:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-E2E/op010r2-revert-mixed/run-record.json
+          sha256: 0d05623b45b75ca85ed60f3c892d248eae867c6dd1f9e0d7a9ffef21e3dc72b6
+        service_instance_id: qwen36-fa-opt:756537:1792034481.9
+        native_check:
+          status: passed
+        run_status: complete
+        warmups: 8
+        measurements: 3
+        warmup_check:
+          p1024-d256-c64-n128-mixed-milestone:
+            status: passed
+            metric: output_throughput
+            values:
+            - 616.7989728518447
+            - 668.3348806907813
+            - 666.915529590475
+            relative_spread: 0.07727501542898944
+            max_relative_spread: 0.1
+        rounds: 11
+        all_round_counts_match: true
+      native_result: &id015
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op010r2-mixed-comparison-result.json
+        sha256: 42155b62d770b5ba6104d442f5e86af4728cec46e817ff658d26a9e1718c9edf
+      metrics:
+        output_throughput:
+          baseline: 572.8130151302091
+          candidate: 678.7226753804032
+          revert: 668.5005349029103
+          candidate_change: 0.18489394872796172
+          revert_change: 0.1670484385745843
+          revert_drift: 0.1670484385745843
+          rounds:
+            baseline:
+            - 514.6924865556999
+            - 572.8130151302091
+            - 668.0994627063578
+            candidate:
+            - 678.7226753804032
+            - 679.0373437276166
+            - 625.961050039911
+            revert:
+            - 666.402260643574
+            - 668.5005349029103
+            - 670.4446637112544
+          spreads:
+            baseline: 0.26781335636339576
+            candidate: 0.07820026590088212
+            revert: 0.0060469705806107145
+        mean_ttft_ms:
+          baseline: 8914.043798678904
+          candidate: 5762.545783771202
+          revert: 5962.2086378294625
+          candidate_change: -0.3535430255990851
+          revert_change: -0.33114434116723934
+          revert_drift: 0.33114434116723934
+          rounds:
+            baseline:
+            - 9037.429492025694
+            - 8914.043798678904
+            - 5945.152010535821
+            candidate:
+            - 5762.545783771202
+            - 5762.087097275071
+            - 6335.831812917604
+            revert:
+            - 5987.757742244867
+            - 5962.2086378294625
+            - 5884.5810872808215
+          spreads:
+            baseline: 0.34689951623842824
+            candidate: 0.09956445244363084
+            revert: 0.017305106418014672
+        mean_tpot_ms:
+          baseline: 76.93429003017681
+          candidate: 71.79780624322959
+          revert: 72.4852189445907
+          candidate_change: -0.06676455693465788
+          revert_change: -0.0578294942845512
+          revert_drift: 0.0578294942845512
+          rounds:
+            baseline:
+            - 89.11578434113727
+            - 76.93429003017681
+            - 72.54660006303808
+            candidate:
+            - 71.79780624322959
+            - 71.75641610274576
+            - 77.51862112159941
+            revert:
+            - 72.62221210831366
+            - 72.46561089685235
+            - 72.4852189445907
+          spreads:
+            baseline: 0.21536800133724593
+            candidate: 0.08025600391372703
+            revert: 0.002160457176531629
+        p99_itl_ms:
+          baseline: 1519.5477124582976
+          candidate: 1469.0956701524556
+          revert: 1523.967257849872
+          candidate_change: -0.03320201260691025
+          revert_change: 0.0029084610870326877
+          revert_drift: 0.0029084610870326877
+          rounds:
+            baseline:
+            - 1555.1293246354908
+            - 1519.5477124582976
+            - 1516.0983500629663
+            candidate:
+            - 1464.0939572267234
+            - 1469.0956701524556
+            - 1477.4423994030803
+            revert:
+            - 1524.8943792376667
+            - 1518.4407995641232
+            - 1523.967257849872
+          spreads:
+            baseline: 0.025685915784362443
+            candidate: 0.009086162628858389
+            revert: 0.004234723312001315
+        p99_e2el_ms:
+          baseline: 38065.89794953354
+          candidate: 30365.15593885444
+          revert: 30936.62314643152
+          candidate_change: -0.2023002851762088
+          revert_change: -0.18728770860873334
+          revert_drift: 0.18728770860873334
+          rounds:
+            baseline:
+            - 44237.41731183604
+            - 38065.89794953354
+            - 30511.36311242357
+            candidate:
+            - 30365.15593885444
+            - 30347.123918039724
+            - 32001.06632579118
+            revert:
+            - 30641.208104183897
+            - 30936.62314643152
+            - 31002.7753856685
+          spreads:
+            baseline: 0.3605866389283659
+            candidate: 0.05446843122037504
+            revert: 0.011687354491574818
+  boundary: Complete data doesnotproveMixedsteady; noanchor/cumulativeE2Eclaim. OriginalBF16/othercase historicalbaseline
+    notrewritten.
+metrics:
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-prefill
+  role: baseline
+  metric: output_throughput
+  value: 5.972303888674042
+  unit: token/s
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/0/median/output_throughput
+  evidence: *id001
+  statistic: median
+  phase: prefill
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-prefill
+  role: baseline
+  metric: mean_ttft_ms
+  value: 8367.329767017509
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/0/median/mean_ttft_ms
+  evidence: *id001
+  statistic: median
+  phase: prefill
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: baseline
+  metric: output_throughput
+  value: 929.5259409027419
+  unit: token/s
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/1/median/output_throughput
+  evidence: *id002
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: baseline
+  metric: mean_ttft_ms
+  value: 6394.51100784936
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/1/median/mean_ttft_ms
+  evidence: *id002
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: baseline
+  metric: mean_tpot_ms
+  value: 56.22020841910711
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/1/median/mean_tpot_ms
+  evidence: *id002
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: baseline
+  metric: p99_itl_ms
+  value: 50.58824219740927
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/1/median/p99_itl_ms
+  evidence: *id002
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: baseline
+  metric: output_throughput
+  value: 706.6461340620436
+  unit: token/s
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/2/median/output_throughput
+  evidence: *id003
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: baseline
+  metric: mean_ttft_ms
+  value: 5438.074094745389
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/2/median/mean_ttft_ms
+  evidence: *id003
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: baseline
+  metric: mean_tpot_ms
+  value: 69.27743577307054
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/2/median/mean_tpot_ms
+  evidence: *id003
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: baseline
+  metric: p99_itl_ms
+  value: 1381.2794481310996
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/baseline_records/2/median/p99_itl_ms
+  evidence: *id003
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-prefill
+  role: revert
+  metric: output_throughput
+  value: 5.9799156681079495
+  unit: token/s
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/0/median/output_throughput
+  evidence: *id004
+  statistic: median
+  phase: prefill
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-prefill
+  role: revert
+  metric: mean_ttft_ms
+  value: 8355.716048063186
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/0/median/mean_ttft_ms
+  evidence: *id004
+  statistic: median
+  phase: prefill
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: revert
+  metric: output_throughput
+  value: 931.5941798721243
+  unit: token/s
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/1/median/output_throughput
+  evidence: *id005
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: revert
+  metric: mean_ttft_ms
+  value: 6391.122026441735
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/1/median/mean_ttft_ms
+  evidence: *id005
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: revert
+  metric: mean_tpot_ms
+  value: 56.09158872751566
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/1/median/mean_tpot_ms
+  evidence: *id005
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-decode
+  role: revert
+  metric: p99_itl_ms
+  value: 50.381908835843205
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/1/median/p99_itl_ms
+  evidence: *id005
+  statistic: median
+  phase: decode
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: revert
+  metric: output_throughput
+  value: 705.8768651881777
+  unit: token/s
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/2/median/output_throughput
+  evidence: *id006
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: revert
+  metric: mean_ttft_ms
+  value: 5444.170852344541
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/2/median/mean_ttft_ms
+  evidence: *id006
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: revert
+  metric: mean_tpot_ms
+  value: 69.3661726518436
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/2/median/mean_tpot_ms
+  evidence: *id006
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: unresolved-workload-diagnostic_scenario_entry-mixed
+  role: revert
+  metric: p99_itl_ms
+  value: 1386.3476772140712
+  unit: ms
+  scope: targeted/diagnostic; not anchor baseline or formal acceptance；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /diagnostic_scenario_entry/revert_records/2/median/p99_itl_ms
+  evidence: *id006
+  statistic: median
+  phase: mixed
+  workload_status: missing-in-summary-see-frozen-comparison-contract
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: output_throughput
+  value: 5.9814164487585515
+  unit: token/s
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/0/median/output_throughput
+  evidence: *id007
+  statistic: median
+  phase: prefill
+  workload_status: explicit
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: mean_ttft_ms
+  value: 8353.338965236617
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/0/median/mean_ttft_ms
+  evidence: *id007
+  statistic: median
+  phase: prefill
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: output_throughput
+  value: 931.7688147443101
+  unit: token/s
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/1/median/output_throughput
+  evidence: *id008
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: mean_ttft_ms
+  value: 6386.535265337443
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/1/median/mean_ttft_ms
+  evidence: *id008
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: mean_tpot_ms
+  value: 56.0692465423179
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/1/median/mean_tpot_ms
+  evidence: *id008
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: p99_itl_ms
+  value: 50.41535192169249
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/1/median/p99_itl_ms
+  evidence: *id008
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: output_throughput
+  value: 708.3170323577627
+  unit: token/s
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/2/median/output_throughput
+  evidence: *id009
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: mean_ttft_ms
+  value: 5352.699464645411
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/2/median/mean_ttft_ms
+  evidence: *id009
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: mean_tpot_ms
+  value: 69.30716433456766
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/2/median/mean_tpot_ms
+  evidence: *id009
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: p99_itl_ms
+  value: 1384.395263446495
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/baseline_records/2/median/p99_itl_ms
+  evidence: *id009
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: output_throughput
+  value: 5.971806915293675
+  unit: token/s
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/0/median/output_throughput
+  evidence: *id010
+  statistic: median
+  phase: prefill
+  workload_status: explicit
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: mean_ttft_ms
+  value: 8367.44487049873
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/0/median/mean_ttft_ms
+  evidence: *id010
+  statistic: median
+  phase: prefill
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: output_throughput
+  value: 933.2458309971548
+  unit: token/s
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/1/median/output_throughput
+  evidence: *id011
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: mean_ttft_ms
+  value: 6383.6962016357575
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/1/median/mean_ttft_ms
+  evidence: *id011
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: mean_tpot_ms
+  value: 55.97521667328842
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/1/median/mean_tpot_ms
+  evidence: *id011
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: p99_itl_ms
+  value: 50.57608497329056
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/1/median/p99_itl_ms
+  evidence: *id011
+  statistic: median
+  phase: decode
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: output_throughput
+  value: 710.9387020323065
+  unit: token/s
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/2/median/output_throughput
+  evidence: *id012
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: mean_ttft_ms
+  value: 5419.304622519121
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/2/median/mean_ttft_ms
+  evidence: *id012
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: mean_tpot_ms
+  value: 68.86583227474772
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/2/median/mean_tpot_ms
+  evidence: *id012
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_itl_ms
+  value: 1384.793538171798
+  unit: ms
+  scope: diagnostic reduced3phase; not originalanchor or formal target；逐字段定位原证据，未重验；TTFT/TPOT 为客户端代理
+  source_pointer: /framework001_scenario_entry/revert_records/2/median/p99_itl_ms
+  evidence: *id012
+  statistic: median
+  phase: mixed
+  workload_status: explicit
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: mean_ttft_ms
+  value: 8285.203922037908
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/mean_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: median_ttft_ms
+  value: 10464.311940129846
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/median_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: output_throughput
+  value: 6.032330595302132
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/output_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: p99_e2el_ms
+  value: 10819.595539337024
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/p99_e2el_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: p99_ttft_ms
+  value: 10819.595924792811
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/p99_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: request_throughput
+  value: 6.032330595302132
+  unit: request/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/request_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: total_token_throughput
+  value: 6183.138860184686
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/0/metrics/total_token_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: mean_ttft_ms
+  value: 8216.763846037793
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/mean_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: median_ttft_ms
+  value: 10382.150588091463
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/median_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: output_throughput
+  value: 6.0815404302525025
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/output_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: p99_e2el_ms
+  value: 10725.498161586002
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/p99_e2el_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: p99_ttft_ms
+  value: 10725.498358150944
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/p99_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: request_throughput
+  value: 6.0815404302525025
+  unit: request/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/request_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: revert
+  metric: total_token_throughput
+  value: 6233.5789410088155
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/1/metrics/total_token_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-prefill/run-record.json
+  statistic: median
+  phase: prefill
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: mean_tpot_ms
+  value: 56.572526788629254
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/mean_tpot_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: mean_ttft_ms
+  value: 6155.490725170239
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/mean_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: output_throughput
+  value: 930.0700573072509
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/output_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: p99_e2el_ms
+  value: 35216.54535276815
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/p99_e2el_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: p99_itl_ms
+  value: 51.87719942070545
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/p99_itl_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: p99_tpot_ms
+  value: 66.15050360513031
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/p99_tpot_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: p99_ttft_ms
+  value: 10744.503636388108
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/p99_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: request_throughput
+  value: 1.8165430806782243
+  unit: request/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/request_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: total_token_throughput
+  value: 2790.2101719217526
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/2/metrics/total_token_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-baseline-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: mean_tpot_ms
+  value: 56.3126409154316
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/mean_tpot_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: mean_ttft_ms
+  value: 6148.695533149294
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/mean_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: output_throughput
+  value: 934.9480051684494
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/output_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: p99_e2el_ms
+  value: 35035.24185379036
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/p99_e2el_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: p99_itl_ms
+  value: 51.92457548342645
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/p99_itl_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: p99_tpot_ms
+  value: 65.88757525836053
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/p99_tpot_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: p99_ttft_ms
+  value: 10735.767879337072
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/p99_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: request_throughput
+  value: 1.8260703225946278
+  unit: request/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/request_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d512-c64-n64-decode
+  role: revert
+  metric: total_token_throughput
+  value: 2804.844015505348
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/3/metrics/total_token_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-decode/run-record.json
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: mean_tpot_ms
+  value: 69.33770927711271
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/mean_tpot_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: mean_ttft_ms
+  value: 5237.0443937325035
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/mean_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: output_throughput
+  value: 712.4528997450406
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/output_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_e2el_ms
+  value: 28265.305495923385
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/p99_e2el_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_itl_ms
+  value: 1326.9478664640337
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/p99_itl_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_tpot_ms
+  value: 86.21987443884798
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/p99_tpot_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_ttft_ms
+  value: 10752.407026514411
+  unit: ms
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/p99_ttft_ms/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: request_throughput
+  value: 2.7830191396290647
+  unit: request/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/request_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: total_token_throughput
+  value: 3562.2644987252024
+  unit: token/s
+  scope: op009 缩减参考；存在 warmup 失败及回退波动，不能据此宣称有效收益
+  source_pointer: /op009_precision_cost_reference/phases/5/metrics/total_token_throughput/median
+  evidence: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261012-qwen36-27b-metax-flash-attention/results/op009-E2E/op009-revert-mixed/run-record.json
+  statistic: median
+  phase: mixed
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: baseline
+  metric: total_token_throughput
+  value: 5636.349978673761
+  unit: token/s
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/total_token_throughput/baseline
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: revert
+  metric: total_token_throughput
+  value: 5584.051954799324
+  unit: token/s
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/total_token_throughput/revert
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: baseline
+  metric: mean_ttft_ms
+  value: 9085.534648802422
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/mean_ttft_ms/baseline
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: revert
+  metric: mean_ttft_ms
+  value: 9177.321023285913
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/mean_ttft_ms/revert
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: baseline
+  metric: p99_ttft_ms
+  value: 11853.526981109753
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/p99_ttft_ms/baseline
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: revert
+  metric: p99_ttft_ms
+  value: 11971.473527103662
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/p99_ttft_ms/revert
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: baseline
+  metric: p99_e2el_ms
+  value: 11853.526864293963
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/p99_e2el_ms/baseline
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d1-c64-n128-prefill-milestone
+  role: revert
+  metric: p99_e2el_ms
+  value: 11971.473261807114
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/prefill/metrics/p99_e2el_ms/revert
+  evidence: *id013
+  phase: prefill
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/prefill
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: baseline
+  metric: output_throughput
+  value: 896.4143952820822
+  unit: token/s
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/output_throughput/baseline
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: revert
+  metric: output_throughput
+  value: 890.8146385479832
+  unit: token/s
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/output_throughput/revert
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: baseline
+  metric: mean_ttft_ms
+  value: 6963.16936922085
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/mean_ttft_ms/baseline
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: revert
+  metric: mean_ttft_ms
+  value: 7018.272555244039
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/mean_ttft_ms/revert
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: baseline
+  metric: mean_tpot_ms
+  value: 57.64818556841195
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/mean_tpot_ms/baseline
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: revert
+  metric: mean_tpot_ms
+  value: 58.00139633854947
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/mean_tpot_ms/revert
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: baseline
+  metric: p99_itl_ms
+  value: 50.902338167652495
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/p99_itl_ms/baseline
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: revert
+  metric: p99_itl_ms
+  value: 52.13210564106703
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/p99_itl_ms/revert
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: baseline
+  metric: p99_e2el_ms
+  value: 36537.257829066366
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/p99_e2el_ms/baseline
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d512-c64-n64-decode-milestone
+  role: revert
+  metric: p99_e2el_ms
+  value: 36768.75981274061
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/decode/metrics/p99_e2el_ms/revert
+  evidence: *id014
+  phase: decode
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/decode
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: output_throughput
+  value: 572.8130151302091
+  unit: token/s
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/output_throughput/baseline
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: output_throughput
+  value: 668.5005349029103
+  unit: token/s
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/output_throughput/revert
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: mean_ttft_ms
+  value: 8914.043798678904
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/mean_ttft_ms/baseline
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: mean_ttft_ms
+  value: 5962.2086378294625
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/mean_ttft_ms/revert
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: mean_tpot_ms
+  value: 76.93429003017681
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/mean_tpot_ms/baseline
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: mean_tpot_ms
+  value: 72.4852189445907
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/mean_tpot_ms/revert
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: p99_itl_ms
+  value: 1519.5477124582976
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/p99_itl_ms/baseline
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_itl_ms
+  value: 1523.967257849872
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/p99_itl_ms/revert
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: baseline
+  metric: p99_e2el_ms
+  value: 38065.89794953354
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/p99_e2el_ms/baseline
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+- scenario_id: p1024-d256-c64-n128-mixed-milestone
+  role: revert
+  metric: p99_e2el_ms
+  value: 30936.62314643152
+  unit: ms
+  scope: op010r2 缩减诊断；Mixed 回退漂移，非正式 anchor；workload 由原 unchanged 性能契约确认
+  source_pointer: /op010r2_scenario_entry/phase_evidence/mixed/metrics/p99_e2el_ms/revert
+  evidence: *id015
+  phase: mixed
+  workload_status: resolved-from-unchanged-structured-plan
+  workload_source:
+    record: ../optimize/state.yml
+    pointer: /experiments/17/performance_plan/mixed
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: diagnostic_phase_baseline_acquired; formal_four_scenarios_not_run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

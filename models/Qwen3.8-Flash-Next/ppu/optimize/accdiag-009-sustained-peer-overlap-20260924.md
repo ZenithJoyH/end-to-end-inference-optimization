@@ -1,0 +1,27 @@
+# accdiag-009: longer peer budget at the first formal/C8 split
+
+Issue: `acc-issue-004-gpqa-completed-wrong-answers`; gate-blocking formal acc-010 remains 174/198. This is a diagnostic replay, **not** an evaluation rerun or fix. Target: Qwen3.8-Flash-Next on PPU-01, existing untouched TP8 8010 service in `qwen3.8-flash-opt-candidate-20260919`, original graph source. No source, service, proxy, evaluator or model configuration will be modified.
+
+## Frozen rationale and single variable
+
+Accdiag-008 recovered all 198 formal HTTP responses. Formal doc 168 answered wrong `B` at 33,320 completion tokens. On the same current 8010 service, a C8-started long replay with exact evaluator fields answered correct `C` at 17,536 tokens. Its reasoning shared the first 90 retokenized tokens with formal, then diverged at token 91 (`choices: discrete/continuous` versus `Options: discrete or continuous`). The seven peers in that C8 replay each stopped at 64 tokens, so the target had little sustained overlap beyond that boundary.
+
+Change **only the seven peers' `max_completion_tokens` from 64 to 128**, keeping the same frozen docs `0–6`, target doc `168`, same service/card group, API seed 1234, target 60K budget, temperature 1, top-p .95, top-k 20, min-p 0, penalties 0/1, both evaluator stop strings, and simultaneous eight-request start. The target remains one request to `/v1/chat/completions`. The source script is `docs/cases/20260919-qwen38-flash-next-ppu-e2e/commands/accdiag008-c8-short-probe.py` with `--case accdiag009 --port 8010 --wave 1 --concurrency 8 --target-full --peer-max-tokens 128`. The previous peer64 raw requests/responses, not their directory label, are the comparator.
+
+The longer peer budget is the controlled input, **not proof of the target's exact concurrent batch membership at token 91**. The current public metrics and response logs do not identify per-request scheduler cohorts, so interpretation must retain that uncertainty.
+
+Preflight requires healthy/idle 8000 and 8010, correct served model and source hashes, no formal evaluator or proxy client, and no other active requests. Save all eight requests, raw responses, usage, errors and summary in external `accuracy/acc-010-full-gpqa-dual-user-services-20260923/diagnostics/accdiag-009-sustained-peer-overlap-20260924/`. Do not overwrite prior evidence. Inspect peer completion, target finish reason/final letter, first divergence from formal and peer64, and service health afterward.
+
+Interpretation: one wrong `B` under peer128 would make overlap duration a stronger *suspected* cause, but requires a repeat and a sustained C32/C64 control before operator attribution. A correct `C`, cap, or new trajectory would show this single duration change is insufficient or unstable; do not escalate to an unbounded matrix. Neither outcome changes the frozen gate. No ETA is inferred from past request lengths.
+
+## Result and decision
+
+Status: `completed_no_wrong_reproduction`. Preflight confirmed both 8000/8010 healthy and idle, correct served-model identity, no formal evaluator/proxy client, and unchanged model/graph source SHA-256 (`3ae84180...`, `ba78ed0a...`). The frozen wave-1 script ran on 8010; no service or source was changed. All eight requests returned HTTP 200 without errors. The seven peers each reached `finish_reason=length` at exactly 128 completion tokens. The target returned `finish_reason=stop`, **17,329 completion tokens and final correct `C`** after 1,182.281 seconds. Both services were healthy and idle afterward.
+
+Machine-readable request comparison found the target request JSON **identical** to accdiag-008's C8/peer64 target. For each of the seven peer requests, the **only** changed JSON field was `max_completion_tokens: 64 → 128`. Relative to the formal wrong response, the new target reasoning shared 91 retokenized tokens and split at token 92; the old peer64 target shared 90 and split at token 91. The two correct C8 target replies shared only 90 tokens with one another. The new response still did not reproduce formal `B` at 33,320 tokens.
+
+This rejects the simple hypothesis that merely doubling short peer budget to 128 is sufficient to turn doc 168 wrong. The one-token-longer match to formal is an observation, **not** a causal score improvement or degradation. True target concurrency membership at token 91 was not captured; the public metrics cannot prove it. Per the predeclared stop condition, do not repeatedly lengthen the same short peers or run a full-score gate on this evidence. The remaining causal test is a separately frozen *sustained* formal-load replay with route/scheduler cohorts and minimally perturbing first-divergent logits/tensors, followed by one-variable A/B only if it reproduces a full-answer error. Formal acc-010 remains 174/198 and below the 0.88 threshold.
+
+Important post-run routing correction from accdiag-010: formal doc 168 was on backend 0/port **8000**, while this and the peer64 comparator ran on port **8010**. Thus their correct C answers cannot be interpreted as same-card counterfactuals for the formal wrong B. They still validly compare peer64 versus peer128 **within current 8010**. The original formal 8000 process was later restarted, so it cannot now be recreated exactly by sending to the current 8000 endpoint.
+
+Raw evidence: `/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/accuracy/acc-010-full-gpqa-dual-user-services-20260923/diagnostics/accdiag-009-sustained-peer-overlap-20260924/c8-short-targetfull-peer128-exact-port8010-wave1/`.

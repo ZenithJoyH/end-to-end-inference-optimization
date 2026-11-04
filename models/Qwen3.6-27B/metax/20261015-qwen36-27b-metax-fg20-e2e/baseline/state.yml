@@ -1,0 +1,616 @@
+schema_version: 4
+identity:
+  case_id: 20261015-qwen36-27b-metax-fg20-e2e
+  model: Qwen3.6-27B
+  platform: metax
+  host: mx-59
+  baseline_id: script-fg20-de2298b
+  topology: TP2:GPU2-3
+stage: baseline
+current:
+  status: baseline-profile-complete/op001-probe-starting
+  candidate: script-fg20-de2298b
+  next_action: Numerical/graph and micro first falsifier; no candidate installed or E2E gain yet
+experiments: []
+metrics:
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: total_token_throughput
+  value: 5693.82512484262
+  unit: token/s
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: mean_ttft
+  value: 8990.595569630386
+  unit: ms
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: output_throughput
+  value: 950.0954693293319
+  unit: token/s
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+- scenario_id: p1024-d512-c64-n64-decode
+  role: baseline
+  metric: mean_tpot
+  value: 53.81912709069242
+  unit: ms
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+- scenario_id: p1024-d256-c64-n128-mixed
+  role: baseline
+  metric: output_throughput
+  value: 704.1775316779153
+  unit: token/s
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+- scenario_id: p1024-d256-c64-n128-mixed
+  role: baseline
+  metric: mean_tpot
+  value: 68.21058591657693
+  unit: ms
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+- scenario_id: p1024-d256-c64-n128-mixed
+  role: baseline
+  metric: p99_itl
+  value: 1485.6886451225728
+  unit: ms
+  scope: diagnostic milestone, parent p1024-d1024-c64-n128
+target_catalog:
+- scenario_id: p1024-d1024-c64-n128
+  status: not_run
+  stage: mixed
+- scenario_id: p4096-d1024-c64-n128
+  status: not_run
+  stage: mixed
+- scenario_id: p16384-d1024-c64-n128
+  status: not_run
+  stage: mixed
+- scenario_id: p32768-d1024-c64-n128
+  status: not_run
+  stage: mixed
+phase_baselines:
+  prefill:
+    status: complete/diagnostic-only
+    workload: P1024/D1/C64/N128
+    warmup_rounds: 6
+    measured_rounds: 3
+    total_token_throughput_median: 5693.82512484262
+    output_throughput_median: 5.554951341309874
+    mean_ttft_ms_median: 8990.595569630386
+    p99_ttft_ms_median: 11727.235673163086
+    measured_throughput_spread: 0.000273572917617417
+    warmup_last3_spread: 0.0004769501323179923
+    run_record: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001v5-baseline-E2E/env001v5-prefill/run-record.json
+    run_record_sha256: 26656c7bfd5b1d7ed02f6914018f1da3a88ca97422dc2d673c68c2a089037e93
+    boundary: TTFT includes client/network/queue/scheduler; no pure kernel attribution or candidate gain
+    profiling:
+      status: captured-analyzed/current-bothrank
+      diagnostic:
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/env001v5-prefill/qwen36-fg20-e2e/diagnostic-6c869ee9eb114b2582a8feaf1f671118/diagnostic.json
+        sha256: 1434798b673171c2a794d8a9a0058098f4ae488f36d9b97e091e675917a20133
+      ranks:
+      - rank: rank0
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank0.1792076791303247058.pt.trace.json.gz
+          sha256: 279c4e2f411478dd56480fb0080f6598d041113a3118b798e65d91f4299ebeb8
+          size: 12448272
+        graph_launches: 2
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 3264
+          kernel_work_share: 0.4896628920242627
+          median_us: 2950.912
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 2193
+          kernel_work_share: 0.16526385740875418
+          median_us: 1777.92
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 816
+          kernel_work_share: 0.06273016097570241
+          median_us: 1819.2640000000001
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 816
+          kernel_work_share: 0.054804216014618753
+          median_us: 1614.848
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 960
+          kernel_work_share: 0.04743423372493259
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 816
+          kernel_work_share: 0.04061264775076084
+          median_us: 1089.536
+        - name: _fused_post_conv_kernel
+          count: 816
+          kernel_work_share: 0.023584614883619973
+          median_us: 699.648
+        - name: _causal_conv1d_fwd_kernel
+          count: 816
+          kernel_work_share: 0.014194585731121583
+          median_us: 413.696
+        - name: triton_red_fused__to_copy_add_rms_norm_4
+          count: 912
+          kernel_work_share: 0.012914918126453004
+          median_us: 377.6
+        - name: chunk_gated_delta_rule_fused_cumsum_kkt_solve_tril_kernel
+          count: 816
+          kernel_work_share: 0.011708215393593936
+          median_us: 345.6
+        b64_decode_graph_replays: 0
+        b64_decode_graph_hotspots: []
+      - rank: rank1
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank1.1792076791304355005.pt.trace.json.gz
+          sha256: 4ab804873b3490d36eefba1702655f3a42b4792c6c711355e7cface797fe3372
+          size: 12447897
+        graph_launches: 2
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 3264
+          kernel_work_share: 0.4895745916931793
+          median_us: 2950.912
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 2193
+          kernel_work_share: 0.16807820784046565
+          median_us: 1786.112
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 816
+          kernel_work_share: 0.06006274482942258
+          median_us: 1722.752
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 816
+          kernel_work_share: 0.05479951934776813
+          median_us: 1614.848
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 960
+          kernel_work_share: 0.04741774095631666
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 816
+          kernel_work_share: 0.04076540066583301
+          median_us: 1090.944
+        - name: _fused_post_conv_kernel
+          count: 816
+          kernel_work_share: 0.02342316746177853
+          median_us: 695.296
+        - name: _causal_conv1d_fwd_kernel
+          count: 816
+          kernel_work_share: 0.014195349045194056
+          median_us: 413.696
+        - name: triton_red_fused__to_copy_add_rms_norm_4
+          count: 912
+          kernel_work_share: 0.012914101778584286
+          median_us: 377.6
+        - name: chunk_gated_delta_rule_fused_cumsum_kkt_solve_tril_kernel
+          count: 816
+          kernel_work_share: 0.01182609290102457
+          median_us: 349.44
+        b64_decode_graph_replays: 0
+        b64_decode_graph_hotspots: []
+      boundary: device work sums can overlap; not critical-path time, utilization or speedup. 64iteration cap includes initial
+        prefill; Mixed trace does not cover late second-wave interference/P99 ITL.
+  decode:
+    status: complete/diagnostic-only
+    workload: P1024/D512/C64/N64
+    warmup_rounds: 6
+    measured_rounds: 3
+    output_throughput_median: 950.0954693293319
+    output_throughput_all:
+    - 942.515056447862
+    - 950.0954693293319
+    - 950.4942555485768
+    mean_ttft_ms_median: 6866.496152040781
+    mean_tpot_ms_median: 53.81912709069242
+    p99_tpot_ms_median: 64.60067766022352
+    p99_itl_ms_median: 47.90760298259556
+    p99_e2el_ms_median: 34473.178489739075
+    measured_throughput_spread: 0.008398312967798176
+    warmup_last3_spread: 0.001307176983645157
+    run_record: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001v5-baseline-E2E/env001v5-decode/run-record.json
+    run_record_sha256: f777a33229974ffb566df640c3e20fea18a142f2e2ca5feab13b8608566c5702
+    boundary: includes initial prefill/queue/network and autoregressive decode, not pure device decode time
+    profiling:
+      status: captured-analyzed/current-bothrank
+      diagnostic:
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/env001v5-decode/qwen36-fg20-e2e/diagnostic-a148711d3ea54f74a8aaeff87fb4e44a/diagnostic.json
+        sha256: 3f2a9d27c2f81b344801a7247279109d6b6bb666fc9921fe2e54fbd832a59930
+      ranks:
+      - rank: rank0
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank0.1792076940606154702.pt.trace.json.gz
+          sha256: 321f9856d38b7886eab37a7c12b6fcb1b4ee414fc2fde81337643acf3a9d01ec
+          size: 9551175
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.40149474948083536
+          median_us: 2950.144
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.15271058225080025
+          median_us: 31.999
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.06342779683824243
+          median_us: 156.646
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.05738742759379897
+          median_us: 2005.76
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.05011670248852368
+          median_us: 1775.36
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.03611225599870486
+          median_us: 1194.752
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.03610219122612685
+          median_us: 1114.496
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.03115863993972111
+          median_us: 165.856
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.01899485305645799
+          median_us: 698.368
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.017989303905050668
+          median_us: 71.958
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 825354.082000002
+          kernel_work_share: 0.3850916012304176
+          median_us: 123.23749999999998
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 430784.9879999997
+          kernel_work_share: 0.20099456031398863
+          median_us: 165.877
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 248913.9620000007
+          kernel_work_share: 0.11613764114779934
+          median_us: 71.958
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 225639.7920000004
+          kernel_work_share: 0.10527843830616483
+          median_us: 31.559
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t, 256,
+            Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false, true, false,
+            true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102621.3499999999
+          kernel_work_share: 0.047880807587654214
+          median_us: 118.7075
+      - rank: rank1
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank1.1792076940426149700.pt.trace.json.gz
+          sha256: 1cac78fe0c168148b89049439e583d2db86fefbc820102d74c05bf88f94ffb96
+          size: 9572650
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.4008934278396805
+          median_us: 2950.144
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.15463345627423256
+          median_us: 31.967
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.06339124550674134
+          median_us: 156.622
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.056414645019432816
+          median_us: 1901.312
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.050051534373877514
+          median_us: 1774.848
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.036044141558802284
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.03601702290788333
+          median_us: 1195.904
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.03115669942383988
+          median_us: 166.084
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.018854020373038252
+          median_us: 694.784
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.017988249750097534
+          median_us: 72.044
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 826196.1550000006
+          kernel_work_share: 0.38453730498441885
+          median_us: 123.59899999999999
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 431415.2689999999
+          kernel_work_share: 0.20079404130171477
+          median_us: 166.104
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 249279.66300000082
+          kernel_work_share: 0.11602248354380733
+          median_us: 72.044
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 228527.9890000006
+          kernel_work_share: 0.1063640111028707
+          median_us: 31.867
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t, 256,
+            Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false, true, false,
+            true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102763.68399999998
+          kernel_work_share: 0.04782940450216741
+          median_us: 118.829
+      boundary: device work sums can overlap; not critical-path time, utilization or speedup. 64iteration cap includes initial
+        prefill; Mixed trace does not cover late second-wave interference/P99 ITL.
+  mixed:
+    status: complete/diagnostic-only
+    workload: P1024/D256/C64/N128
+    warmup_rounds: 8
+    measured_rounds: 3
+    output_throughput_median: 704.1775316779153
+    output_throughput_all:
+    - 704.4797270396614
+    - 703.8885509852303
+    - 704.1775316779153
+    mean_ttft_ms_median: 5802.1254846971715
+    mean_tpot_ms_median: 68.21058591657693
+    p99_tpot_ms_median: 87.42195288194162
+    p99_itl_ms_median: 1485.6886451225728
+    p99_e2el_ms_median: 29457.68774480559
+    measured_throughput_spread: 0.0008395270053880606
+    warmup_last3_spread: 0.0558109534144017
+    run_record: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/env001v5-baseline-E2E/env001v5-mixed/run-record.json
+    run_record_sha256: 8cba4b673d49edbd6d6bbf5a312c54c8d46865b9c50d8d4195948ea6f69197cf
+    boundary: finite batch with prefill insertion/queue/network; high P99 ITL needs timeline attribution, not proof of kernel
+      fault
+    profiling:
+      status: captured-analyzed/current-bothrank
+      diagnostic:
+        path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/env001v5-mixed/qwen36-fg20-e2e/diagnostic-4bf57fdc801644d887a96652c858a176/diagnostic.json
+        sha256: c09d0082b4d60a76ee813424ded3ac973d11f0e0ede51000ccf27ba493bd9745
+      ranks:
+      - rank: rank0
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank0.1792077117117479003.pt.trace.json.gz
+          sha256: 7eb0d97532e99bcd7e5c7effcab8d213582b8a63c3d79d9a788f19c8b5f1b0b6
+          size: 9554832
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.4009692854348672
+          median_us: 2950.4
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.15377245090318833
+          median_us: 31.929
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.0633602887626854
+          median_us: 156.547
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.057255893984366694
+          median_us: 1999.616
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.05007256109986763
+          median_us: 1775.36
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.03606812179464125
+          median_us: 1114.368
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.036046817616273125
+          median_us: 1199.104
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.031134585801173197
+          median_us: 165.856
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.018975371144394366
+          median_us: 698.624
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.01797117961933256
+          median_us: 71.98400000000001
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 825570.0389999998
+          kernel_work_share: 0.38467465841183857
+          median_us: 122.33749999999999
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 431016.8680000004
+          kernel_work_share: 0.20083246561184948
+          median_us: 165.867
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 248989.52
+          kernel_work_share: 0.11601675694305044
+          median_us: 71.98400000000001
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 227773.185000001
+          kernel_work_share: 0.10613099797248325
+          median_us: 31.4745
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t, 256,
+            Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false, true, false,
+            true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102636.69599999987
+          kernel_work_share: 0.047823605641192216
+          median_us: 118.6625
+      - rank: rank1
+        trace:
+          path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/profiles/server/rank1.1792077117108109089.pt.trace.json.gz
+          sha256: a3d59b0a0ddbb68c665d231625fda6b6118ccc764c9b39d78575dbb87211cdbb
+          size: 9575469
+        graph_launches: 55
+        top_kernel_work:
+        - name: mcblas__Mck_bf16gemm_tn_256x256x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 1728
+          kernel_work_share: 0.4010062217591985
+          median_us: 2950.144
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 8127
+          kernel_work_share: 0.154500094179855
+          median_us: 32.0
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6971
+          kernel_work_share: 0.06341153982463317
+          median_us: 156.542
+        - name: chunk_gated_delta_rule_fwd_kernel_h_vmajor
+          count: 432
+          kernel_work_share: 0.05641607547975268
+          median_us: 1901.696
+        - name: recompute_w_u_fwd_precise_rhs_kernel
+          count: 432
+          kernel_work_share: 0.050068764603938117
+          median_us: 1774.592
+        - name: mcblas__Mck_bf16gemm_tn_256x192x64_2m1n8k_512t_4stage_bf16_bf16_fp32_sb_0_0
+          count: 448
+          kernel_work_share: 0.036061411410902855
+          median_us: 1114.624
+        - name: chunk_fwd_kernel_o
+          count: 432
+          kernel_work_share: 0.03601187054021675
+          median_us: 1192.8319999999999
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2640
+          kernel_work_share: 0.03116241591032809
+          median_us: 166.0285
+        - name: _fused_post_conv_kernel
+          count: 432
+          kernel_work_share: 0.018862284606253586
+          median_us: 694.528
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          kernel_work_share: 0.017990651453581263
+          median_us: 72.0145
+        b64_decode_graph_replays: 54
+        b64_decode_graph_hotspots:
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_0
+          count: 6912
+          total_us: 826219.5400000003
+          kernel_work_share: 0.3845637984454441
+          median_us: 122.1825
+        - name: fused_recurrent_gated_delta_rule_packed_decode_kernel
+          count: 2592
+          total_us: 431370.4980000004
+          kernel_work_share: 0.20078135315969767
+          median_us: 166.044
+        - name: mcblas__Mck_bf16gemm_tn_128x64x256_2m1n8k_256t_bf16_bf16_fp32_sb_0_2
+          count: 3456
+          total_us: 249241.31499999977
+          kernel_work_share: 0.11600934398856909
+          median_us: 72.0145
+        - name: mcclKernel_AllReduce_FC2_Sum_mccl_bfloat16(fcinfo)
+          count: 6912
+          total_us: 228411.2150000002
+          kernel_work_share: 0.10631397612302784
+          median_us: 31.907
+        - name: void flash_fwd_splitkv_kernel<Flash_fwd_kernel_traits<256, 64, 32, 4, true, true, mctlass::bfloat16_t, 256,
+            Flash_kernel_traits<256, 64, 32, 4, mctlass::bfloat16_t> >, false, false, false, false, true, false, true, false,
+            true, (Arch)1000>(mcFlashAttn::Flash_fwd_params, int, int)
+          count: 864
+          total_us: 102794.67900000003
+          kernel_work_share: 0.04784577258511718
+          median_us: 118.863
+      boundary: device work sums can overlap; not critical-path time, utilization or speedup. 64iteration cap includes initial
+        prefill; Mixed trace does not cover late second-wave interference/P99 ITL.
+identity_provenance: User current script20 FG, clone a6d57a99, source/dependencies same as delivery008; previous all21/6ea
+  case not directly comparable
+current_environment_notice:
+  status: fw002r4-private-full-fix-baseline-measuring
+  missing_path: /public-flash/models/Qwen3.6-27B
+  prior_baseline_results: historical valid, unchanged; no current service claim
+  source18002: original946383/1792123272.69 paused with approval; r4 final restores original20FG
+  fullMixed_additional_profile:
+    analysis:
+      path: /public-flash/jinghao/qwen3.6-27B/optimize/flash_attention/20261015-qwen36-27b-metax-fg20-e2e/results/fw002p-fullmixed-analysis-v4.json
+      sha256: 701a31a3d200783f37812faf053ba4e7fae9b5d816b29200a3aa50cb3e5c9e54
+      rank_count: 2
+      new_requests_per_rank: 128
+      worker_iterations: 526
+      active_iterations: 524
+      prefill_iterations: 19
+      decode_iterations: 505
+      correlated_kernel_fraction: 0.9969793874901103
+      pure_decode_inter_forward_uncovered_median_us:
+      - 107.0083
+      - 101.6318
+      prefill_device_median_ms: 1504.94
+      interpretation: Prefill GPU work causes long insertion stalls; CPU inter-iteration gap small. Repeated GPUtolist on
+        int32[8] seq_lens inside16nativeattention layers serializes launches; duration includes priorGPU compute, not all
+        removable.
+    conclusion: prefill device interference real, CPU outerrange includespreprocess unknown, no standaloneCPUrootcause from
+      wait totals
+  restored_model_path: /public-flash/jinghao/qwen3.6-27B/Qwen3.6-27B
+  verification_sha256: 04ab4ce7c50bcdda8191a792ee030a6288f09a6e66b81c0e39e71f5667296cce
+  model_path: /public-flash/jinghao/qwen3.6-27B/Qwen3.6-27B
+  user_script_sha256: ce05fbfeceee26a65debdc41867ce48332a42ff30b035e2290e7520565b2ff21
+  source_code_sha_match: true
+  private_code_sha_match: true
+  latest_mixed_attempt: Originalr3 failed10.803% spread; newfixedbaselineMixed pending; no oldwarmup reuse
+  optimization18012: qwen36-fg20-e2e:288787:1792124252.15; FG a5184db5...; bothrank32graph/C8 passed
+current_notice: Historical originalbaseline preserved. FW002r4 all9phase records complete, Mixedmetadata+0.2646%<2 andDecodebaselineTTFT13.445%incomplete;
+  full/primitives restored. Sourceoriginal20FG18002 ready954040/1792130229.17, monitorPAUSED; seeoptimizeFW002final.
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: baseline-profile-complete/op001-probe-starting
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

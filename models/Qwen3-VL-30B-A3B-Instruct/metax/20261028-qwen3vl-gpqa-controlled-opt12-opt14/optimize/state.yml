@@ -1,0 +1,615 @@
+schema_version: 4
+identity:
+  case_id: 20261028-qwen3vl-gpqa-controlled-opt12-opt14
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: opt12-passed-attention-vs-opt14-current
+  topology: TP2:GPU0,1
+stage: optimize
+current:
+  status: all experiments terminal;minimal batch-RNG firsttoken mechanism confirmed;source
+    preserved
+  candidate: original opt14 f81/paged/default0 retained;no test variant deployed
+  next_action: Report bounded mechanism;no pending execution or automatic further
+    trials. Original fullGPQA score causality remains unresolved.
+experiments:
+- experiment_id: diag-001-controlled-attention
+  document: diag-001-controlled-attention.md
+  scenario_id: GPQA198-C64-defaults-B1-C1-R1
+  status: completed-and-restored
+  decision: version-associated reversible score gap;two factors remain unisolated
+  mode: formal-gate controlled diagnosis
+  issue_id: accdiag-opt14-c64-gpqa-001
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-gpqa-controlled-opt12-opt14
+  control_sha256: b36114aa7096c87824bb5a9bcbf556a5af7b623bc9273b9326d23655999b74b9
+  source_restore_authorization: 允许临停 opt14，完成后恢复
+  source_pid: 1597993
+  source_ticks: '1146418910'
+  roles:
+  - role: B1
+    attention: PR638+split1
+    native_split: 1
+  - role: C1
+    attention: original paged+default0
+    native_split: 0
+  - role: R1
+    attention: PR638+split1
+    native_split: 1
+  per_role_full_runs: 1
+  C: 64
+  prefix_cache: true
+  sampling: unchanged model defaults,no request seed
+  known_passed_source: opt12 129/198 with SHA4e12;other source/model/tokenizer/defaults
+    exact to current
+  current_failed_source: opt14 118/198 with SHAf81;source API1597993/ticks1146418910
+  source_changes: false
+  performance_runs: 0
+  engineering_review:
+    A1-A4,B1-B4,C1: existing source rollback only;no new math kernel
+    C2-C3,F1-F3: startup metadata wrappers original-once,CPU tests then hardware proof
+      before formal;removed per-rank before GPQA
+    pr_readiness: not_applicable-diagnostic-control
+  controller:
+    pid: 1313960
+    ticks: '1147059617'
+    script: commands/control_v3.py
+  prepared_sha256: 160f5b207ea7233316a4af6259533c340ea53d1fdd480da4ec7eb0eee819f99f
+  plan_sha256: 95e3cc49dd5a62ca10c1794f42da906a2f076bb9a094945c3891bde3a922afd5
+  snapshot_image: sha256:1c00be94c2fdad21519b8174589d53aa47f562077016eb52897a60acffb98e97
+  mount_parity: all3 passed
+  source_stopped_at: '2026-10-28T11:57:49+08:00'
+  B1:
+    container: qwen3vl-gpqa-control-b1-mx104-20261028
+    pid: 126
+    ticks: '1147061633'
+    phase: completed;measured container stopped
+    gpqa_started_at: '2026-10-28T12:01:52+08:00'
+    native: 2ranks explicit1 and original returned,Plugin SHA4e12 verified
+    graph: 2ranks capture returned +16 replay returns;startup wrappers removed before
+      formal
+    minimal: normal smoke/C8 passed
+    latest_progress:
+      at: '2026-10-28T12:16:55+08:00'
+      http_started: 198
+      http_completed: 177
+      unique_http200: 177
+      native_progress: 176
+      expected: 198
+      final_score: null
+    correct: 129
+    samples: 198
+    score_percent: 65.15151515151516
+    threshold_percent: 64
+    threshold_status: passed
+    result_sha256: 4b96150a4d5347decdba5110519ea6a470bc33063f634b3acb7cab7fe41d7f86
+    native_result_sha256: 3a7d5e805c6122de9ab49564c062946736facdd7fb0162d475633e907e837224
+    native_samples_sha256: 35ae9ab4e7445387f3f7765531cab5f9e3a751b2b0bfb211c19d4d53c3e6904c
+    gate_sha256: 13d6dbf59f9adbb5de939c5092a4398d106ead60bd8145314b1986de3191f37a
+    independent_gate_check: passed;only measured B1 instance,not current C1 or restored
+      source
+    source_before_after: exact
+    historical_comparison:
+      same198_docs_arguments: true
+      same_perdoc_score_count: 164
+      same_full_response_count: 0
+      total_score_equal: true
+      scope: one matching total score does not prove deterministic response reproduction
+  historical_pair:
+    same198_docs_and_arguments: true
+    both_correct: 108
+    both_wrong: 59
+    old_only_correct: 21
+    current_only_correct: 10
+    full_response_exact: 0
+    scope: descriptive only,not same-instance causality
+  C1:
+    container: qwen3vl-gpqa-control-c1-mx104-20261028
+    pid: 82
+    ticks: '1147294077'
+    phase: completed;measured container stopped
+    gpqa_started_at: '2026-10-28T12:40:26+08:00'
+    latest_progress:
+      at: '2026-10-28T12:46:56+08:00'
+      http_started: 198
+      http_completed: 158
+      unique_http200: 158
+      native_progress: 157
+      final_score: null
+    correct: 119
+    samples: 198
+    score_percent: 60.1010101010101
+    threshold_percent: 64
+    threshold_status: failed
+    result_sha256: 5890f308d6d7c646ef23dc11b4f6f8025e9a0257c75633ecb4a97d3fdd585ad8
+    native_result_sha256: 2fca412732a97e2ace4c8eaa3d156a386d9f55bb14705557f0dd7b381f571ccb
+    native_samples_sha256: ef9d4b7ec48ee6903ca2505a11cdcd904524121ab98483435970fc05b39c698f
+    sampling_audit_sha256: 8d8553910229cfb88e12ef2bbf9774f8e5303b11b4d9c23d14926913a4867bfe
+    startup_observation_sha256: 6094d48d3af32e81562e5d40a83fe46d14a3cef715aac101413fc7ac69c90e70
+    independent_cpu_audit: passed;198unique/provenance/perdocsum119/source before-after
+      exact
+    gate_issued: false
+    pairs:
+      with_B1:
+        both_correct: 104
+        both_wrong: 54
+        reference_only: 25
+        C1_only: 15
+        full_response_exact: 0
+      with_previous118:
+        both_correct: 100
+        both_wrong: 61
+        reference_only: 18
+        C1_only: 19
+        full_response_exact: 0
+      scope: same docs/arguments;not complete response reproduction or isolated Prefill/split
+        causality
+  R1:
+    container: qwen3vl-gpqa-control-r1-mx104-20261028
+    pid: 83
+    ticks: '1147422812'
+    phase: completed;measured container stopped
+    gpqa_started_at: '2026-10-28T13:02:00+08:00'
+    latest_progress:
+      at: '2026-10-28T13:16:56+08:00'
+      http_started: 198
+      http_completed: 176
+      unique_http200: 176
+      native_progress: 175
+      final_score: null
+    correct: 129
+    samples: 198
+    score_percent: 65.15151515151516
+    threshold_percent: 64
+    threshold_status: passed
+    result_sha256: a0a7738a203c2833ded512068440a22c7a8ae386ded90a4da0446f1af4b9577d
+    native_result_sha256: 1cc408871d0dbd90d144742ea865abcf8ab43ac790bea4960550d3d92c8ab57b
+    native_samples_sha256: 8555dcf2aadeb523523a09e8510f2f845169830dd1ddd472206ef0b924d9de45
+    gate_sha256: b8d6fd50a81ede7821be9a9646f0480bfceacdc2ba3ab0035a18ba48982160db
+  completed_sha256: 89d83b0a2800a3bebc0a25c1602ce7fc4a892398bee716f228b673fe665a2d2c
+  paired_sha256: 0852439b8722fe4f5b5b66869cab60cfc5b02f2e0be6986270036df765c10f52
+  restoration:
+    status: passed
+    at: '2026-10-28T13:40:15+08:00'
+    pid: 1697323
+    ticks: '1147653843'
+    sha256: 52e14bf2a65a366b861651cc873adabd7751bb83d0aacc6e5672bc7adeffbf33
+    source: f81/original argv/env/cwd/prefixON
+    independent_current_read: PID/ticks/source/config/model equality/models200 passed;0generation
+      requests
+- experiment_id: diag-002-factorial-bridges
+  document: diag-002-factorial-bridges.md
+  status: completed-and-restored
+  decision: both bridges passed;no unique Prefill/split rootcause;all scores retained
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-gpqa-controlled-opt12-opt14/factor2
+  cpu_preparer: parent commands/prepare_factor2.py
+  cpu_preparer_sha256: fb9a14e9e00ad1507944b78ce0ca13d509df52a037a578c36f08522f2d5b7050
+  roles:
+  - role: D1
+    prefill: original paged
+    native_split: 1
+  - role: E1
+    prefill: PR638 contiguous
+    native_split: 0
+  per_role_full_runs: 1
+  C: 64
+  threshold_percent: 64
+  sampling: unchanged defaults/no requestseed
+  prefix_cache: true
+  source_bound_pid: 1697323
+  source_bound_ticks: '1147653843'
+  performance_runs: 0
+  source_changes: false
+  prepared_sha256: 0c81959cb63b713e9351f11a5853b83b0981e2712d8062d984a0fd1b66c44e45
+  plan_sha256: 16b3523e7bb1c99bef32871cebb194ed13b688b2bb41b732bc3e339ffa037274
+  controller_sha256: 18d099054365068e044665c0de64624c0643d8b35e3972314a27be8aa84c0291
+  controller_script: factor2/commands/control.py
+  image_lineage: verified;same1c00be94
+  mount_parity: D1/E1 passed
+  D1_attention_sha256: 2eaec0be03b16ad1d4b5e24851655eea53d0fb90db83a5ccaeff04011dcb3002
+  E1_attention_sha256: f49f4a5b401a5ca66f04f10b27e7b6f186e3efe1c8d214556efb0b1edaf36514
+  preflight: CPU compile/AST keyword-only/source-before identity/two independent provenance
+    per role passed;13.94GB Docker space;0model requests
+  scenario_id: GPQA198-C64-defaults-D1-E1-factorial
+  controller:
+    pid: 1738426
+    ticks: '1147819842'
+    script: factor2/commands/control.py
+  source_stop_started_at: '2026-10-28T14:04:13+08:00'
+  source_stopped_at: '2026-10-28T14:04:31+08:00'
+  D1:
+    container: qwen3vl-gpqa-control-d1-mx104-20261028
+    pid: 77
+    ticks: '1147821851'
+    phase: completed;measured container stopped
+    started_at: '2026-10-28T14:04:31+08:00'
+    completed_at: '2026-10-28T14:42:36+08:00'
+    correct: 127
+    samples: 198
+    score_percent: 64.14141414141415
+    threshold_status: passed
+    result_sha256: 31687d8dd134666a4278e0ea4e7000ef047b6c9e650bbf9e7026b6bcae603e60
+    gate_sha256: b3630734ab3a4b8f262843afd47d5c1615c49f30a10ffbb8a4a6a4b45144b24a
+    independent_cpu_audit: 198unique/perdoc/native provenance/config/source before-after/198upstream
+      no sampling-seed/existing gatecheck passed
+  local_record_validation: current case schema/identity/stage/document links passed;repository-wide
+    unrelated existing failures retained
+  completed_sha256: 6928fb2956407a8903289d9e4e5d92536697929584afe99f25107b700c2c4670
+  paired_sha256: fddd7688eccd62931dd1eab7c28c883054db73fd59ed8ea6661f2a613cdf8f69
+  restoration: &id001
+    status: passed
+    at: '2026-10-28T15:06:38+08:00'
+    pid: 1707852
+    ticks: '1148172233'
+    artifact: factor2/results/source-restored.json
+    sha256: a04389b01ab18b11e6d3e4eb210748af256ed16c675708689848d43725e60bc8
+    source: f81/original argv/env/cwd/8030/prefixON
+    independent_current_read: source/repositories/model/tokenizer/generation_config/imports/git/versions
+      exact to restore;container PID/ticks and models200 passed;0generation requests
+    smoke_C8: controller passed;not a new formal gate
+  E1:
+    phase: completed;measured container stopped
+    completed_at: '2026-10-28T15:02:33+08:00'
+    correct: 129
+    samples: 198
+    score_percent: 65.15151515151516
+    threshold_status: passed
+    result_sha256: 3e91222a8c72896a0b5eea7678b7ad70327f532109b7f9f656f3d5ad697bea37
+    gate_sha256: b95352a3de0439fa151d1c7e4c2ce34ca522c7cf997b921263fff8131ea8562d
+    independent_cpu_audit: 198unique/perdoc/native provenance/config/source before-after/198upstream
+      no sampling-seed/existing gatecheck passed
+- experiment_id: diag-003-parallel67-auxiliary
+  document: diag-003-parallel67-auxiliary.md
+  scenario_id: GPQA198-C64-defaults-E67-newGPU
+  status: completed-own-cleanup-finished
+  decision: valid-score-failure;auxiliary cross-device not isolated hardware/rootcause
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-gpqa-controlled-opt12-opt14/factor2/parallel67-v2
+  prepare_sha256: 51e63ebaab1ad48eb8538efa9c3c1973bf0f0f183db2c2d82ff147e7f1ff305b
+  execute_template_sha256: 17f38bd6f4c2e39b70acc5cb4667514812998b33c0fe5e6b371936e850c75525
+  C: 64
+  per_role_full_runs: 1
+  gpu_ids:
+  - 6
+  - 7
+  cpu_set: 40-79,120-159
+  memory_node: 1
+  model_port: 8037
+  adapter_port: 19967
+  source_restore_owner: original serial1738426 only
+  serial_controller_untouched: true
+  shared_host_limitation: D1 unrestricted CPU;no zero-interference claim
+  parallel_started: true
+  blocker: null
+  new_model_containers_created: true
+  new_evaluators_created: true
+  prepared_artifacts: allCPU prepared/guard incidents resolved;currentimmutablecontract
+  prepare_v2_sha256: 724133c334960bd8bbe955782bf1474e3e4fb170ebfe01951c43d85a9e6bbbda
+  previous_resource_guard: old parallel67 retained;no requests
+  finish_cpu_sha256: 13f0cdc3f437d9504ccc1909462976b40c2d5a522ee8c960eb14f598f524c718
+  finish_cpu_v3_sha256: c6adb660b36e1f10e51c8873e46c4f34fd3fe00fcf8346ba8c30785e16cb14aa
+  prepared_sha256: 437bc241ab36219627c85ea0299e9532cf9188efc520b60ade19b399b8ac70f6
+  contract_sha256: 200b28638a68318e745a4bc2b4bbbb032c848b0d9a255b75bf8e16ea47b3270c
+  controller_sha256: d52d12eed360b9004a01d6a3a392cb9168b3fa827bd2eb86eee516e4236c0979
+  evaluator: qwen3vl-gpqa-parallel67-mx104-20261028-v2
+  cpu_preflight: same-doc/task except explicit endpoint;AST transport-only/service-signal-absent/allfrozenSHA
+    passed
+  controller:
+    pid: 1815528
+    ticks: '1147952882'
+    script: factor2/parallel67-v2/commands/control.py
+  model:
+    container: qwen3vl-gpqa-e67-mx104-20261028
+    pid: 76
+    ticks: '1147952917'
+    started_at: '2026-10-28T14:26:22+08:00'
+    actual_startup_gates: passed:2rank native0/capture+16replay/observerremoved/smokeC8/source+config;actualGPU6/7
+      independently verified
+    phase: stopped;no user source operation
+  independent_runtime_mapping:
+    artifact: factor2/parallel67-v2/manifests/independent-live-mapping.json
+    sha256: c1dff465ec5f5d25ac4cbb78118c4ca4534e67790dca575bc5244a4d4b7f832b
+    at: '2026-10-28T14:29:07+08:00'
+    gpu6_host_pid: 1817633
+    gpu7_host_pid: 1817634
+    cpu_set: 40-79,120-159
+    memnode: 1
+    cpu_pressure_avg10: 0.49
+    io_pressure_avg10: 0.0
+    scope: actual disjoint GPU mapping and new-group NUMA confinement;shared host
+      bandwidth not zero-interference proof
+  local_validation: case three-stage identity/schema/pointlinks passed
+  gpqa_started_at: '2026-10-28T14:30:21+08:00'
+  correct: 122
+  samples: 198
+  score_percent: 61.61616161616162
+  threshold_status: failed
+  gate_issued: false
+  result_sha256: 445c376f152f53d9d07ecbe9c22e25bde2ab6d18fa8d36778e97cf7d5c852787
+  completed_sha256: 668d14b3fbc5204e696570fd8c28b93c4e3303803eda7bdc5f85625a49fbcd06
+  completed_at: '2026-10-28T14:46:14+08:00'
+  cleanup_at: '2026-10-28T14:46:36+08:00'
+  independent_cpu_audit: 198unique/perdoc/native provenance/config/source before-after/198upstream
+    no sampling-seed passed;no gate
+  E1_E67_pair:
+    same198docs_arguments: true
+    both_correct: 107
+    both_wrong: 54
+    E1_only: 22
+    E67_only: 15
+    full_response_equal: 0
+    scope: same code but GPU pair/CPU-affinity/NUMA/timing/trajectory differ;not isolated
+      hardware effect
+- experiment_id: diag-004-sampling-batch-minimal
+  document: diag-004-sampling-batch-minimal.md
+  scenario_id: sampler-fixed-probs-shape-row-history
+  status: completed;local firsttoken mechanism confirmed;no production change
+  decision: diagnostic completed;formal score cause not established
+  remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-gpqa-controlled-opt12-opt14/sampling-batch-minimal
+  calls: 6
+  model_requests: 0
+  controller_sha256: 63275414bd3bd49bc3490e0460a8a6c8706fa45542cdcdc2f19ff4e94be8ca63
+  probe_sha256: 056085286fb79f0ab8193de1a362fc999e36ea6ae47f37d2c171483af99616e8
+  source_stop: false
+  gpu:
+  - 6
+  scope: component counterfactual,not model score/rootcause
+  timeout_seconds: 300
+  component_sha256: 9a83917e308c05e9fcb09ec5ea78083f33a2243a15d49b4134970f43a4e576e6
+  component_conclusion: Batch history/row changes actual default-RNG noise and selected
+    token with fixed probabilities;not GPQA causal proof
+  model_window:
+    remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-gpqa-controlled-opt12-opt14/default-sampler-window
+    roles:
+    - C1off
+    - C1on
+    - C8off
+    - C8on
+    target_requests: 18
+    startup_guard_requests: 36
+    gpu:
+    - 6
+    - 7
+    source_stop: false
+    script_sha256:
+      observer: a2f92db81bfb4d99b73140ba380dea2e2efb62821dd109c3de3d371ffbbad8b8
+      control: a4c7e3d154fa5ea3c89bee814c360bacdb406a12600e03e869f31074f6a48b77
+      client: 3172fff1ec2808255e56e03cc3f815dfe9266f93199ed7b9116a77c7c9110fe0
+      factory: da23d0c751f419409d3bfd0c3a0533bd590033a1b21ebd9482e9b168744edc0d
+      analysis: 9893cefb668130c1c8f5c67292481cb9458a92e7fac1fc89e1bb61dd894fdcb8
+      test: d6be177d5206d78c900ea3ce035f31b521a6594dab040db8e34b05a4e6f0135e
+      prepare: cb8400c12f2e7589e792c1692a2246e41891b08cf2c9a3e85bafd6a7719ac36f
+    status: all4 completed;controller exited;clones stopped;source unchanged
+    prepared_sha256: c33643bbdbf9bba26ee3e7fd44e331439f3778628235ca0ab05b9d344c11da5d
+    contract_sha256: 4787cad29d39db7b8c772668f2408367da05571e6e4a20d98bee9d9ea13b84fc
+    cpu_tests_sha256: fabf248a3522df8f3836ca4cbb037fb5c8ebaf3196ede26c14d163b01fbb66de
+    controller:
+      pid: 2053443
+      startticks: '1148439851'
+      path: default-sampler-window/commands/controller.py
+    started_at: '2026-10-28T15:47:33+08:00'
+    completed_roles:
+    - C1off
+    - C1on
+    - C8off
+    - C8on
+    current_role: null
+    current_model:
+      pid: 120
+      startticks: '1148466399'
+    last_checked_at: '2026-10-28T16:26:51.036220+08:00'
+    first_control:
+      actual_prompt_tokens: 222
+      actual_generated_tokens: 111
+      native0_graph16_smoke_source: passed
+      actual_prompt_ids_fixture: exact
+    completed_sha256: 7d9ffacaa0d735c6b323cb1b4be57491166e57d39c359890c17e8c1f7359b8f1
+    joint_sha256: 32299e4565abfc5bb8b22d309b7e60182bad21f9ed96c8e85ad899ba1695f212
+    source_preserved_sha256: 90e297c1a525cdd81ae04dc08f19e115b0d784f18fb3425e2b13d64d8c7b7d1d
+    independent_audit_sha256: a5d3a5050aac1585d6fa089dd8b72a76895fdc3a73c56fa1e15e4224dc5d04ac
+    cpu_audit_script_sha256: e6aaa7114822c1465d54004d713443fa95a21b3c6df2b8e0941f6471db8660eb
+    neutrality:
+      C1_full_ids: true
+      C8_full_ids: false
+      first8_allroles: true
+    limits: First8 postfilter probabilities all onehot;RNG/noise differ but cannot
+      alter selection there. First observed token divergence index9;unobserved C1/C8
+      index30;both outside captured window.
+  filter_reference:
+    sha256: f9011210cf229633e112ab88fc9a56186480a7c9c50b9ede80d90a4e0adfa72c
+    scope: CPUFP64 on savedrawlogits T.7/K20/P.8;32rows support1 exactcapture
+    top1_before_topp_min: 0.9755475498130803
+  model_window32:
+    status: all4 completed;controller exited;clones stopped;source preserved
+    remote_root: /public-flash/jinghao/qwen3-VL/20261028-qwen3vl-gpqa-controlled-opt12-opt14/default-sampler-window32
+    roles:
+    - C1off
+    - C1on
+    - C8off
+    - C8on
+    target_requests: 18
+    startup_guard_requests: 36
+    max_target_calls_per_rank: 64
+    accepted_window: 32
+    source_stop: false
+    gpu:
+    - 6
+    - 7
+    observer_sha256: b8abb5b5d171e8d1652d87f0925481ab0bac04c9def7ad8ea5223d505adf98ae
+    test_sha256: d69af00b4992e87f3b8f4665272e0d15e4ceca83e8e38b9cbbb58b0a8d1f90a0
+    prepare_sha256: 39d06700fa4d325e7a7096d3c47484b9639397f564429125ce9c70cb8b8b0bfe
+    analysis_sha256: 8564d626ccbe748566bd0ad5d8c9072a5a5ada43af76fe0c114133712c1a4805
+    controller_sha256: a4c7e3d154fa5ea3c89bee814c360bacdb406a12600e03e869f31074f6a48b77
+    reason: Cover observedindex9/unobservedindex30 firstdifference,removeold8thD2H
+      within causalwindow;no fullGPQA
+    CPU_tests: passed fakeRunner32accepted+discard/originalonce/return/rowmove/async/zeroD2Hbefore32/restorehooks
+    prepared_sha256: 7cb0f88ff5b0d921414a96025a3d748b42c687f5461d33169887c76452ff30cd
+    contract_sha256: 3c2dd50cb69014f5877270d987c63f2934bc213ca2884d44fd633434892e7c70
+    cpu_tests_sha256: 2636ed1defa390c3653e243a4057163fe809a5df1b2175b21b4652b9d8e63cf3
+    controller:
+      pid: 2260581
+      startticks: '1148872900'
+    current_role: null
+    current_model:
+      pid: 121
+      startticks: '1148873054'
+    started_at: '2026-10-28T16:59:43.995871+08:00'
+    completed_roles:
+    - C1off
+    - C1on
+    - C8off
+    - C8on
+    completed_sha256: 611d9c5be3f7f401fd07cefdf14a025bdfa1a1151518fd5baf19a440454d3629
+    joint_sha256: 50d8c296ef0f32e2b35c77acf15d7e3bf5f72122fc9eba28e3b3c02873c3865f
+    source_preserved_sha256: 90e297c1a525cdd81ae04dc08f19e115b0d784f18fb3425e2b13d64d8c7b7d1d
+    causal_audit_script_sha256: 1d7a13af054b134835505b08b47b50d1084812831c38af44ec15bad9c8ca3ae3
+    causal_audit_sha256: 1f17a0932820f3cc4903d9d0ec1087a29fcbb3ae40f493a881e58f83e3b62521
+    neutrality:
+      C1_all_text_targetIDs: true
+      C8_all_text_targetIDs: true
+    first_divergence:
+      zero_based_index: 29
+      prior_generated_prefix_exact: 29
+      actual_prompt_tokens: 222
+      selected_C1: 23552
+      selected_C8: 279
+      probabilities_exact: true
+      probs:
+        '23552': 0.5883487462997437
+        '279': 0.41165125370025635
+      offsets:
+      - 22828384
+      - 30045344
+      noise_equal: false
+      CPU_prob_swap_changes_selection: false
+      CPU_noise_swap_changes_selection: true
+      both_ranks_exact: true
+      batch_history_exactly_explains_offset: true
+    limitations: SameGPU6/7 reduceddoc21;not original198/C64/GPU-pair-score cause
+      or hardware bug proof;other numerical effects not excluded
+metrics:
+- scenario_id: GPQA198-C64-defaults
+  role: B1-old-Attention
+  metric: strict-match
+  value: 65.15151515151516
+  unit: percent
+  scope: 129/198;threshold64;fresh controlled role;not restored source gate
+- scenario_id: GPQA198-C64-defaults
+  role: C1-current-Attention
+  metric: strict-match
+  value: 60.1010101010101
+  unit: percent
+  scope: 119/198;threshold64;valid failure,no gate
+- scenario_id: GPQA198-C64-defaults
+  role: R1-old-Attention
+  metric: strict-match
+  value: 65.15151515151516
+  unit: percent
+  scope: 129/198;threshold64;revert instance only
+- scenario_id: GPQA198-C64-defaults-D1-E1-factorial
+  role: D1
+  metric: strict-match
+  value: 64.14141414141415
+  unit: percent
+  scope: 127/198;threshold64;only stopped measured instance gate
+- scenario_id: GPQA198-C64-defaults-D1-E1-factorial
+  role: E1
+  metric: strict-match
+  value: 65.15151515151516
+  unit: percent
+  scope: 129/198;threshold64;only stopped measured instance gate
+- scenario_id: GPQA198-C64-defaults-E67-newGPU
+  role: E67
+  metric: strict-match
+  value: 61.61616161616162
+  unit: percent
+  scope: 122/198;threshold64;valid failure,no gate;different GPU pair/host placement
+accuracy_diagnosis:
+  issue_id: accdiag-opt14-c64-gpqa-001
+  status: requested sampling/batch minimal-reproducer stage completed;formal score
+    cause remains unconfirmed
+  root_cause: Local first divergent token:batch history changes default-RNG noise
+    while filtered probabilities remain identical;fullGPQA net score attribution unconfirmed
+  performance_may_resume: false
+  classification: valid formal score failure with version-associated signal and unresolved
+    stochastic/batch/resource effects
+  cpu_candidate_doc_ids:
+  - 21
+  - 31
+  - 47
+  - 91
+  - 122
+  - 145
+  - 170
+  candidate_selection: posthoc C1 wrong and all B1/R1/D1/E1 correct;diagnostic only,not
+    benchmark or fix specialization
+  candidate_prompt_tokens:
+  - 222
+  - 241
+  - 239
+  - 289
+  - 308
+  - 392
+  - 319
+  minimal_reproducer: doc21 sameGPU6/7 C1/C8,actualprompt222/common29tokens;both off/on
+    controls allresponse neutral,firsttoken split follows capturednoise swap
+  fix_deployed: false
+progress_monitor:
+  automation_id: qwen3-vl-gpqa
+  interval_minutes: 30
+  status: deleted;all scoped diagnostic tasks terminal and source preserved
+  last_notification_at: '2026-10-28T17:32:05.467140+08:00'
+  last_checked_at: '2026-10-28T17:32:05.467140+08:00'
+  last_decision: NOTIFY:local firsttoken causal proof independently passed;source
+    preserved;stop completed-stage monitor
+independent_result_audit:
+  script: factor2/commands/independent_six_role_audit.py
+  script_sha256: ec0b8077c45d5fb839062d10320c7f73d0e564e628982ff919aa359aa92724a5
+  result: factor2/results/independent-six-role-audit.json
+  sha256: 58f50fd6bcbc6efd9120bb75997f05dedfd26c3d4aeaa7861212fb504f18e28d
+  status: passed
+  scope: all6roles;CPU only;no new gates/requests;all15pairs exact198docs/args,zero
+    full-response matches
+planning_review:
+  review_id: plan-sampler-batch-causal6-20261028
+  skill: skills/inference-optimization-planning/SKILL.md
+  evidence_cutoff: '2026-10-28T17:32:05.467140+08:00'
+  status: requested minimal mechanism stage completed;no pending GPU tasks
+  current_source: *id001
+  ledger:
+  - diag001/002/003 six formal roles retained without rerun;no deployed candidate
+  - diag004A actual6calls sameprobs/history changesnoise/selected confirmed;clone
+    stopped
+  - diag004B fourroles18requests/two-rank captures completed;C1neutral,C8fulltrajectory
+    notneutral;first8 support1 and selectionunchanged
+  - diag004C fourfreshroles18body completed;bothcontrols fulltext/IDs exact;two-rank
+    firstindex29 equalprobs/differentq;CPU2x2swap robustmargin provesnoise determines
+    localfirsttoken
+  retained_change_order: []
+  cumulative_effect: No retained code change,formal precision gate or performance
+    result;source remains original f81. Same-device local batch/RNG selection mechanism
+    confirmed.
+  phase_views:
+    prefill: Same222actualprompt;targetfirst2 M1 equal logits/probs/noise;perrequest
+      cache/fullformal scheduling not established
+    decode: Observed first divergent index29:probs identical .58835/.41165;noise different;CPU32/64
+      all4 probability/noise combinations follownoise,notprobs. Bothrankexact,actualselected
+      APIjoined. Earlier rawlogit differences persist but do not account for this
+      first selection.
+    mixed: C8 actual batch1->2->8 history explains larger RNG offsets by exactsum(batch*37984),no
+      targetdiscard. Both newC1/C8 observed/unobserved fullresponses match;not formalC64trajectory
+      proof.
+    performance: not measured;timings not benchmark
+  ranked_next_directions: []
+  deferred:
+  - CrossGPU hardware attribution
+  - NewfullGPQA/newsplit/productionfix/performance
+  - Seed/temperature/sampling changes
+  - Attributing net7GPQAquestions to this mechanism would require new bounded evidence;not
+    claimed
+  - Changing per-request seed or RNG semantics changes current contract;not performed
+  immediate_experiment: None. Preserve evidence/report bounded conclusion;no automatic
+    further model calls.
+  next_review_trigger: User requests next controlled diagnosis or new evidence requires
+    broader formal-score attribution
+  superseded_decision: first8-only evidence was insufficient;first32 delayed-D2H captured
+    same-prefix/equal-probs first divergence and passed both unobserved controls

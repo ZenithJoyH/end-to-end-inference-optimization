@@ -1,0 +1,16 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-opt13-performance-gap
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: historical-opt10-observation
+  topology: TP2:GPU0,1-current;TP2:GPU6,7-mx59-historical
+stage: acceptance
+current:
+  status: incomplete
+  candidate: null
+  next_action: Read-only supplied-results analysis only; no new acceptance/gate or
+    causal performance attribution.
+experiments: []
+metrics: []

@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261027-qwen3vl-metax-plugin0240-splits-audit
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-104
+  baseline_id: image-a5d8d34d437e-original
+  topology: CPU-only-static-audit
+stage: acceptance
+current:
+  status: not_requested-formal-model-acceptance
+  candidate: Component numerical/graph diagnosis only
+  next_action: No model score or performance acceptance claimed
+experiments: []
+metrics: []

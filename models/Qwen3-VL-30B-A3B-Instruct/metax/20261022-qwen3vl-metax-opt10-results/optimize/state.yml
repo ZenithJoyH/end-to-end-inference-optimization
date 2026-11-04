@@ -1,0 +1,2017 @@
+schema_version: 4
+identity:
+  case_id: 20261022-qwen3vl-metax-opt10-results
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt10-user-import-no-anchor
+  topology: TP2:GPU6,7
+stage: optimize
+current:
+  status: accuracy-passed;P1K-steady-confirmed;full-performance-acceptance-pending
+  candidate: 'Existing production stack: gems-opt + inline G1/G2 MoE + common sampling adapter + local sampling
+    histogram'
+  current_experiment: acc-009-gpqa-erqa
+  next_action: Accuracy request complete; preserve current service. Full performance acceptance remains separate.
+  latest_complete_performance_directory: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10
+  observed_at_utc: '2026-10-22T01:34:12.886134+00:00'
+  accuracy: GPQA and ERQA both passed frozen thresholds
+  scope: Performance records plus full accuracy evaluation; no model/source/service/config changes
+  user_steady_state_confirmation: 2026-10-22 user explicitly confirms newP1K run stable; do not continue marking
+    currentP1K as unconfirmed or partial
+experiments:
+- experiment_id: records-008-opt10-full-results
+  document: records-008-opt10-full-results.md
+  direction: records/diagnostic
+  scenario_id: p1024/p4096/p16384/p32768/p65536-d1024-c64-n128
+  scenario_ids:
+  - p1024-d1024-c64-n128
+  - p4096-d1024-c64-n128
+  - p16384-d1024-c64-n128
+  - p32768-d1024-c64-n128
+  - p65536-d1024-c64-n128
+  status: CSV-import-complete;P1K-steady-user-confirmed
+  decision: use-new-completeP1Ksummary-for-current-table;preserve-all-old-rounds
+  skill:
+    name: inference-performance-evaluation
+    mode: checkpoint
+    execution: validation of supplied human results only; no new measurement
+  scope: performance_only/import; all four standard scenarios plusP64K extra
+  evidence:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/opt10-full-import.json
+    sha256: ef8e4e33bcfe3bf2bcb16377fb6e1cc38fb509e0178d9fc009ddb484e7574b50
+  import_command:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/commands/import_opt10.py
+    sha256: f45c122a7058f670f5efa4b77369e2bd509367968c7e23c6026c39ea9dac5d84
+  product_source_changed: false
+  service_restarted: false
+  input_validation: Stable per-file read; finite numeric fields;128successes and exactP*N/D*N tokens each round;
+    total/output ratio checked within CSV rounding tolerance
+  native_validation: Not possible fromCSV alone; no native per-round JSON in supplied folder
+  formal_status: incomplete-formal-accuracy-and-comparable-fullBCR; P1Ksteadyconfirmed
+  P1K_confirmation_evidence: &id001
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/opt10-p1k-confirmed.json
+    sha256: b995ae48fa803b2236fe87ac3cbe839ea6d62f1873e7eb38f92d04dfa38c693e
+  P1K_confirmation_command:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/commands/import_p1k_confirmed.py
+    sha256: fc6efcddfa54bf50f4a85b5de851e959851bc02351d3cc114ad66470cc9e593d
+- experiment_id: acc-009-gpqa-erqa
+  document: acc-009-gpqa-erqa.md
+  direction: accuracy/formal-gate
+  scenario_id: GPQA-Diamond198+ERQA-native-full
+  status: passed
+  decision: both-frozen-thresholds-passed;preserve-current-service
+  remote_case_dir: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy
+  thresholds_percent:
+    GPQA: 64
+    ERQA: 40
+  skill_mode: formal-gate
+  user_directive: 2026-10-22 explicitGPQA+ERQA request supersedes formalaccuracydeferral
+  service_prefix_cache: enabled-user-started; keepunchanged
+  results:
+    GPQA:
+      status: passed
+      correct: 130
+      samples: 198
+      score_percent: 65.65656565656566
+      threshold_percent: 64
+      metric: exact_match,strict-match
+      gate:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/gpqa/accuracy-gate.json
+        sha256: 27366079435553c581a85ad5e037f75e5954680cc043d7c56a711c7f4ffcad6b
+      run_record:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/gpqa/qwen3vl-opt10-gpqa-20261022/b333ab6b50b947188e0bce9432c8bf96/run-record.json
+        sha256: 5c797987b354ac7a4c6be227484bca94a579812b22518c961c66acf545df05fb
+      samples_artifact:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/gpqa/qwen3vl-opt10-gpqa-20261022/b333ab6b50b947188e0bce9432c8bf96/gpqa_diamond_generative_cot/qwen3vl-opt10/samples_gpqa_diamond_generative_cot_2026-10-22T02-06-44.844023.jsonl
+        sha256: 1849faf4c5b4ed170b054487cd1f1f4cc4b7b9d9632c7dae64138d53cf9b2306
+    ERQA:
+      status: passed
+      correct: 162
+      samples: 400
+      score_percent: 40.5
+      threshold_percent: 40
+      metric: native accuracy
+      results:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/erqa/native-output/erqa/erqa_result.json
+        sha256: 1d59c5745efa2f44f1d6f12ca621e4ff7fc032a8980ae9949d2a55e941ac85cb
+      evaluated:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/erqa/native-output/erqa/erqa_evaluated.json
+        sha256: 7ea43c0dc951c7c118ebea3c61242632938a77fe86bd727558ca6e38eb9cde34
+      raw:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/erqa/native-output/erqa/erqa.json
+        sha256: 1b0f6bf4aec4967221aac014c7afa4080626006991e0dd9b74f5dd2ce800e74f
+      contract:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/configs/erqa-contract.json
+        sha256: 6783cb02970469196a26a21b16de1472f6be99427fc4980f6bc242263834cc5d
+      preparation:
+        path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/manifests/erqa-prepared.json
+        sha256: f520ed33b8954c1371d093ec7d20ad4e214cb0db90fe87929a6b465316fee4e1
+      data_images_source_postcheck: passed
+      output_health:
+        raw_records: 400
+        evaluated_records: 400
+        empty_responses: 0
+        nul_only_responses: 0
+        explicit_error_strings: 0
+        diagnostic_only: true
+  service_instance_id: qwen3vl-p64k-opt-20261015:1592858:557237509
+  service_manifest:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/manifests/service.json
+    sha256: b0c74968e52e2bcc689bf9d582011cccbb5661dec1035c7d4fe883a1531f5451
+  monitor:
+    id: qwen3-vl-gpqa-erqa
+    interval_minutes: 30
+    status: PAUSED
+    unchanged: quiet
+  gpqa_provenance: Two identical captures;198raw/eval docs; native18000token budget;preflightpassed
+  gpqa_control:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/commands/run_gpqa.py
+    sha256: b68706af2dc47ec6d79f20e70753133e0dc655e7520bdc8222c25aac916d7657
+  ERQA_preflight:
+    status: prepared;full400uniqueIDs;630imagesnone_missing;offlinepayloadverified
+    dataset_sha256: c02963830b51a6103f07d4e2fa60c76ba566d7af88214bcb4545c7475658663c
+    source_tree_sha256: 5cb06ee618c66a786478f50c628377c6dff82125beecdb9ef7a91cd2d3bf0fc2
+    image: flageval/mm-eval:v0.3.8
+    image_id: sha256:7f1c477253cc8a710ee6f33e5e8f0b1bc0de23b7828f3a84385a53e58779e6a4
+    archive_rootfs_verified: true
+    max_tokens: 18000
+    concurrency: 8
+    num_infers: 1
+    temperature: 0.7
+    top_p_top_k: inheritmodeldefaults0.8/20; absentfromnativeGPTpayload
+    response_cache: false
+    native_entry: flagevalmm --tasks tasks/erqa/erqa.py --exec model_zoo/vlm/api_model/model_adapter.py
+  ERQA_started_utc: '2026-10-22T02:07:03.086331+00:00'
+  ERQA_control:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/commands/run_erqa.py
+    sha256: bc0faf1218469e580549f51476dce370d8fec80705271e76bf427f919625351b
+  evidence:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/results.json
+    sha256: e77875aff907b077bb7f7699c31ae72e4010e5224615a9af70ab926c7a69b3bd
+  completed_utc: '2026-10-22T03:12:33.944071+00:00'
+  source_or_service_changed: false
+  method_bundle:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/manifests/accuracy-skill-bundle.json
+    sha256: 30b6c2105d1609bacc9c404659adca6465796c8665d0aea61e4b4b4fe2908d93
+    bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    capture_scope: during ERQA, after GPQA; see accuracy-method-journal.json
+  postprocess_validation:
+    status: passed
+    initial_auxiliary_error: str.splitlines incorrectly split legal Unicode separators inside native GPQA JSON strings;
+      existing formal gate remained valid
+    fix: physical-line JSONL parsing; no model requests rerun and no native answers/metrics/thresholds changed
+    script:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/commands/finalize-v2.py
+      sha256: 963b56eda34a6f7128dcaaff1ed7e92212f19a0802031bd3619dca5a4f51dcae
+    receipt:
+      path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/finalize-v2-receipt.json
+      sha256: a53cfcb2a411253a8c96728082769efb932cf43b6ef2588345c0b05f17cb9033
+    initial_failure_preserved: true
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: request_throughput_rps
+  value: 1.29
+  unit: req/s
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: output_throughput_tps
+  value: 1318.08
+  unit: token/s
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: total_throughput_tps
+  value: 2636.17
+  unit: token/s
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: duration_s
+  value: 104.7
+  unit: s
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: mean_ttft_ms
+  value: 2622.54
+  unit: ms
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: p99_ttft_ms
+  value: 6582.76
+  unit: ms
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: mean_tpot_ms
+  value: 45.37
+  unit: ms
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: p99_tpot_ms
+  value: 53.05
+  unit: ms
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: median_itl_ms
+  value: 38.68
+  unit: ms
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-historical-wave-summary
+  metric: p99_itl_ms
+  value: 42.38
+  unit: ms
+  scope: historical20261021sourceSUMMARY; not current steadyP1Kresult
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+  source_sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: request_throughput_rps
+  value: 1.06
+  unit: req/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: output_throughput_tps
+  value: 1082.16
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: total_throughput_tps
+  value: 5410.82
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: duration_s
+  value: 121.12
+  unit: s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_ttft_ms
+  value: 4808.72
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_ttft_ms
+  value: 14751.95
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_tpot_ms
+  value: 54.27
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_tpot_ms
+  value: 58.21
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: median_itl_ms
+  value: 45.58
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p4096-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_itl_ms
+  value: 462.89
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: request_throughput_rps
+  value: 0.36
+  unit: req/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: output_throughput_tps
+  value: 374.66
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: total_throughput_tps
+  value: 6369.18
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: duration_s
+  value: 349.85
+  unit: s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_ttft_ms
+  value: 75029.02
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_ttft_ms
+  value: 125121.55
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_tpot_ms
+  value: 79.66
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_tpot_ms
+  value: 109.12
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: median_itl_ms
+  value: 49.52
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p16384-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_itl_ms
+  value: 642.51
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: request_throughput_rps
+  value: 0.17
+  unit: req/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: output_throughput_tps
+  value: 175.74
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: total_throughput_tps
+  value: 5799.26
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: duration_s
+  value: 745.85
+  unit: s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_ttft_ms
+  value: 223132.14
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_ttft_ms
+  value: 326359.34
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_tpot_ms
+  value: 85.22
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_tpot_ms
+  value: 117.06
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: median_itl_ms
+  value: 40.91
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p32768-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_itl_ms
+  value: 1006.3
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: request_throughput_rps
+  value: 0.07
+  unit: req/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: output_throughput_tps
+  value: 76.44
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: total_throughput_tps
+  value: 4968.68
+  unit: token/s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: duration_s
+  value: 1714.67
+  unit: s
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_ttft_ms
+  value: 588038.78
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_ttft_ms
+  value: 811156.53
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: mean_tpot_ms
+  value: 92.34
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_tpot_ms
+  value: 96.17
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: median_itl_ms
+  value: 36.39
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p65536-d1024-c64-n128
+  role: user-opt10-CSV-summary
+  metric: p99_itl_ms
+  value: 1559.34
+  unit: ms
+  scope: source-SUMMARY;human-import;steady-admission-unproven
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+  source_sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: request_throughput_rps
+  value: 1.48
+  unit: req/s
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: output_throughput_tps
+  value: 1511.12
+  unit: token/s
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: total_throughput_tps
+  value: 3022.26
+  unit: token/s
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: duration_s
+  value: 86.74
+  unit: s
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: mean_ttft_ms
+  value: 1694.59
+  unit: ms
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: p99_ttft_ms
+  value: 3582.65
+  unit: ms
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: mean_tpot_ms
+  value: 40.68
+  unit: ms
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: p99_tpot_ms
+  value: 41.82
+  unit: ms
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: median_itl_ms
+  value: 38.8
+  unit: ms
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: p1024-d1024-c64-n128
+  role: user-opt10-steady-P1K-summary
+  metric: p99_itl_ms
+  value: 42.18
+  unit: ms
+  scope: 20261022user-confirmedsteady;4completedrounds;sourceSUMMARYlast2
+  source_file: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+  source_sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+- scenario_id: GPQA
+  role: accuracy-acc-009
+  metric: accuracy_score
+  value: 65.65656565656566
+  unit: percent
+  threshold_percent: 64
+  scope: current prefix-cache-enabled production service; full dataset
+  source_file: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/results.json
+  source_sha256: e77875aff907b077bb7f7699c31ae72e4010e5224615a9af70ab926c7a69b3bd
+- scenario_id: ERQA
+  role: accuracy-acc-009
+  metric: accuracy_score
+  value: 40.5
+  unit: percent
+  threshold_percent: 40
+  scope: current prefix-cache-enabled production service; full dataset
+  source_file: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-opt10-accuracy/results.json
+  source_sha256: e77875aff907b077bb7f7699c31ae72e4010e5224615a9af70ab926c7a69b3bd
+workload:
+  stage: mixed
+  load_mode: finite_batch
+  output_tokens: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  prompt_tokens:
+  - 1024
+  - 4096
+  - 16384
+  - 32768
+  - 65536
+  formal_catalog_prompt_tokens:
+  - 1024
+  - 4096
+  - 16384
+  - 32768
+  extra_prompt_tokens:
+  - 65536
+  sampling: Previous service log:model defaults temperature0.7/topk20/topp0.8; --ignore-eos in prior/current benchmark
+    script; CSV itself lacks generation payload
+  prefix_cache_state: disabled in currentargv and prior opt10log; not per-roundmanifest-bound
+runtime_observed_now:
+  container: qwen3vl-p64k-opt-20261015
+  observed_configuration_not_historical_run_binding: true
+  repositories:
+    vllm:
+      head: ee0da84ab9e04ac7610e28580af62c365e898389
+      branch: ''
+      status: ''
+    vllm-plugin-FL:
+      head: 08da21cb39601752040196232b60a152382c0f8f
+      branch: 024plugin-opt
+      status: 'M vllm_fl/__init__.py
+
+        ?? vllm_fl/dispatch/backends/flaggems/impl/sampler.py
+
+        ?? vllm_fl/ops/sampler.py'
+    FlagGems:
+      head: c3c5f5ab274f7d1a8a95e3d3ba7bbac28e4a9fd4
+      branch: gems-opt
+      status: ''
+    FlagGems-vllm:
+      head: f6fdb9b120787e12892ac67e54979cbf829c7d64
+      branch: main
+      status: "M src/flaggems_vllm/ops/__init__.py\n M src/flaggems_vllm/runtime/backend/_metax/ops/__init__.py\n\
+        \ M src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py\n?? src/flaggems_vllm/ops/top_k_top_p.py\n\
+        ?? src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py"
+  files:
+    sampling:
+      path: /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+      sha256: 941bdc544401872327ee299aa0ab73387b43893e363f8c25b465fb607eb551eb
+    moe:
+      path: /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py
+      sha256: faeeead6990fb078e4ab625dba092eec47e1680a16f869659bd7743c0803ca3d
+    sampler_adapter:
+      path: /workspace/vllm-plugin-FL/vllm_fl/ops/sampler.py
+      sha256: c621c7e0f49302d6d7af5bbe0ec4e2190b8037303c7733075d8ef1063188ee50
+  service:
+    argv: /opt/conda/bin/python3.12 /opt/conda/bin/vllm serve /public-flash/models/Qwen3-VL-30B-A3B-Instruct/ --host
+      0.0.0.0 --port 9999 --served-model-name qwen3vl-opt10 --tensor-parallel-size 2 --trust-remote-code --dtype
+      bfloat16 --max-num-batched-tokens 8192 --max-num-seqs 64 --gpu-memory-utilization 0.91 --no-enable-prefix-caching
+      --distributed-executor-backend mp --max-num-partial-prefills 1 --max-long-partial-prefills 1 --long-prefill-token-threshold
+      0 --compilation-config {"cudagraph_mode":"FULL_AND_PIECEWISE","max_cudagraph_capture_size":64}
+    safe_env:
+      CUDA_VISIBLE_DEVICES: 6,7
+      VLLM_PLUGINS: fl
+      FLAGGEMS_VENDOR: metax
+      VLLM_FL_USE_FLAGGEMS_VLLM: '1'
+      VLLM_FL_FLAGOS_BLACKLIST: mm,mm_out,layer_norm,log_softmax
+runtime_linkage_boundary: Current file hashes and argv are observations at import time; not retroactive exact bindings
+  for all historical CSV rounds. Sourceopt10 GPU6/7 kept separate from priorcontrolled BCRGPU0/1.
+retained_components:
+- component: FlagGems
+  change: gems-opt/c3c5f5ab2 with retained int32 sort histogram counters
+  source_record: ../20261013-qwen3vl-metax-flaggems-e2e-opt1/optimize/op-005-flaggems-sort-sampling.md
+- component: FlagGems-vllm MoE
+  change: MetaX fused_experts_impl; previously tuned per-GEMM values inline; external JSON loader removed
+  source_record: ../20261015-qwen3vl-metax-p64k-opt3/optimize/op-024-moe-inline-config.md
+- component: Plugin sampling
+  change: Common FlagGems adapter directly calls FlagGems-vllm; unsupported-input fallback retained; no new sampling
+    dispatch
+  source_record: ../20261015-qwen3vl-metax-p64k-opt3/optimize/op-022-sampling-direct-adapter.md
+- component: FlagGems-vllm sampling
+  change: Local tl.histogram in _guarded_hist; current fileSHA941b matches retained numerical/graph/BCR candidate
+  source_record: ../20261021-qwen3vl-metax-p1k-opt9/optimize/op-005-sampling-local-histogram.md
+- component: runtime
+  change: gpu_memory_utilization0.91; max_num_seqs64; graph FULL_AND_PIECEWISE64; prefixcache disabled
+  source_record: ../20261015-qwen3vl-metax-p64k-opt3/optimize/fw-002-p64k-kv-budget.md
+imported_files:
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+    sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+    bytes: 1642
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_1024in_1024out_c64_n128_20261021_143836.csv
+    sha256: c6a504a730e432e42597973b61e38da8f08d45d38946d7a17320d627270dcce1
+  scenario_id: p1024-d1024-c64-n128
+  prompt_tokens: 1024
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 147.82
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.87
+    output_throughput_tps: 886.71
+    total_throughput_tps: 1773.42
+    mean_ttft_ms: 18492.01
+    median_ttft_ms: 7151.57
+    p99_ttft_ms: 48270.07
+    mean_tpot_ms: 54.07
+    median_tpot_ms: 51.64
+    p99_tpot_ms: 78.7
+    mean_itl_ms: 54.07
+    median_itl_ms: 38.59
+    p99_itl_ms: 43.15
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 139.25
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.92
+    output_throughput_tps: 941.3
+    total_throughput_tps: 1882.6
+    mean_ttft_ms: 4297.29
+    median_ttft_ms: 2747.29
+    p99_ttft_ms: 12409.25
+    mean_tpot_ms: 54.04
+    median_tpot_ms: 48.62
+    p99_tpot_ms: 74.56
+    mean_itl_ms: 54.04
+    median_itl_ms: 38.28
+    p99_itl_ms: 41.83
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 135.58
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.94
+    output_throughput_tps: 966.72
+    total_throughput_tps: 1933.44
+    mean_ttft_ms: 4177.59
+    median_ttft_ms: 2748.83
+    p99_ttft_ms: 12493.28
+    mean_tpot_ms: 52.28
+    median_tpot_ms: 48.84
+    p99_tpot_ms: 70.66
+    mean_itl_ms: 52.28
+    median_itl_ms: 38.62
+    p99_itl_ms: 42.2
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 120.16
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.07
+    output_throughput_tps: 1090.78
+    total_throughput_tps: 2181.55
+    mean_ttft_ms: 2214.6
+    median_ttft_ms: 1590.47
+    p99_ttft_ms: 7181.02
+    mean_tpot_ms: 47.31
+    median_tpot_ms: 44.21
+    p99_tpot_ms: 65.84
+    mean_itl_ms: 47.31
+    median_itl_ms: 38.82
+    p99_itl_ms: 43.07
+  - run: Run5(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 85.12
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.5
+    output_throughput_tps: 1539.86
+    total_throughput_tps: 3079.71
+    mean_ttft_ms: 1733.95
+    median_ttft_ms: 1554.24
+    p99_ttft_ms: 3576.23
+    mean_tpot_ms: 39.85
+    median_tpot_ms: 39.73
+    p99_tpot_ms: 41.32
+    mean_itl_ms: 39.85
+    median_itl_ms: 38.18
+    p99_itl_ms: 41.5
+  - run: Run6(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 86.91
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.47
+    output_throughput_tps: 1508.09
+    total_throughput_tps: 3016.18
+    mean_ttft_ms: 1703.71
+    median_ttft_ms: 1528.23
+    p99_ttft_ms: 3576.45
+    mean_tpot_ms: 40.76
+    median_tpot_ms: 40.86
+    p99_tpot_ms: 41.89
+    mean_itl_ms: 40.76
+    median_itl_ms: 38.82
+    p99_itl_ms: 42.48
+  - run: Run7(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 86.58
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.48
+    output_throughput_tps: 1513.96
+    total_throughput_tps: 3027.93
+    mean_ttft_ms: 1728.44
+    median_ttft_ms: 1549.61
+    p99_ttft_ms: 3564.24
+    mean_tpot_ms: 40.57
+    median_tpot_ms: 40.63
+    p99_tpot_ms: 41.76
+    mean_itl_ms: 40.57
+    median_itl_ms: 38.68
+    p99_itl_ms: 42.22
+  - run: Run8(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 140.61
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.91
+    output_throughput_tps: 932.2
+    total_throughput_tps: 1864.4
+    mean_ttft_ms: 4435.48
+    median_ttft_ms: 2762.51
+    p99_ttft_ms: 12607.6
+    mean_tpot_ms: 54.77
+    median_tpot_ms: 49.04
+    p99_tpot_ms: 75.5
+    mean_itl_ms: 54.77
+    median_itl_ms: 38.53
+    p99_itl_ms: 42.43
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 104.7
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.29
+    output_throughput_tps: 1318.08
+    total_throughput_tps: 2636.17
+    mean_ttft_ms: 2622.54
+    median_ttft_ms: 1946.78
+    p99_ttft_ms: 6582.76
+    mean_tpot_ms: 45.37
+    median_tpot_ms: 43.51
+    p99_tpot_ms: 53.05
+    mean_itl_ms: 45.37
+    median_itl_ms: 38.68
+    p99_itl_ms: 42.38
+  all_round_total_tps:
+    min: 1773.42
+    max: 3079.71
+    median: 2057.495
+    relative_spread: 0.6348934019280728
+  summary_suffix_matches:
+  - - Run6(SUCCESS)
+    - Run7(SUCCESS)
+    - Run8(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+    sha256: 4b821af17dfbd5904c6ba33d605c5a0a0f47b902b7883afc09f5de8710b6d07d
+    bytes: 601
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+    sha256: 4b821af17dfbd5904c6ba33d605c5a0a0f47b902b7883afc09f5de8710b6d07d
+  scenario_id: p1024-d1024-c64-n128
+  prompt_tokens: 1024
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: false
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 87.05
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.47
+    output_throughput_tps: 1505.65
+    total_throughput_tps: 3011.3
+    mean_ttft_ms: 1704.7
+    median_ttft_ms: 1552.07
+    p99_ttft_ms: 3593.71
+    mean_tpot_ms: 40.82
+    median_tpot_ms: 40.91
+    p99_tpot_ms: 41.95
+    mean_itl_ms: 40.82
+    median_itl_ms: 38.83
+    p99_itl_ms: 42.31
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 86.26
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.48
+    output_throughput_tps: 1519.56
+    total_throughput_tps: 3039.13
+    mean_ttft_ms: 1749.02
+    median_ttft_ms: 1556.87
+    p99_ttft_ms: 3624.69
+    mean_tpot_ms: 40.39
+    median_tpot_ms: 40.87
+    p99_tpot_ms: 41.61
+    mean_itl_ms: 40.39
+    median_itl_ms: 38.42
+    p99_itl_ms: 42.16
+  source_summary: null
+  all_round_total_tps:
+    min: 3011.3
+    max: 3039.13
+    median: 3025.215
+    relative_spread: 0.009199346162173574
+  summary_suffix_matches: []
+  status: partial-no-SUMMARY
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+    sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+    bytes: 1079
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+    sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+  scenario_id: p16384-d1024-c64-n128
+  prompt_tokens: 16384
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 350.7
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.36
+    output_throughput_tps: 373.75
+    total_throughput_tps: 6353.73
+    mean_ttft_ms: 75230.64
+    median_ttft_ms: 90615.75
+    p99_ttft_ms: 125433.01
+    mean_tpot_ms: 79.85
+    median_tpot_ms: 83.83
+    p99_tpot_ms: 109.22
+    mean_itl_ms: 79.85
+    median_itl_ms: 49.54
+    p99_itl_ms: 644.04
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 349.19
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.37
+    output_throughput_tps: 375.36
+    total_throughput_tps: 6381.05
+    mean_ttft_ms: 74928.31
+    median_ttft_ms: 89873.88
+    p99_ttft_ms: 125038.28
+    mean_tpot_ms: 79.49
+    median_tpot_ms: 83.21
+    p99_tpot_ms: 108.51
+    mean_itl_ms: 79.49
+    median_itl_ms: 48.89
+    p99_itl_ms: 642.89
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 348.61
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.37
+    output_throughput_tps: 375.98
+    total_throughput_tps: 6391.66
+    mean_ttft_ms: 74763.0
+    median_ttft_ms: 89931.23
+    p99_ttft_ms: 124960.75
+    mean_tpot_ms: 79.34
+    median_tpot_ms: 83.18
+    p99_tpot_ms: 108.53
+    mean_itl_ms: 79.34
+    median_itl_ms: 49.08
+    p99_itl_ms: 642.51
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 351.08
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.36
+    output_throughput_tps: 373.34
+    total_throughput_tps: 6346.71
+    mean_ttft_ms: 75295.04
+    median_ttft_ms: 91193.07
+    p99_ttft_ms: 125282.35
+    mean_tpot_ms: 79.97
+    median_tpot_ms: 84.36
+    p99_tpot_ms: 109.7
+    mean_itl_ms: 79.97
+    median_itl_ms: 49.97
+    p99_itl_ms: 642.52
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 349.85
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.36
+    output_throughput_tps: 374.66
+    total_throughput_tps: 6369.18
+    mean_ttft_ms: 75029.02
+    median_ttft_ms: 90562.15
+    p99_ttft_ms: 125121.55
+    mean_tpot_ms: 79.66
+    median_tpot_ms: 83.77
+    p99_tpot_ms: 109.12
+    mean_itl_ms: 79.66
+    median_itl_ms: 49.52
+    p99_itl_ms: 642.51
+  all_round_total_tps:
+    min: 6346.71
+    max: 6391.66
+    median: 6367.389999999999
+    relative_spread: 0.007059407386700017
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+    sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+    bytes: 1091
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+    sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+  scenario_id: p32768-d1024-c64-n128
+  prompt_tokens: 32768
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 748.23
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.18
+    total_throughput_tps: 5780.81
+    mean_ttft_ms: 223591.53
+    median_ttft_ms: 285868.7
+    p99_ttft_ms: 327796.96
+    mean_tpot_ms: 85.49
+    median_tpot_ms: 87.4
+    p99_tpot_ms: 116.85
+    mean_itl_ms: 85.49
+    median_itl_ms: 40.47
+    p99_itl_ms: 1006.21
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 744.09
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 176.15
+    total_throughput_tps: 5813.0
+    mean_ttft_ms: 222209.82
+    median_ttft_ms: 284470.78
+    p99_ttft_ms: 324826.44
+    mean_tpot_ms: 84.96
+    median_tpot_ms: 86.56
+    p99_tpot_ms: 116.01
+    mean_itl_ms: 84.96
+    median_itl_ms: 40.79
+    p99_itl_ms: 1006.48
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 745.76
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.76
+    total_throughput_tps: 5799.98
+    mean_ttft_ms: 222984.21
+    median_ttft_ms: 284790.31
+    p99_ttft_ms: 326766.76
+    mean_tpot_ms: 85.2
+    median_tpot_ms: 86.95
+    p99_tpot_ms: 116.89
+    mean_itl_ms: 85.2
+    median_itl_ms: 40.85
+    p99_itl_ms: 1005.63
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 745.94
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.71
+    total_throughput_tps: 5798.54
+    mean_ttft_ms: 223280.07
+    median_ttft_ms: 286053.98
+    p99_ttft_ms: 325951.93
+    mean_tpot_ms: 85.24
+    median_tpot_ms: 87.12
+    p99_tpot_ms: 117.23
+    mean_itl_ms: 85.24
+    median_itl_ms: 40.96
+    p99_itl_ms: 1006.96
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 745.85
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.74
+    total_throughput_tps: 5799.26
+    mean_ttft_ms: 223132.14
+    median_ttft_ms: 285422.15
+    p99_ttft_ms: 326359.34
+    mean_tpot_ms: 85.22
+    median_tpot_ms: 87.03
+    p99_tpot_ms: 117.06
+    mean_itl_ms: 85.22
+    median_itl_ms: 40.91
+    p99_itl_ms: 1006.3
+  all_round_total_tps:
+    min: 5780.81
+    max: 5813.0
+    median: 5799.26
+    relative_spread: 0.005550708193803968
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+    sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+    bytes: 1052
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+    sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+  scenario_id: p4096-d1024-c64-n128
+  prompt_tokens: 4096
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 126.6
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.01
+    output_throughput_tps: 1035.29
+    total_throughput_tps: 5176.46
+    mean_ttft_ms: 4920.41
+    median_ttft_ms: 1858.44
+    p99_ttft_ms: 14723.9
+    mean_tpot_ms: 56.81
+    median_tpot_ms: 57.48
+    p99_tpot_ms: 62.96
+    mean_itl_ms: 56.81
+    median_itl_ms: 45.48
+    p99_itl_ms: 462.36
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 176.31
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.73
+    output_throughput_tps: 743.43
+    total_throughput_tps: 3717.15
+    mean_ttft_ms: 4779.84
+    median_ttft_ms: 1854.08
+    p99_ttft_ms: 14648.67
+    mean_tpot_ms: 63.13
+    median_tpot_ms: 56.7
+    p99_tpot_ms: 98.14
+    mean_itl_ms: 63.13
+    median_itl_ms: 45.58
+    p99_itl_ms: 462.19
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 121.92
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.05
+    output_throughput_tps: 1075.03
+    total_throughput_tps: 5375.14
+    mean_ttft_ms: 4813.3
+    median_ttft_ms: 1856.65
+    p99_ttft_ms: 14761.5
+    mean_tpot_ms: 54.66
+    median_tpot_ms: 57.32
+    p99_tpot_ms: 58.53
+    mean_itl_ms: 54.66
+    median_itl_ms: 45.8
+    p99_itl_ms: 463.28
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 120.33
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.06
+    output_throughput_tps: 1089.3
+    total_throughput_tps: 5446.5
+    mean_ttft_ms: 4804.14
+    median_ttft_ms: 1856.33
+    p99_ttft_ms: 14742.4
+    mean_tpot_ms: 53.89
+    median_tpot_ms: 56.38
+    p99_tpot_ms: 57.89
+    mean_itl_ms: 53.89
+    median_itl_ms: 45.36
+    p99_itl_ms: 462.51
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 121.12
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.06
+    output_throughput_tps: 1082.16
+    total_throughput_tps: 5410.82
+    mean_ttft_ms: 4808.72
+    median_ttft_ms: 1856.49
+    p99_ttft_ms: 14751.95
+    mean_tpot_ms: 54.27
+    median_tpot_ms: 56.85
+    p99_tpot_ms: 58.21
+    mean_itl_ms: 54.27
+    median_itl_ms: 45.58
+    p99_itl_ms: 462.89
+  all_round_total_tps:
+    min: 3717.15
+    max: 5446.5
+    median: 5275.8
+    relative_spread: 0.32778915046059365
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+    sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+    bytes: 1088
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+    sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+  scenario_id: p65536-d1024-c64-n128
+  prompt_tokens: 65536
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1717.85
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.3
+    total_throughput_tps: 4959.51
+    mean_ttft_ms: 588862.02
+    median_ttft_ms: 759999.09
+    p99_ttft_ms: 811830.11
+    mean_tpot_ms: 92.54
+    median_tpot_ms: 94.01
+    p99_tpot_ms: 96.36
+    mean_itl_ms: 92.54
+    median_itl_ms: 36.58
+    p99_itl_ms: 1559.5
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1715.41
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.41
+    total_throughput_tps: 4966.54
+    mean_ttft_ms: 587778.34
+    median_ttft_ms: 759154.39
+    p99_ttft_ms: 809410.24
+    mean_tpot_ms: 92.39
+    median_tpot_ms: 93.81
+    p99_tpot_ms: 96.02
+    mean_itl_ms: 92.39
+    median_itl_ms: 36.47
+    p99_itl_ms: 1559.36
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1714.79
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.44
+    total_throughput_tps: 4968.34
+    mean_ttft_ms: 588162.64
+    median_ttft_ms: 758408.7
+    p99_ttft_ms: 811199.7
+    mean_tpot_ms: 92.35
+    median_tpot_ms: 93.74
+    p99_tpot_ms: 96.22
+    mean_itl_ms: 92.35
+    median_itl_ms: 36.38
+    p99_itl_ms: 1559.39
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1714.56
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.45
+    total_throughput_tps: 4969.02
+    mean_ttft_ms: 587914.92
+    median_ttft_ms: 758635.82
+    p99_ttft_ms: 811113.37
+    mean_tpot_ms: 92.34
+    median_tpot_ms: 93.76
+    p99_tpot_ms: 96.13
+    mean_itl_ms: 92.34
+    median_itl_ms: 36.39
+    p99_itl_ms: 1559.28
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 1714.67
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.44
+    total_throughput_tps: 4968.68
+    mean_ttft_ms: 588038.78
+    median_ttft_ms: 758522.26
+    p99_ttft_ms: 811156.53
+    mean_tpot_ms: 92.34
+    median_tpot_ms: 93.75
+    p99_tpot_ms: 96.17
+    mean_itl_ms: 92.34
+    median_itl_ms: 36.39
+    p99_itl_ms: 1559.34
+  all_round_total_tps:
+    min: 4959.51
+    max: 4969.02
+    median: 4967.4400000000005
+    relative_spread: 0.0019144670091637175
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- &id004
+  source: &id002
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_1024in_1024out_c64_n128_20261022_091827.csv
+    sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+    bytes: 1043
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/p1k-20261022-complete.csv
+    sha256: acaa1957e6e093572f64cd1e900ceed90bb46d2281c57d110e2bf387716484b8
+  scenario_id: p1024-d1024-c64-n128
+  prompt_tokens: 1024
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 87.05
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.47
+    output_throughput_tps: 1505.65
+    total_throughput_tps: 3011.3
+    mean_ttft_ms: 1704.7
+    median_ttft_ms: 1552.07
+    p99_ttft_ms: 3593.71
+    mean_tpot_ms: 40.82
+    median_tpot_ms: 40.91
+    p99_tpot_ms: 41.95
+    mean_itl_ms: 40.82
+    median_itl_ms: 38.83
+    p99_itl_ms: 42.31
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 86.26
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.48
+    output_throughput_tps: 1519.56
+    total_throughput_tps: 3039.13
+    mean_ttft_ms: 1749.02
+    median_ttft_ms: 1556.87
+    p99_ttft_ms: 3624.69
+    mean_tpot_ms: 40.39
+    median_tpot_ms: 40.87
+    p99_tpot_ms: 41.61
+    mean_itl_ms: 40.39
+    median_itl_ms: 38.42
+    p99_itl_ms: 42.16
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 86.11
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.49
+    output_throughput_tps: 1522.1
+    total_throughput_tps: 3044.21
+    mean_ttft_ms: 1696.18
+    median_ttft_ms: 1541.53
+    p99_ttft_ms: 3584.12
+    mean_tpot_ms: 40.37
+    median_tpot_ms: 40.44
+    p99_tpot_ms: 41.51
+    mean_itl_ms: 40.37
+    median_itl_ms: 38.55
+    p99_itl_ms: 41.82
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 87.37
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.46
+    output_throughput_tps: 1500.15
+    total_throughput_tps: 3000.31
+    mean_ttft_ms: 1692.99
+    median_ttft_ms: 1537.83
+    p99_ttft_ms: 3581.18
+    mean_tpot_ms: 40.99
+    median_tpot_ms: 41.31
+    p99_tpot_ms: 42.13
+    mean_itl_ms: 40.99
+    median_itl_ms: 39.06
+    p99_itl_ms: 42.54
+  source_summary: &id003
+    successful_requests: 128.0
+    duration_s: 86.74
+    input_tokens: 131072.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.48
+    output_throughput_tps: 1511.12
+    total_throughput_tps: 3022.26
+    mean_ttft_ms: 1694.59
+    median_ttft_ms: 1539.68
+    p99_ttft_ms: 3582.65
+    mean_tpot_ms: 40.68
+    median_tpot_ms: 40.88
+    p99_tpot_ms: 41.82
+    mean_itl_ms: 40.68
+    median_itl_ms: 38.8
+    p99_itl_ms: 42.18
+  all_round_total_tps:
+    min: 3000.31
+    max: 3044.21
+    median: 3025.215
+    relative_spread: 0.014511365307920293
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: user-confirmed-steady;four-rounds-complete
+  evidence: *id001
+phase_views:
+  prefill:
+    method: Mixed-client TTFT proxy
+    values: CurrentP1KmeanTTFT1694.59ms;largerP unchanged
+    residual: Includes compile, queue, scheduler, network; not puredeviceprefill
+  decode:
+    method: Mixed-client TPOT/ITL proxy
+    values: CurrentP1KmeanTPOT40.68ms;largerP unchanged
+    residual: Includes Mixed interference; input/output ratios differ byscenario
+  mixed:
+    method: all humanCSVrounds preserved
+    status: CurrentP1Kuser-confirmedsteady4roundspread1.45%;olderwave cases retained as history
+    boundary: No new profiler; P1Kpriorcache evidence retained; do not transfer this cause to every largerP without
+      evidence
+measurement_notes:
+  source_summary: Currenttable uses20261022P1Klast2 and previousotherP last2; historical20261021P1Klast3 remains
+    archived separately
+  all_round_statistics: CurrentP1K all4rounds spread1.45%; all oldwave rounds retained; no posthoc elimination
+  p99_aggregation: SourceSUMMARY averages per-roundP99; not pooled requestP99
+  today_retest: Complete4rounds withSUMMARY;user confirms steady; originaltwo-round partialsnapshot superseded but
+    preserved
+  cumulative_speedup: Not computed; same-contract full-scenario anchor absent
+  linked_diagnostic: ../20261021-qwen3vl-metax-p1k-opt9/optimize/diag-006-opt10-throughput-variance.md
+record_only_environment_gate:
+  new_service_created: false
+  new_container_created: false
+  image_lineage: not_applicable-no-new-performance-run
+  mount_parity: not_applicable-no-new-performance-run
+  current_source_observation: current production namespace queried read-only; no changes
+steady_state_confirmation:
+  source: *id002
+  statement: 稳态已经确认了，我当前重新跑了一个轮1K-1K的场景，目前看性能数据已经稳定了
+  scenario_id: p1024-d1024-c64-n128
+  status: user-confirmed-steady-observed-4rounds
+  formal_accuracy_or_full_BCR_gate: false
+  evidence: *id001
+  rounds: 4
+  round_total_throughput_tps:
+  - 3011.3
+  - 3039.13
+  - 3044.21
+  - 3000.31
+  spread_max_min_over_median: 0.014511365307920293
+  source_summary: *id003
+  summary_rounds:
+  - 3
+  - 4
+  older_8round_run: historical-wave-data; preserved; no longer latestP1Kresult
+  scope: P1K only; not a formalGPQA or cumulative fullBCRgate
+latest_complete_scenarios:
+- *id004
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+    sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+    bytes: 1052
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_4096in_1024out_c64_n128_20261021_150247.csv
+    sha256: 75531c90ae922d6a73c551cd596845b3ce78cb866447ba7706142e7377343d7f
+  scenario_id: p4096-d1024-c64-n128
+  prompt_tokens: 4096
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 126.6
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.01
+    output_throughput_tps: 1035.29
+    total_throughput_tps: 5176.46
+    mean_ttft_ms: 4920.41
+    median_ttft_ms: 1858.44
+    p99_ttft_ms: 14723.9
+    mean_tpot_ms: 56.81
+    median_tpot_ms: 57.48
+    p99_tpot_ms: 62.96
+    mean_itl_ms: 56.81
+    median_itl_ms: 45.48
+    p99_itl_ms: 462.36
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 176.31
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.73
+    output_throughput_tps: 743.43
+    total_throughput_tps: 3717.15
+    mean_ttft_ms: 4779.84
+    median_ttft_ms: 1854.08
+    p99_ttft_ms: 14648.67
+    mean_tpot_ms: 63.13
+    median_tpot_ms: 56.7
+    p99_tpot_ms: 98.14
+    mean_itl_ms: 63.13
+    median_itl_ms: 45.58
+    p99_itl_ms: 462.19
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 121.92
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.05
+    output_throughput_tps: 1075.03
+    total_throughput_tps: 5375.14
+    mean_ttft_ms: 4813.3
+    median_ttft_ms: 1856.65
+    p99_ttft_ms: 14761.5
+    mean_tpot_ms: 54.66
+    median_tpot_ms: 57.32
+    p99_tpot_ms: 58.53
+    mean_itl_ms: 54.66
+    median_itl_ms: 45.8
+    p99_itl_ms: 463.28
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 120.33
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.06
+    output_throughput_tps: 1089.3
+    total_throughput_tps: 5446.5
+    mean_ttft_ms: 4804.14
+    median_ttft_ms: 1856.33
+    p99_ttft_ms: 14742.4
+    mean_tpot_ms: 53.89
+    median_tpot_ms: 56.38
+    p99_tpot_ms: 57.89
+    mean_itl_ms: 53.89
+    median_itl_ms: 45.36
+    p99_itl_ms: 462.51
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 121.12
+    input_tokens: 524288.0
+    output_tokens: 131072.0
+    request_throughput_rps: 1.06
+    output_throughput_tps: 1082.16
+    total_throughput_tps: 5410.82
+    mean_ttft_ms: 4808.72
+    median_ttft_ms: 1856.49
+    p99_ttft_ms: 14751.95
+    mean_tpot_ms: 54.27
+    median_tpot_ms: 56.85
+    p99_tpot_ms: 58.21
+    mean_itl_ms: 54.27
+    median_itl_ms: 45.58
+    p99_itl_ms: 462.89
+  all_round_total_tps:
+    min: 3717.15
+    max: 5446.5
+    median: 5275.8
+    relative_spread: 0.32778915046059365
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+    sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+    bytes: 1079
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_16384in_1024out_c64_n128_20261021_150247.csv
+    sha256: 98899b446d5abef3b80b15cf5f7e15b2c1b00022f8ac06ee3e05db84604c6026
+  scenario_id: p16384-d1024-c64-n128
+  prompt_tokens: 16384
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 350.7
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.36
+    output_throughput_tps: 373.75
+    total_throughput_tps: 6353.73
+    mean_ttft_ms: 75230.64
+    median_ttft_ms: 90615.75
+    p99_ttft_ms: 125433.01
+    mean_tpot_ms: 79.85
+    median_tpot_ms: 83.83
+    p99_tpot_ms: 109.22
+    mean_itl_ms: 79.85
+    median_itl_ms: 49.54
+    p99_itl_ms: 644.04
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 349.19
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.37
+    output_throughput_tps: 375.36
+    total_throughput_tps: 6381.05
+    mean_ttft_ms: 74928.31
+    median_ttft_ms: 89873.88
+    p99_ttft_ms: 125038.28
+    mean_tpot_ms: 79.49
+    median_tpot_ms: 83.21
+    p99_tpot_ms: 108.51
+    mean_itl_ms: 79.49
+    median_itl_ms: 48.89
+    p99_itl_ms: 642.89
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 348.61
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.37
+    output_throughput_tps: 375.98
+    total_throughput_tps: 6391.66
+    mean_ttft_ms: 74763.0
+    median_ttft_ms: 89931.23
+    p99_ttft_ms: 124960.75
+    mean_tpot_ms: 79.34
+    median_tpot_ms: 83.18
+    p99_tpot_ms: 108.53
+    mean_itl_ms: 79.34
+    median_itl_ms: 49.08
+    p99_itl_ms: 642.51
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 351.08
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.36
+    output_throughput_tps: 373.34
+    total_throughput_tps: 6346.71
+    mean_ttft_ms: 75295.04
+    median_ttft_ms: 91193.07
+    p99_ttft_ms: 125282.35
+    mean_tpot_ms: 79.97
+    median_tpot_ms: 84.36
+    p99_tpot_ms: 109.7
+    mean_itl_ms: 79.97
+    median_itl_ms: 49.97
+    p99_itl_ms: 642.52
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 349.85
+    input_tokens: 2097152.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.36
+    output_throughput_tps: 374.66
+    total_throughput_tps: 6369.18
+    mean_ttft_ms: 75029.02
+    median_ttft_ms: 90562.15
+    p99_ttft_ms: 125121.55
+    mean_tpot_ms: 79.66
+    median_tpot_ms: 83.77
+    p99_tpot_ms: 109.12
+    mean_itl_ms: 79.66
+    median_itl_ms: 49.52
+    p99_itl_ms: 642.51
+  all_round_total_tps:
+    min: 6346.71
+    max: 6391.66
+    median: 6367.389999999999
+    relative_spread: 0.007059407386700017
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+    sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+    bytes: 1091
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_32768in_1024out_c64_n128_20261021_150247.csv
+    sha256: 87ef269318b329c135df57172ecbb999076d13cc2a028e2d7554e294aff9014d
+  scenario_id: p32768-d1024-c64-n128
+  prompt_tokens: 32768
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 748.23
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.18
+    total_throughput_tps: 5780.81
+    mean_ttft_ms: 223591.53
+    median_ttft_ms: 285868.7
+    p99_ttft_ms: 327796.96
+    mean_tpot_ms: 85.49
+    median_tpot_ms: 87.4
+    p99_tpot_ms: 116.85
+    mean_itl_ms: 85.49
+    median_itl_ms: 40.47
+    p99_itl_ms: 1006.21
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 744.09
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 176.15
+    total_throughput_tps: 5813.0
+    mean_ttft_ms: 222209.82
+    median_ttft_ms: 284470.78
+    p99_ttft_ms: 324826.44
+    mean_tpot_ms: 84.96
+    median_tpot_ms: 86.56
+    p99_tpot_ms: 116.01
+    mean_itl_ms: 84.96
+    median_itl_ms: 40.79
+    p99_itl_ms: 1006.48
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 745.76
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.76
+    total_throughput_tps: 5799.98
+    mean_ttft_ms: 222984.21
+    median_ttft_ms: 284790.31
+    p99_ttft_ms: 326766.76
+    mean_tpot_ms: 85.2
+    median_tpot_ms: 86.95
+    p99_tpot_ms: 116.89
+    mean_itl_ms: 85.2
+    median_itl_ms: 40.85
+    p99_itl_ms: 1005.63
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 745.94
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.71
+    total_throughput_tps: 5798.54
+    mean_ttft_ms: 223280.07
+    median_ttft_ms: 286053.98
+    p99_ttft_ms: 325951.93
+    mean_tpot_ms: 85.24
+    median_tpot_ms: 87.12
+    p99_tpot_ms: 117.23
+    mean_itl_ms: 85.24
+    median_itl_ms: 40.96
+    p99_itl_ms: 1006.96
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 745.85
+    input_tokens: 4194304.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.17
+    output_throughput_tps: 175.74
+    total_throughput_tps: 5799.26
+    mean_ttft_ms: 223132.14
+    median_ttft_ms: 285422.15
+    p99_ttft_ms: 326359.34
+    mean_tpot_ms: 85.22
+    median_tpot_ms: 87.03
+    p99_tpot_ms: 117.06
+    mean_itl_ms: 85.22
+    median_itl_ms: 40.91
+    p99_itl_ms: 1006.3
+  all_round_total_tps:
+    min: 5780.81
+    max: 5813.0
+    median: 5799.26
+    relative_spread: 0.005550708193803968
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
+- source:
+    path: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results/qwen3vl-opt10/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+    sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+    bytes: 1088
+  snapshot:
+    path: /public-flash/jinghao/qwen3-VL/20261022-qwen3vl-metax-opt10-results/results/csv/qwen3vl-opt10_65536in_1024out_c64_n128_20261021_150247.csv
+    sha256: 9783918f3cce6a340f8b7698db0ab53ff8896b167abbee59e2873333bf55d72f
+  scenario_id: p65536-d1024-c64-n128
+  prompt_tokens: 65536
+  output_tokens_per_request: 1024
+  max_concurrency: 64
+  num_prompts: 128
+  source_set_complete: true
+  rounds:
+  - run: Run1(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1717.85
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.3
+    total_throughput_tps: 4959.51
+    mean_ttft_ms: 588862.02
+    median_ttft_ms: 759999.09
+    p99_ttft_ms: 811830.11
+    mean_tpot_ms: 92.54
+    median_tpot_ms: 94.01
+    p99_tpot_ms: 96.36
+    mean_itl_ms: 92.54
+    median_itl_ms: 36.58
+    p99_itl_ms: 1559.5
+  - run: Run2(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1715.41
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.41
+    total_throughput_tps: 4966.54
+    mean_ttft_ms: 587778.34
+    median_ttft_ms: 759154.39
+    p99_ttft_ms: 809410.24
+    mean_tpot_ms: 92.39
+    median_tpot_ms: 93.81
+    p99_tpot_ms: 96.02
+    mean_itl_ms: 92.39
+    median_itl_ms: 36.47
+    p99_itl_ms: 1559.36
+  - run: Run3(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1714.79
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.44
+    total_throughput_tps: 4968.34
+    mean_ttft_ms: 588162.64
+    median_ttft_ms: 758408.7
+    p99_ttft_ms: 811199.7
+    mean_tpot_ms: 92.35
+    median_tpot_ms: 93.74
+    p99_tpot_ms: 96.22
+    mean_itl_ms: 92.35
+    median_itl_ms: 36.38
+    p99_itl_ms: 1559.39
+  - run: Run4(SUCCESS)
+    successful_requests: 128.0
+    duration_s: 1714.56
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.45
+    total_throughput_tps: 4969.02
+    mean_ttft_ms: 587914.92
+    median_ttft_ms: 758635.82
+    p99_ttft_ms: 811113.37
+    mean_tpot_ms: 92.34
+    median_tpot_ms: 93.76
+    p99_tpot_ms: 96.13
+    mean_itl_ms: 92.34
+    median_itl_ms: 36.39
+    p99_itl_ms: 1559.28
+  source_summary:
+    successful_requests: 128.0
+    duration_s: 1714.67
+    input_tokens: 8388608.0
+    output_tokens: 131072.0
+    request_throughput_rps: 0.07
+    output_throughput_tps: 76.44
+    total_throughput_tps: 4968.68
+    mean_ttft_ms: 588038.78
+    median_ttft_ms: 758522.26
+    p99_ttft_ms: 811156.53
+    mean_tpot_ms: 92.34
+    median_tpot_ms: 93.75
+    p99_tpot_ms: 96.17
+    mean_itl_ms: 92.34
+    median_itl_ms: 36.39
+    p99_itl_ms: 1559.34
+  all_round_total_tps:
+    min: 4959.51
+    max: 4969.02
+    median: 4967.4400000000005
+    relative_spread: 0.0019144670091637175
+  summary_suffix_matches:
+  - - Run3(SUCCESS)
+    - Run4(SUCCESS)
+  status: human-CSV-complete;steady-admission-unproven
