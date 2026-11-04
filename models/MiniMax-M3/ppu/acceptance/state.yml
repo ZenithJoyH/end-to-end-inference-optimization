@@ -1,0 +1,15 @@
+schema_version: 3
+policy_version: "0.39"
+record_kind: acceptance_state
+updated_at: "2026-09-21T13:45:00+08:00"
+status: incomplete
+accuracy_status: incomplete
+performance_status: incomplete
+final_candidate: null
+formal_accuracy: null
+formal_performance:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+rollback_entry: null

@@ -1,0 +1,263 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261021-topk-unpatch-validation",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "not-established-component-verification-only",
+    "topology": "TP8:physical0-7; component checks only, see legacy_record"
+  },
+  "stage": "optimize",
+  "current": {
+    "status": "checks_completed_patch_retained_pending_model_accuracy",
+    "candidate": "minimaxM3.1-opt-latest-20261020",
+    "accuracy_status": "not_run",
+    "performance_status": "not_run",
+    "next_action": "组件/编译验证不构成正式模型精度或性能验收；后续须按目标服务重新建立证据。"
+  },
+  "experiments": [
+    {
+      "experiment_id": "compat-001",
+      "document": "compat-001.md",
+      "status": "checks_completed_patch_retained_pending_model_accuracy",
+      "scenario_id": "component-only",
+      "scope": "historical component verification; no formal performance"
+    }
+  ],
+  "metrics": [],
+  "legacy_record": {
+    "experiment_id": "compat-001",
+    "status": "checks_completed_patch_retained_pending_model_accuracy",
+    "flagtree": "0.7.1.dev1+ppu3.6",
+    "container": "minimaxM3.1-opt-latest-20261020",
+    "devices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "passed_numeric_graph_cases": 50,
+    "explicit_graph_replays": 100,
+    "native_compilation_blocker_reproduced": false,
+    "ties": {
+      "status": "tie_selection_difference_confirmed",
+      "isolated_variable": "BLOCK_SIZE_K64 vs128, same num_warps4/num_stages2, same JIT/inputs",
+      "classification": "allowed top-k tie ordering difference; no measured model accuracy regression",
+      "rows": [
+        {
+          "kind": "unique",
+          "blocks": 257,
+          "input_sha256": "f194d30b45c73a197322a0ae4637e25ff0ec0d7c2b056139aa6548e5ce12a8d2",
+          "warps2_vs4_sameK64_exact": true,
+          "K64_vs128_same4warps_exact": true,
+          "K64_vs128_same4warps_different_slots": 0,
+          "selected_scores_equal": true,
+          "output_sha256": {
+            "(64, 2)": "890f25950d165633c3cd551177bfe0a031b3b594514f41796589b57d68f9a2ef",
+            "(64, 4)": "890f25950d165633c3cd551177bfe0a031b3b594514f41796589b57d68f9a2ef",
+            "(128, 4)": "890f25950d165633c3cd551177bfe0a031b3b594514f41796589b57d68f9a2ef"
+          },
+          "selected_block_sets_equal": true,
+          "symmetric_difference_counts": [
+            0,
+            0
+          ]
+        },
+        {
+          "kind": "ties",
+          "blocks": 257,
+          "input_sha256": "5626d9a8f1d7364b61839a6d47fdc7e1519abda6704ab341fe8d34575f0faa8e",
+          "warps2_vs4_sameK64_exact": true,
+          "K64_vs128_same4warps_exact": false,
+          "K64_vs128_same4warps_different_slots": 30,
+          "selected_scores_equal": true,
+          "output_sha256": {
+            "(64, 2)": "70ee3c9a47759eaba3d9ecc3fd20cdb51f4e983ae611e18c56cf42f0e8ec762c",
+            "(64, 4)": "70ee3c9a47759eaba3d9ecc3fd20cdb51f4e983ae611e18c56cf42f0e8ec762c",
+            "(128, 4)": "dcafb361c84046ff91ce1a0f31a0abf2418c99b30ca53b9546bce27ae2d8f83d"
+          },
+          "selected_block_sets_equal": false,
+          "symmetric_difference_counts": [
+            30,
+            30
+          ]
+        },
+        {
+          "kind": "repeated",
+          "blocks": 129,
+          "input_sha256": "50f522d5bb338dd9e7cd43ecf2191d739bf0427fedfa5e2a27a1d62be97068f4",
+          "warps2_vs4_sameK64_exact": true,
+          "K64_vs128_same4warps_exact": false,
+          "K64_vs128_same4warps_different_slots": 30,
+          "selected_scores_equal": true,
+          "output_sha256": {
+            "(64, 2)": "5217ad481af67bf39bb12ee424b1a8ad2d155fafaf488c811ab976ea78490613",
+            "(64, 4)": "5217ad481af67bf39bb12ee424b1a8ad2d155fafaf488c811ab976ea78490613",
+            "(128, 4)": "3977c27f28cdf99d9fcedb5d55a3ab909a7291c2911b65e2b0a2e965c597d2d4"
+          },
+          "selected_block_sets_equal": false,
+          "symmetric_difference_counts": [
+            30,
+            30
+          ]
+        }
+      ],
+      "production_source_changes": false
+    },
+    "autotune_tie_differences": [
+      {
+        "device": 0,
+        "case": "ties257",
+        "best_config": {
+          "BLOCK_SIZE_K": 64,
+          "num_warps": 2,
+          "num_ctas": 1,
+          "num_stages": 2
+        }
+      },
+      {
+        "device": 0,
+        "case": "repeated129",
+        "best_config": {
+          "BLOCK_SIZE_K": 64,
+          "num_warps": 2,
+          "num_ctas": 1,
+          "num_stages": 2
+        }
+      }
+    ],
+    "initial_multidevice_test_failure": {
+      "preserved": true,
+      "classification": "measurement-invalid: class-wide default capture stream reused on wrong device",
+      "correction": "per-device explicit stream, remaining frozen cases passed28/28; original GPU0 passed22/22"
+    },
+    "source_verification": "all three source trees unchanged",
+    "service_instance_unchanged": true,
+    "health_http": 200,
+    "request_counters": [
+      "vllm:num_requests_running{engine=\"0\",model_name=\"MiniMax-M3.1-latest\"} 0.0",
+      "vllm:num_requests_waiting{engine=\"0\",model_name=\"MiniMax-M3.1-latest\"} 0.0"
+    ],
+    "production_patch_removed": false,
+    "GQA_patch_unchanged": true,
+    "model_minimal_regression": "not_run_no_patch_removal_deployed",
+    "formal_accuracy": "not_run; no evidence of model score regression; no new gate",
+    "performance": "not_run",
+    "decision": "compile/graph blocker cleared for tested native path; K-dependent tie selection changes actual attention block sets; retain installed patch until an explicitly validated model-level removal candidate",
+    "evidence": {
+      "device-result.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/device-result.json",
+        "sha256": "fa1b5533da3b05636ccdb162ef2319052f5f9552480df6e73f80539bb6df1373"
+      },
+      "stream-fix/device-result.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/stream-fix/device-result.json",
+        "sha256": "32fce7e4992782e71027903dc12c05300e543b0e16c49fa379e8f6a66cd73ed9"
+      },
+      "stream-fix-reason.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/stream-fix-reason.json",
+        "sha256": "4ec7badc997310a0e8fd236e7dce62b38187e3c56f5d1538da4bf51c314cab18"
+      },
+      "tie-bisection-result.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/tie-bisection-result.json",
+        "sha256": "3a59fe85dff959215ba5d9d8662d6f3135ae8b508ae6c1cbcdd1a4d8e4ba5ae6"
+      },
+      "tie-set-result.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/tie-set-result.json",
+        "sha256": "ff0162f1ae6a2812109f9e86b3cd676fdc5e0e779fd6bf2c357fa519e9f0ef23"
+      },
+      "source-before.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/source-before.json",
+        "sha256": "02087f05bc7e649eef118497fe0def2402bb831ebe3ac22428f6210b3a7623c8"
+      },
+      "service-before.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/service-before.json",
+        "sha256": "9815458fca9496d6784077068dfcddbe3f36748500bd449d76513afe35b1e874"
+      },
+      "device-command.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/device-command.json",
+        "sha256": "915f8a4e8432e58ef9969e49abd5016386ff4a2efa8589ec8ffc619a99d75298"
+      },
+      "stream-fix-command.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/stream-fix-command.json",
+        "sha256": "1217f51cf0dd3679d1a4d6c3525a8f258e0cb3e33caf8a2956315e71b2923090"
+      },
+      "tie-set-command.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01/tie-set-command.json",
+        "sha256": "5461df02a39427d76e905e720fc59b184f1dc87c683d2855488b9145c84b6e63"
+      }
+    },
+    "time_utc": "2026-10-21T01:51:45Z",
+    "remote_case": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-unpatch-01",
+    "remote_result_sha256": "509e2067785c07c4160416b3a511450ab17a81df516b33663b165e86ca91acb1",
+    "mode": "minimal-regression",
+    "skill_bundle_sha256": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+    "formal_performance_allowed": false
+  },
+  "record_maintenance": {
+    "date": "2026-11-02",
+    "scope": "原回执原样保留在 legacy_record；仅规范结构和补齐入口。",
+    "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/optimize/state.yml"
+  },
+  "local_record_archive": {
+    "archived_at": "2026-11-02",
+    "manifest": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json",
+    "scope": "local verified archival; remote evidence not revalidated",
+    "files": [
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/device-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/device-receipt.json",
+        "sha256": "012bd0410450e2b8e117db59d29d2fbd6626c63a4bf21c6e920450e1015bad95"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/device-topk-check-streamfix.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/device-topk-check-streamfix.py",
+        "sha256": "d3e361402c34e85366e737faf384b80e2a6716f9ff1cabd6a8680988458e3101"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/device-topk-check.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/device-topk-check.py",
+        "sha256": "f3a8c913706d5dadf91627b4f4fdd018ca0a91017f0ba3ce860d61b3a77294d9"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/finalize-check.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/finalize-check.py",
+        "sha256": "d8fd22b058bf1b9dea19de6c4da27bc0605879ebd71a69bad1ed983c5be36a95"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/finalize-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/finalize-receipt.json",
+        "sha256": "0d15756a66af8ab65d6814dc129834e9d8b31f1273130fa7677368fb5060b7d7"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/stream-fix-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/stream-fix-receipt.json",
+        "sha256": "46232ea70ef75ad40829cae45fa331dd85b566894843d4c2fe49a7d9985c6d94"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-bisection.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-bisection.py",
+        "sha256": "20150a22b4862bef5986ad2ddb417eea9a90f4149befcd29d648e3b0ff52d56c"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-receipt.json",
+        "sha256": "26442262cc7a94baaf222cf6da19d578d902002754b6e185cf504d15ba9e2a5b"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-set-check.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-set-check.py",
+        "sha256": "a76c0c96528ae81a1b07561856fae6a4c194de66b66d789105b13552c747415e"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-set-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-validation/commands/tie-set-receipt.json",
+        "sha256": "992b2fc425bde2da13278e4ba5a609d74a99f67112d4013381d419c740fcaf2b"
+      }
+    ]
+  }
+}

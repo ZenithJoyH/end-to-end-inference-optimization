@@ -1,0 +1,23 @@
+{
+  "schema_version": 3,
+  "record_kind": "case-directory-index",
+  "stage": "acceptance",
+  "status": "migrated-to-explicit-topology-cases",
+  "case_records": [
+    {
+      "case_id": "20261008-minimax-m31-w8a8-ppu-e2e",
+      "topology": "TP16; original adapted configuration",
+      "state": "../20261008-minimax-m31-w8a8-ppu-e2e/acceptance/state.yml"
+    },
+    {
+      "case_id": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+      "topology": "TP8; user configuration plus correctness fix-001",
+      "state": "../20261010-minimax-m31-w8a8-ppu-tp8-e2e/acceptance/state.yml"
+    }
+  ],
+  "original_record": {
+    "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-02/minimax-original/models/MiniMax-M3.1-W8A8/ppu/acceptance/state.yml",
+    "sha256": "c2c7f0e33a23a53082b5acd613aaac027938333d1ea65f444727f862e9fde9cb"
+  },
+  "scope": "导航与原始溯源，禁止作为测量或当前模型状态。"
+}

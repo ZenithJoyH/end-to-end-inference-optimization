@@ -1,0 +1,47 @@
+schema_version: 4
+identity:
+  case_id: 20261021-topk-unpatch-removal
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: not-established-component-verification-only
+  topology: TP8:physical0-7; component checks only, see legacy_record
+stage: baseline
+current:
+  status: not_run
+  accuracy_status: not_evaluated_in_this_stage
+  performance_status: not_run
+  next_action: 本次仅整理历史记录；精度/组件验证见 optimize，正式四场景性能验收未建立。
+experiments: []
+metrics: []
+record_maintenance:
+  date: '2026-11-02'
+  source: ../optimize/state.yml
+  scope: 补齐阶段入口，不代表执行新评测或核验远端状态。
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: not_run
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

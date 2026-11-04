@@ -1,0 +1,499 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261021-dot-k16-tp8-accuracy",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "user-adjust-k16-20261021",
+    "topology": "TP8:physical0-7"
+  },
+  "stage": "optimize",
+  "current": {
+    "status": "resume02_all_three_native_completed_verified",
+    "candidate": "user-adjust-dotK16-compiler",
+    "next_action": "await user direction; model service retained; no automatic optimization/performance",
+    "remote_case_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy",
+    "run_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02",
+    "formal_performance_allowed": false,
+    "progress_monitor": {
+      "automation_id": "minimax-m3-1-acc-001",
+      "status": "PAUSED",
+      "interval_minutes": 30,
+      "paused_reason": "whole resume02 queue terminal and native evidence independently verified",
+      "terminal_verified_at_utc": "2026-10-21T13:24:31.499090+00:00"
+    },
+    "accuracy_status": "GPQA_passed_native_gate_Math500_ERQA_completed_score_only",
+    "active_execution_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02"
+  },
+  "experiments": [
+    {
+      "experiment_id": "acc-001",
+      "document": "acc-001.md",
+      "status": "completed_verified_after_explicit_resume",
+      "direction": "full accuracy of user compiler ge_k_map limit16",
+      "mode": [
+        "minimal-regression",
+        "formal-gate"
+      ],
+      "user_authorization": "2026-10-21 explicitly restart target model and rerun full accuracy after adjusting triton/runtime/adjust_kernel_param.py",
+      "service": {
+        "host": "PPU-07",
+        "container": "minimaxM3.1-opt-latest-20261020",
+        "port": 8045,
+        "physical_devices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "model_path": "/mnt/cpfs/models/MiniMax-M3.1-Flash-W8A8-FlagOS-20261019"
+      },
+      "source": {
+        "plugin_tree": "1df234c69c9b15f621f0fa1ad805b50fcd8381848f610c8c28aba49604027251",
+        "fv_tree": "2f62194e14f5f49eb579532aacbafd20716db372f260a2396b32fe4e1fe13f26",
+        "fg_tree": "1798d770ab7e7247d9b91c45870297776a3f041055d5da8ec854cdd34178c8be",
+        "changed_files": [
+          "vllm_fl/dispatch/backends/vendor/thead/patch.py",
+          "tests/unit_tests/dispatch/test_thead_launch_compat.py"
+        ],
+        "agent_source_changes": false,
+        "inherited_topk_removal": true,
+        "changes_this_run": []
+      },
+      "runtime_versions": {
+        "flagtree": "0.7.1.dev1+ppu3.6",
+        "triton": "3.6.0",
+        "torch": "2.10.0",
+        "vllm": "0.24.0+empty",
+        "flag_gems": "5.4.0rc2.post1+g8200f71f5"
+      },
+      "compiler": {
+        "path": "/usr/local/lib/python3.12/site-packages/triton/runtime/adjust_kernel_param.py",
+        "sha256": "bffec8df8a14bb14b203887bcf254da251c2c84f86929d6431f9d87f1956c832",
+        "ge_k_map_limit": 16,
+        "agent_edits": false,
+        "fresh_triton_cache": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/cache/triton",
+        "freeze_policy": "snapshot full file, hash triton Python sources; verify before/after minimal and every formal stage; bind hash to native service runtime",
+        "triton_python_tree_sha256": "43e16ac9058877e44808da5ff653127178e95838fd8ee2ea15e18d466ae10cde"
+      },
+      "skill_bundle": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+      "contract": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": -1,
+        "seed": 42,
+        "gpqa": {
+          "samples": 198,
+          "generation_limit": 18000,
+          "concurrency": 32,
+          "threshold": 0.81
+        },
+        "math500": {
+          "samples": 500,
+          "generation_limit": 28000,
+          "concurrency": 32,
+          "threshold": null
+        },
+        "erqa": {
+          "samples": 400,
+          "generation_limit": 30000,
+          "concurrency": 16,
+          "threshold": null
+        },
+        "prefixcache": "disabled",
+        "single_invocation_each": true,
+        "whole_task_retries": false,
+        "no_performance": true
+      },
+      "commands": {
+        "latestacc-bootstrap-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-bootstrap-20261021.py",
+          "sha256": "3911643db270806385716dcd38c4523bb98562daaf2686d154ec925dd5e4d87f"
+        },
+        "latestacc-dense-graph-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-dense-graph-20261021.py",
+          "sha256": "d23dc4670226c2771481bcb84469473be11f3ba5266432783e929b7c5fbc0960"
+        },
+        "latestacc-sdpa-graph-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-sdpa-graph-20261021.py",
+          "sha256": "bed8c5c23008c94858f7c616cf40c9d9977db9a8eb03f514476fc391bddee7a3"
+        },
+        "latestacc-model-graph-regression-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-model-graph-regression-20261021.py",
+          "sha256": "d896ab12361f38ed4575c89f6dbafb0fc332c29e2e8063232b3c50da56149023"
+        },
+        "latestacc-service-capture-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-service-capture-v2-20261021.py",
+          "sha256": "6814cbb4486013bedeb590da59b7626bacde3518a80c0cfc6cace6e1537bb2c8"
+        },
+        "latestacc-suite-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-suite-v2-20261021.py",
+          "sha256": "4cc3bc030b04c7b40a0183d338900ae12ea59a32078fb8bed3d3800ecba1c655"
+        },
+        "latestacc-math-native-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-math-native-20261021.py",
+          "sha256": "a7ef8c4248be78328fdb26a49a39e5e3f04842764a14022ad4fda6dff20cd6c3"
+        },
+        "latestacc-erqa-adapter-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-erqa-adapter-20261021.py",
+          "sha256": "170168a6f21c1ab44ce805d15a14a0329a84a1d9fc6b17a96312fdbd1699dd1a"
+        },
+        "latestacc-erqa-native-audit-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-erqa-native-audit-20261021.py",
+          "sha256": "b2ec2fbe88e8dff3cfaa640cdbd1075e1ea7756131715b33639360b70370d79e"
+        },
+        "latestacc-advance-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-advance-v2-20261021.py",
+          "sha256": "71fcfce57ca0211321ea11c041ce6eb4347de97f6393b131a404d0247a0b6753"
+        },
+        "latestacc-dispatch-bootstrap-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/latestacc-dispatch-bootstrap-v2-20261021.py",
+          "sha256": "ce7a7bc71687dfddba6b67afbc4687b235442f560cb729cbd7fa0d85adc52d6f"
+        },
+        "compiler-fingerprint.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/compiler-fingerprint.py",
+          "sha256": "6d11c0c25222831cb303d89bdbc93a34e11412d97d95d9a2bd28ba6c5fe1ba3f"
+        },
+        "restart-control.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/restart-control.py",
+          "sha256": "0cc6837334deee56462f0231b07b60459d9d25502e35e9dc21b876fc5651b988"
+        },
+        "dispatch-restart.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/dispatch-restart.py",
+          "sha256": "5be9b2ef1c3671a778677c49f080eb7021a81ddf9c36bc3e4ed495bb2b0462a6"
+        }
+      },
+      "remote_case_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy",
+      "formal_performance_allowed": false,
+      "previous_run_reference": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01",
+      "previous_results_reference_only": {
+        "gpqa": 0.8636363636363636,
+        "math500": 0.94,
+        "erqa": 0.6625
+      },
+      "status_boundaries": "new compiler requires fresh graph, minimal and complete evaluation; do not reuse old score/gate/cache. valid GPQA below81 no gate but complete other user-requested datasets; no performance.",
+      "execution": {
+        "restart": "restart-dispatch.json",
+        "stop_targets": "service-stop-command.json",
+        "stop_terminal": "service-stop-result.json",
+        "bootstrap": "bootstrap-dispatch.json",
+        "advance": "advance-dispatch-v2.json",
+        "identity_policy": "parse fresh argv/startticks, no old PID"
+      },
+      "monitor": {
+        "automation_id": "minimax-m3-1-acc-001",
+        "status": "PAUSED",
+        "interval_minutes": 30,
+        "paused_reason": "whole resume02 queue terminal and native evidence independently verified",
+        "terminal_verified_at_utc": "2026-10-21T13:24:31.499090+00:00"
+      },
+      "restart_result": {
+        "status": "exact-model-processes-exited",
+        "forced_survivor_count": 0,
+        "container_retained": true,
+        "no_unrelated_process_stopped": true,
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/service-stop-result.json"
+      },
+      "minimal_status": {
+        "thead_compat_unit": "5 passed",
+        "device_free": "passed",
+        "dense_graph": "56 passed",
+        "model_operators": "9 passed",
+        "fusion_moe": "passed",
+        "vision_sdpa": "16 passed",
+        "model_graph_regression": "model initializing"
+      },
+      "device_evidence": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/validation/operator-complete.json",
+      "user_intervention": {
+        "action": "pause and manual cache cleanup",
+        "automatic_resume": false,
+        "stop_script": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/user-stop-20261021-01.py",
+          "sha256": "657a6cc7a605d4ee8460c9b0497bcc7818b536c9238997080629c7625958d3db"
+        },
+        "finish_stop_script": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/commands/finish-user-stop-20261021-01.py",
+          "sha256": "2dad709278facba5a8e77de5cc23a689bb0348c665ef33972b7e6831bdd4f544"
+        },
+        "status": "completed-stop-verified",
+        "model_service_stopped": true,
+        "evaluation_controllers_stopped": true,
+        "container_retained": true,
+        "cache_deleted": false,
+        "stop_result": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/user-stop-result.json",
+        "physical0_7_used_MiB": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "forced_survivor_count": 0,
+        "stop_control_note": "argv changed/emptied during process exit interrupted initial stop command; completed only original archived PID/startticks via finalizer"
+      },
+      "decision": "three-task full accuracy completed; no performance decision",
+      "resume_20261021_02": {
+        "authorization": "user explicitly says cache cleanup complete; restart model and start full evaluation",
+        "automation_allowed": true,
+        "execution_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02",
+        "run_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02",
+        "commands": {
+          "latestacc-bootstrap-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-bootstrap-20261021.py",
+            "sha256": "32f807bef79d97e936f34a479b97947c6f1ad79352b5c82cf5206ed6723bf831"
+          },
+          "latestacc-service-capture-v2-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-service-capture-v2-20261021.py",
+            "sha256": "5f5a3116de78d5f5976a4796ddaa204a9c84c7a25874787e9672cebed5be192c"
+          },
+          "latestacc-suite-v2-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-suite-v2-20261021.py",
+            "sha256": "12314b1695d16d3ce405e2f0e366194b9a0a98af9bb1e00252e236975c779ba8"
+          },
+          "latestacc-math-native-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-math-native-20261021.py",
+            "sha256": "0e3f4fc615dc8788bd6170ce1e94b061ac167a6e958f59914d68745cfbb678d1"
+          },
+          "latestacc-erqa-adapter-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-erqa-adapter-20261021.py",
+            "sha256": "170168a6f21c1ab44ce805d15a14a0329a84a1d9fc6b17a96312fdbd1699dd1a"
+          },
+          "latestacc-erqa-native-audit-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-erqa-native-audit-20261021.py",
+            "sha256": "b2ec2fbe88e8dff3cfaa640cdbd1075e1ea7756131715b33639360b70370d79e"
+          },
+          "latestacc-model-graph-regression-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-model-graph-regression-20261021.py",
+            "sha256": "21a3ed0aef0825b8dadfc0a950de5a270f260a4e11947e27128b85f172a3ed2c"
+          },
+          "latestacc-advance-v2-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-advance-v2-20261021.py",
+            "sha256": "6d4a6cdfdf99dcbbd173397d48807b29c0eeee5842e16f4bd19c1dd13ea1a413"
+          },
+          "latestacc-dispatch-bootstrap-v2-20261021.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/latestacc-dispatch-bootstrap-v2-20261021.py",
+            "sha256": "7f2ba13cb92ef38e6b768aff17c1fea43acca3c7ddd65a28a7a5bd4868594b85"
+          },
+          "compiler-fingerprint.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/compiler-fingerprint.py",
+            "sha256": "6d11c0c25222831cb303d89bdbc93a34e11412d97d95d9a2bd28ba6c5fe1ba3f"
+          },
+          "resume-control.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/resume-control.py",
+            "sha256": "c0f4859dce0b6ee1a6e38bc325946d097e306d23cc9f397d66f77255e6f51f1f"
+          },
+          "dispatch-resume.py": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/commands/dispatch-resume.py",
+            "sha256": "088641829500d11bb7880c7ade1eeca1665f93690887f0f92442d15040b39f6d"
+          }
+        },
+        "prior_run_status": "paused by human before any formal task launch; preserved, not a numeric failure",
+        "prior_device_evidence_reused": "same Plugin/FV/FG files, compiler full Python tree and adjust SHA, same TP8/0–7; passed numerical/graph evidence retained",
+        "new_validation_required": "new service capture/replays,105+2 request regression, independent complete formal results and gate",
+        "triton_cache_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/cache/triton",
+        "whole_task_auto_retry": false,
+        "no_source_changes": true,
+        "no_performance": true,
+        "status": "all_three_native_completed_verified",
+        "monitor": {
+          "automation_id": "minimax-m3-1-acc-001",
+          "status": "PAUSED",
+          "interval_minutes": 30,
+          "paused_reason": "whole resume02 queue terminal and native evidence independently verified",
+          "terminal_verified_at_utc": "2026-10-21T13:24:31.499090+00:00"
+        },
+        "process_binding": {
+          "resume": "resume-dispatch.json",
+          "bootstrap": "bootstrap-dispatch.json",
+          "advance": "advance-dispatch-v2.json",
+          "model": "service/process.json",
+          "queue": "accuracy/dot-k16-first8-t1-suite-20261021-02/queue-binding.json"
+        },
+        "results": {
+          "gpqa": {
+            "unique_samples": 198,
+            "physical_rows": 396,
+            "metric": "exact_match,strict-match",
+            "score": 0.8383838383838383,
+            "correct": 166,
+            "returncode": 0,
+            "stage_result": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/gpqa/result.json",
+              "sha256": "7b2fcbaf4d21ab7d97e636e22cde54ddce12cc0a2451892ab95715b83929f20c"
+            },
+            "native_results": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/gpqa/outputs/dot-k16-first8-user-t1-gpqa-20261021-02/8626330effb84fe6a655bf7e96327303/gpqa_diamond_generative_cot/MiniMax-M3.1-latest/results_2026-10-21T09-23-27.178844.json",
+              "sha256": "bd2dc531e3eed51e5ded22bd7066b648e3d86f0e66c5d4230bcea625623fad97"
+            },
+            "native_samples": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/gpqa/outputs/dot-k16-first8-user-t1-gpqa-20261021-02/8626330effb84fe6a655bf7e96327303/gpqa_diamond_generative_cot/MiniMax-M3.1-latest/samples_gpqa_diamond_generative_cot_2026-10-21T09-23-27.178844.jsonl",
+              "sha256": "e9f268d413aa7c8d639b2449ce7bcd7d2ca969ffed8b9d32e3c6a787013677d5"
+            },
+            "threshold": 0.81,
+            "gate": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/gpqa/accuracy-gate.json",
+              "sha256": "77ec0ea767b418e6a547c5e12196e9401c80af7cf3f3a4f3c9ac2f02a362328f"
+            }
+          },
+          "math500": {
+            "unique_samples": 500,
+            "physical_rows": 500,
+            "metric": "exact_match,none",
+            "score": 0.934,
+            "correct": 467,
+            "returncode": 0,
+            "stage_result": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/math500/result.json",
+              "sha256": "50090f2928d469dbb82047c0495648897478cc5b7994c68be611bd9cb0691a03"
+            },
+            "native_results": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/math500/outputs/dot-k16-first8-user-t1-math500-20261021-02/b4785554ef184495831fc5ddb12787a5/math_500/MiniMax-M3.1-latest/results_2026-10-21T09-49-01.029462.json",
+              "sha256": "65b4d647cfe27f87fdc15ca84bb0ddfec867e17807b39b19a97e9b223f006fff"
+            },
+            "native_samples": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/math500/outputs/dot-k16-first8-user-t1-math500-20261021-02/b4785554ef184495831fc5ddb12787a5/math_500/MiniMax-M3.1-latest/samples_math_500_2026-10-21T09-49-01.029462.jsonl",
+              "sha256": "afba2e15a6c44330a3f5088f7943b3aa929d2fe8fbf66c7797875b932bd153de"
+            },
+            "threshold": null,
+            "generation_kwargs_matches_frozen_proof": true
+          },
+          "erqa": {
+            "unique_samples": 400,
+            "actual_evaluated": 400,
+            "ID_set_matches_frozen400": true,
+            "correct": 252,
+            "score": 0.63,
+            "accuracy_percent": 63.0,
+            "threshold": null,
+            "returncode": 0,
+            "output_health": {
+              "NUL_only_items": 0,
+              "raw_item_answer_empty": 0,
+              "completion_budget_hits": 4
+            },
+            "native_results": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/erqa/native-output/erqa/erqa_result.json",
+              "sha256": "b076aa0c42dc6b5087ebeb88d788760c1be2e6c6d642b9f893c712e3aef5269e"
+            },
+            "native_evaluated": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/erqa/native-output/erqa/erqa_evaluated.json",
+              "sha256": "0b1beaa8bb756f18bd29904887dd74642045ade8b694e47471ea49f70424d961"
+            },
+            "native_audit": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/erqa/native-audit.json",
+              "sha256": "a9a7065bd7955a4a6f0a40431aa0254f844d751b1905815ad0ac3952a983fefd"
+            },
+            "stage_result": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/erqa/result.json",
+              "sha256": "37afc803203c83ac77b50bdcccc2607c61b7a2a58633682b7925039bb6ad6dc4"
+            },
+            "dataset_proof": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/erqa/dataset-proof.json",
+              "sha256": "3eeb961d26cbe73639e2c1e22ba247ca9727d01651c603eecdaa19aa95305848"
+            }
+          }
+        },
+        "terminal_verified": {
+          "service_identity_unchanged": true,
+          "source_runtime_compiler_cache_unchanged": true,
+          "health": 200,
+          "requests_running": 0,
+          "requests_waiting": 0,
+          "runtime_packages": {
+            "flagtree": "0.7.1.dev1+ppu3.6",
+            "torch": "2.10.0",
+            "vllm": "0.24.0+empty"
+          },
+          "compiler_fingerprint": {
+            "adjust_file": "/usr/local/lib/python3.12/site-packages/triton/runtime/adjust_kernel_param.py",
+            "adjust_sha256": "bffec8df8a14bb14b203887bcf254da251c2c84f86929d6431f9d87f1956c832",
+            "triton_python_tree_sha256": "43e16ac9058877e44808da5ff653127178e95838fd8ee2ea15e18d466ae10cde",
+            "flagtree_version": "0.7.1.dev1+ppu3.6",
+            "ge_k_map_limits": [
+              16,
+              16,
+              16,
+              16,
+              16
+            ],
+            "scope": "user compiler change; no agent edits; fresh TRITON_CACHE_DIR; no old score reuse"
+          },
+          "read_only_GPQA_gate_check": "PASS: formal accuracy acceptance verified",
+          "no_remote_mutation_or_model_requests_by_monitor": true,
+          "service_manifest": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/service/service.json",
+            "sha256": "5f9e628f29ffa6db8f578bdb5b130398cc1bc101b7f071dac52a3b2f47b709e3"
+          }
+        },
+        "suite_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/result.json",
+          "sha256": "9f8450c137ce893fde772a0346782e565682b6582454bbac233277685ed68b32"
+        },
+        "advance_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/advance-result.json",
+          "sha256": "3af349dc36f8e745a61e107ca72d9ba097aa1bf4bde2c8e36436880d5d7ede11"
+        },
+        "bound_evaluation_processes_exited": {
+          "advance-dispatch-v2.json": true,
+          "accuracy/dot-k16-first8-t1-suite-20261021-02/queue-binding.json": true,
+          "accuracy/dot-k16-first8-t1-suite-20261021-02/erqa/runner.process.json": true
+        },
+        "observed_at_utc": "2026-10-21T13:24:31.499090+00:00",
+        "native_completed_at_utc": "2026-10-21T11:41:43.894180+00:00",
+        "accuracy_evaluation": {
+          "mode": "formal-gate",
+          "covered_experiment_ids": [
+            "acc-001"
+          ],
+          "metric": "exact_match,strict-match",
+          "score": 0.8383838383838383,
+          "threshold": 0.81,
+          "result": "passed",
+          "gate": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-dot-k16-tp8-accuracy/resume-20261021-02/accuracy/dot-k16-first8-t1-suite-20261021-02/gpqa/accuracy-gate.json",
+            "sha256": "77ec0ea767b418e6a547c5e12196e9401c80af7cf3f3a4f3c9ac2f02a362328f"
+          },
+          "read_only_native_gate_check": "PASS: formal accuracy acceptance verified",
+          "next_trigger": "new explicit user request or source/service/config changes; no automatic performance"
+        }
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "scenario_id": "gpqa_diamond_generative_cot",
+      "role": "candidate",
+      "metric": "exact_match,strict-match",
+      "value": 0.8383838383838383,
+      "unit": "fraction",
+      "scope": "fresh_complete_native_resume02_198_dotK16_TP8_first8",
+      "experiment_id": "acc-001"
+    },
+    {
+      "scenario_id": "math_500",
+      "role": "candidate",
+      "metric": "exact_match,none",
+      "value": 0.934,
+      "unit": "fraction",
+      "scope": "fresh_complete_native_resume02_500_dotK16_TP8_first8",
+      "experiment_id": "acc-001"
+    },
+    {
+      "scenario_id": "erqa",
+      "role": "candidate",
+      "metric": "accuracy",
+      "value": 0.63,
+      "unit": "fraction",
+      "scope": "fresh_complete_native_resume02_400_dotK16_TP8_first8",
+      "experiment_id": "acc-001"
+    }
+  ]
+}

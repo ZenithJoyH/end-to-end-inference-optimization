@@ -1,0 +1,338 @@
+schema_version: 4
+identity:
+  case_id: 20261008-minimax-m31-w8a8-ppu-e2e
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: original-adapted-tp16-anchor
+  topology: TP16; original adapted configuration
+stage: baseline
+current:
+  status: original-target-incomplete; recovery diagnostic baseline complete
+  scope: historical local record; runtime not revalidated on 2026-11-02
+experiments: []
+metrics:
+- scenario_id: p1024-d1-c64-n128-prefill
+  role: baseline
+  metric: total_token_throughput_median
+  value: 9502.84585322317
+  unit: token/s
+  scope: TP16 Prefill 诊断；10.744% 波动，比较精度受限
+  source_pointer: /phase_baselines/prefill/total_token_throughput_median
+  phase: prefill
+- scenario_id: p1024-d128-c64-n64-recovery
+  role: baseline
+  metric: total_token_throughput_median
+  value: 988.826686996797
+  unit: token/s
+  scope: TP16 缩减 Mixed；非正式 P1K/D1K
+  source_pointer: /phase_baselines/mixed/total_token_throughput_median
+  phase: mixed
+  evidence: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/performance/entry-p1k/mixed-recovery-baseline-summary-v2.json
+- scenario_id: p1024-d128-c64-n64-recovery
+  role: baseline
+  metric: p50_tpot_median_ms
+  value: 552.4913169751604
+  unit: ms
+  scope: TP16 缩减 Mixed 中的 Decode 代理；非纯设备阶段时间
+  source_pointer: /phase_baselines/decode/p50_tpot_median_ms
+  phase: decode
+- scenario_id: p1024-d128-c64-n64-recovery
+  role: baseline
+  metric: output_throughput_median
+  value: 109.869631888533
+  unit: token/s
+  scope: TP16 缩减 Mixed 中的 Decode 代理；非纯设备阶段时间
+  source_pointer: /phase_baselines/decode/output_throughput_median
+  phase: decode
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 2466.068087893935
+  unit: token/s
+  scope: TP16 实验配置基线；不同于原 anchor；formal_closure=false
+  source_pointer: /configuration_baselines/0/metrics/total_token_throughput/median
+  evidence: &id001
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/performance/entry-p1k/op002-native-p1k-baseline-01/runs/op002-native-p1k-baseline-01/run-record.json
+    sha256: 8a69da32fcf612c4531ccaaf13fe0f008b9b44b5ef328539fc809094ec99add9
+  statistic: median
+  baseline_id: op002-native-p1k-baseline-01
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 6351.736887097359
+  unit: ms
+  scope: TP16 实验配置基线；不同于原 anchor；formal_closure=false
+  source_pointer: /configuration_baselines/0/metrics/p99_ttft_ms/median
+  evidence: *id001
+  statistic: median
+  baseline_id: op002-native-p1k-baseline-01
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 51.242391312848106
+  unit: ms
+  scope: TP16 实验配置基线；不同于原 anchor；formal_closure=false
+  source_pointer: /configuration_baselines/0/metrics/p99_tpot_ms/median
+  evidence: *id001
+  statistic: median
+  baseline_id: op002-native-p1k-baseline-01
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 48.0322708748281
+  unit: ms
+  scope: TP16 实验配置基线；不同于原 anchor；formal_closure=false
+  source_pointer: /configuration_baselines/0/metrics/p99_itl_ms/median
+  evidence: *id001
+  statistic: median
+  baseline_id: op002-native-p1k-baseline-01
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 57016.24516127631
+  unit: ms
+  scope: TP16 实验配置基线；不同于原 anchor；formal_closure=false
+  source_pointer: /configuration_baselines/0/metrics/p99_e2el_ms/median
+  evidence: *id001
+  statistic: median
+  baseline_id: op002-native-p1k-baseline-01
+policy_version: '0.40'
+policy_date: '2026-09-22'
+acceptance_scope: formal
+accuracy_status: incomplete
+performance_status: active TP8 P1K singleinstance baseline passed; root historical TP16 scenarios remain separate
+target:
+  model_path: /mnt/cpfs/models/MiniMax-M3.1-preview-private-W8A8-FlagOS-20260929
+  source_container_name: minimaxM3.1
+  optimization_container_name: minimaxM3.1-opt-20261008
+  remote_work_root: /mnt/nfs/users/jinghao/minimaxM3.1/optimize
+  remote_case_dir: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e
+  image_lineage: verified
+  mount_parity: passed
+  source_image_id: sha256:66aba903fec3373d3518183f77227a713fb20e0fbf48038e6c813329cbd53172
+  optimization_image_id: sha256:78d8e42f2f21568667fd8727be790073b34f2683de2d9c2b734813aaf3b5a8fe
+  source_service_stop_authorization: User explicitly authorized stopping source 8025 model service and proceeding with optimization,
+    2026-10-08 current conversation.
+objective:
+  main_metric: total_throughput_tps
+  guards:
+  - ttft
+  - tpot
+  - itl
+  - stability
+  performance_objective: steady_state
+  cold_start_in_scope: false
+  relative_improvement_threshold: null
+accuracy:
+  task: gpqa_diamond_generative_cot
+  expected_samples: 198
+  metric: exact_match,strict-match
+  threshold: 81
+  threshold_unit: percent
+  criterion: score >= threshold
+  result: incomplete
+  threshold_fraction: 0.81
+  metric_status: Native evaluator/task provenance repeated identically; exact_match,strict-match frozen
+  status: baseline-sanity-runtime-checked
+  preflight_attempts:
+  - id: acc001-smoke-readiness-01
+    result: not_ready_no_model_requests_sent
+    reason: 8035 health refused while model initialization still progressing; no manifest or smoke outputs created.
+  dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+  task_provenance:
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/accuracy/formal/task-provenance-01.json
+    sha256: 430b9c86396c19aab5bb1d2fb2925a093a522e7d71b16f8ab767b74ca8599397
+  smoke:
+    status: passed
+    outputs:
+    - Paris
+    - 北京
+    generated_tokens:
+    - 34
+    - 23
+    service_manifest_sha256: 6c2e3759798010b2e18f8a98b8dd7917c54037ab6d17abdcbed99748ce138732
+    graph_eligible_decode_requests: 2
+    direct_replay_counter_available: false
+  contract:
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/accuracy/formal/contract.json
+    sha256: 979bfdfb65a3e1697d524851f943923178951cfec1ec1dedffaa75ebec03cf42
+  provenance_repeat_status: two identical captures, SHA430b9c86396c19aab5bb1d2fb2925a093a522e7d71b16f8ab767b74ca8599397
+  formal_preflight: passed; no formal evaluation started
+  sanity:
+    unique_samples: 10
+    rows: 20
+    score: 0.7
+    metric: exact_match,strict-match
+    timeouts: 0
+    empty_outputs: 0
+    garbled_outputs: 0
+    scope: first10 IDs0–9 C8, no formal gate
+    native_results_sha256: c918b2a6a1cf9c6aad786336c617187eab79f4aa01697c91e23c9e5ac6cf72cd
+    native_samples_sha256: ea65dbb4cc14ecc52bf202afa6e7c5ffe92896a24bed67b0f998739b3f1fed60
+    evidence: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/accuracy/baseline-sanity-repaired/validation.json
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+scenarios:
+- scenario_id: p1024-d1024-c64-n128
+  status: deferred-too-slow/incomplete
+  total_throughput_tps: null
+  ttft_ms: null
+  tpot_ms: null
+  itl_ms: null
+  e2e_ms: null
+  reason: first warmup exceeded pre-frozen600second round budget; no native complete result
+- scenario_id: p4096-d1024-c64-n128
+  status: not_run
+  total_throughput_tps: null
+  ttft_ms: null
+  tpot_ms: null
+  itl_ms: null
+  e2e_ms: null
+- scenario_id: p16384-d1024-c64-n128
+  status: not_run
+  total_throughput_tps: null
+  ttft_ms: null
+  tpot_ms: null
+  itl_ms: null
+  e2e_ms: null
+- scenario_id: p32768-d1024-c64-n128
+  status: not_run
+  total_throughput_tps: null
+  ttft_ms: null
+  tpot_ms: null
+  itl_ms: null
+  e2e_ms: null
+runtime:
+  engine_version: 0.24.0+empty
+  plugin_revision: cafe6363c8c3de5ba4693b91643089c17b3ab87c
+  plugin_dirty: true
+  flaggems_revision: 6b49cff993956bff8cef495abd84f2acb6a63df6
+  flaggems_dirty: false
+  tensor_parallel: 16
+  mode: FULL_DECODE_ONLY
+  capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  max_num_seqs: 64
+  max_num_batched_tokens: 8192
+  max_model_len: 204800
+  prefix_caching: false
+  port: 8035
+  dtype: bfloat16
+  quantization: compressed-tensors W8A8
+external_evidence:
+  root: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e
+  lineage: manifests/lineage.json
+  mounts: manifests/mount-comparison.json
+  source_stop: manifests/source-service-stop.json
+  service_log: logs/baseline-service.log
+phase_baselines:
+  prefill:
+    scenario_id: p1024-d1-c64-n128-prefill
+    total_token_throughput_median: 9502.84585322317
+    relative_spread: 0.10744050224121361
+    conclusion: complete diagnostic view with limited comparative precision
+  mixed:
+    scenario_id: p1024-d128-c64-n64-recovery
+    total_token_throughput_median: 988.826686996797
+    relative_spread: 0.00465554922385336
+    summary_path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/performance/entry-p1k/mixed-recovery-baseline-summary-v2.json
+    summary_sha256: fd6decbeccac453e011859ac40ec719e4ab27b6accb68abe4c68b864216150eb
+  decode:
+    p50_tpot_median_ms: 552.4913169751604
+    output_throughput_median: 109.869631888533
+    scope: proxy from reduced Mixed, not pure device phase time
+configuration_baselines:
+- id: op002-native-p1k-baseline-01
+  scenario_id: p1024-d1024-c64-n128
+  kind: experimental native configuration baseline, distinct from unchanged anchor
+  mode: baseline
+  status: passed configuration facts only
+  service:
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/performance/entry-p1k/op002-native-p1k-baseline-01/service/baseline-service-verified.json
+    sha256: 06077828a6c62ad7cd6017fd08f54e804d51c790bc98e7cd20497216c68ffcfb
+  run_record: *id001
+  admission:
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/performance/entry-p1k/op002-native-p1k-baseline-01/admission/supplemental-admission.json
+    sha256: eb23428a2041b3cf5a518a50c202268adb63a751b3dc9e5a983a364126be75a3
+  metrics:
+    total_token_throughput:
+      values:
+      - 2466.068087893935
+      - 2456.335788340956
+      - 2472.1213764817885
+      median: 2466.068087893935
+      relative_spread: 0.006401116099885904
+    p99_ttft_ms:
+      values:
+      - 6360.629400871694
+      - 6350.4225246515125
+      - 6351.736887097359
+      median: 6351.736887097359
+      relative_spread: 0.0016069425421124397
+    p99_tpot_ms:
+      values:
+      - 51.242391312848106
+      - 51.41254614246599
+      - 51.13880483581997
+      median: 51.242391312848106
+      relative_spread: 0.0053420868861244536
+    p99_itl_ms:
+      values:
+      - 48.0322708748281
+      - 48.28878261148929
+      - 47.51036605797708
+      median: 48.0322708748281
+      relative_spread: 0.01620611599940296
+    p99_e2el_ms:
+      values:
+      - 57016.24516127631
+      - 57280.074414042756
+      - 56904.16998372413
+      median: 57016.24516127631
+      relative_spread: 0.006592935561704203
+  record: ../optimize/op-002.md
+  formal_closure: false
+provenance:
+  path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-02/minimax-original/models/MiniMax-M3.1-W8A8/ppu/baseline/state.yml
+  sha256: 7e84524dd4ce51c05c9f310aa62c3eea6f456a4962afd5d5ef6fab5899c8578f
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: original-target-incomplete; recovery diagnostic baseline complete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: deferred-too-slow/incomplete
+    metric_indices:
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: first warmup exceeded pre-frozen600second round budget; no native complete result
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

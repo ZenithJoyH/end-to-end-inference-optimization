@@ -1,0 +1,59 @@
+schema_version: 4
+identity:
+  case_id: 20261017-minimax-m3-ppu13-plugin-support
+  model: MiniMax-M3
+  platform: ppu
+  host: PPU-13
+  baseline_id: minimaxM3-release-202610151646
+  topology: TP16:device0-device15
+stage: acceptance
+current:
+  status: incomplete
+  diagnostic_text_inference: fw016_unblacklisted_service_passed_minimal_regression_10_of_10
+  disk_candidate: env004_canonical_fw017_fw018_optional_fw019_fw020_default_off_CPU629_passed_no_added_Plugin_tests_or_thead_diff
+  service_restart_after_cleanup: true
+  startup_observation: slow_Conv3d_cold_autotune_eventually_completed_approximately_16_minutes
+  formal_accuracy: not_run_after_env003_accformal006_historical_only
+  performance: not_run
+  service_instance_id: null
+  historical_service_instance_id: fad201d7b6ec:8024:30544:494374945
+  current_model_service: not_running_before_env003_update_no_service_started
+  dependency_update: env-003-flaggems-vllm-update
+  prepared_plugin_candidate: fw017_fw018_fw019_consolidated_by_env004
+  prepared_candidate_CPU_contracts: passed_629_static_mock_not_hardware_fw020
+  fp32_router_default: upstream_GateLinear_no_Plugin_replacement
+  fp32_router_optin: explicit_existing_OOT_whitelist_only
+  prepared_candidate_activated: true
+  activation_scope: editable_install_only_no_model_service
+  final_plugin_checkout: /workspace/vllm-plugin-FL
+  final_flaggems_vllm_checkout: /workspace/FlagGems-vllm
+  version_consolidation: env-004-single-final-checkout
+  recovery_document: /mnt/nfs/users/jinghao/minimaxM3/20261017-minimax-m3-ppu13-plugin-support/consolidate-001-20261018/RESTORE.md
+  pending_hardware_reason: user_keeps_other_container_8011_service_all16PPUs
+  current_flaggems_vllm_revision: 46387d7f96050204c1b932f35680a3ea03896fa6
+  current_flaggems_vllm_version: 0.3.0.dev1
+  gate_applicable_to_current_environment: false
+  diagnostic_evidence: /mnt/nfs/users/jinghao/minimaxM3/20261017-minimax-m3-ppu13-plugin-support/restart-001/checks/native-verification.json
+  diagnostic_experiment: fw-016-unblacklisted-service-restart
+  scope: env003_import_only_historical_formal_score_not_reused
+  formal_accuracy_experiment: accformal-006-ppu13-gpqa-c64-60k
+  score: 0.9040404040404041
+  threshold: 0.88
+  correct_questions: 179
+  unique_questions: 198
+  concurrency: 64
+  max_gen_toks: 60000
+  finished_at: '2026-10-17T19:27:08.132098+08:00'
+  elapsed_seconds: 5413.943518
+  source_and_service_unchanged: true
+  final_result: /mnt/nfs/users/jinghao/minimaxM3/20261017-minimax-m3-ppu13-plugin-support/accuracy/accformal-006-gpqa-c64-60k-threshold88/accuracy/final-result.json
+  final_result_sha256: 5333da3c62d97a5ab6e11436f65081d02dacd7b7f4939da09242e58fbddb5cb6
+  accuracy_gate: /mnt/nfs/users/jinghao/minimaxM3/20261017-minimax-m3-ppu13-plugin-support/accuracy/accformal-006-gpqa-c64-60k-threshold88/accuracy/accuracy-gate.json
+  accuracy_gate_sha256: 7a59b0cb5a68f91ea88af39c6b699bbff262df8e5b013dd206b6d17465c16048
+  gate_check: passed_exit_0
+  diagnostic_api_60000_token_truncations: 14
+  diagnostic_empty_outputs: 0
+  diagnostic_timeouts: 0
+  progress_monitor: paused_on_completion
+experiments: []
+metrics: []

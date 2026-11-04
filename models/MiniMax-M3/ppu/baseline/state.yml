@@ -1,0 +1,277 @@
+schema_version: 3
+policy_version: '0.39'
+policy_date: '2026-09-20'
+record_kind: baseline_state
+updated_at: '2026-09-21T17:10:00+08:00'
+status: baseline_sanity_passed_performance_pending
+accuracy_status: baseline_sanity_passed_with_output_health_observation
+performance_status: not_run
+target:
+  model: MiniMax-M3
+  model_path: /mnt/cpfs/models/MiniMax-M3
+  platform: ppu
+  host: PPU-07
+  remote_work_root: /mnt/nfs/users/jinghao/minimaxM3
+  remote_case_dir: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e
+  source_container_name: minimaxM3
+  optimization_container_name: minimaxM3-opt-20260921
+  source_image_ref: harbor.baai.ac.cn/flagos-inner-models-release/minimaxm3-pp001-gems5.4.0-tree0.6.2-cxnone-plugin0.3.0-vllm0.24.0-cp312-pt210-hggc130-x64-2.1.1-rbd225:202609211044
+  source_image_id: sha256:41d96df0b7b416e1e887fe1c4dab21dfc12819875524993f90213fe29214f541
+  adapted_snapshot_image_ref: null
+  optimization_image_id: sha256:41d96df0b7b416e1e887fe1c4dab21dfc12819875524993f90213fe29214f541
+  image_lineage: verified
+  source_mount_manifest: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/manifests/source-container.inspect.json
+  optimization_mount_manifest: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/manifests/optimization-container.inspect.json
+  mount_diff: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/manifests/mount-comparison.json
+  mount_parity: passed
+runtime:
+  engine: vLLM
+  engine_revision: 0.24.0
+  plugin_revision: 7e412e6f8b6d8a5e4350e0237e1a8548dfaf7b94
+  flaggems_vllm_revision: bfe7ac06b3ebf95c6aba7dead56ff7d465019939
+  flaggems_revision: 3c6f7537d2d5d3aa680c55bbee5c70f2100c5b85
+  mode: graph
+  dtype: bfloat16
+  tensor_parallel: 16
+  total_devices: 16
+  launch_args:
+  - --no-enable-prefix-caching
+  - --max-model-len=65536
+  - --max-num-seqs=32
+  - --compilation-config=FULL_DECODE_ONLY:capture_sizes=1,2,4,8,16,32
+required_scenarios:
+- scenario_id: p1024-d1024-c64-n128
+  status: not_run
+- scenario_id: p4096-d1024-c64-n128
+  status: historical_diagnostic_present_current_baseline_not_run
+- scenario_id: p16384-d1024-c64-n128
+  status: historical_diagnostic_present_current_baseline_not_run
+- scenario_id: p32768-d1024-c64-n128
+  status: historical_diagnostic_present_current_baseline_not_run
+current_target_scenario_id: p1024-d1024-c64-n128
+phase_analysis:
+  prefill:
+    status: unknown
+  decode:
+    status: unknown
+  mixed:
+    status: unknown
+historical_performance_root: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+historical_performance:
+  provenance: diagnostic_only_source_service_vllm_perf_sha256_946e903f8fb2a919f8f8d9613d961d5cf48513ee0cc542eb9afcb36451be8d57
+  p4096-d1024-c64-n128:
+    output_throughput_tps: 600.25
+    total_throughput_tps: 3001.26
+    p99_ttft_ms: 31324.42
+    p99_tpot_ms: 104.91
+    p99_itl_ms: 978.11
+  p16384-d1024-c64-n128:
+    output_throughput_tps: 228.32
+    total_throughput_tps: 3881.52
+    p99_ttft_ms: 257544.39
+    p99_tpot_ms: 145.63
+    p99_itl_ms: 1116.55
+  p32768-d1024-c64-n128:
+    output_throughput_tps: 120.16
+    total_throughput_tps: 3965.18
+    p99_ttft_ms: 494478.18
+    p99_tpot_ms: 114.31
+    p99_itl_ms: 1210.06
+resource_gate:
+  status: passed
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/release-source-service-20260921-02
+  result: Source service stopped with explicit user authorization; source container remains running; port 8013 and all 16
+    PPUs were free before launching the optimization service.
+service:
+  container: minimaxM3-opt-20260921
+  endpoint: http://127.0.0.1:8023
+  status: ready_correct_no_prefix
+  log: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/baseline-no-prefix-server.log
+  launch_command: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/minimax-m3-no-prefix-baseline-service-command-ppu07-20260921.sh
+accuracy_incident:
+  issue_id: accdiag-001-null-output-config-drift
+  gate_blocking: false
+  resolution: Verified delivery configuration bundle restored correct output; subsequent prefix-cache disable retained correctness
+    with two graph replays.
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-001-no-prefix-replay
+accuracy_evaluation:
+  skill: inference-accuracy-evaluation
+  mode: baseline-sanity
+  result: passed_with_output_health_observation
+  score: 1.0
+  unique_samples: 10
+  timeouts: 0
+  truncated_doc_ids:
+  - 7
+  - 8
+  performance_may_continue: true
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/baseline-sanity
+  monitor_id: minimax-m3-ppu07-baseline-sanity
+  monitor_status: paused_after_terminal
+notes: Historical CSV summaries average runs 2 and 3 after one warmup, use random completions with ignore_eos, omit P1K and
+  E2E latency, do not freeze temperature explicitly, and lack a maintained-tool service manifest/run-record; they are diagnostic
+  anchors only. Baseline-sanity strict-match was 10/10; doc_ids 7 and 8 reached the 30000-token cap, retained as a non-gating
+  output-health observation under project policy.
+metrics:
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-reference
+  metric: output_throughput_tps
+  value: 600.25
+  unit: token/s
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p4096-d1024-c64-n128/output_throughput_tps
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-reference
+  metric: total_throughput_tps
+  value: 3001.26
+  unit: token/s
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p4096-d1024-c64-n128/total_throughput_tps
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-reference
+  metric: p99_ttft_ms
+  value: 31324.42
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p4096-d1024-c64-n128/p99_ttft_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-reference
+  metric: p99_tpot_ms
+  value: 104.91
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p4096-d1024-c64-n128/p99_tpot_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p4096-d1024-c64-n128
+  role: historical-reference
+  metric: p99_itl_ms
+  value: 978.11
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p4096-d1024-c64-n128/p99_itl_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-reference
+  metric: output_throughput_tps
+  value: 228.32
+  unit: token/s
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p16384-d1024-c64-n128/output_throughput_tps
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-reference
+  metric: total_throughput_tps
+  value: 3881.52
+  unit: token/s
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p16384-d1024-c64-n128/total_throughput_tps
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-reference
+  metric: p99_ttft_ms
+  value: 257544.39
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p16384-d1024-c64-n128/p99_ttft_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-reference
+  metric: p99_tpot_ms
+  value: 145.63
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p16384-d1024-c64-n128/p99_tpot_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p16384-d1024-c64-n128
+  role: historical-reference
+  metric: p99_itl_ms
+  value: 1116.55
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p16384-d1024-c64-n128/p99_itl_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p32768-d1024-c64-n128
+  role: historical-reference
+  metric: output_throughput_tps
+  value: 120.16
+  unit: token/s
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p32768-d1024-c64-n128/output_throughput_tps
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p32768-d1024-c64-n128
+  role: historical-reference
+  metric: total_throughput_tps
+  value: 3965.18
+  unit: token/s
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p32768-d1024-c64-n128/total_throughput_tps
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p32768-d1024-c64-n128
+  role: historical-reference
+  metric: p99_ttft_ms
+  value: 494478.18
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p32768-d1024-c64-n128/p99_ttft_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p32768-d1024-c64-n128
+  role: historical-reference
+  metric: p99_tpot_ms
+  value: 114.31
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p32768-d1024-c64-n128/p99_tpot_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+- scenario_id: p32768-d1024-c64-n128
+  role: historical-reference
+  metric: p99_itl_ms
+  value: 1210.06
+  unit: ms
+  scope: 历史人工/导入观测；非本案例当前 anchor；原始可比性未重新核验
+  source_pointer: /historical_performance/p32768-d1024-c64-n128/p99_itl_ms
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/test/perf_test/benchmark_results/MiniMax-M3
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: baseline_sanity_passed_performance_pending
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

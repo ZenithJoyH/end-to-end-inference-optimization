@@ -1,0 +1,2743 @@
+{
+  "schema_version": 3,
+  "record_kind": "case-directory-index",
+  "stage": "optimize",
+  "status": "migrated-to-explicit-topology-cases",
+  "case_records": [
+    {
+      "case_id": "20261008-minimax-m31-w8a8-ppu-e2e",
+      "topology": "TP16; original adapted configuration",
+      "state": "../20261008-minimax-m31-w8a8-ppu-e2e/optimize/state.yml"
+    },
+    {
+      "case_id": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+      "topology": "TP8; user configuration plus correctness fix-001",
+      "state": "../20261010-minimax-m31-w8a8-ppu-tp8-e2e/optimize/state.yml"
+    }
+  ],
+  "original_record": {
+    "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-02/minimax-original/models/MiniMax-M3.1-W8A8/ppu/optimize/state.yml",
+    "sha256": "133b2b6a96302a876211a1537713c135d1498fab237ffecd540bfd6fd7668d6d"
+  },
+  "scope": "导航与原始溯源，禁止作为测量或当前模型状态。",
+  "shared_or_unassigned_legacy_fields": {
+    "policy_version": "0.40",
+    "policy_date": "2026-09-22",
+    "acceptance_scope": "formal",
+    "objective": {
+      "main_metric": "total_throughput_tps",
+      "guards": [
+        "ttft",
+        "tpot",
+        "itl",
+        "stability"
+      ],
+      "performance_objective": "steady_state",
+      "cold_start_in_scope": false,
+      "relative_improvement_threshold": 0.05,
+      "threshold_source": "pre-frozen comparison-v3.json primary.min_improvement; no contract change"
+    },
+    "required_acceptance_scenario_ids": [
+      "p1024-d1024-c64-n128",
+      "p4096-d1024-c64-n128",
+      "p16384-d1024-c64-n128",
+      "p32768-d1024-c64-n128"
+    ],
+    "scenario_policy": {
+      "current_target": "p1024-d1024-c64-n128",
+      "completion_criteria": "Intermediate formal baseline/candidate/revert for current scenario with valid score>=0.81 gate; no unresolved significant cross-phase regression. Engineering meaningful-improvement criterion is >=5% total_token_throughput with <=5% latency guards, repeats and drift checks. No user absolute SLO was supplied.",
+      "major_improvement_threshold_fraction": 0.05,
+      "guard_max_regression_fraction": 0.05,
+      "diagnostic_time_budget_seconds": 3600,
+      "next_scenario": "p4096-d1024-c64-n128",
+      "baseline_recovery_if_over_budget": "hybrid: smaller same-configuration milestone plus actual-source analysis; target result stays incomplete."
+    },
+    "accuracy_issues": [
+      {
+        "issue_id": "accdiag-001",
+        "trigger": "baseline-sanity preflight exit1",
+        "classification": "measurement-invalid",
+        "gate_blocking": false,
+        "model_score": null,
+        "failing_artifacts": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/accuracy/baseline-sanity/",
+        "isolated_boundary": "runner offline full-dataset length check; expected_samples10 but actual198; limit10 controls evaluated subset",
+        "root_cause_confidence": "confirmed evaluation-only length-check mismatch; repaired original scope passed structural validation",
+        "fix": "expected_samples198; preserve limit10 C8 and serving identity; unique run/output/cache paths",
+        "revalidation": "exit0;10 unique IDs, complete20 filter rows, no timeout/empty/garbled outputs; no numerical full-gate conclusion",
+        "performance_may_continue": true,
+        "status": "resolved"
+      },
+      {
+        "issue_id": "accdiag-002",
+        "classification": "measurement-invalid",
+        "trigger": "required minimal graph coverage validator assertion",
+        "covered_experiment_ids": [
+          "fw-001"
+        ],
+        "candidate_service_sha256": "121a6a5fd6c34f50f30f7bf527bf02505e843daedad0d2262b15f25d730c2b74",
+        "gate_blocking": false,
+        "model_score": null,
+        "semantic_result": "105/105 exact arithmetic, naturalstop, allcorrect",
+        "isolated_boundary": "validator incorrectly assumed total C64 prompt below8192; actual template176tokens/request,total11264",
+        "root_cause_confidence": "confirmed evidence algorithm assumption, no model numerical regression observed",
+        "fix": "extra prompt counter plateau proof and same scope rerun at unique v2 output; no service/config/source changes",
+        "revalidation": "same105 requests v2 passed, prompt plateau proves allPrefill processed, graphreplay lowerbound32/41/40;2fixedsmoke pass",
+        "status": "resolved",
+        "performance_may_continue": "after required immediate formal198 gate"
+      },
+      {
+        "issue_id": "accdiag-003",
+        "classification": "measurement-invalid",
+        "trigger": "formal postperformance check_run schema4 snapshot path",
+        "status": "resolved measurement-invalid; no numerical failure",
+        "scope": "fw-001 candidate v4 originalP1K",
+        "score_status": "168/198 unchanged; no numerical failure observed",
+        "gate_blocking": "performance evidence validation only; no promotion or newproductionchange",
+        "mechanism": "snapshotservice SHA equals original butverify_rebind exactpath binding rejects comparator snapshotpath; input_artifacts.service original available",
+        "fix_plan": "maintained comparator verify exact original+snapshotSHA thencheck schema4 gate withoriginalpath; keep acceptance unchanged",
+        "monitor": "existing PAUSED; no accuracytraffic",
+        "required_revalidation": "real schema4 integration and missing/tampered/mismatched original negative tests; native samecontract full check_run and compilequiet",
+        "root_cause_confidence": "confirmed oldnative reproducible failure vsfixednative sameartifact pass",
+        "fix": {
+          "path": "evaluation/performance/compare_performance.py",
+          "sha256": "1ea338867211d02e99af31a1af2e6cd9ecd35dcaa3714ff3aeddbcd3303cb1de",
+          "receipt_path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/performance/entry-p1k/accdiag003-validator-repair.json",
+          "receipt_sha256": "9bc05c1b9a9d3a375dd006b2d4310237d125df68b6f4b89dfa9cf249ade6446c"
+        },
+        "revalidation": "180localtests passed3skipped; exactoriginalgate/nativecheck_run/supplemental allpassed; rawrunSHA unchanged"
+      },
+      {
+        "issue_id": "accdiag-005",
+        "trigger": "env-002 TP8 currentC8 minimal failed before anynewperformancechange",
+        "status": "resolved by fix-001; fresh TP8 full198 170/198 passed",
+        "classification": "PPU native GQA8 sparse Prefill attention numerical failure; padding internal head tile16 restores CPU oracle and model minimal",
+        "gate_blocking": false,
+        "failure": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/scenario-entry-minimal-01/summary.json",
+        "last_known_good": "Historical16cardfull170/198 plusminimal105+2, different TP/environment/capture config, not comparablebaseline",
+        "current_service": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/manifests/fix001-service-verified.json",
+          "sha256": "f64f55ccd1c33caac199a9bd830d781ec7d2611f698476857bcbb5daf4d7c17d"
+        },
+        "reproducer_control": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/tp8-accdiag005-single.py",
+          "sha256": "0bb0cf6ee14df4cfcfb02c00fc37013214f4adc082fe48ebb25e07db1e33039a"
+        },
+        "reproducer_order": [
+          0,
+          0,
+          6
+        ],
+        "single_variable": "C8toC1 exactbodies unchanged",
+        "no_new_optimization": true,
+        "next_if_single_fails": "bounded graph-mode bisection before anyperformance, preserveuserroot script",
+        "performance_may_resume": true,
+        "single_reproducer_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-single-01/summary.json",
+          "sha256": "29e0a8c7a4fce032046a14433f0cd6636ebc98216630ca6b4bb6f455a2d324fc",
+          "requests": 3,
+          "passed": 0,
+          "repeat_q0_response_content_sha256": "2bbea1580b702db0d3b7cf40ceee4ff0265e3b60ff2af0524612179bd53df6e8",
+          "repeat_q0_identical": true,
+          "all_finish_reason": "length",
+          "all_completion_tokens": 512
+        },
+        "next_action": "perf-002 baseline and three phase views",
+        "transition_control": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/tp8-accdiag005-transition.py",
+          "sha256": "453ccaa400280dd3dca5211c31da85f194266b9aea77fe053938db3dbf86facc",
+          "tag": "accdiag005-fresh-mixed-01",
+          "mode": "FULL_AND_PIECEWISE",
+          "root_script_unchanged": true,
+          "status": "complete ready, capture7mixed7decode/sourceverified"
+        },
+        "replay_control": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/tp8-accdiag005-replay.py",
+          "sha256": "74b6d72f065aa26e7cace86842055bd897018ce74ef157f64eb6bc68007a6319",
+          "scope": "exactfailed C1[0,0,6], C8 ifpassed",
+          "status": "monitorACTIVE beforelaunch",
+          "output": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-fresh-mixed-replay-01"
+        },
+        "fresh_instance_service": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-fresh-mixed-01/service.json",
+          "sha256": "5cd12b07fd32c51bfee0c699ba8463a7b73937f739c17cd8d1eea770d9fb39d6"
+        },
+        "fresh_instance_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-fresh-mixed-replay-01/summary.json",
+          "sha256": "02fb051aab9e65228c6613776dfa91b5cf5c267dfe5513ccdec3541e1e54ed99",
+          "requests": 3,
+          "passed": 0,
+          "same_response_content_as_pre_restart": true,
+          "conclusion": "not explained by priorbenchmark accumulatedruntime state; stillnotconfirmedcause"
+        },
+        "decode_only_bisection": {
+          "control": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/tp8-accdiag005-transition.py",
+          "control_sha256": "453ccaa400280dd3dca5211c31da85f194266b9aea77fe053938db3dbf86facc",
+          "parent": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-fresh-mixed-01/service.json",
+            "sha256": "5cd12b07fd32c51bfee0c699ba8463a7b73937f739c17cd8d1eea770d9fb39d6"
+          },
+          "tag": "accdiag005-decode-only-01",
+          "single_variable": "FULL_AND_PIECEWISE toFULL_DECODE_ONLY, TP8/7buckets/11exports/source/model unchanged",
+          "rollback": "sameTP8 FULL_AND_PIECEWISE frozenuserrecipe",
+          "status": "failed, no support forMixed-specific regression",
+          "service": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-decode-only-01/service.json",
+            "sha256": "6bc639c1945180070220afe09078c29c4cfbe68ec166b71feacfbe21e603c38b"
+          },
+          "replay_output": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-decode-only-replay-01",
+          "result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-decode-only-replay-01/summary.json",
+            "sha256": "b54673112ee9e6d87ba365b314cf03c7b235c248cfc5028db6d5b5a5261eb739",
+            "requests": 3,
+            "passed": 0,
+            "same_content_as_mixed": true
+          }
+        },
+        "no_graph_bisection": {
+          "control": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/tp8-accdiag005-transition-v3.py",
+            "sha256": "29b2c2410cb55831bf8a3f320e0897376c5cad7be1eb81ae8a4660a3a10fdcab"
+          },
+          "parent": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-decode-only-01/service.json",
+            "sha256": "6bc639c1945180070220afe09078c29c4cfbe68ec166b71feacfbe21e603c38b"
+          },
+          "tag": "accdiag005-none-01",
+          "single_variable": "FULL_DECODE_ONLY toNONE; sameTP8/7buckets/11exports/source/weights",
+          "scope": "deliberately selected diagnostic graphreference; notproduction candidate orperformance result",
+          "status": "completedfailed, failureunchanged withouttorchcompile/CUDAgraph",
+          "service": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-none-01/service.json",
+            "sha256": "545d7a69b1dfe8ca053abbb39cb3e2c7112a6ba3b89fda5eae90441b8432e8ac"
+          },
+          "effective_compilation": "torch.compile NONE; CUDAgraphNONE capture_sizes empty inengineconfig",
+          "replay_output": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-none-replay-01",
+          "partial_result": {
+            "q0_passed": false,
+            "q0_completion_tokens": 512,
+            "q0_elapsed_s": 196.78913791198283,
+            "q0_content_sha256": "2bbea1580b702db0d3b7cf40ceee4ff0265e3b60ff2af0524612179bd53df6e8",
+            "matches_graph_mode_response": true,
+            "remaining_requests": "1 planned, stillrunning",
+            "completed_q0_repeats": 2,
+            "both_identical": true
+          },
+          "result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-none-replay-01/summary.json",
+            "sha256": "bcc293b31f72cdcdf32e7d574bd42fe0f1ca7d272c74063e1122a34a8ac2d7aa",
+            "requests": 3,
+            "passed": 0,
+            "all_completion_tokens": 512,
+            "all_content_sha256_matches_graph_instances": true,
+            "elapsed_s": [
+              196.78913791198283,
+              196.0508826514706,
+              196.00087111629546
+            ]
+          }
+        },
+        "rank_layout_bisection": {
+          "control": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/tp8-accdiag005-transition-v5.py",
+            "sha256": "0feaf52ecb251e2ad6a9aee3f3bb54fe6139112fd57c4fc360de2f00920ad6a4"
+          },
+          "parent": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-none-01/service.json",
+            "sha256": "545d7a69b1dfe8ca053abbb39cb3e2c7112a6ba3b89fda5eae90441b8432e8ac"
+          },
+          "tag": "accdiag005-tp16-none-01",
+          "single_variable": "TP8 toTP16 underNONE; sameoriginal11export assigns/source/weights/requests",
+          "guard": "source container preserved; all16 PPU compute-process section must be empty afterprecise previousservice stop andbeforeTP16 start",
+          "scope": "temporary accuracydiagnosis only; no16card delivery, gain, gate reuse orperformance experiment",
+          "rollback": "TP8 userFULL_AND_PIECEWISE7buckets viafrozenrecipe, rootunchanged",
+          "status": "TP16 passed11/11; sameNONE TP8failed3/3",
+          "service": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-tp16-none-01/service.json",
+            "sha256": "4f1da6802aeacfd8cf08c87ea9c477ef1c37a1a3a1daf9d5e303fbd633a11f87"
+          },
+          "kv_capacity_tokens": 1026176,
+          "replay_output": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-tp16-none-replay-01",
+          "result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/accdiag005-tp16-none-replay-01/summary.json",
+            "sha256": "077f1a0d396aa65d8d2e4a817b22cdb6c26cb413dbbc64d7d528d4e90e063060",
+            "requests": 11,
+            "passed": 11,
+            "c1_passed": 3,
+            "c8_passed": 8,
+            "scope": "syntheticdiagnosis only, noformal198gate"
+          }
+        },
+        "contrary_evidence": {
+          "request_provenance": "Exactrequest equals historical16cardpassed c8-q0; bothprompttokens176. DifferentoldTP/env/capture notcomparableaccuracygate.",
+          "custom_allreduce": "all8worker startupmessages missingcustomlibrary disabled; tp/ep dispatch usesPYNCCL only, notCUSTOM",
+          "graph": "3mode C1 outputsbyte-identical; NONE hasnoCUDAcapture and CompilationMode.NONE",
+          "parameter_legality": "model64queryheads/4KVheads permitsTP8, query8/KV1 perrank; notunsupportedintegerdivision"
+        },
+        "root_cause_confidence": "TP variable controlsobserved divergence inminimalrequests; mechanism pendingtensor localization",
+        "repair_experiment": "fix-001",
+        "revalidation": "24 hardware tensor cases, graph two replays, fresh105+2 and all8rank target hit passed; formal198 currently running, no score/gate yet",
+        "formal_accuracy_gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/fix001-formal/accuracy-gate.json",
+          "sha256": "492470e965f1263459937f56656105e7fc38d2a0bd7a6bf41293fe5f7504f759"
+        }
+      },
+      {
+        "issue_id": "accdiag-006",
+        "covered_experiment_ids": [
+          "op-017"
+        ],
+        "trigger": "user asks analysis of low opt7 GPQA/ERQA scores",
+        "status": "offline-analysis-completed-reproduction-pending",
+        "classification": [
+          "configuration-incomparable",
+          "budget-linked-answer-extraction-failure"
+        ],
+        "gate_blocking": true,
+        "failing_artifacts": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-t1-suite-20261019-01",
+        "reproduction_status": "no new inference",
+        "root_cause_confidence": "confirmed budget-linked absence of required answer format; sampling/budget causal contributions not isolated; no operator regression attribution",
+        "performance_may_continue": false,
+        "diagnostic_report": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-t1-suite-20261019-01/offline-diagnosis-20261019-01.json",
+        "score": 0.8080808080808081,
+        "threshold": 0.81,
+        "same_prompt_doc_target_hashes": 198,
+        "old_fusion_score": 0.8383838383838383,
+        "comparison_changes": {
+          "temperature": [
+            0,
+            1
+          ],
+          "top_p": [
+            1,
+            0.95
+          ],
+          "max_gen_toks": [
+            45000,
+            18000
+          ],
+          "prefix_cache": [
+            "disabled",
+            "enabled"
+          ]
+        },
+        "evidence": {
+          "budget_reached": 21,
+          "budget_reached_wrong": 19,
+          "strict_extraction_failed": 16,
+          "strict_extraction_failed_at_budget": 16,
+          "NUL_responses": 0,
+          "fusion_to_opt7_lost_correct": 14,
+          "fusion_to_opt7_gained_correct": 8,
+          "lost_correct_at_new_budget": 8,
+          "of_those_old_used_over18000": 7
+        },
+        "source_identity": "archived opt7 and last opt6 fusion manifests share weights/tokenizer/engine/Plugin/FV/FG fingerprints",
+        "next": "same original requests, fixed sampling/service; one variable generation budget18000 vs45000 on scoped cases; preserve formal198 current result",
+        "report": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-t1-suite-20261019-01/offline-diagnosis-20261019-01.json",
+          "sha256": "4f7c32002ae463628ca7270be3687c41791651b1117cdc796c14b64e174acfc7"
+        }
+      },
+      {
+        "issue_id": "accdiag-007",
+        "covered_experiment_ids": [
+          "op-017"
+        ],
+        "trigger": "user asks analysis of low opt7 GPQA/ERQA scores",
+        "status": "operator-fix-validated-original-ERQA400-scope",
+        "classification": [
+          "request-output-degeneration-confirmed",
+          "multimodal-SDPA-operator-numerical-regression-isolated"
+        ],
+        "gate_blocking": false,
+        "failing_artifacts": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-t1-suite-20261019-01",
+        "reproduction_status": "Full original ERQA400 revalidated on FG3b76f81 + FV/Plugin INT8 compatibility:245/400=61.25%, 0/400 NUL-only, 0/400 raw-empty; native score/completeness/source and service continuity verified.",
+        "root_cause_confidence": "Prior mechanism-level FlashAttention split-KV combine stride A/B/A diagnosis retained; new full ERQA400 has no observed NUL degeneration. No new GPQA gate or Flash-model validation.",
+        "performance_may_continue": false,
+        "diagnostic_report": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-t1-suite-20261019-01/offline-diagnosis-20261019-01.json",
+        "score": 0.395,
+        "threshold": null,
+        "evidence": {
+          "NUL_loop_items": 107,
+          "NUL_loop_chars_per_item": 30000,
+          "NUL_loop_completion_tokens_per_item": 30000,
+          "NUL_loop_wrong": 107,
+          "all_loop_outputs_identical": true,
+          "normal_items": 293,
+          "normal_correct": 158,
+          "normal_subset_accuracy": 0.5392491467576792,
+          "raw_empty_API_outputs": 0,
+          "all_budget_items": 134,
+          "all_budget_wrong": 128,
+          "native_grader_changed_raw_extracted_option": 0,
+          "observed_logged_API_exceptions": 0,
+          "images_in_loop_group": {
+            "1": 59,
+            "2": 21,
+            "3": 2,
+            "4": 23,
+            "5": 2
+          },
+          "GPQA_NUL_outputs": 0
+        },
+        "tokenizer_observation": "Original raw suite lacks token IDs; new MM diagnostic return_token_ids proves token0 loop. -9999 API logprobs are clamped and not a direct raw NaN logit measurement.",
+        "next": "ERQA NUL-output incident has full-scope revalidation. Preserve native evidence; await user direction. Separate accdiag-006 GPQA issue/current-source formal gate remains unresolved; no performance resumption.",
+        "report": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-t1-suite-20261019-01/offline-diagnosis-20261019-01.json",
+          "sha256": "4f7c32002ae463628ca7270be3687c41791651b1117cdc796c14b64e174acfc7"
+        },
+        "fix": {
+          "FlagGems_commit": "3b76f81d4113e585f7fead01f46113dd249dc9a9",
+          "actual_import": "/workspace/FlagGems/src/flag_gems/__init__.py",
+          "PPU_INT8_compatibility": [
+            "FV _thead triton_scaled_mm uses existing FV INT8 GEMM after packB",
+            "Plugin W8A8 linear uses FV public PPU provider for full INT8 contract"
+          ],
+          "normal_service": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op017-erqa-repro-20261019-01/upgraded-minimal-02/service-verified.json",
+            "sha256": "51fa2207b830163b04b32a0725b049915ad642e374b87d5eedc975dc053a85aa"
+          },
+          "minimal": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op017-erqa-repro-20261019-01/upgraded-minimal-02/minimal-receipt-verified.json",
+            "sha256": "e4cbd9ac9e682919edddb765b731006360460f6ceda92318fa6289c7ab463585"
+          }
+        },
+        "full_scope_revalidation": {
+          "run_root": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-erqa-post-fg-20261019-02",
+          "correct": 245,
+          "samples": 400,
+          "accuracy_percent": 61.25,
+          "NUL_only_items": 0,
+          "raw_empty_items": 0,
+          "completion_budget_hits": 10,
+          "result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-erqa-post-fg-20261019-02/result.json",
+            "sha256": "6621076bdd75c97c7bf0ee0de6be687e8db98b0fa74a5a06b07321bbc6abc8f9"
+          },
+          "native_result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/user-opt7-erqa-post-fg-20261019-02/erqa/native-output/erqa/erqa_result.json",
+            "sha256": "45726e725b4520de1991bcfac4e71f2ecb0797756d7a516b86e51f0fbde9dbe7"
+          },
+          "service_binding_valid": true,
+          "single_full_invocation": true,
+          "model_path": "/mnt/cpfs/models/MiniMax-M3.1-preview-private-W8A8-FlagOS-20260929"
+        }
+      }
+    ],
+    "performance_preflight": {
+      "dry_run": "passed",
+      "comparison_scope": "formal",
+      "execution_scope": "diagnostic baseline",
+      "comparison_sha256": "569d01961b1b464fba1742b6b88c30816ade270387ed059dc06c68cabd2d93b6",
+      "comparison_path": "performance/entry-p1k/comparison-v3.json",
+      "strict_service_identity": "passed",
+      "warmup_rounds": 5,
+      "measured_rounds": 3,
+      "steady_state_window": 3,
+      "max_relative_spread": 0.05
+    },
+    "recovery_milestone": {
+      "id": "p1k-recovery-d128-n64",
+      "parent_scenario_id": "p1024-d1024-c64-n128",
+      "mode": "targeted",
+      "differences": {
+        "output_tokens": [
+          1024,
+          128
+        ],
+        "requests": [
+          128,
+          64
+        ]
+      },
+      "same_configuration_baseline_required": true,
+      "prefill_probe": "p1024-d1-c64-n128-prefill",
+      "stop": "600seconds/round;3600seconds total",
+      "promotion": "Return to original workload; full198 gate and independent baseline/candidate/revert before formal close",
+      "status": "v2 baseline complete; original target remains incomplete",
+      "original_attempt": {
+        "returncode": 124,
+        "completed_requests_observed": 0,
+        "requested": 128,
+        "round": 1,
+        "phase": "warmup",
+        "duration_budget_seconds": 600,
+        "raw_native_result": "absent due timeout; no throughput value",
+        "server_after_timeout": "running0 waiting0 at2026-10-08 04:10:25UTC"
+      },
+      "superseded": {
+        "old_prefill": "3 valid warmup rounds, spread0.6174796065233847, failed admission; no measured rounds",
+        "old_reduced_mixed": "never started",
+        "old_binding": "comparison-v2 omitted duplicated argv parameter; device IDs needed string schema; repaired before comparable reduced-Mixed measurements"
+      }
+    },
+    "planning": {
+      "review_id": "plan-016",
+      "trigger": "bounded GC falsification complete plus user morelaterround average question",
+      "status": "review complete; diagnostic cleanup and fresh longer matched formal contract preparation",
+      "evidence_cutoff": "2026-10-09T01:52:21.738921+00:00",
+      "objective": "steady-state total input+output throughput; threshold81percent GPQA, latency and stability guards",
+      "baseline_identity": "formal01 original32 historical stopped/incomplete TTFTspread11.49%; current diagnostic source rollingback to original32; new fresh107 required",
+      "current_candidate": "experimental fw001+fw002+op002 originalsource, full170/198 passed historical sourcegate0c532; currentlystopped, no retainedchanges",
+      "retained_change_dependency_order": [],
+      "candidate_dependency_order": [
+        "fw-001",
+        "fw-002",
+        "op-002"
+      ],
+      "experiment_ledger": [
+        {
+          "id": "fw-001",
+          "layer": "framework",
+          "variable": "capture32->64",
+          "decision": "incomplete/notretained",
+          "evidence": "historical originalP1K singlepair10.50956x, independentcandidate02 warmup/compile failure; no formal comparison"
+        },
+        {
+          "id": "fw-002",
+          "layer": "framework",
+          "variable": "Mixed finitebucket graphs pluscapture64 dependency",
+          "decision": "incomplete/notretained; graph configuration present as op001 dependency",
+          "accuracy": "old-source full170/198 passed; current baseline fresh107/native rebind9b9d passed",
+          "performance": "baseline bothstages passed; candidatePrefill native12 complete but quiet38fileevents/TTFT11.44percent/E2E10.23percent variability failed; candidateMixed/revert notrun",
+          "sources": "unchanged"
+        },
+        {
+          "id": "op-001",
+          "layer": "operator/improve",
+          "variable": "dynamic input rows in thead continuous2D firstdim-index generatedkernel/cachekey",
+          "decision": "incomplete/notretained; prototype not physically active",
+          "correctness": "scoped tensor/graph passed, inherited genericnegativefallback unchanged; allrank modeltrace/105+2/newfull198170/198 passed",
+          "performance": "old-source baseline Prefill native12 complete but compilequiet32 events failed; no Mixed/candidate/revert; contribution unknown",
+          "source_tree": "d40d650ed7a5f0e20d0c3d2c9ac94d088fe1f526ff4cdc88ebac3d85f9b07b2f"
+        },
+        {
+          "id": "op-002",
+          "layer": "operator/replace",
+          "variable": "append only cumsum_out to existing blacklist",
+          "decision": "incomplete, no retainednetgain; diagnosis selected",
+          "correctness": "newfull198170/198 and current exactnative schema4 rebind passed",
+          "performance": "native config singlebaseline2466.07 valid; newcomboformal first original32baseline232.4436TPS nativevalid butP99TTFT11.49% spread incomplete, quiet0; allcandidate/revert notrun",
+          "current_combination": true
+        },
+        {
+          "id": "fw-003",
+          "layer": "framework",
+          "variable": "worker staticheap GC lifecycle, initialtimeronlydiagnostic",
+          "decision": "reverted diagnostic; heap-freeze hypothesis unsupported in measured bounded probes",
+          "correctness": "diagnostic02 fresh107passed, restoredinstancepending",
+          "performance": "Prefill and shortMixed each7round baseline complete/admitted quiet0; no comparative gain",
+          "current_combination": false
+        }
+      ],
+      "cumulative_effect": {
+        "all_four_scenarios": "Unknown. P1K admitted baseline01/candidate01 single-instance10.50956x only; candidate02 failed, no independent comparative acceptance or retained changes.",
+        "reduced_mixed_ratio": 6.095016015109808,
+        "boundary": "P1024/D128/C64/N64 singleinstance only; contribution lacks revert and independent repeats",
+        "retained_changes": [],
+        "no_isolated_percentages_added": true,
+        "original_p1k_single_instance_feedback": {
+          "total_token_throughput": {
+            "baseline": 233.04003556292955,
+            "candidate": 2449.148409392957,
+            "relative_change": 9.509560743401085,
+            "ratio": 10.509560743401085
+          },
+          "p99_ttft_ms": {
+            "baseline": 6783.779507982545,
+            "candidate": 6705.551748634316,
+            "relative_change": -0.011531589323647284
+          },
+          "p99_tpot_ms": {
+            "baseline": 547.4805494055256,
+            "candidate": 51.32517215704322,
+            "relative_change": -0.9062520628125073
+          },
+          "p99_itl_ms": {
+            "baseline": 576.6809841198847,
+            "candidate": 47.82076779752969,
+            "relative_change": -0.9170758719042688
+          },
+          "p99_e2el_ms": {
+            "baseline": 565615.1505747251,
+            "candidate": 57588.997079730034,
+            "relative_change": -0.898183425565575
+          },
+          "scope": "same originalP1K/v4 contract, one independent instance per baseline/candidate; missing revert and independent repeats; not formal acceptance"
+        },
+        "current_fw002_combination": "unknown; op001 latest invocation stopped in baseline. Historical10.50956x singlepair not cumulative acceptance."
+      },
+      "phase_bottlenecks": {
+        "prefill": "real8192query eager inanchor; fusedMoE/scaledmm/sparseattention; 392ms profiler hostgap unprovenGC; timer longGC onlywarm2, measuredshortPFstable",
+        "decode": "graphC8actual, C33/C64NONE originalfallback; oldformalTPOT548.49ms stable; shortMixed cachedonly classificationrequires sparse_decode/shapes, notcountalone",
+        "mixed": "formal01 latefirstwaveTTFTvariance11.49% remainsunknown; shortMixed3measured stable/no longGC; fulloriginal workload rerun required",
+        "uncertainty": "shortprobe cannot prove fullP1K steady jitter cause; average reduces aggregate samplingnoise, not perrequesttail; callbackIOoutsideGCduration diagnosticperturbation"
+      },
+      "ranked_next_directions": [
+        {
+          "rank": 1,
+          "layer": "framework",
+          "direction": "fresh matched fw001+fw002+op002 combination formal currentP1K; longer prefrozen sampling",
+          "support": "prior admitteddesiredcombo2466TPS and strongsinglepair signal; shortphaseslongGCwarmonly; user asks laterround average",
+          "opposing": "formal01TTFTspread failed in late measuredr7; morewarmup notproven cure; no currentinstancecandidate gate",
+          "first_experiment": "new formal02 originalP1024D1024C64N128,6warm+5measure in every2baseline/2candidate/2revert independentservices, unchanged5%main/5%P99guard/10%spread+drift gates, compilerquiet last2warm throughfinal; allrounds retained",
+          "aggregation": "existing native median remains acceptance statistic; arithmeticmean and perroundvalues supplemental, not pooledP99 and not relaxation",
+          "success": "all6new native/admissions pass then nativecomparison passed withcandidateexactgate, minimum5%main and guards",
+          "stop": "first readiness/minimal/accuracy/native/admission failure, preserveallrounds; no posthocdiscard/extension/oldformal01reinterpretation",
+          "required_skills": [
+            "inference-accuracy-evaluation gate-check/rebind withfresh107",
+            "inference-performance-evaluation formal intermediate-single-target"
+          ],
+          "rollback": "exact8035 original659recipe all4originalFP; sourcecontainerunchanged"
+        },
+        {
+          "rank": 2,
+          "layer": "operator/improve or replace",
+          "direction": "actual fusedMoE/scaledmm/sparseattention backend evaluation aftermatchedcombinedresult",
+          "first_experiment": "runtime dispatch+shape support, availableimplmicro then matched stage/Mixed sentinels",
+          "opposing": "profilerinclusivecost not netcriticalpath, currentcombinedbenefit not accepted",
+          "stop": "no supportedfasterimplementation or no endtoendbenefit"
+        }
+      ],
+      "immediate_experiment": "restore originalsource/recipe and fresh107; freeze new equal-role originalP1K formal with6warm+5measure, all5rounds retained, mean supplemental and existingmedian acceptance unchanged",
+      "next_review_trigger": "new formal firstadmissionfailure or all6independent roles complete; no automatic extension or retry",
+      "deferred_directions": [
+        "fw003 heapfreeze not implemented: no >=100ms GC in measuredboundedPF/Mixed; temporary timer reverting",
+        "CPUaffinity no measuredprocessleaderqueue proof",
+        "No formal01 retry/reinterpretation; no oldperformance reuse",
+        "Nativeclient perCLI inprocess warmup notimplemented, no proven need",
+        "P4/P16/P32 awaitP1K closure"
+      ],
+      "superseded_decisions": [
+        {
+          "old": "3warmup rounds window3 sufficient",
+          "reason": "first warmup transient triggered61.75percent spread; replace with5warmup window3 and rerun all roles under same rule"
+        },
+        {
+          "old": "comparison-v2 plus original manifest sufficient for future comparison",
+          "reason": "strict device ID schema and duplicated effective argv variable needed; new files frozen before comparable reduced-Mixed measurements"
+        },
+        {
+          "review_id": "plan-001",
+          "decision": "fw-001 capture32 to64; fixed boundary reference then minimal-regression/formal198 and same-config milestone",
+          "outcome": "capture64 minimal+formal accuracy passed; same reduced Mixed median6.095x singleinstance; Prefill admission failed; no retained change"
+        },
+        {
+          "review_id": "plan-002",
+          "decision": "fw-001 profiling capture then analyze; ABBA rejected deterministic input-only explanation",
+          "outcome": "ABBA input-only hypothesis rejected; tracevalidity/phase mappings corrected withnativeCLIproof; two16rank phases analyzed, restoredminimal/rebindpassed; jitterunresolved"
+        },
+        {
+          "review_id": "plan-003",
+          "decision": "targeted compile-telemetry-diagnostic-01 fixed seed46 repeated2x 1warm1probe,4rounds,300s/round, all retained; cache/longITL correlation plus16worker telemetry",
+          "outcome": "original5warm failed;125/44compiler sources correlate withslowrounds;4fixedreplayrounds no newcompilation/stall; currentconfiggraphprobe keepsFULL_AND_PIECEWISE butservice untested"
+        },
+        {
+          "review_id": "plan-004",
+          "decision": "oneoriginalP1K candidate v4 9warm/3measured last4spread5percent pluszero newcompilethroughallmeasurements; no automaticretry",
+          "outcome": "native12rounds passed; repairedrebind snapshotpath checker withsameoriginal evidence; supplementalquiet0; singlecandidate2449.148tps median, spread0.356percent"
+        },
+        {
+          "old": "plan-005: originalP1K candidate01 admitted; baseline/revert unknown; validate independent baseline first",
+          "reason": "baseline01 now admitted, single-instance matched feedback available; independent repeats and revert remain missing"
+        },
+        {
+          "old": "plan-006: complete candidate02/revert01/baseline02/revert02 unchanged fw001 under v4",
+          "reason": "candidate02 failed last4 warmup stability7.20055percent and46 cache events; no retry or longer warmup; diagnose and first falsify mixed graph feasibility"
+        },
+        {
+          "review_id": "plan-007",
+          "decision": "First falsify finiteMixed graph actual capture/replay and semantic feasibility after fw001candidate02 stability failure; no retry or longerwarmup",
+          "outcome": "14Mixed+7Decode capture, 34validtraces all16ranks; Prefill/Mixed modelgraph17/9iterationsperrank; restored no-profiler105+2 passed; newformal198 running, performance unknown"
+        },
+        {
+          "review_id": "plan-008",
+          "decision": "new fw002 full198 then incremental targeted; no sourcechange/no retainedchange",
+          "outcome": "formal170/198 passed; capture64baseline Prefill/Mixed admitted; candidatePrefill quiet38fileevents and measurementTTFT/E2E spread>10percent; invocation stopped beforeMixed/revert",
+          "superseded_by": "plan-009"
+        },
+        {
+          "review_id": "plan-009",
+          "decision": "dynamic-R index prototype after graph-external compilation proof",
+          "outcome": "target tensor/graph/model minimal/newfull170 passed; source-only targeted old-source baseline failed quiet with16 cumsum variants, no candidate effect; no retained changes",
+          "superseded_by": "plan-010"
+        },
+        {
+          "review_id": "plan-010",
+          "decision": "native cumsum_out feasibility then strict per-stage baseline/candidate/revert",
+          "outcome": "tensor336/graph14/allrank/native/model105+2/newfull170passed; first FGbaselinePF failedquiet66 and TTFT/E2E variability; native candidate performance untested",
+          "superseded_by": "plan-011"
+        },
+        {
+          "review_id": "plan-011",
+          "decision": "native originalMixed configuration baseline only; prior failed targeted remains stopped",
+          "outcome": "fresh107/rebind and all12native rounds passed, totalTPS2466.068/0.64percent spread, quiet0, no relative gain",
+          "superseded_by": "plan-012"
+        },
+        {
+          "review_id": "plan-012",
+          "decision": "new4warm3measure twoinstances/role combined originalP1Kformal",
+          "outcome": "first original32 baseline all7nativecomplete/quiet0; P99TTFTspread11.491% exceeds10 so wholeinvocation stopped beforecandidate/revert",
+          "superseded_by": "plan-013"
+        },
+        {
+          "review_id": "plan-013",
+          "decision": "two same-service shortPF native baselines with payload equivalence, no source/clientchange",
+          "outcome": "both7rounds valid/admitted quiet0; seed74289 nofixedslowTTFT firstreplay; secondreplay laterPFslow drift, causalstateunknown",
+          "superseded_by": "plan-014"
+        },
+        {
+          "review_id": "plan-014",
+          "decision": "original32 all16rank PF+shortMixed capture/analyze",
+          "outcome": "bothnativecomplete/allrank+frontend/clockvalidated, rank0PF392ms host-side no-API gap andotherGPU collectivewait; GC nottimed; restoredoriginalfresh107passed",
+          "superseded_by": "plan-015"
+        },
+        {
+          "review_id": "plan-015",
+          "decision": "bounded original32 GC timing before conditional heapfreeze",
+          "outcome": "PF/Mixed all7round admittedquiet0; longGC onlyPFwarm2, nonein measured; no steadycauseproof, timer rollback and no freeze implementation",
+          "superseded_by": "plan-016"
+        },
+        {
+          "review_id": "plan-017",
+          "summary": "TP8minimal failed, deferredMixedbucket/chunk/nativeScan; newrank/tensor/kerneldiagnosis resolvesminimal viafix001, formal198stillpending"
+        },
+        {
+          "review_id": "plan-021",
+          "decision": "largerMixedcapture7->14 first, MoE discovery deferred",
+          "outcome": "candidate new198169/198passed; Mixed5measure mean+0.598%/median+1.285% below3%; Decode8warm5.192%>5 failed; firstfailure stopped, no measurement/retry; restoring7",
+          "scope": "no retained performancechange andno formalclosure"
+        }
+      ],
+      "skill_bundle": {
+        "SKILL.md": "e68f6c8f49379f588584b74f73c47b14e469c006fa96b7db2ded8673e7f43e68",
+        "agents/openai.yaml": "221e3ae6d333530e721b0dceb51e91040b31cb63317e8457d4b2b2facbf67dc6",
+        "scope": "repository-local entrypoint+agents; unchanged methods, no invented interface"
+      },
+      "profiling_evidence": {
+        "trace": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/profiles/perfdiag007-original-prefill-01/analysis-01/summary.json",
+          "sha256": "04b2fcf8e4e22344fe93e7bd7d732a62a6102c57c64ee2fc208333e0a75eab76"
+        },
+        "host_device": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/profiles/perfdiag007-original-prefill-01/host-device-analysis-01/summary.json",
+          "sha256": "49b64e1563cad5e7b3c5f41bf2a4760078da5e82fcb0f3f7d68276aeff6394bd"
+        },
+        "gap_review": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/profiles/perfdiag007-original-prefill-01/gap-review-01/summary.json",
+          "sha256": "ea9588fde71a010bb694ca2884151d85d4bc8b6c921b5360b4125a900039c502"
+        }
+      },
+      "blockers": "no permissionblocker; directcause andallroleformal incomplete",
+      "user_measurement_steering": {
+        "question": "多跑几轮取后几轮的平均值会降低这个波动吗？",
+        "response": "predeclarewarmup and includeall latermeasured rounds; reportmean+perroundP99; no posthocselection",
+        "next_contract": "6warm5measure allroles proposed beforetraffic, native medianacceptance unchanged, arithmeticmean supplemental",
+        "boundary": "GC shortprobes4warm3measure unchanged; formal01staysincomplete"
+      },
+      "formal02_prepared_controls": [
+        {
+          "name": "combo2-formal-correctness.py",
+          "sha256": "df376b4d7d1bbf064228c1ee41842270232953a7f7d46308224fac6de5a0564a",
+          "bytes": 9854,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-correctness.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-early-quiet.py",
+          "sha256": "cba0a0eb67ae0cb88c35866453ded3b59b477a01e2e6b5a6ead40d6835512a13",
+          "bytes": 5721,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-early-quiet.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-finalize.py",
+          "sha256": "58691cd9c3d8afbf307329d9ad918821a7d431cc3e46f2796c7e08b5d4c8790d",
+          "bytes": 2830,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-finalize.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-prepare.py",
+          "sha256": "72b5b5db3934606b4e07d8850e5ab067f05dc68bba68815f9bf9333cf7e3a16e",
+          "bytes": 5417,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-prepare.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-transition.py",
+          "sha256": "f51cef6ff251bd1af4b68839c2cf6428a84904a9b51dd09528e0397d30c71d20",
+          "bytes": 5753,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-transition.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-launch.py",
+          "sha256": "86e7b0d448df82b0da7dcfcd36b9ce478fc25730376c8b98ee7c84f54c69a6f4",
+          "bytes": 5450,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-launch.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-validate.py",
+          "sha256": "ef63a2d0250373a0e64585c80475a7035101d4d06d7504c22ea22215aa8de0c0",
+          "bytes": 6425,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-validate.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-resources.py",
+          "sha256": "92e5ded414ba68e2225f84743d202dd05989f75c0dbd3a5c6289e209ecc5363b",
+          "bytes": 3194,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-resources.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-resource-summary.py",
+          "sha256": "c3d19b0ee30f587ca0279e08f507801d60d7114c8c0adbcaf257f8e78c237dd0",
+          "bytes": 3503,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-resource-summary.py",
+          "status": "savedremote SHAverified; notrun"
+        },
+        {
+          "name": "combo2-formal-status.py",
+          "sha256": "bd412f216bb15585449368bacbd9613ca70a02d613b80d98c0d466e1af0e3fc1",
+          "bytes": 1883,
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/commands/combo2-formal-status.py",
+          "status": "savedremote SHAverified; notrun"
+        }
+      ],
+      "formal02_next_contract": {
+        "warmup_rounds": 6,
+        "measured_rounds": 5,
+        "scope": "formal intermediate-single-target P1024D1024C64N128",
+        "independent_instances_per_role": 2,
+        "native_aggregation": "median of process round medians",
+        "supplemental_aggregation": "arithmetic mean of all5 perround values, never pooledP99",
+        "thresholds_unchanged": true,
+        "warmup_window": 3,
+        "warmup_total_tps_max_spread": 0.05,
+        "all5_measured_metric_max_spread": 0.1,
+        "quiet_last_warmup_rounds": 2,
+        "quiet_compile_events_allowed": 0,
+        "first_failure": "stop invocation, preserve allrounds; no extension/retry",
+        "status": "frozen beforetraffic"
+      },
+      "active_review_id": "plan-045",
+      "tp8_review": {
+        "review_id": "plan-022",
+        "status": "ready forMoE actualshape/backend discovery; rollbackverified andnativebinding valid",
+        "trigger": "FW004 fixedwarmup failure and Mixed insufficientgain; re-rank before highcostoperatorwork",
+        "evidence_cutoff": 1791628308.9181392,
+        "objective": "steady totalinput+output TPS; TTFT/TPOT/ITL/E2EL/stability guards; full198>=81",
+        "anchor_baseline": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/manifests/perf003-restored-service-verified.json",
+          "sha256": "40177e65bd96792cdebd43a536b4bb029758f2fa5239541072488b2365aff7ab"
+        },
+        "current_service": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/manifests/fw004-revert-service-verified.json",
+          "sha256": "85892b432b82da448de9e13a7d820e4971dd708ca12e47f8e0eb7afd553e4bc8"
+        },
+        "current_candidate": "TP8 mandatoryfix001, original7Mixed+7Decode graph buckets, original11exports; FW004notretained",
+        "ledger": [
+          {
+            "experiment_id": "fix-001",
+            "decision": "retained correctness prerequisite",
+            "result": "fresh formal198170/198; restored same candidate native rebind passed; no performance gain attribution"
+          },
+          {
+            "experiment_id": "perf-002",
+            "decision": "partial baseline / Prefill incomplete",
+            "result": "P1K3measure1968.23TPS passed; purePF6warmspread6.68% failed admission,0measure; no discarded rounds"
+          },
+          {
+            "experiment_id": "perf-003",
+            "decision": "completed diagnostic, no performance change",
+            "result": "Decode1640.14 and Mixed-short4653.07 singleinstance baselines admitted; both all8worker+frontend trace paths validated; source/root unchanged and no-profiler restored"
+          },
+          {
+            "experiment_id": "fw-004",
+            "category": "framework/config",
+            "decision": "notretained/restoring",
+            "accuracy": "fresh169/19885.35% passedon14bucket",
+            "performance": "Mixed matched5round mean4679.30 vs4651.50, median4713.26 vs4653.45, all5retained; noeligibleDecode measurements, complete three-role comparison impossible",
+            "cause": "Decode steady admission failure not proven causedby graphconfig; no claim 14bucket PFgraph path changed"
+          }
+        ],
+        "retained_dependency_order": [
+          "env-002 TP8 isolated clone and image/mount gates",
+          "fix-001 mandatory numerical repair"
+        ],
+        "cumulative_effect": "no retained performance optimization; no cumulativegain accepted, fix001 numericalprerequisite notmeasured as throughputgain",
+        "phases": {
+          "prefill": "actual1024/8192row PF kernels, no model graph onall8; purePF standalone steady test incomplete; CPU launches plus MoE/matmul/device costs remain",
+          "decode": "actualquery1 sparse_decode and small model graph; MoE dominates mapped device events; shorterKV/initialsanity limits retained",
+          "mixed": "both Prefill and Decode attention kernels in sameiterations, sharedGEMM not divided; large model graph0 and long clientITL observed; communication rank differences may includepeerwait/profiler disturbance",
+          "unknown": "two bookkeeping markers pertrace and unmappeddeviceevents retained; no critical-path or profiler speedup claim"
+        },
+        "evidence_gaps": [
+          "effectiveTP8 MoE weight/scale shapes, strides andselectedJIT tile unverified",
+          "existing supported fasterPPU backend availability/semantics unverified",
+          "current14 trace notcollected; capture completion doesnotprove Prefill graph execution",
+          "P1formal2instances/role andP4/P16/P32 unfinished"
+        ],
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "category": "operator/replace discovery",
+            "mechanism": "confirm currentMoE actualshapes andexisting fastercompatiblePPU implementation",
+            "support": "all8 old7 traces show MoE majorDecode deviceactivity; rank0 sourcechain PluginW8A8->Pluginfused_experts->FGkernel proven; configselector comesfromvLLM",
+            "opposing": "device-cost sums notcriticalpath; weightbandwidth maylimit replacement; FG _thead sourceinventory onlygemm_utils.py filename match, notproof noSDKvendorMoE",
+            "boundary": "currentPPU, perchannel INT8 weights/dynamic-tokenINT8 activations, BF16out, swigluoai_uninterleave alpha/beta/clamp mustpreserve; actualweightshapes/strides toverify",
+            "first_experiment": "metadata/source/dispatch proof andsupportedbackend discovery, then actualshape independentoracle+boundedmicrobenchmark andgraph2replay onidlemodelresource; no performanceclientconcurrent",
+            "success": "prove samecontract fasterimplementation ontargetshapes beforeend-to-end candidate; netbenefit threshold freeze beforemeasurement",
+            "stop": "unknownbackend/shape orunsupportedSWIGLU semantics means no replacement; no speculativebackendflip",
+            "skills": [
+              "key-operator-analysis",
+              "inference-accuracy-evaluation",
+              "inference-performance-evaluation"
+            ],
+            "scope": "privatePlugin/FG-vllm/FG only; vLLM readonly; root11exports unchanged",
+            "rollback": "preserveoriginalsourcepatch/revision andexactservice recipe; freshminimal/nativebinding asrequired"
+          },
+          {
+            "rank": 2,
+            "category": "operator/improve",
+            "mechanism": "if no supported betterbackend, tune confirmedMoE GEMM tiles jointlywithalign blocksize",
+            "support": "current MoE hotspot; config transferredfromvLLM toFGkernel allows narrowPlugin capability/shape policy",
+            "opposing": "currenttile/effectiveTP8 shapes not runtimeverified; no theoreticalE2E gain assumed; PPU numeric andgraph risks",
+            "first_experiment": "actualshape microoracle andbaseline config proof, bounded single-tile ablation; update align andbothGEMM consistently; no sourcechange until stableexperimentID/Pluginreview/microcontract frozen",
+            "boundary": "guardactualhardware,dtype,quant flags,shape andstrides; preserveothermodels/platforms/originalfallback, no modelname/path guards",
+            "success": "predeclare micro+Mixed/Decode admission/benefit thresholds; kernelwin notretainwithoutmatched no-profiler E2E",
+            "correctness": "freshminimal, graphcapture2replays; highrisknumeric/graph change freshfull198>=81 beforecandidateperformance",
+            "stop": "any numeric/graph/steady failure, inadequate E2E contribution or unsupportedshape; preserve all no retry",
+            "scope": "privatePlugin/FG; no vLLM edit"
+          }
+        ],
+        "deferred": [
+          "repeatFW004 withmorewarmup orposthocremoveoutlier: stoppedfrozeninvocation mustremainincomplete",
+          "newFW004profiler unless it changesnextdecision; no need to explainfailed point withunsupportedcausality",
+          "deepfusion ofSWIGLU+quant until shape/alpha/beta/clamp andpotentialgain proven",
+          "communication/system tuning: rank differences maypeerwait andprofilerperturbation",
+          "coldstartoptimization outsideuser steadyobjective",
+          "P4/P16/P32 direction until P1 boundedoperator andformal eligibility"
+        ],
+        "immediate_experiment": "finish7bucket restore/minimal/original7schema3native rebind; thenMoE shape/backend discovery withoutsourceperformancepatch",
+        "next_review_trigger": "replacementavailability/firstactualshapeoracle oroperator2-3results, anyprecisionfailure/phaseconflict/hotspotmigration",
+        "previous_decision_summary": {
+          "review_id": "plan-021",
+          "decision": "frameworkgraph7->14 tested beforeMoE; failed steadyeligibility and belowMixed3%, no retain"
+        },
+        "current_accuracy_gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/fw004-revert-rebind-01/accuracy-gate.json",
+          "sha256": "d89a1b08eb0480ce7785496b68e2d9a4a6ba4ab687c3d4e9d7f892dc7a111096"
+        }
+      },
+      "tp8_next_review": {
+        "review_id": "plan-023",
+        "trigger": "userresumes operatorwork aftercompilerdiagnosis",
+        "retained": [
+          "fix-001 correctness H16padding"
+        ],
+        "notretained": [
+          "fw-004 14bucket"
+        ],
+        "completed_diagnostics": [
+          "diag-002 ignoredworker shim",
+          "diag-003 causalIR rootcause",
+          "diag-004 officiallateststillfails/issue1350"
+        ],
+        "cumulative_gain": "none accepted",
+        "immediate_experiment": "op-003 effectiveMoE shape/backend discovery then boundedkernel comparison",
+        "evidence_gaps": [
+          "latestCSV no P1K/explicitservicebinding",
+          "currentserviceaccuracy rebindpending",
+          "actual MoEconfig/shape unverified"
+        ],
+        "next_review_trigger": "firstactualshape oracle or 2-3 operator results, anyphaseconflict/precisionfailure"
+      },
+      "tp8_operator_review": {
+        "review_id": "plan-024",
+        "evidence": "all8rank effective shapes pluscomplete micro02 30singlevariable configs",
+        "cumulative_gain": "no E2E gain accepted",
+        "ranked": [
+          "GEMM1 BK256 exactM64/8192 -> privatevendor boundeddispatch tests thenservice baseline/candidate/revert",
+          "M64 BM16 jointalign15.96% deferred because alignment+bothGEMM boundarywider",
+          "SwiGLU+quant fusion deferred untilnarrowKtileE2E assessed"
+        ],
+        "eliminated": [
+          "4warpsPF regresses43-88%joint",
+          "GEMM2 BK256 regresses5-26%joint",
+          "M32BK2569.96/M1024BK2567.19 belowmicro10%"
+        ],
+        "required": "shim graph/edge/oracle, source restore, model minimal, newfull198>=81 candidate, matchedno-profiler phases/Mixed",
+        "next_review_trigger": "shim orE2E failure/hotspotmigration"
+      },
+      "tp8_numeric_review": {
+        "review_id": "plan-025",
+        "trigger": "microcounterexample blocksnumeric tilecandidate",
+        "decision": "integer correctness repair prerequisite; no newoptimization stacking; evaluateI32 alone andthenKtile aslinkedexperiment",
+        "superseded": "plan024 FP32 tileonly candidateheld despite random tests/micro gain",
+        "next": "isolatedopt-in integerprototype oracle+graph andmatchedmicro; ifpassesactualvendor then model105+2/full198; new matched E2E candidate/revert",
+        "cumulative_gain": "noneaccepted"
+      },
+      "tp8_integer_combination_review": {
+        "review_id": "plan-026",
+        "retained_prototype_dependency": [
+          "fix002 exact integer accumulation for supportedG1",
+          "op003 BK256 M64/1024/8192 only"
+        ],
+        "evidence": "exactcancellation/defaultcompat/extreme/edge/graph; newint32 baseline Ktile direct5pairs gains14.49/13.32/16.11%, M32 9.25 below10% notselected",
+        "cumulative_effect": "no E2E accepted; onlymatchedkerneltransaction composite14.13/24.09/26.28% vsoldFP32",
+        "next": "actualvendor import andmodelgraph105+2/newfull198>=81; onlythen candidateperformance/revert",
+        "stop": "first import/readiness/minimal/formal orperformancefailure; exactprivateFGrollback; preserve allroles"
+      },
+      "tp8_operator_e2e_review": {
+        "review_id": "plan-028",
+        "trigger": "newMixedbounded3role nativepassed",
+        "previous_decision_summary": {
+          "review_id": "plan-027",
+          "oldMixed": "incomplete preserved due13.08%ITLspread; boundedall3role10+5audit withoutdiscard/relax"
+        },
+        "cumulative_effect": "samecombination sameconfig matchedMixed +8.9489%; originalDecode+7.4272/PF+2.7399 validscoped; no addinggains; fullGPQA164/19882.83>=81 butold170sixmorecorrect",
+        "ranked": [
+          "formaloriginalP1 frozen6warm5measure3freshroles; requiregate/min/replay/guards",
+          "ifformalqualified retaincombo and reprofile phases forP4scenarioentry bottleneck ranking",
+          "ifformalvariance/failure collectrepresentativeprofiling before furtherchange, do notautomaticrepeat"
+        ],
+        "deferred": [
+          "additional fusion/tiles untilformalnewcombinedbottleneck",
+          "compilerupgrade: unchangedH16required",
+          "unrelatedsystem/communication changes"
+        ],
+        "stop_conditions": [
+          "gate/min/readiness failure exactsource restore, preserveallrounds",
+          "P1 primary<3% orP99guard>5% noformalretain",
+          "repeat instability needsprofiling, no discardedmeasuredround"
+        ],
+        "next_review_trigger": "P4 scenario-entry phaseviews before choosingnextoperator",
+        "p1_formal_result": "passed +7.5783638%, Rdrift-0.302%, allP99better, candidate164thresholdpassed"
+      },
+      "tp8_p1_completion_review": {
+        "review_id": "plan-029",
+        "evidence_cutoff": "client2026-10-13 P1formal3roles f374/nativefull164 currentrebind608",
+        "objective": "steady totalinput+outputTPS, full198>=81; fixed4scene catalogue",
+        "anchor_identity": "originalprivateFG1e56 withH16, sourceA94, TP8/graph7/root11env",
+        "current_identity": "privateFG4e67/source4292 andH16, MF2d2059; currentgate608",
+        "ledger": [
+          {
+            "id": "fix-001",
+            "decision": "retained prerequisite",
+            "gain": "no independent speed claim"
+          },
+          {
+            "id": "fw-004",
+            "decision": "reverted",
+            "reason": "Mixed below3%, Decode steady admissionfailed"
+          },
+          {
+            "id": "op-003 tileonly",
+            "decision": "superseded",
+            "reason": "strongcancellation FP32 numeric boundary; neverdeployed"
+          },
+          {
+            "id": "fix-002 +op-003",
+            "decision": "retained-P1",
+            "effect": "+7.578% matchedoriginalP1, allP99 better, full164>=81; no isolated contribution"
+          },
+          {
+            "id": "oldMixed-revert",
+            "decision": "incomplete preserved",
+            "reason": "ITL13.08%spread; boundedfresh3roles passed, no discardedrounds"
+          }
+        ],
+        "cumulative": {
+          "p1024-d1024-c64-n128": {
+            "status": "formal-intermediate passed",
+            "tps_relative": 0.07578363848188147
+          },
+          "other3": "not_run formal, no extrapolation fromCSV orP1"
+        },
+        "phase_map": {
+          "P1": "Prefill/Decode/Mixed measured admitted, oldallrank MoE hotspot; no newclaim currenthotspot unchanged withoutprofiling",
+          "P4": "unknown untilsamecode scenario-entry phase views",
+          "interaction": "currentformalMixed guards allimprove; no pureGPU claims"
+        },
+        "ranked": [
+          {
+            "rank": 1,
+            "direction": "P4 scenario-entry phasebaseline",
+            "first_falsification": "targeted P4096 shortMixed plussamecontext Decode/Prefill guard, samecurrent4e67 baseline_parent",
+            "success": "nativevalid warm admission/all5spread<=10 and no competingtraffic; onlybaseline no gainclaim",
+            "stop": "nativeerrors/admissionfails/budget/no serviceidentity/gate ->incomplete preserve, noautoretry"
+          },
+          {
+            "rank": 2,
+            "direction": "profile afterphaseview ifMoE/attention/host notresolved",
+            "first_falsification": "representative admittedMixed all8rank trace, profiler-onexcluded fromgain",
+            "success": "actualsource/shape/workercoverage proof changesnextdecision",
+            "stop": "incomplete coverage prevents costlyoperatorchanges"
+          },
+          {
+            "rank": 3,
+            "direction": "bounded nextoperator tuning",
+            "first_falsification": "onlyafteractualP4hotspot currentshape oracle+micro thenmatchedMixed",
+            "success": "predeclare numeric/graph/throughput/guards beforemutation",
+            "stop": "accuracy below81 orminfail stopstacking; no changingvllm/weights/sharedinstall"
+          }
+        ],
+        "deferred": [
+          "coldstartup outsideobjective",
+          "morekernel fusion/tiling untilP4 currentphase evidence",
+          "framework/communication changes withoutrootcause; useroperator focus"
+        ],
+        "next_primary": "P4 scenario-entry baseline only before choosingnewperformancepatch",
+        "required_skills": [
+          "inference-performance-evaluation targeted",
+          "inference-profiling ifambiguous",
+          "key-operator-analysis onlyafteractualpath convergence",
+          "inference-accuracy-evaluation oncodechange triggers"
+        ],
+        "next_review_trigger": "P4 phaseviews orfirst2-3resultedcandidateexperiments/precisionorvarianceconflict"
+      },
+      "op004_migration_review": {
+        "skill": "inference-optimization-planning",
+        "review_id": "plan-030",
+        "status": "complete planning; currentaccuracy/performance incomplete",
+        "objective": "User requested MoE library migration; preserve retained TP8 INT32/K256 behavior and verify final FV source.",
+        "baseline": "op004 entry1653297 FG4e67, P1fresh6warm5 median2130.1222889246137; native review passed.",
+        "candidate": "3037865 FVf924 +Plugin011f +FG1e56; H16 prerequisite remains; finalminimal107, operator28, adjacency24, repository7 passed; full198 running.",
+        "ledger": [
+          "op003 retained FG implementation +7.58% P1, oldfull164 historical; not transitive to newFV source.",
+          "op004 pending migration, no new E2E effect claimed.",
+          "op004micro01 harness missing metadata key: measurement-invalid; same-scope repair and full03 passed.",
+          "op004adjacent01 inherited empty arange0: both original/new reproduced; minimal metadata fix; exact scope02 passed."
+        ],
+        "dependency_order": [
+          "fix001 H16 compiler guard",
+          "fix002 integeracc +op003 K256 moved toFV",
+          "PPU noTLE align/workspace init andempty early return",
+          "Plugin common MoE importsFV"
+        ],
+        "phase_map": {
+          "prefill": "prior P1 coreMoE K6144 tile; freshbaseline TTFT proxy; no new trace orpuredevice attribution",
+          "decode": "prior P1 M64 GEMM1 plusadjacentalign/sum; freshbaseline TPOT/ITL proxies",
+          "mixed": "newsource migration combine mustbe measured before claimingnonregression; currentfreshfull gate required"
+        },
+        "cumulative_effect": "Unknown forfinalFV candidate. Do notadd microgains or old7.58%; newmatchedB/C/R only.",
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "direction": "accuracy verification",
+            "first_falsification": "full198 formal >=81%; immutable currentservice andsource. Belowthreshold=> diagnosis, no performance promotion.",
+            "skills": [
+              "inference-accuracy-evaluation",
+              "inference-accuracy-diagnosis"
+            ]
+          },
+          {
+            "rank": 2,
+            "direction": "migration P1 targeted regression",
+            "first_falsification": "aftervalidnewgate run same6warm5 candidate/revert againstentrybaseline under30dcontract; preserveallrounds/guards/revert drift.",
+            "skills": [
+              "inference-performance-evaluation"
+            ]
+          },
+          {
+            "rank": 3,
+            "direction": "future P4 scenario-entry decomposition",
+            "first_falsification": "only aftermigration conclusion; finalFV candidate becomesnewP4 parent; phase-awarebaseline, no tile/fusion chosen withoutnew evidence.",
+            "skills": [
+              "inference-performance-evaluation",
+              "inference-profiling"
+            ],
+            "scope": "not yet executed"
+          }
+        ],
+        "deferred": [
+          "newtile sweeps/fusion/coldstartup tuning: out ofcurrentmigration andno newbottleneck proof",
+          "vLLM/compiler upgrade/weights changes: notneeded/notauthorized"
+        ],
+        "immediate_next_experiment": "Wait/verify existingfull198; notstartanotheroptimization",
+        "stop_conditions": [
+          "full score<81 or invalid evidence",
+          "requiredminimal regression failure",
+          "source/service/workload drift or external interference"
+        ],
+        "rollback": "remote13 original/final snapshots andguarded finalrollback script; sourcecontainer/rootfile preserved",
+        "next_trigger": "formalresult+matchedP1regression or newincident",
+        "superseded_decision": "oldP4continuation deferredduringexplicituserMoEmigration; oldP1precision/perf remains historicallyscoped"
+      },
+      "latest_opt2_review": {
+        "skill": "inference-optimization-planning",
+        "review_id": "plan-031",
+        "evidence_cutoff": "2026-10-13 user opt2 CSV and live8035",
+        "ledger": [
+          "op003 P1+7.58% matched FG oldsource retained",
+          "op004 migratedcode/operatorchecks/full169 passed source; matchedP1 interrupted warmup, not formal",
+          "diag006 latestofficialTLE barrierunsupported: no compiler promoted",
+          "useropt2 all3successful CSV rounds vsopt1 +7.69/+5.87/+6.44%, observational"
+        ],
+        "phase_map": {
+          "prefill": "currentCSV TTFT proxy high; pure stage time unknown; need currentphasebaseline",
+          "decode": "oldallrank MoE devicehotspot; currentmedianITL32-50ms butP99>1s suggests Mixed interference, not isolated puredevice",
+          "mixed": "P4/P16/P32 admittedunproven user3round finitebatch; noP1 currentresult"
+        },
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "direction": "current opt2 phase entrybaseline",
+            "first_falsification": "freeze baseline P1 Mixed/Decode/Prefill and P4 shortened lookahead; no competing traffic;10warm5 allretained; native identity strict",
+            "stop": "any nativeerror/unstable warmup=>incomplete preserve; no automatic retries"
+          },
+          {
+            "rank": 2,
+            "direction": "operator/improve nonTLE alignment launch reduction on smallM",
+            "evidence": "actualPPU path5 launches; distributedbarrier unsupported; knownMoE shapes top4E128; oldMoE trace hotspot",
+            "first_falsification": "PPU8 isolated two-stage histogram+scatter prototype with CPUexactrouteoracle graph2; paired activeM1/8/32/64/65, jointMoE>=10% saving forpromotion; no productionselection before currentphase evidence",
+            "stop": "compile/oraclefailure; meaningful hotspot absent or jointsaving<10%; do not forceTLE"
+          },
+          {
+            "rank": 3,
+            "direction": "SwiGLU-OAI plus rowINT8 quantization fusion",
+            "first_falsification": "only if currenttrace/micro shows adjacentcost high; preserveBF16 activation round and per-token scale; quantifyfullMoE path",
+            "stop": "integerquant/source semantics differ, gain unproven; separatehighriskformal198required"
+          }
+        ],
+        "immediate_next_experiment": "perf-004 P4 current-baseline Prefill/Decode/Mixed; oldP1migration failure not numerical, useracceptscurrentopt2; no extra gain claimed",
+        "deferred": [
+          "compilerupgrade no TLE lowering",
+          "deepergenericvllm changes unauthorized",
+          "coldstart outsideobjective",
+          "historicalbase crosshardware ratios"
+        ],
+        "next_review_trigger": "currentphasebaseline and first boundedoperatorresult or any newincident",
+        "superseded_decision": "oldP1migration B/C/R interrupted by userservice switch; noblindretry. Continueacceptedopt2 asfreshsource baseline; original四场景正式闭环未冒称完成"
+      },
+      "latest_operator_review": {
+        "review_id": "plan-034",
+        "skill": "inference-optimization-planning",
+        "status": "complete",
+        "ledger": [
+          "perf004 no-profiler threephasebaselinepassed",
+          "op005 align4.5us too small rejected",
+          "op006 rowtile strongskew+17.47%time rejected",
+          "op007 G2stages M64+9.82%time rejected",
+          "perf005 CLIpreflightfailed, no requests, exactrestored",
+          "perf006 correctednativepreflight+27trace/all8rankphase+pairrolepassed, restored107"
+        ],
+        "phase_map": {
+          "prefill": "MoE,scaled_mm,sparseattention eachmaterial; G2manyN showsreg240, G1alsoMixedreg238; no criticalpathfractionclaimed",
+          "decode": "query1graph256rank0, fusedMoE firstdevicehotspot; adjacentquantizationlowrelativecost",
+          "mixed": "32mixed +32puredecode perrank, sourceM-dependentK/configneedsrealinputrowsproof; newpolicy narrowM64/1024/8192 no claimallbulkshapehit"
+        },
+        "ranked": [
+          {
+            "rank": 1,
+            "direction": "operator/improve G2 INT32 existingkernelconstexpr, tilesunchanged",
+            "first_falsification": {
+              "primary": "M8192 uniform complete align+G1+G2 median saving>=10%",
+              "guards": "allother tested M/uniform/skew no>5% regression",
+              "precision": "sameG1+G2 bitwise; randomF32scales/weights G2; independent CPUint G1/G2 subset; -128/127/extreme/cancellation; graph2; routingoracle",
+              "timing": "5pairedalternateorder x8replay;3warm/capture/replay2; existingfrozenop005 helpers; noact/quant/sum in joint",
+              "timeout_seconds": 1800
+            },
+            "stop": "main10%joint+5%guardfail=>no sourcepromotion"
+          },
+          {
+            "rank": 2,
+            "direction": "G1 partialprefill K policy boundedextension onlyafteractualMoEM/sourceconfig evidence",
+            "first_falsification": "currenttrace CPUviewrows recoverinputM vsquantroundedgrid; compareK64/K256 onlyactualnewshape",
+            "stop": "do not assume quantgrid8192 equalsMoEM; no broadconfigoverrides"
+          },
+          {
+            "rank": 3,
+            "direction": "dense scaled_mm operator check after MoE result",
+            "stop": "source/dispatchproof missing=>no rewrite"
+          }
+        ],
+        "deferred": [
+          "act+quantfusion no currentdominantfraction",
+          "compilerTLEunsupported",
+          "fullvLLM/globalchanges",
+          "coldstart"
+        ],
+        "cumulative_effect": "currentuseropt2 observations +7.69/5.87/6.44% vsopt1 all3roundmeans; no new acceptedE2E gain thisturn",
+        "next_trigger": "op008terminal oractualinputshape conflict"
+      },
+      "latest_opt4_review": {
+        "review_id": "plan-040",
+        "skill": "inference-optimization-planning",
+        "time": "2026-10-15T15:59:01.453300+08:00",
+        "trigger": "opt4 cross-scenario gains disagree; new name/source baseline and longcontext focus",
+        "current_sources": "same evaluated retained splitK4 trees; current new model name MiniMax-M3.1-opt4 invalidates old direct gate",
+        "evidence_cutoff": "useropt4 three successful CSV raw rounds all retained, latest runtime readonlycheck",
+        "observational_comparison": {
+          "p4096": {
+            "old": 3771.423333333333,
+            "opt4": 3869.1133333333332,
+            "relative_improvement": 0.025902687491106358
+          },
+          "p16384": {
+            "old": 4153.863333333334,
+            "opt4": 4159.036666666667,
+            "relative_improvement": 0.0012454269479256208
+          },
+          "p32768": {
+            "old": 4274.24,
+            "opt4": 4274.2,
+            "relative_improvement": -9.358388859737055e-06
+          }
+        },
+        "scope": "CSV observational only, not native formal comparison or four-scene closure",
+        "ledger": [
+          "op009/010/011 MoE variants correctness passed but joint performance failed, no productionchange",
+          "op012 generic FV dense heuristic36oracle passed but all12shapes slower, rejected",
+          "op013 narrow M64 dense splitK retained by user despite2.1738%<3%, newGPQA169/198 nativepassed current previous name opt3-retry",
+          "opt4 user changed served name/root and restarted; same four actualsource trees, idle8035; old gate not rebound across namechange"
+        ],
+        "phase_map": {
+          "prefill": "P16 meanTTFT135s, P32~322s; promptbudget/longKV changes likely; pureoperator contribution unknown",
+          "decode": "P4 TPOT73.49→71.34ms, P16/32 TPOTflat; splitK M64 hitrate under longcontext unproven",
+          "mixed": "54 cumulative KVpreemptions observed, cannot assign to scenario; currentlyidle, need per-case counter deltas; TTFT/ITL include queue/scheduler not pure device"
+        },
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "direction": "P16 current8rank longPrefill/sparseattention vs MoE/dense phase capture; quantify per-case preemptions",
+            "first_falsification": "perf007 capture/analyze minimum3phase; no candidate selected until actualshape/hotspot",
+            "stop": "any capture/error/identity interference restore originalroot source config; profiler timing notgain"
+          },
+          {
+            "rank": 2,
+            "direction": "operator/improve leading Prefill attention or GEMM path aftercurrenttrace",
+            "first_falsification": "op014 bounded actualshapes CPU/reference+graph2 and paired fulloperator micro on targetdevice quiescent, then matching P16 mixed milestone",
+            "stop": "no actualcall/hit or no>=10% operatorchain median saving with<=5%guard =>reject without productionchange"
+          },
+          {
+            "rank": 3,
+            "direction": "operator adjunct fusion/Decode batchcoverage onlyiftrace supports materialcost",
+            "first_falsification": "fullchaincost and decode/P4sentinel no>5%regression",
+            "stop": "KVcapacity/scheduling dominates =>state frameworkcause, no speculativeoperatorrewrite"
+          }
+        ],
+        "deferred": [
+          "TLE compiler stillunsupported",
+          "vLLM/weights/tokenizer/compiler modifications notauthorized",
+          "changing root11exports orKVbudget toforcegain",
+          "P32 fullcapture untilP16 currentshape evidence",
+          "extending M64 splitK guards without actualshape/profit"
+        ],
+        "immediate_experiment": "perf-007 capture then analyze",
+        "validation": "foreground baseline-sanity107; temporary profiler CLI only; current same-source returned service minimal; candidate highrisk newGPQA198/81 before formalperf",
+        "target_policy": "P4 existing retainedusergain preserved; current formal target P4 remains open, P16 diagnostic lookahead and user-prioritized longcontext milestone; do not claim scenario closed or omitP1/P4/P16/P32 finalcatalog",
+        "external_resources": "otherdevices8..15 busy unrelated, untouched; onlytarget0..7 scoped service transitions; no micro on8..15",
+        "next_review_trigger": "perf007 phase attribution or2-3 bounded operatorresults, precision/shape/variance conflict"
+      },
+      "latest_opt4_phase_review": {
+        "review_id": "plan-041",
+        "skill": "inference-optimization-planning",
+        "trigger": "perf007 allrank phase attribution complete; op014 micro positive",
+        "covered": [
+          "perf-007",
+          "op-014 micro",
+          "op009-013 oldrejected/retained ledger preserved"
+        ],
+        "current_candidate": "M64 retained splitK FV6c125 baseline service opt4; newM16/32 staged only",
+        "cumulative_claim": "No new same-config E2E result yet; prior+2.1738% P4 not added to micro saving. UserCSV observation is separate.",
+        "phase_map": {
+          "prefill": "all8 ranks current8192non-graph; sparse_fwd/scaled_mm/fused_moe dominate; hardware/runtime kernel totals inclusive, not criticalpath",
+          "decode": "all8ranks Mixed tail query-compatible graph32x42/16x31; no _split attheseM, baseline onlyM64. micro jointquant+GEMM 16.2–55.8% savings positive4shapes; otherM fallback",
+          "mixed": "resident25–26/KV95%, but perphasepreemptiondelta0; reducedD64 not fullD1024 capacityproof. Full-targeted newbaseline needed; smallerM benefit may be Amdahllimited byPrefill"
+        },
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "id": "op-014",
+            "direction": "FV narrow M16/32 selector extension; same vendorintegerkernel",
+            "first_falsification": "newsameconfig P16D256C64N64 B/C/R +P4D128C64N64 sentinel; freshfullGPQA beforeCperformance",
+            "stop": "newfull<81 ->accuracydiagnosis/freeze; nativevariable/drift/spread failures=>incomplete; target<1%orP4regression=>reject no broadgainclaim"
+          },
+          {
+            "rank": 2,
+            "direction": "onlyafter014terminal, actual8192 denseINT8 K6144/N768,1536 vendor tile/layout/operatorchain tuning",
+            "first_falsification": "compare explicitPPUtile candidate vsactual FGfallback, quant+GEMM inclcost, CPUinteger/extreme/graph2 andsamebaseline; oldop012 genericFV all12slower preserved; do not retry unchangedgenericheuristic",
+            "stop": "No>=10% operatorchain improvement across actualtwoPFshapes, or newprecisionerror=>reject staged no productionchange"
+          },
+          {
+            "rank": 3,
+            "direction": "sparse Prefillattention onlyifactualFVvendor integration feasible andcostjustifies; preservefix001headpadding/compiler workaround",
+            "first_falsification": "currentdispatch/source andheadtile numerical proof beforeanycandidate",
+            "stop": "requirescompiler/vLLMchanges or sharedenv changes=>do not proceed without authorizedscope"
+          }
+        ],
+        "next_review_trigger": "014 B/C/R result orprecisionfailure; stopstackingnewoptimizations until newfullGPQAgate"
+      },
+      "manual_handoff_override": {
+        "instruction": "本轮 M=16/32 候选，恢复后测试",
+        "experiment_id": "op-014",
+        "status": "manual handoff complete; new optimization deferred until explicit user resume and new manual results",
+        "automatic_performance_decision_preserved": true,
+        "next_optimization": "pending manual full end-to-end results"
+      },
+      "latest_opt5_review": {
+        "review_id": "plan-042",
+        "skill": "inference-optimization-planning",
+        "trigger": "op014 native <1%, user retained and fullmanualopt5 results show differing scene response",
+        "covered": [
+          "op-014",
+          "perf-007",
+          "op-012 rejected generic FV baseline"
+        ],
+        "current_combination": "PR924 + op013 M64 splitK + op014 M16/32 selection; current source unchanged, user modelnameopt5",
+        "cumulative_boundary": "opt5 vsopt4 all3round CSV P16+2.442%,P32+0.677%,P4+0.091% are observations; not added to previousmicro or BCR percentages, no current four-scene acceptance",
+        "phase_map": {
+          "prefill": "perf007 all8rank actualM8192 non-graph scaled_mm4320calls /4.615s inclusive alongside sparse5.728s/MoE4.019s. Operator and upstream path unchanged by014; reuse as bounded PF evidence, not new trace/current criticalpath. CurrentTTFT means P16~132s/P32~320s includequeue and recompute.",
+          "decode": "op014 selectsgraphM16/32, formalprecisionpassed atopt4; opt5 smaller medianITL P16~39.2vs41.84 andP32~31.26vs32; further isolatedsmallM gains Amdahllimited.",
+          "mixed": "opt5 P16 improves more than shortD256milestone; fullKVpressure matters. Current54 cumulativepreemptions cannot assign scenarios. Need perrun counter andnew baseline before throughputclaim."
+        },
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "id": "op-015",
+            "layer": "operator/improve",
+            "direction": "explicit aligned PPUPrefill INT8 tile/loop in FV, limitedM8192 K6144 N768/1536, no splitK scratch",
+            "first_falsification": "4 predefined BM/BN/BK configs jointPlugin quant+GEMM micro vsactualFG fallback; fullbitwise/randomCPUsubset/extreme/cancel/graph2; each shape>=10% andno pair<-5%",
+            "stop": "first error or1800s; if no candidate passes do not deploy. Confirm positives with independent same-micro run then model107+newfullGPQA198>=81 andsameconfigPF/Mixed BCR/P4guard."
+          },
+          {
+            "rank": 2,
+            "direction": "sparsePrefill attention existing backend/narrow tile after new evidence ifPFdense rejected",
+            "first_falsification": "sourcecurrentheadpadding128workaround and kernelmetadata, no change compiler/vLLM",
+            "stop": "do not sacrificeH16 accuracy fix; require independent reference andgraph beforemodel"
+          }
+        ],
+        "immediate_next_experiment": "op016 independentconfirmation andnarrowFV integration; sparseattentiondeferred whilelayoutpositive",
+        "deferred": "more decodeM variants and genericFVdefault already no gain; no framework cache/launchenv changes",
+        "next_review_trigger": "op016 layout result; densePF direction stops if no netimprovement, then inspect sparseattention guard-preserving candidate"
+      },
+      "latest_opt5_model_review": {
+        "review_id": "plan-043",
+        "skill": "inference-optimization-planning",
+        "trigger": "op015rejected, op016 two independent positive micro; before modelintegration/highcostformal",
+        "covered": [
+          "op-014 nativefailed_userretained",
+          "op-015 rejected",
+          "op-016 two micro positives"
+        ],
+        "current_combination": "unchanged opt5FV61b3/Plugin01e9; op016stagedtwoFVfiles only",
+        "cumulative_boundary": "useropt5 all3round observations only, no newE2E gain. Never add ~39% operatorcost saving to priorE2E results.",
+        "phase_map": {
+          "prefill": "perf007 all8rank actualM8192 non-graph scaled_mm4320calls /4.615s inclusive alongside sparse5.728s/MoE4.019s. Operator and upstream path unchanged by014; reuse as bounded PF evidence, not new trace/current criticalpath. CurrentTTFT means P16~132s/P32~320s includequeue and recompute.",
+          "decode": "op014 selectsgraphM16/32, formalprecisionpassed atopt4; opt5 smaller medianITL P16~39.2vs41.84 andP32~31.26vs32; further isolatedsmallM gains Amdahllimited.",
+          "mixed": "opt5 P16 improves more than shortD256milestone; fullKVpressure matters. Current54 cumulativepreemptions cannot assign scenarios. Need perrun counter andnew baseline before throughputclaim."
+        },
+        "ranked_next_directions": [
+          {
+            "rank": 1,
+            "id": "op-016",
+            "primary": "integrate only confirmedM8192 Bcolmajor percallpack",
+            "first_falsification": "baseline107+three targeted no-profiler baselines; exactcandidate capture/107/all8path/KVguard + new198 GPQA81 before candidate PF/Mixed/P4/revert native comparison",
+            "stop": "firstnativefailure preserves evidence/no retry; score<81 freeze/dedicated diagnosis; KVcapacity drop>0.5% reject; main1%/PF3%/P4nonnegative plusP99/spread/drift gates"
+          },
+          {
+            "rank": 2,
+            "direction": "attentionkernelonlyafter016terminal; inspected currentH16compat andpagedsparse topk16; noimplementation now",
+            "stop": "do not touchcompiler/vLLM/H16fix"
+          }
+        ],
+        "next_review_trigger": "016 nativeBCR/finalscorefailure ormodelcapacity/bottleneckmigration",
+        "current_validation": {
+          "time": "2026-10-16T10:33:15.565945+08:00",
+          "candidate_source": "FVf3ef/Plugin01e9/FG1e56/engine5e7",
+          "model_checks": "107/33graph/all8hits/KV unchanged passed",
+          "formal": "new198 running, scorepending",
+          "performance": "B3 reducedscenarios complete, C/R queued onlyafter newnativegate",
+          "next": "wait sameformal gate thennative3scenarioC/R/conditionalretain orrevert; no newoptimization stacked"
+        }
+      },
+      "resume_20261018": {
+        "review_id": "plan-044",
+        "objective": "steady total throughput; preserve numerical contract and root11 exports",
+        "retained": "op004/008 MoE, op013/014 small-M dense splitK, op016 prefill B layout migrated to env003 FV and env004 Plugin branches",
+        "negative": "op015 tile variants all slower; op014 targeted below1% but user retained; no repeated blind tile sweep",
+        "current_source": "Plugin8320/FV3648/FG1e56/engine5e7; current runtime reverified, no source drift",
+        "current_cumulative": "opt6 vs opt5 means all3: P4+2.5115%,P16+3.6384%,P32+3.9656%; observation only, missing P1K/current migrated source binding; no sum with op016 targeted",
+        "phases": {
+          "prefill": "opt6 TTFT improved; packB optimization retained; latest current-code trace pending",
+          "decode": "opt6 TPOT proxy improved modestly; staged OAI then quant2 chain has separate launches; current-path inclusive benefit unknown",
+          "mixed": "long prompt end-to-end gains observed, KV/preemption and current hotspot attribution pending"
+        },
+        "ranked_next": [
+          {
+            "rank": 1,
+            "direction": "MoE OAI activation + dynamic INT8 quant2 fusion with exact active-provider semantics",
+            "category": "operator/improve-or-replace",
+            "first_falsifier": "trace source and compare existing FV fusion against actual Plugin quant2; bitwise activation/q/scale plus independent oracle and graph2 before standalone timing",
+            "stop": "any contract mismatch or no meaningful joint-path saving; no production deployment on micro result alone",
+            "boundary": "PPU810E BF16 split OAI, INT8 W8A8 per-token/channel, no static/block scales; no extra root env"
+          },
+          {
+            "rank": 2,
+            "direction": "current-code phase reprofile before sparse attention or additional dense work",
+            "first_falsifier": "native minimal targeted P1K/Prefill/Decode baselines plus all8rank representative trace; avoid borrowing historical hotspot percentages"
+          }
+        ],
+        "next_review_trigger": "op017 first correctness mismatch, first timed result, baseline formal completion, or new trace reverses priority",
+        "formal_prerequisite": "fresh full198 threshold81 for migrated unchanged opt6 combo; old op016 score cannot bind new source"
+      },
+      "op017_recovery_review": {
+        "review_id": "plan-045",
+        "trigger": "Prefill short single-wave warmup variance blocked all subsequent diagnostics",
+        "evidence": "6x8requests allsuccessful; round4 1.2873s vs round6 1.2189s; last3TPSspread5.313%>5%; no model errors and same instance healthy; root jitter cause unproven",
+        "decision": "preserve failed invocation; independently run first operator prototype (no service requests) before new baseline contract; new Prefill sampling N8->32, thresholds/warmup/otherphaseworkload unchanged",
+        "scope": "currentop017, same baseline gate171/198; no production/source/config changes or GPQA rerun",
+        "stop": "prototype exact or guard fail => diagnosis and no deployment; new baseline first failure stops with all measurements retained",
+        "next_review_trigger": "new phase baseline terminal; rank net fusion contribution using absolute cost rather than chain percentage"
+      }
+    },
+    "current_binding_status": "no formal gate for upgraded FG/Plugin/FV combination",
+    "service_manifest_current_status": "fresh exact normal-service source/config identity and minimal evidence; no formal accuracy gate",
+    "last_verified_service_manifest_status": "fresh opt7 manifest c877; exact current service/source rechecked after GPQA launch",
+    "user_manual_performance_results": {
+      "source": "User-provided CSV result directory",
+      "scope": "Reported manual P4K/P16K/P32K, D1024 C64 N128,3SUCCESS rows each; no P1K CSV found",
+      "files": [
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1/MiniMax-M3.1_16384in_1024out_c64_n128_20261009_163419.csv",
+          "sha256": "8facf6d8ae20f4663ee8818406c78e2405d152a8106b98ed6c170597d54b19ff",
+          "run_rows": [
+            {
+              "run": "Run1(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 2097152,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 5389.06
+            },
+            {
+              "run": "Run2(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 2097152,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 5392.53
+            },
+            {
+              "run": "Run3(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 2097152,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 5392.74
+            }
+          ],
+          "csv_summary": {
+            "Prefill": "16384",
+            "Decode": "1024",
+            "Conc": "64",
+            "Num Prompts": "128",
+            "Run": "SUMMARY",
+            "Successful Requests": "128.0",
+            "Benchmark Duration (s)": "413.2",
+            "Total Input Tokens": "2097152.0",
+            "Total Output Tokens": "131072.0",
+            "Req/s": "0.31",
+            "Output tok/s": "317.22",
+            "Peak Output tok/s": "1260.0",
+            "Total tok/s": "5392.64",
+            "Mean TTFT (ms)": "45852.43",
+            "Median TTFT (ms)": "17211.65",
+            "P99 TTFT (ms)": "174843.72",
+            "Mean TPOT (ms)": "146.74",
+            "Median TPOT (ms)": "170.49",
+            "P99 TPOT (ms)": "207.81",
+            "Mean ITL (ms)": "146.74",
+            "Median ITL (ms)": "50.0",
+            "P99 ITL (ms)": "1089.13"
+          }
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1/MiniMax-M3.1_32768in_1024out_c64_n128_20261009_163419.csv",
+          "sha256": "11a05dfb46ed2f756c10062613d0cea228eca656a0245789ed023da64c03c09b",
+          "run_rows": [
+            {
+              "run": "Run1(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 4194304,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 5653.86
+            },
+            {
+              "run": "Run2(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 4194304,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 5653.53
+            },
+            {
+              "run": "Run3(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 4194304,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 5652.86
+            }
+          ],
+          "csv_summary": {
+            "Prefill": "32768",
+            "Decode": "1024",
+            "Conc": "64",
+            "Num Prompts": "128",
+            "Run": "SUMMARY",
+            "Successful Requests": "128.0",
+            "Benchmark Duration (s)": "765.12",
+            "Total Input Tokens": "4194304.0",
+            "Total Output Tokens": "131072.0",
+            "Req/s": "0.17",
+            "Output tok/s": "171.31",
+            "Peak Output tok/s": "744.0",
+            "Total tok/s": "5653.19",
+            "Mean TTFT (ms)": "186796.96",
+            "Median TTFT (ms)": "200396.1",
+            "P99 TTFT (ms)": "364831.75",
+            "Mean TPOT (ms)": "151.25",
+            "Median TPOT (ms)": "165.6",
+            "P99 TPOT (ms)": "190.42",
+            "Mean ITL (ms)": "151.25",
+            "Median ITL (ms)": "42.54",
+            "P99 ITL (ms)": "1137.44"
+          }
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1/MiniMax-M3.1_4096in_1024out_c64_n128_20261009_163419.csv",
+          "sha256": "777b1f183aa81267f87757aff274b3121dba79834c568dc0ed0f6f2176f43b1a",
+          "run_rows": [
+            {
+              "run": "Run1(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 524288,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 4234.2
+            },
+            {
+              "run": "Run2(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 524288,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 4233.02
+            },
+            {
+              "run": "Run3(SUCCESS)",
+              "requests": 128,
+              "input_tokens": 524288,
+              "output_tokens": 131072,
+              "total_tokens_per_s": 4213.6
+            }
+          ],
+          "csv_summary": {
+            "Prefill": "4096",
+            "Decode": "1024",
+            "Conc": "64",
+            "Num Prompts": "128",
+            "Run": "SUMMARY",
+            "Successful Requests": "128.0",
+            "Benchmark Duration (s)": "155.18",
+            "Total Input Tokens": "524288.0",
+            "Total Output Tokens": "131072.0",
+            "Req/s": "0.82",
+            "Output tok/s": "844.66",
+            "Peak Output tok/s": "1472.0",
+            "Total tok/s": "4223.31",
+            "Mean TTFT (ms)": "10069.19",
+            "Median TTFT (ms)": "3903.53",
+            "P99 TTFT (ms)": "31367.08",
+            "Mean TPOT (ms)": "65.76",
+            "Median TPOT (ms)": "71.91",
+            "P99 TPOT (ms)": "74.22",
+            "Mean ITL (ms)": "65.76",
+            "Median ITL (ms)": "45.3",
+            "P99 ITL (ms)": "974.5"
+          }
+        }
+      ],
+      "boundary": "CSV SUMMARY retained as provided; aggregation/warmup policy unverified, not renamed arithmeticmean; no matched anchor/revert, native rawrun/service binding or frozenformal admission; no formal closure or cumulative gain claim",
+      "latest_opt2": {
+        "directory": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt2",
+        "all3_rounds_used": true,
+        "P4096_tps": 3728.556666666667,
+        "P16384_tps": 4060.7966666666666,
+        "P32768_tps": 4163.8966666666665,
+        "opt1_to_opt2_observed_gain": [
+          0.07687886536402777,
+          0.058714999952202085,
+          0.06438260101959004
+        ],
+        "scope": "user-provided observations; missing P1 and frozen service/client binding; no formal acceptance; historicalbase may differenthardware not causal ratio"
+      }
+    },
+    "root_start_script_current": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/start-model.sh",
+      "sha256": "1c415dc716e231ae699b4ada498c95478aa646d931724d179e3a26c59243d5d5",
+      "model_path": "/mnt/cpfs/models/MiniMax-M3.1-Flash-W8A8-FlagOS-20261019",
+      "unchanged_by_this_upgrade": true,
+      "running_service_weights": "/mnt/cpfs/models/MiniMax-M3.1-preview-private-W8A8-FlagOS-20260929",
+      "scope": "Disk script and current running preview service differ; original runtime args retained, no weight change. New canonical FG install applies on later launches."
+    },
+    "current_accuracy_binding_status": "all historical gates do not bind changed source; new full scope required",
+    "record_layout_policy": "active legacyplatform layout retained perupdated model-artifact-contract; newcases caseidlayout, noautomaticmigration",
+    "active_experiment_id": "op-017",
+    "user_manual_opt3_observation": {
+      "date": "2026-10-14",
+      "source": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt3",
+      "comparison": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt2",
+      "scope": "User-produced CSV, no new requests or service changes. Each scenario3actualruns128successful; SUMMARY is mean of last2, excluded from all3mean calculation. No fresh native formal B/C/R acceptance asserted.",
+      "rows": [
+        {
+          "P": 4096,
+          "D": 1024,
+          "C": 64,
+          "N": 128,
+          "opt2_all3_mean": 3728.556666666667,
+          "opt3_all3_mean": 3782.5,
+          "all3_gain_pct": 1.446761794331497,
+          "summary_gain_pct": 1.434650390891412,
+          "opt3_csv_sha256": "5f36a2bbda43d548acf45433b3fbd24cc17aaaa7b8836c64dead4506c075136f"
+        },
+        {
+          "P": 16384,
+          "D": 1024,
+          "C": 64,
+          "N": 128,
+          "opt2_all3_mean": 4060.7966666666666,
+          "opt3_all3_mean": 4141.766666666666,
+          "all3_gain_pct": 1.9939437171195395,
+          "summary_gain_pct": 1.9433264119192772,
+          "opt3_csv_sha256": "841a93cfda40917de5380b95ee639d573baac43a163d89881e11880f89e5e894"
+        },
+        {
+          "P": 32768,
+          "D": 1024,
+          "C": 64,
+          "N": 128,
+          "opt2_all3_mean": 4163.8966666666665,
+          "opt3_all3_mean": 4257.763333333333,
+          "all3_gain_pct": 2.2542986577476665,
+          "summary_gain_pct": 2.2611949079888616,
+          "opt3_csv_sha256": "0a42b7fa61e409355aef77f34f57521bc6299acc4f48e6663a579f7296ed5f1c"
+        }
+      ],
+      "current_runtime_readonly": {
+        "name": "MiniMax-M3.1-opt3",
+        "port": 8035,
+        "tp": 8,
+        "capture_sizes": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          32,
+          64
+        ],
+        "max_batched_tokens": 8192,
+        "max_seqs": 64,
+        "FV_vendor_file_sha256": "711ac14fa871b5841fe80aa498f5def687c009e42e64459747bb4c74cce13cd2",
+        "root_script_sha256": "1ccff6abebe7fc2118c517ab8c8dc926437790708ebb8db51a18881e247ccc94",
+        "exports": 11,
+        "binding": "User changed served-name/root from archivedopt2; previous native gate remains historical, no gate for currentopt3 identity asserted"
+      }
+    },
+    "planning_resume_opt3": {
+      "review_id": "plan-035-opt3-operator-resume",
+      "evidence_cutoff": "2026-10-14",
+      "status": "current user opt3 facts verified; model/source runtime gate recapture pending; operator micro first",
+      "covered_experiment_ids": [
+        "op-005",
+        "op-006",
+        "op-007",
+        "op-008",
+        "pr-001"
+      ],
+      "cumulative": "User same-workload opt2→opt3 actual3roundmeans P4/P16/P32 +1.4468/+1.9939/+2.2543%; not additive and no nativeformalBCR claim. op008 targeted Mixed+2.9929% below3 butuserretained. Prior op003 P1+7.58 belongs pre-migration combination.",
+      "retained_order": [
+        "fix-001 H16 compatibility",
+        "fix-002 GEMM1 I32",
+        "op-003 K256 exact3M",
+        "op-004 FV migration/empty guard",
+        "op-008 G2 I32largeM"
+      ],
+      "rejected": [
+        "op005 align2stage jointM64only0.65%",
+        "op006 sharedBM16 skewreg17.47%",
+        "op007 G2stages2 M64reg9.82%"
+      ],
+      "phase_views": {
+        "prefill": "opt3 actualP4 TTFT proxy; priorperf006 all8rank traces M1024/8192G2 nowI32; denseMM/sparseattention/comm remain. Fresh identity-boundbaseline required.",
+        "decode": "opt3 TPOT/ITL proxy; priorperf006 fusedMoE leadingdeviceactivity andG2 roleproof. CurrentM64G2 originalFP32/BN64/K128/w4/st3, 57layers. Durationnotcriticalpath.",
+        "mixed": "opt3 fullD1024/C64/N128 P4all3 successful butno nativeBCR. Need sameconfigurationfreshB/C/R andlatencyguards."
+      },
+      "ranked_next_directions": [
+        {
+          "rank": 1,
+          "experiment_id": "op-009",
+          "layer": "operator/improve",
+          "hypothesis": "M64-only G2 BN128/w8 layout preserving BM32 padding and K128/st3 lowers small-M large-N cost",
+          "first_falsification": "frozen pairedgraph G2only andalign+G1+G2; uniform/hot4 routing andF32/BF16route/extreme/cancel CPUoracle; joint>=5%,alltimedguardreg<=5%",
+          "risk": "register/occupancy, numerical/config dispatch; supportsreturnoriginal outsideexactcap/shape/config",
+          "promotion": "micro→selector/graph2/model107→freshGPQA198>=81→sameP4 targetedBCR; formalP4 later"
+        },
+        {
+          "rank": 2,
+          "layer": "operator/improve",
+          "hypothesis": "SwiGLU+INT8 quantization fusion; needs currentPlugin→FV live callproof and round-boundary numerical oracle beforecoding",
+          "reason_deferred": "More coupling/NaN/quant rounding risk; currentpath andeliminablecost notyetproven"
+        },
+        {
+          "rank": 3,
+          "layer": "operator/improve",
+          "hypothesis": "G1 partial-prefill exactM extension ifsource/shape configproof andbenefit",
+          "reason_deferred": "largerM alreadytuned; caller hitrateunknown"
+        }
+      ],
+      "next_review_trigger": "afterop009 result/hotspotmigration orbeforecostlyfusion; no blindconfigscan",
+      "prior_decision_summary": "op008 retainedbyhuman, service handed off; PR924publishedfromlatestmain butruntime remainsoriginald498 (do not upgrade/importPR silently)",
+      "immediate_next_experiment": "op010 singleK512 dot/stages1 boundedfalsification, noN/warpchange. Ifnegative stopG2parameterstrategy andverifyquantfusion livepath.",
+      "post_two_negative_review": {
+        "review_id": "plan-036-opt3-after-g2-negatives",
+        "covered": [
+          "op-009",
+          "op-010"
+        ],
+        "result": "two G2 independentresource changesnumericallycorrect butsubstantiallyslower; retain currentG2 anddo notblindscan",
+        "phase_effects": "no newcumulative effect: currentopt3same source/args, allattempts standalone. CurrentbranchG2pipelining/nativeNtilestillbest tested; compiler/register bottleneck unproven.",
+        "next": "Verify live quantization1kernel path; evaluateG1 dummy-row waste independently whilekeepingpadding32 andG2 unchanged ifquantfusionoffchain. Freeze nextcontracts beforeexecution.",
+        "ranked_after_review": [
+          {
+            "rank": 1,
+            "experiment": "op-011",
+            "hypothesis": "SeparateG1 computeBM16 fromalign32/G2BM32, remapexpertblock andskipall-paddinghalfblocks",
+            "evidence": "PriorsharedBM16 improvedsomeG1tilebutregressedhot4whenG2changed; separateG1 hasnotbeentested. M64uniform2tokens/expert becomes30dummyrowsper32block; cannotinferbandwidthgainfromcomputeonly."
+          },
+          {
+            "rank": 2,
+            "hypothesis": "Activation+quant fusion withFV kernel andPlugin narrowdispatch",
+            "evidence": "Live Plugin importsMoEquant fromvLLMutils, notFVgeneric_int8quant; directreplacementinFVgeneric alonecannotaffectservice. Mustresolveactualper_token_quant function andmeasurekernelcountbeforehook."
+          }
+        ]
+      },
+      "post_padding_review": {
+        "review_id": "plan-037-after-op011",
+        "result": "M64 padding-rowtile separation numericallycorrect but distributionguardfailed; no source/change retains. No furtherMoE tile blindscan.",
+        "source_path_findings": [
+          "Plugin MoE calls vLLM.utils._int8_quantize→per_token_quant_int8→oneTritonkernel; FVgeneric_int8_quantize is not liveMoEpath",
+          "Plugin denseW8A8 quant adapter callsFV.ops.scaled_int8_quant, actualscaledMMprovider/hotspot/shapes pending"
+        ],
+        "next": "Read phase-specific priortrace contribution (Decodeop008didnotchangeM64 branch) anddenseFP32/INT8 actualdispatch; collect currenttrace if ambiguity. Select otheroperator basedon attributablecost."
+      },
+      "dense_reassessment": {
+        "review_id": "plan-038-after-op012",
+        "finding": "FG dense kernels already INT32 and tuned; genericFVheuristic larger tile failed. M64 K6144,N1536/768 dense grids48/24 on64SM, observed .0476/.0429ms. SplittingK increases CTAparallelism without relyingon compiler numeric change. LargeMleaveunchanged.",
+        "next": "single algorithmic FV PPU splitK4 INT32 workspace/reduction falsification; fixedK6144,M64 andtwoN, notglobaltile sweep",
+        "scope": "No E2E benefitclaimed, no runtimechange"
+      },
+      "pr924_retry_checkpoint": {
+        "review_id": "plan-039-pr924-retry-resume",
+        "evidence_cutoff": "2026-10-14T22:20:16.898846+08:00",
+        "objective": "TP8 total token throughput; current P4 ordered target",
+        "identity": "Actual FV private side copy fb70fd2 MoE PR aligned; root e13/11exports; MiniMax-M3.1-opt3-retry",
+        "result": "incomplete E2E; isolated finalsplitK chain passed",
+        "old_decisions": "Preserve plan037/038 negative MoE tile/warp and generic FV replacement ledger; no summed speedups. Old169/198 and oldnativeP4 median3620.34 are historical and invalid for new source/name.",
+        "cumulative_current": "User CSV all3 P4 3771.4233/P16 4153.8633/P32 4274.24 are observations, no current controlled incremental gain or final4scene claim.",
+        "phase_views": {
+          "prefill": {
+            "method": "client proxy",
+            "mean_ttft_ms_P4_all3": 11428.03,
+            "residual": "network,queue,scheduler included; historical trace Mlarge dense hotspots not currentPR profile; selected M64 only, mostprefill unchanged",
+            "guard": "P99 TTFT <=5% regression in nativeP4"
+          },
+          "decode": {
+            "method": "client proxy+actual Plugin quant/target-shape graph micro",
+            "mean_tpot_ms_P4_all3": 73.4933333333,
+            "mean_output_tps_P4_all3": 754.2833333333,
+            "target": "M64/K6144/N768,1536; CPUoracle/fullbitwise/positivehit/graph2; jointquantGEMM latency saving46.305/29.815% finalAPI5",
+            "residual": "Clientproxy not pure device time; micro not model actual8worker hit/E2E"
+          },
+          "mixed": {
+            "method": "userCSV observation; native B queued",
+            "mean_total_tps_P4_all3": 3771.4233333333,
+            "residual": "finitebatch fill/drain and scheduling; newnativeB/C/R required"
+          },
+          "cross_phase_guards": "Four native P99 TTFT/TPOT/ITL/E2EL <=5%, variability<=10%,B/Rdrift<=10% unchanged"
+        },
+        "ranked_next": [
+          {
+            "rank": 1,
+            "experiment_id": "op-013",
+            "layer": "operator/improve",
+            "direction": "Exactly guarded splitK4 INT32 dense lowM parallelism",
+            "support": "CurrentPlugin quant shape matches API; 7cases positive/fallback/CPU/bitwise/graph2 passed; finaljoint 46.3/29.8% lower latency",
+            "opposition": "OnlyM64 hit; secondkernel/workspace and phaseinterference; modelthroughput unmeasured",
+            "first_falsifier": "Actual8worker bothN hit after source deployment; native107; candidate full198>=81; P4sameB/C/R >=3% and guards",
+            "stop": "Any nativeidentity/correctness/gate failure or guards/gain failure =>freeze/diagnose/revert; no blind new optimizations"
+          },
+          {
+            "rank": 2,
+            "direction": "Reprofile currentPR P4 phases ifsplitK E2E negligible or bottleneck migrates",
+            "requires": "inference-profiling; no new code until path/shape evidence",
+            "first_falsifier": "All8rank tracecoverage/phase and actualsymbolcounts, not profiler-on perf claim"
+          }
+        ],
+        "deferred": "Blind MoE tile/warp scans and genericFV replacement rejected by op009-op012; no compiler/vLLM/weights changes",
+        "required_skills": [
+          "key-operator-analysis",
+          "inference-accuracy-evaluation baseline-sanity/formal-gate",
+          "inference-performance-evaluation baseline/targeted",
+          "inference-profiling only if attribution needed"
+        ],
+        "next_review_trigger": "splitK P4 B/C/R terminal or actual hit/correctness failure"
+      }
+    },
+    "op013_pr924_retry_resume": {
+      "timestamp": "2026-10-14T21:48:55.852684+08:00",
+      "experiment_id": "op-013",
+      "status": "completed gate repair and splitK P4 B/C/R; candidate not retained",
+      "root_launcher_sha256": "e13a1372e005a014cbeee593254d88b9037867c315949955a0f0f7b6a92ec70c",
+      "served_model_name": "MiniMax-M3.1-opt3-retry",
+      "actual_fv_root": "/workspace/FlagGems-vllm-pr924-fb70fd2-20261014-side-01",
+      "source_kind": "private effective adaptation copy with exact PR924 MoE files; no .git",
+      "public_pr_commit": "fb70fd23462d411e3131c011ac8434073237e927",
+      "exports_count": 11,
+      "observational_csv_all3_total_tps": {
+        "P4096": 3771.423333333333,
+        "P16384": 4153.863333333333,
+        "P32768": 4274.24
+      },
+      "csv_boundary": "All 3 actual rounds retained; SUMMARY last2 not used as native controlled comparison; no P1 file.",
+      "invalid_historical_bindings": [
+        "op013 original opt3/d498 GPQA gate",
+        "op013 original opt3 full P4 baseline"
+      ],
+      "prior_micro_saving_percent": [
+        31.60763098,
+        49.03790195
+      ],
+      "e2e_gain": {
+        "value": 0.02173763530307567,
+        "scope": "this P4 targeted performance_only comparison",
+        "comparison": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/comparison-result.json",
+          "sha256": "44432132afe62ad649924de6c80a86613630a92565ae325f2d6aa6d598299883"
+        },
+        "retained": false
+      },
+      "next_action": "Requested gate repair/no-GPQA BCR complete; P4 remains current target for a future candidate.",
+      "positive_hit_probe": {
+        "driver": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-positive-hit-01.py",
+        "driver_sha256": "04156b715f1ac2828a9f9b203e7d5c8bfe77143fa4b99f5c18db193186908d6b",
+        "controller": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-positive-hit-control-01.py",
+        "controller_sha256": "8109e458439fa14a4b919fc568d558cd738092d941aa472e5b50d9770cd0d4d7",
+        "scope": "isolated PPU12 source-in-memory only; no model requests or production changes",
+        "result": "passed; actual SA [64,1] F32; 2/2 selected, one vendor call each, whole output bitwise equal",
+        "result_sha256": "792b4a0bf08b5c47a3cbc078b46bb6d22e79a601867a9ad8e55784cd39b7e5b9"
+      },
+      "plugin_joint_probe": {
+        "driver": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-plugin-hit-01.py",
+        "driver_sha256": "b7e99d311ec73992fa6f0a26bb8282961516fc7432e63bd5d9e80261c3bc9e12",
+        "controller_sha256": "49a6f25f165cfb4a0544e94f1dddd6ad284778bdf678cb5c0040012d119e7b58",
+        "contract": "3 warm/capture2; 5 alternating pairs x8replays; both N joint median saving>0, everypair >=-5%; positive vendor call assertion including flat/rank3/graph, 4fallbacks, CPUint64 oracle; no production mutation",
+        "result": {
+          "status": "passed",
+          "cases": 7,
+          "positive_cases": 3,
+          "fallback_cases": 4,
+          "graph_replays_each": 2,
+          "quant_GEMM_graph_median_ms": {
+            "N768": {
+              "baseline": 0.045170001685619354,
+              "candidate": 0.02418000064790249,
+              "saving_percent": 46.46889584774887
+            },
+            "N1536": {
+              "baseline": 0.049949999898672104,
+              "candidate": 0.035009998828172684,
+              "saving_percent": 29.909912113726737
+            }
+          },
+          "positive_vendor_calls": 15,
+          "e2e_gain": "not measured"
+        },
+        "result_sha256": "268d6b6f133124679c45931015501b3ae4b2cc3a36cf9b555873b4d19c3c80a3"
+      },
+      "baseline_controls": {
+        "snapshot_sha256": "9615b5abe715efa103c30eeef3aad05c9cae576903d191480a54764b72508d46",
+        "minimal_sha256": "ad84ce2497cb54e1cf525ecf83caaa515da3885a53fb2262e6efede3407dec69",
+        "regression_sha256": "a2c048f291f9d973537367ab6550a14aee2b6b3f03ba03fc202590cf2d934d64",
+        "receipt": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/manifests/op013-pr924-baseline-controls-01.json",
+        "accuracy_mode": "baseline-sanity; native107 graph requests+C8/C33/C64+2smoke",
+        "monitor": "minimax-m3-1-acc-001 ACTIVE 30min; quiet on unchanged",
+        "logging_limit": "PR removed old GEMM2 custom log; no fabricated 8worker MoE hit. Actual remaining 8worker attention and graph proofs retained.",
+        "source_manifest_sha256": "5b3114f0b133628daecd166990ab65687ca08014316407e6a2b6262382da05d2",
+        "initial_service_sha256": "d6a741b472e95481ea8fe867d72fb30c90d0a2193b7045ee2067522084fc726d",
+        "verified_service_sha256": "9f469d7dc2d6cb3500e4982c522f655cc2ae5a43afd2ac71643fa7e03455fc8f",
+        "minimal_receipt_sha256": "4347bc582a943960bd6cfa5e2a5fd5e20161ed2f7ecdb5ce41338ea3fa7dc46a",
+        "graph_replay_lowerbounds": [
+          30,
+          44,
+          42
+        ]
+      },
+      "formal_prepare": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-baseline-formal-prepare-01.py",
+        "sha256": "5452ea438d03a068d6bc39c78934107dc1088a5202e1010478a210a1b481341b",
+        "contract": "same fullGPQA198/81%; fresh actual provenance twice, new source/model_name"
+      },
+      "formal_controls": {
+        "receipt": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-baseline-formal-controls-01.json",
+        "launch_sha256": "f7373981fa666f20bd3a8af4b52bc765ac631a94bb3f9ee0cd636e3de6eba2fb",
+        "finalize_sha256": "e1997938300b137f2faa4b5a3e4fca9fcd7e2f7d26b5f090a014eb9f54873ae0",
+        "watch_sha256": "4986a180d54c38827fc37f73049549707cbc80ea1e26d8a94f92826495810e65",
+        "dispatch_sha256": "881e97dfb61064145b8c641b5e0a338bb315177e11fb8cb8027a627d6c88b4a5",
+        "mode": "formal-gate",
+        "config_sha256": "f09b1c838af73ff97545893c4577265c20929078743c95a2a8ba04e18207b562",
+        "contract_sha256": "fcfae7b96fc7d433e63b69a5b82645291129afe16c9f93ebd32ce6e8470216bd",
+        "provenance_sha256": "f60c93c4b7ebdefdf43092fc623834958fe8841cab508533dc35d7a37710e1e1",
+        "score": 0.8535353535353535,
+        "gate": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-pr924-baseline-formal/accuracy-gate.json",
+        "launch_path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-baseline-formal-launch-02.py",
+        "preflight": "passed",
+        "actual_launch_script_sha256": "f9e62a085fec250e51a9187f08128054a6b2fa392aa9f9a740a0bdad7922b89a",
+        "status": "existing full198 native gate issued/check passed, no GPQA rerun",
+        "obsolete_log_refs": "Old PR predecessor MoE diagnostic log was removed in PR924. Two obsolete custom-log SHA/count8 checks removed from launch; current fullsource/private-import/publicblob/root/instance/prefixcache/minimal/graph/currentactual attention backend validations retained. No fake MoE log/counter evidence.",
+        "launch_command_sha256": "05b0a2d17be8a163111f026bad67d95b2aceb9908b0e6e2036e74a0405eaa163",
+        "process_health": "4 same current formal processes observed alive; service8035health200",
+        "completed_unique_ids": 198,
+        "native_sample_jsonl_state": "not yet emitted; do not infer completion from cache",
+        "finalizer_state": "verified alive; same-run binding.json created; score/gate pending",
+        "correct": 169,
+        "expected_samples": 198,
+        "physical_lines": 396,
+        "threshold": 0.81,
+        "native_eval_exit": 0,
+        "native_results_sha256": "c91a18fc88430218c596b85ddf52b94b3c63e220142686ddf5fabb4457e83a8d",
+        "native_run_record_sha256": "2b55f6fa80254f59128a6e19ba50ae2b95f3bf467d1f9d87e5e2c0460aa7d621",
+        "finalizer_result_sha256": "b43c9cc2fa6779b06b2c5671c40eb9aa4ed4ade3fe067953bf7c698b0c1e9026",
+        "finalizer_returncode": 1,
+        "gate_expected_path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-pr924-baseline-formal/accuracy-gate.json",
+        "native_run_id": "7cd2886565924dde9ae7f4e5efdf031e",
+        "service_health": "200; same current ticks andargv; actualformal processes terminal",
+        "monitor_status": "paused; full198 terminal, no new fullGPQA requested",
+        "gate_sha256": "9f2d42c04f51cdcd172908b92d1e8017dc839caa85c2cbbc29240f15580e0835",
+        "finalizer_repair_sha256": "1f3602c8fd4d439873c0ecfa2dc0e83cd3d2a06d43af01795b3fb59fa3f0a896",
+        "source_reverified_sha256": "5b3114f0b133628daecd166990ab65687ca08014316407e6a2b6262382da05d2",
+        "finalizer_repair_returncode": 0
+      },
+      "baseline_performance_queue": {
+        "mode": "baseline then targeted P4 B/C/R",
+        "prepared_controls": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-full-targeted-01/prepared-controls-01.json",
+        "plan_sha256": "d7dd41df037cccfe04bd6172711a4e3dfd5f21af11732dc4be15d3e8a638b33a",
+        "comparison_sha256": "a55bc5f55ea4ca70b7f05d29b24f17bb26b3e982ed7b35852d27937d7ef4cdf6",
+        "controller_sha256": "ae34093b7803dc69e4ddc2e0409d1784e7b06069bb9a7746192e9e7960bcac72",
+        "queue_sha256": "7f5f7383e424e3d0c17b2eff1e2416e9f15636dfc0c1ccd4fa4fbf9b8e2f5dac",
+        "pause_marker": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-pause",
+        "guard": "New full198 nativegatecheck; currentinstance/all4source/root/quiet; no model/source changes inside baseline queue",
+        "contract": "P4096/D1024/C64/N128; 6warm+3measure; warmspread<=5%, measure<=10%; totalTPS>=3%,4p99guards<=5%,B/Rdrift<=10%; native all-rounds retained; only single target, not final4scenario acceptance",
+        "status": "waiting valid native full198 gate; no traffic",
+        "dispatch_sha256": "3cf985812bda988459a5a7b75cb6dda496a51fd170543278e01729051dd52864",
+        "performance_started": false,
+        "first_dispatch_status": "initialization failed before traffic: result parent absent; failed logs/receipt preserved",
+        "dispatch_02_path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-postgate-queue-dispatch-02.py",
+        "dispatch_02_sha256": "53c9a54aa8bf70da4bd59465c8f929053ccf1c58e14725b76bda5289b9c8fac0",
+        "dispatch_receipt_path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-full-targeted-01/queue-dispatch-receipt-02.json",
+        "verified_result_sha256": "4178708349b4605c39d31909198413b3a299bcbcb513b5c33abfdd0438390bd1",
+        "source_mutation": false
+      },
+      "source_plan": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/profiles/op013-integration-source-01/source-plan-pr924-v1.json",
+        "sha256": "d862b007558a45f596e2514f32085752eebd27773539cf9599bf3fe2d6db1939",
+        "status": "staged-notdeployed",
+        "api5_sha256": "a84fbd5e5b21eb88812cbcb9bbd326f86ae447064eeb2d68e0134d095dfdf0cb",
+        "reason": "warning once per actual device/N enables observable selected worker path without additional environment variables; nonlogging AST exactlyAPI4"
+      },
+      "final_staged_plugin_probe": {
+        "driver": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-pr924-plugin-hit-02.py",
+        "driver_sha256": "e5b219700747189eceb504af82a38a8e854f7653a6e4797526de1ebd19e454b9",
+        "controller_sha256": "0472ec46349b9039bd8edbdf35f12b579f3203b1399b18ef1f6a0cc6b0ef737a",
+        "scope": "final API5+vendor+Plugin positivehit/oracle/wholebitwise/graph2/fallback/joint timings on free PPU12; production unchanged",
+        "result": {
+          "status": "passed",
+          "cases": 7,
+          "positive_cases": 3,
+          "fallback_cases": 4,
+          "vendor_calls": 15,
+          "graph_replays_each": 2,
+          "joint_median_saving_percent": {
+            "N768": 46.30514446087526,
+            "N1536": 29.81522215457658
+          },
+          "numerical": "whole output bitwise vs current Plugin; CPUint64 subset 3 selected cases; final API5 exactly same nonlogging AST as API4",
+          "production_installed": false
+        },
+        "result_sha256": "e33ced36abbe132f5b1166bef1ff1bd036df35eba719e95713e72f595a5d4d8d"
+      },
+      "finalization_incident": {
+        "issue_id": "acc-binding-op013-pr924-finalize-001",
+        "observed_at": "2026-10-14T23:38:09.806949+08:00",
+        "classification": "measurement-control-path-mismatch; gate-incomplete, no numerical regression observed",
+        "trigger": "formal-gate finalizer returncode1 after original eval exit0 and full198 score85.3535%>=81%",
+        "scope": "PR924 opt3-retry baseline; splitK remains staged, no candidate eval",
+        "cause": "Finalizer references profiles/op013-pr924-baseline-02/source.json which does not exist; actual new snapshot is profiles/op013-pr924-baseline-01/source.json. It also retains old source SHA literal, so main task must reverify actual current source and update both path/hash in a new archived controller before same-run native gate issue/check.",
+        "root_cause_confidence": "confirmed controller FileNotFoundError; not a model accuracy root-cause finding",
+        "artifacts": {
+          "native_results_sha256": "c91a18fc88430218c596b85ddf52b94b3c63e220142686ddf5fabb4457e83a8d",
+          "native_run_record": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-pr924-baseline-formal/outputs/m31-tp8-op013-pr924-baseline-formal-c32-45k/7cd2886565924dde9ae7f4e5efdf031e/run-record.json",
+          "finalizer_result": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-pr924-baseline-formal/finalize-controller/result.json",
+          "finalizer_log": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-pr924-baseline-formal/finalize-controller/finalize.log"
+        },
+        "score_threshold_passed": true,
+        "native_gate_present": false,
+        "performance_started": false,
+        "fix_status": "resolved using same completed run; current4source/instance/root reverified; nativefinalize0; baseline gate9f2d42...835",
+        "next_action": "Main task reverify immutable inputs/current source/identity, repair unique finalization controller reference and sign/check native gate from this same completed run. Do not replace score or rerun GPQA merely for this controller error."
+      },
+      "user_instruction_20261015": {
+        "time": "2026-10-15T09:49:20.629862+08:00",
+        "instruction": "Repair path/SHA, issue baseline gate from existing completed GPQA; continue P4 B/splitK C/R; do not rerun GPQA.",
+        "accuracy_mode": "gate-check/existing-run finalization; candidate minimal-regression only",
+        "performance_mode": "baseline/targeted",
+        "acceptance_scope": "performance_only",
+        "candidate_accuracy_boundary": "No candidate full198 gate; no transfer of baseline score to changed source; no GPQA traffic",
+        "scope": "P4096/D1024/C64/N128 same6warm+3measure,3% totalTPS target/P99guards5%/drift10%, current TP8 container/private3files only"
+      },
+      "p4_bcr_20261015": {
+        "directory": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01",
+        "plan_sha256": "d7dd41df037cccfe04bd6172711a4e3dfd5f21af11732dc4be15d3e8a638b33a",
+        "comparison_sha256": "bc2bf9bad3eb89b59e6cada91287763968001fe162f30a44b5fb5829fa222d43",
+        "measure_controller_sha256": "ef619595f69aa45b54b1a112df24f8c6fd23b3e59c7d4a33a1eb9ccac690b852",
+        "scope": "performance_only",
+        "mode": "baseline/targeted",
+        "baseline_gate": "9f2d42c04f51cdcd172908b92d1e8017dc839caa85c2cbbc29240f15580e0835",
+        "candidate_gpqa": "not_run per explicit user20261015; no candidate formalgate",
+        "status": "complete; native comparison failed solely below3% gain; splitK reverted/not retained",
+        "transition_controller": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-p4-transition-20261015-04.py",
+        "transition_controller_sha256": "e2cc623209e27701f77baf777b0dbdd8cc1ae693e5b97e8624c8c2f20b8e94a5",
+        "transition_guards": "Fresh exact model PID/startticks/argv, scoped child identities, all0..7 compute PIDs from model family, wait idle&8035free; private3file originalSHA+backup; preserve root11env/FVPR_MoE/vllm/FG/otherdevices; actual8worker bothN WARNING hit+capture",
+        "extra_guards": "Before stopping verify exact original/selected private3file hashes and root recipe patterns; retired source restricted; fallback rollback allowed after candidate minimal even if benchmark fails; unchanged inputcontract.",
+        "capture_predicate": "Actual baseline code requires both decodeFULL and mixedPIECEWISE CapturingCUDAgraphs100% strings; remove obsolete Graphcapturingfinished assumption before any service transition.",
+        "revert_rebind_controller_sha256": "af03d1a456a2169391e86dfbfc778f2625d0584edc16da5c2fb4981bd66eeda3",
+        "baseline_native_gate_check": "passed before native dryrun/run",
+        "no_new_gpqa_started": true,
+        "baseline_progress": "native complete,6warm+3measure allvalid, source/instance verifiedafterrun",
+        "baseline_run_record_sha256": "54201b38461ee1023f5c64ee01143137ccc6ae564520ada07a93995c0255dae6",
+        "baseline_result": {
+          "status": "complete",
+          "run_record": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/runs/op013-pr924-p4-baseline-20261015-01/run-record.json",
+            "sha256": "54201b38461ee1023f5c64ee01143137ccc6ae564520ada07a93995c0255dae6"
+          },
+          "total_tps_all3": [
+            3615.362930813169,
+            3620.6196129359755,
+            3621.327935297567
+          ],
+          "median_total_tps": 3620.6196129359755,
+          "output_tps_all3": [
+            723.0725861626338,
+            724.1239225871951,
+            724.2655870595133
+          ],
+          "median_output_tps": 724.1239225871951,
+          "measured_total_tps_relative_spread": 0.0016475093000893502,
+          "warmup_last3_relative_spread": 0.004930900902302873,
+          "measured_p99_medians_ms": {
+            "p99_ttft_ms": 34991.048461599275,
+            "p99_tpot_ms": 86.81900975448266,
+            "p99_itl_ms": 1092.4068503454328,
+            "p99_e2el_ms": 121058.8621289935
+          },
+          "requests_each": 128,
+          "failed_each": 0,
+          "rounds": "6 warmup + 3 measured, all retained"
+        },
+        "candidate_log_parser_incident": "Both captures complete and all16 actual selection warnings present. TP0 N1536 warning lacks vLLM Worker prefix. Controller04 validates explicit device IDs with actual current owned GPU worker PIDs and complete N768 rank/device mapping; adopts same running instance without restart/source change; preserves original failed prefix-only evidence.",
+        "candidate_initial_service_sha256": "01559cfacf1bce816f5f0238df2112ceb2327ea7e26b1bb461015afc227a642d",
+        "candidate_minimal_controller_sha256": "07229e884d3ba6a79311f376a44b59e906d41e34843ae2da974225d87bf85d08",
+        "candidate_verified_service_sha256": "6acd6538e9cafb4ad5e23ea4f6b22c8cb9bbd17f1e9985be45328b88efbd33e9",
+        "candidate_minimal_sha256": "fb9706341d8184f7ba010ea07f04f95b954fc6e795d5d34e926afc12bb25a53f",
+        "candidate_correctness": "105 fixed requests plus2smokes, total107; native minimal passed, graph capture/replays passed; no candidate GPQA/gate",
+        "candidate_run_record_sha256": "7dd2ad0c7dca85df3fbeab1c3cc09cb1347514725598bf53a6f10d435a55f3da",
+        "candidate_result": {
+          "status": "complete",
+          "run_record": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/runs/op013-pr924-p4-candidate-20261015-01/run-record.json",
+            "sha256": "7dd2ad0c7dca85df3fbeab1c3cc09cb1347514725598bf53a6f10d435a55f3da"
+          },
+          "total_tps_all3": [
+            3699.3233216531407,
+            3701.356704558883,
+            3692.906334523278
+          ],
+          "median_total_tps": 3699.3233216531407,
+          "output_tps_all3": [
+            739.8646643306282,
+            740.2713409117765,
+            738.5812669046556
+          ],
+          "median_output_tps": 739.8646643306282,
+          "measured_total_tps_relative_spread": 0.0022843015602725548,
+          "warmup_last3_relative_spread": 0.006501092587890973,
+          "measured_p99_medians_ms": {
+            "p99_ttft_ms": 34998.869602037594,
+            "p99_tpot_ms": 85.00108167308794,
+            "p99_itl_ms": 1092.2871098387986,
+            "p99_e2el_ms": 119225.25241528638
+          },
+          "requests_each": 128,
+          "failed_each": 0,
+          "rounds": "6 warmup + 3 measured, all retained"
+        },
+        "revert_initial_service_sha256": "492d1965d9b45efcc6586a62c621844709829305aff5b06fd3ce1fd5f1241d5b",
+        "revert_minimal_controller_sha256": "28fe4303ac20eba4458b3ea5d025f5c416745f72aa3a1f80d296676466fd1659",
+        "revert_verified_service_sha256": "b819da8bfd3afa2d069eb3e31a28c87bd3563c0eaf943bcbe7e86f4c75aece2c",
+        "revert_minimal_sha256": "72d38ffa32a93b5445c36198dbfff6727bbe212219a111667b1e2290959170bd",
+        "revert_rebound_gate_sha256": "aaaa84679af1676ce3b0d877cba2463dfe79a2b0fcce46f7e59e6790ed17a0e7",
+        "revert_accuracy": "Original baseline evaluated score reused by native rebind; current graph/runtime/minimal proved; no GPQA rerun",
+        "revert_run_record_sha256": "43f13288d74fa92878c950c4d559f34afb74e0a6e18652103181493fa0d7115d",
+        "comparison_result_sha256": "44432132afe62ad649924de6c80a86613630a92565ae325f2d6aa6d598299883",
+        "finalize_controller": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-p4-finalize-20261015-01.py",
+          "sha256": "bf13aef34531c7fd9f042939020899ef713cd19116d5f01e5959e92bf9244ba2"
+        },
+        "completed_at": "2026-10-15T11:54:23.496543+08:00",
+        "roles": {
+          "baseline": {
+            "status": "complete",
+            "run_record": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/runs/op013-pr924-p4-baseline-20261015-01/run-record.json",
+              "sha256": "54201b38461ee1023f5c64ee01143137ccc6ae564520ada07a93995c0255dae6"
+            },
+            "total_tps_all3": [
+              3615.362930813169,
+              3620.6196129359755,
+              3621.327935297567
+            ],
+            "median_total_tps": 3620.6196129359755,
+            "output_tps_all3": [
+              723.0725861626338,
+              724.1239225871951,
+              724.2655870595133
+            ],
+            "median_output_tps": 724.1239225871951,
+            "measured_total_tps_relative_spread": 0.0016475093000893502,
+            "warmup_last3_relative_spread": 0.004930900902302873,
+            "measured_p99_medians_ms": {
+              "p99_ttft_ms": 34991.048461599275,
+              "p99_tpot_ms": 86.81900975448266,
+              "p99_itl_ms": 1092.4068503454328,
+              "p99_e2el_ms": 121058.8621289935
+            },
+            "requests_each": 128,
+            "failed_each": 0,
+            "rounds": "6 warmup + 3 measured, all retained"
+          },
+          "candidate": {
+            "status": "complete",
+            "run_record": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/runs/op013-pr924-p4-candidate-20261015-01/run-record.json",
+              "sha256": "7dd2ad0c7dca85df3fbeab1c3cc09cb1347514725598bf53a6f10d435a55f3da"
+            },
+            "total_tps_all3": [
+              3699.3233216531407,
+              3701.356704558883,
+              3692.906334523278
+            ],
+            "median_total_tps": 3699.3233216531407,
+            "output_tps_all3": [
+              739.8646643306282,
+              740.2713409117765,
+              738.5812669046556
+            ],
+            "median_output_tps": 739.8646643306282,
+            "measured_total_tps_relative_spread": 0.0022843015602725548,
+            "warmup_last3_relative_spread": 0.006501092587890973,
+            "measured_p99_medians_ms": {
+              "p99_ttft_ms": 34998.869602037594,
+              "p99_tpot_ms": 85.00108167308794,
+              "p99_itl_ms": 1092.2871098387986,
+              "p99_e2el_ms": 119225.25241528638
+            },
+            "requests_each": 128,
+            "failed_each": 0,
+            "rounds": "6 warmup + 3 measured, all retained"
+          },
+          "revert": {
+            "status": "complete",
+            "run_record": {
+              "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/runs/op013-pr924-p4-revert-20261015-01/run-record.json",
+              "sha256": "43f13288d74fa92878c950c4d559f34afb74e0a6e18652103181493fa0d7115d"
+            },
+            "total_tps_all3": [
+              3607.4283215608593,
+              3605.6271910159035,
+              3613.535887044727
+            ],
+            "median_total_tps": 3607.4283215608593,
+            "output_tps_all3": [
+              721.4856643121718,
+              721.1254382031807,
+              722.7071774089454
+            ],
+            "median_output_tps": 721.4856643121718,
+            "measured_total_tps_relative_spread": 0.0021923362916332987,
+            "warmup_last3_relative_spread": 0.004106769474713993,
+            "measured_p99_medians_ms": {
+              "p99_ttft_ms": 35030.93234981411,
+              "p99_tpot_ms": 87.1395646106226,
+              "p99_itl_ms": 1093.2099331822246,
+              "p99_e2el_ms": 121718.9733157959
+            },
+            "requests_each": 128,
+            "failed_each": 0,
+            "rounds": "6 warmup + 3 measured, all retained"
+          }
+        },
+        "candidate_total_tps_improvement": 0.02173763530307567,
+        "baseline_revert_total_tps_drift": -0.0036433795276326064,
+        "latency_candidate_change": {
+          "p99_ttft_ms": 0.00022351832203315602,
+          "p99_tpot_ms": -0.02093928606805906,
+          "p99_itl_ms": -0.00010961164020184544,
+          "p99_e2el_ms": -0.015146431095257817
+        },
+        "latency_guards": "passed all4 <=5% regression",
+        "variability": "all warmup and measured spread checks passed; one instance per role; no statistical confidence claim",
+        "comparison": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/comparison-result.json",
+          "sha256": "44432132afe62ad649924de6c80a86613630a92565ae325f2d6aa6d598299883"
+        },
+        "native_comparison_status": "failed",
+        "native_comparison_issues": [
+          "p4096-d1024-c64-n128/total_token_throughput: primary improvement below threshold"
+        ],
+        "result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/result.json",
+          "sha256": "6864beac786070ff843a64cb4e14de7ec396689a620e58cfae0552ca421e3288"
+        },
+        "decision": "not retained: gain2.1737635% below frozen3%; leave exact PR924-aligned opt3-retry original baseline service running",
+        "current_service": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/revert/service-verified.json",
+          "sha256": "b819da8bfd3afa2d069eb3e31a28c87bd3563c0eaf943bcbe7e86f4c75aece2c"
+        },
+        "current_baseline_gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/revert/baseline-rebound-gate.json",
+          "sha256": "aaaa84679af1676ce3b0d877cba2463dfe79a2b0fcce46f7e59e6790ed17a0e7"
+        },
+        "final_verification": "all4source trees match evaluated baseline; native gate check exit0; health200; quiet; rootSHA unchanged and11exports; no GPQA rerun",
+        "no_pending_benchmark": true,
+        "revert_result": {
+          "status": "complete",
+          "run_record": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/op013-pr924-p4-bcr-20261015-01/runs/op013-pr924-p4-revert-20261015-01/run-record.json",
+            "sha256": "43f13288d74fa92878c950c4d559f34afb74e0a6e18652103181493fa0d7115d"
+          },
+          "total_tps_all3": [
+            3607.4283215608593,
+            3605.6271910159035,
+            3613.535887044727
+          ],
+          "median_total_tps": 3607.4283215608593,
+          "output_tps_all3": [
+            721.4856643121718,
+            721.1254382031807,
+            722.7071774089454
+          ],
+          "median_output_tps": 721.4856643121718,
+          "measured_total_tps_relative_spread": 0.0021923362916332987,
+          "warmup_last3_relative_spread": 0.004106769474713993,
+          "measured_p99_medians_ms": {
+            "p99_ttft_ms": 35030.93234981411,
+            "p99_tpot_ms": 87.1395646106226,
+            "p99_itl_ms": 1093.2099331822246,
+            "p99_e2el_ms": 121718.9733157959
+          },
+          "requests_each": 128,
+          "failed_each": 0,
+          "rounds": "6 warmup + 3 measured, all retained"
+        }
+      },
+      "retention_20261015": {
+        "user_instruction": "2.17%的提升也先保留；恢复split-K到容器，先完整GPQA精度验证，然后用户自行端到端压测",
+        "time": "2026-10-15T12:34:48.735414+08:00",
+        "experiment_id": "op-013",
+        "status": "retained by explicit user decision; fresh formal GPQA198 passed; current service ready for user benchmark",
+        "performance_decision": "explicit user retain exception for2.1738%; historical native comparison remains failed below3%",
+        "profile_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/profiles/op013-retained-20261015-01",
+        "formal_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01",
+        "modes": [
+          "minimal-regression",
+          "formal-gate"
+        ],
+        "threshold": 0.81,
+        "expected_unique_samples": 198,
+        "restore_control": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-restore-retained-20261015-02.py",
+          "sha256": "6aad752240bfcfde0949fc2f95177d2dff7d510baea9517c359c5806ee74e095"
+        },
+        "scope": "same private FV+Plugin exact tested3files; TP8/8035/nameopt3-retry/root11exports unchanged; no performance client this turn",
+        "formal_score": 0.8535353535353535,
+        "candidate_gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/accuracy-gate.json",
+          "sha256": "a97b306bd84169569a511dc47c0403f92d567ae4dac0229676716e0287a77186"
+        },
+        "restore_prepare_incident": "v1 failed creating missing profile parent before any service stop/source modification; archived v2 adds parents=True only",
+        "formal_builder": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-retained-formal-build-20261015-01.py",
+          "sha256": "0147f3bfe7208bc3005e2e196f68a91ec7d565d020952a74fbafe055fcef1abd"
+        },
+        "initial_service_sha256": "49ed878eb8e55c77b9c6e8dafcaf5ab224ab28da5352c8923b5204944b0a68f2",
+        "minimal_controller_sha256": "9ee8030e327b03161e1b3ac05f1cbf6c512a4c7bffbdd185bbe45b84de47e473",
+        "formal_prepare_sha256": "5da9e1ee8f8374ad2ce910a632a3a8bf3f0b0d9f04bc9c5570da02fc4c2e9d91",
+        "accuracy_bundle_sha256": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+        "minimal_status": "passed native105+2 and graph2",
+        "verified_service_sha256": "48b8e4e46fc9d6d2a34187777b84dc611dbfaabddd4681b4c213ce4ca21bd1f7",
+        "minimal_sha256": "7b93ebcf59e6d4900f4c4a1f2ab3652f8d4d256fcdd6ca45a02ced3bc12b6890",
+        "source_snapshot_sha256": "2de9ad1044edf829abc74af9cedd15ca1b2c95ae67cf8fea0f4cc0f9a0b69cc6",
+        "formal_controls": {
+          "receipt": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-retained-formal-controls-20261015-01.json",
+          "launch_sha256": "f6cea21bb886e079e8887ae022a25a54f57a92b7ba2d7cf8884f442fe96f4634",
+          "finalize_sha256": "1254f91cc6e1df3285313f89832c16b30d9a2c69dedc1187187f218dd6128a11",
+          "watch_sha256": "480e1e0d7e9676adc3829abd0a8a190f6b2b1db0d13190d8e38f2a25d04817a2",
+          "dispatch_sha256": "b149a5376a1924c8620b2ff90ccf5da89055a93963c3baf58baefde86547c5c2",
+          "config_sha256": "2a3b04bf39818accc8fe6e6221d489cd0fc63d6cadd0b1fe96a757d9e82a4657",
+          "contract_sha256": "9b523eeccae8e6eae76e7a4fb7fdf9030393eb5012b77b7d4b49d940e03d54dc"
+        },
+        "preflight": "passed",
+        "actual_formal_script_sha256": "f3aa55ccce46738ef871b661305db8a651f5edaade3e3bff3ef501d68023ae73",
+        "finalize_controller": "completed same-run native finalize exit0 and gate issue/check passed",
+        "gpqa_rerun": "one new candidate198 run explicitly requested; no baseline rerun",
+        "user_performance": "user will benchmark after accuracy; no performance client started by agent",
+        "launch_command_sha256": "27587b95b8ee0fad23f1fac51187c6920d28f9d253ba005e8bc3f48940ed32eb",
+        "actual_process_health": "formal clients0, live retained modelhealthy200 and quiet after evaluation",
+        "completed_unique_ids": 198,
+        "progress_boundary": "native sample JSONL not yet emitted; no completion count inferred from cache",
+        "native_run_id": "cda2438d3b7a47f8a14309dd07dc9036",
+        "native_frozen_inputs_sha256": "fc3667147145c530384fbe0de2936f7be6b9f1be26d12e4f1e5a1f3199dd6bb7",
+        "native_effective_config_sha256": "fdc04ef95676ce24a4e48fdabd52a69787d38e7d7328a7829ce6091b9d52a0cd",
+        "native_output_label": "Inherited config label m31-tp8-op013-pr924-baseline-formal-c32-45k; authoritative new UUID and frozen current splitK service48b8 prove this is candidate, not baseline reuse",
+        "handoff_verify_control": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-retained-handoff-verify-20261015-01.py",
+          "sha256": "4b31037017a8d6d80d356ed333615b8697267298e23a5f5e552db0f508fd4f5a",
+          "status": "executed passed; native current gate/source/live checks, see handoff_result"
+        },
+        "completed_at": "2026-10-15T13:50:46.562022+08:00",
+        "correct": 169,
+        "physical_sample_lines": 396,
+        "formal_run_record": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/outputs/m31-tp8-op013-pr924-baseline-formal-c32-45k/cda2438d3b7a47f8a14309dd07dc9036/run-record.json",
+          "sha256": "bb8dbb47a5ded3ffdb11c7fd7f0e9b0d00d59946e7099a6509f654d54d6e22d3"
+        },
+        "formal_artifacts": {
+          "contract": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/contract.json",
+            "sha256": "9b523eeccae8e6eae76e7a4fb7fdf9030393eb5012b77b7d4b49d940e03d54dc"
+          },
+          "service": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/profiles/op013-retained-20261015-01/candidate/service-verified.json",
+            "sha256": "48b8e4e46fc9d6d2a34187777b84dc611dbfaabddd4681b4c213ce4ca21bd1f7"
+          },
+          "runner": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e/tools/test/Accuracy_test/llmrun.py",
+            "sha256": "82cf6e8304cb6f9eb8ca48fe4055f6bbb2054a7b6a90d56de3d6b7a08e90c61e"
+          },
+          "task_provenance": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/task-provenance-01.json",
+            "sha256": "f60c93c4b7ebdefdf43092fc623834958fe8841cab508533dc35d7a37710e1e1"
+          },
+          "config": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/outputs/m31-tp8-op013-pr924-baseline-formal-c32-45k/cda2438d3b7a47f8a14309dd07dc9036/effective_config.json",
+            "sha256": "fdc04ef95676ce24a4e48fdabd52a69787d38e7d7328a7829ce6091b9d52a0cd"
+          },
+          "results": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/outputs/m31-tp8-op013-pr924-baseline-formal-c32-45k/cda2438d3b7a47f8a14309dd07dc9036/gpqa_diamond_generative_cot/MiniMax-M3.1-opt3-retry/results_2026-10-15T05-47-36.453487.json",
+            "sha256": "c92a685767467a7fed90a1eae5598e49b71a8e1438733052d8b1f47c0bf386c6"
+          },
+          "samples": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/outputs/m31-tp8-op013-pr924-baseline-formal-c32-45k/cda2438d3b7a47f8a14309dd07dc9036/gpqa_diamond_generative_cot/MiniMax-M3.1-opt3-retry/samples_gpqa_diamond_generative_cot_2026-10-15T05-47-36.453487.jsonl",
+            "sha256": "5aaecb1b00c4be281c27693f5817e6d6a72becaa7bcb84402136943722b248e1"
+          }
+        },
+        "score_review_sha256": "7e1b5940e3ff501dbf5656a0e1c288428ee92ca8fd5e59313da3910e2331dac1",
+        "evaluation_reused": false,
+        "native_eval_exit": 0,
+        "native_finalize_exit": 0,
+        "gate_check": "passed after source/live identity verification",
+        "handoff_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/op013-retained-formal-20261015-01/handoff-result.json",
+          "sha256": "8904ace8a690b9bee88738d1978dc99586ff7325c5443997fa8dd8750048214a"
+        },
+        "current_service": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/profiles/op013-retained-20261015-01/candidate/service-verified.json",
+          "sha256": "48b8e4e46fc9d6d2a34187777b84dc611dbfaabddd4681b4c213ce4ca21bd1f7"
+        },
+        "current_source_trees": {
+          "flaggems_vllm_sha256": "6c125c4827b45080d1379771839f6643c5f6aabf95529dec9ae3577cbb816bf7",
+          "plugin_sha256": "01e9c285a193e979dc124916ad1d47255ce156af6c36324b8e848c691ace4568",
+          "flaggems_sha256": "1e56a09c1f24444967043bbd9a02432bd930cb588663809e40cd7adfec3871c6",
+          "engine_sha256": "5e7eb204d71fb68b75967ad0181d5ee6127c6a27c6076e28b6a61bf2ee102cc2"
+        },
+        "service_health": 200,
+        "service_quiet": true,
+        "formal_clients_remaining": 0,
+        "monitor": "paused actual formal terminal",
+        "no_pending_agent_performance": true,
+        "rollback": {
+          "command": "python3 /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/commands/op013-restore-retained-20261015-02.py transition --role revert",
+          "source_backups": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/profiles/op013-retained-20261015-01/source-backup/manifest.json",
+          "status": "prepared not run; user retained current candidate"
+        }
+      }
+    },
+    "last_completed_experiment_id": "env-004",
+    "user_manual_opt4_observation": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt4",
+      "all3": {
+        "p4096": {
+          "old": 3771.423333333333,
+          "opt4": 3869.1133333333332,
+          "relative_improvement": 0.025902687491106358
+        },
+        "p16384": {
+          "old": 4153.863333333334,
+          "opt4": 4159.036666666667,
+          "relative_improvement": 0.0012454269479256208
+        },
+        "p32768": {
+          "old": 4274.24,
+          "opt4": 4274.2,
+          "relative_improvement": -9.358388859737055e-06
+        }
+      },
+      "no_first_round_drop": true,
+      "files": {
+        "opt4_p4": "667e9e40f7008c82565f63a4539ef86b7ad48156c29e53a45e605acf18954a02",
+        "opt4_p16": "1e6f9a17b928d8e17b7c3314812b1e724db9e00afd5da2bc5f5ff70f10f42e58",
+        "opt4_p32": "1bb66d8b37403bda8444c20be4171baba9edf96922719909189df1f27e6e7e7a",
+        "opt3retry_p4": "2fd7bf0a5e2bf5ec6b02c74d8b4e7c6be596ce3fc39d522168d81eb2d9a522f2",
+        "opt3retry_p16": "013cce9447da9677c320ae768a4200627d188173058411bb4617685899deb9fd",
+        "opt3retry_p32": "bb2169827928d4aeee7c72f9b0c12121f318a419911cd735fb55e7150915b255"
+      }
+    },
+    "skill_bundle_op014": {
+      "accuracy": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+      "performance": "872b65dd0e7a4e8c5b342c37b1c34729f14154d1e68be01ed60938d5b22dc8d1"
+    },
+    "user_manual_opt5_observation": {
+      "root": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt5",
+      "scope": "usercsv observation, all3runs retained, summary dropsfirst so notused; no frozenBCR/native full acceptance",
+      "P4": {
+        "opt4_mean_total_tps": 3869.1133333333332,
+        "opt5_mean_total_tps": 3872.65,
+        "improvement_percent": 0.0914076782449813,
+        "sha256": "8d13a1365395abb65f1f3633d574e9bf55cad4281346e13119e7b569e0e5b2a9"
+      },
+      "P16": {
+        "opt4_mean_total_tps": 4159.036666666667,
+        "opt5_mean_total_tps": 4260.606666666667,
+        "improvement_percent": 2.4421520688685083,
+        "sha256": "1401b0a8d8e5e1853ce2b83bb7a693d769e0764b847657880de2969457e5e2fb"
+      },
+      "P32": {
+        "opt4_mean_total_tps": 4274.2,
+        "opt5_mean_total_tps": 4303.133333333333,
+        "improvement_percent": 0.6769297958292508,
+        "sha256": "6086a389d9d613c98dba8fee4a2b21caecbdf0f15cfe1f52d3e80f49a3d65c5e"
+      },
+      "omitted_required": "P1024/D1024/C64/N128 absent",
+      "current_runtime": "privateFV61b3/Plugin01e9/FG1e56/engine5e7 unchanged; user changed nameopt4->opt5 and rebooted, old gate invalid for new name",
+      "root_sha256": "dd94d404455b3b96384387c4aab86fd04fbf05b1911c046298acd1eee3e2bb9f",
+      "original_export_count": 11
+    },
+    "skill_bundle_op016": {
+      "e2e/accuracy": {
+        "selection": "baseline-sanity",
+        "bundle": {
+          "schema_version": 1,
+          "bundle_sha256": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+          "files": {
+            "SKILL.md": "477b1039908456804d97354e123b0ee6a0eba172dc89e5cb2b11c101f08abdaa",
+            "agents/openai.yaml": "7ab437758d1ab29efc3546a406ebd776f58c0aba3ba6566d2d3ec81a5992f05a",
+            "interface.json": "bae5c835ffc5784c8eb2cbb63211f4e460e57a0d6136782f6ebd35b10f5d41ba"
+          },
+          "interface": {
+            "schema_version": 1,
+            "capability_id": "e2e/accuracy",
+            "interface_version": "1.0.0",
+            "selector": "operation",
+            "operations": [
+              "baseline-sanity",
+              "minimal-regression",
+              "formal-gate",
+              "gate-check"
+            ],
+            "result_contract": "e2e-native-accuracy/v1",
+            "resources": [
+              "SKILL.md"
+            ]
+          }
+        },
+        "planned_modes": [
+          "baseline-sanity",
+          "minimal-regression",
+          "formal-gate",
+          "gate-check"
+        ]
+      },
+      "e2e/performance": {
+        "selection": "targeted",
+        "bundle": {
+          "schema_version": 1,
+          "bundle_sha256": "872b65dd0e7a4e8c5b342c37b1c34729f14154d1e68be01ed60938d5b22dc8d1",
+          "files": {
+            "SKILL.md": "91d4ed1e378482a8f74dea6bbd9d2c6356909cf6983d2e54343ef45ca037d5af",
+            "agents/openai.yaml": "08cca9b496c9a2d54f0ae7763a135eec4873216ce78336cfa87acf91c784cd01",
+            "interface.json": "2b39491f7980dcee75ac7b1952c7fe790eb2abcf61080b7772f512771058c092"
+          },
+          "interface": {
+            "schema_version": 1,
+            "capability_id": "e2e/performance",
+            "interface_version": "1.0.0",
+            "selector": "mode",
+            "operations": [
+              "baseline",
+              "targeted",
+              "checkpoint",
+              "formal"
+            ],
+            "result_contract": "e2e-native-performance/v1",
+            "resources": [
+              "SKILL.md"
+            ]
+          }
+        }
+      }
+    },
+    "user_manual_opt6_observation": {
+      "scope": "user full-length 3-scene CSV observation; all3 Run rows included; no posthoc first-row removal; SUMMARY not used; no P1K and no exact service source/native binding; do not attribute to env003/env004 migrations",
+      "rows": [
+        {
+          "scenario_id": "p4096-d1024-c64-n128",
+          "unit": "total input+output token/s",
+          "opt5_all3_tps": [
+            3851.77,
+            3882.41,
+            3883.77
+          ],
+          "opt6_all3_tps": [
+            3950.08,
+            3981.51,
+            3978.15
+          ],
+          "opt5_mean": 3872.65,
+          "opt6_mean": 3969.9133333333334,
+          "relative_improvement": 0.025115446356715143,
+          "opt6_csv": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt6/MiniMax-M3.1-opt6_4096in_1024out_c64_n128_20261016_144128.csv",
+            "sha256": "03447d79070691baa9e4f7f96c52d0507149dbddafa7af6ccc21b03ad94017ae"
+          }
+        },
+        {
+          "scenario_id": "p16384-d1024-c64-n128",
+          "unit": "total input+output token/s",
+          "opt5_all3_tps": [
+            4255.91,
+            4261.04,
+            4264.87
+          ],
+          "opt6_all3_tps": [
+            4410.55,
+            4417.58,
+            4418.74
+          ],
+          "opt5_mean": 4260.606666666667,
+          "opt6_mean": 4415.623333333333,
+          "relative_improvement": 0.036383707484536565,
+          "opt6_csv": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt6/MiniMax-M3.1-opt6_16384in_1024out_c64_n128_20261016_144128.csv",
+            "sha256": "0772f9fb67cf6a6f784ad14e504304f4f168fd9f608eb1ac5ec517214058e3ba"
+          }
+        },
+        {
+          "scenario_id": "p32768-d1024-c64-n128",
+          "unit": "total input+output token/s",
+          "opt5_all3_tps": [
+            4301.01,
+            4304.53,
+            4303.86
+          ],
+          "opt6_all3_tps": [
+            4471.34,
+            4473.92,
+            4476.07
+          ],
+          "opt5_mean": 4303.133333333333,
+          "opt6_mean": 4473.776666666667,
+          "relative_improvement": 0.03965559979549793,
+          "opt6_csv": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/test/perf_test/benchmark_results/MiniMax-M3.1-opt6/MiniMax-M3.1-opt6_32768in_1024out_c64_n128_20261016_144128.csv",
+            "sha256": "38ea47af81241723b9815b13061bf1ce03f7e141490b65ffb29dce1fc7ba38f1"
+          }
+        }
+      ],
+      "status": "observation only; not native cumulative acceptance"
+    }
+  },
+  "field_assignment": {
+    "policy_version": "legacy index; shared or ambiguous",
+    "policy_date": "legacy index; shared or ambiguous",
+    "acceptance_scope": "legacy index; shared or ambiguous",
+    "objective": "legacy index; shared or ambiguous",
+    "required_acceptance_scenario_ids": "legacy index; shared or ambiguous",
+    "external_evidence": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "accuracy_monitor": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "scenario_policy": "legacy index; shared or ambiguous",
+    "accuracy_issues": "legacy index; shared or ambiguous",
+    "performance_preflight": "legacy index; shared or ambiguous",
+    "recovery_milestone": "legacy index; shared or ambiguous",
+    "service_manifest_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "planning": "legacy index; shared or ambiguous",
+    "performance_issues": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "formal_measurement_v4": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "current_binding_status": "legacy index; shared or ambiguous",
+    "service_manifest_current_status": "legacy index; shared or ambiguous",
+    "performance_incident_fw002_prefill": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "last_verified_service_manifest": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "formal_combination_preparation": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "last_verified_service_manifest_status": "legacy index; shared or ambiguous",
+    "perfdiag006": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "perfdiag007": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "combo_formal02": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "user_pause": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "root_start_script_update": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "user_manual_performance_results": "legacy index; shared or ambiguous",
+    "root_environment_restore": "20261008-minimax-m31-w8a8-ppu-e2e",
+    "root_start_script_current": "legacy index; shared or ambiguous",
+    "current_launch_observation": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "current_accuracy_binding_status": "legacy index; shared or ambiguous",
+    "record_layout_policy": "legacy index; shared or ambiguous",
+    "active_experiment_id": "legacy index; shared or ambiguous",
+    "user_manual_opt3_observation": "legacy index; shared or ambiguous",
+    "operator_pr": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "planning_resume_opt3": "legacy index; shared or ambiguous",
+    "op013_pr924_retry_resume": "legacy index; shared or ambiguous",
+    "last_completed_experiment_id": "legacy index; shared or ambiguous",
+    "manual_performance_handoff": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "user_manual_opt4_observation": "legacy index; shared or ambiguous",
+    "skill_bundle_op014": "legacy index; shared or ambiguous",
+    "user_manual_opt5_observation": "legacy index; shared or ambiguous",
+    "skill_bundle_op016": "legacy index; shared or ambiguous",
+    "pr_preparation_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "branch_migration_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "plugin_branch_migration_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "user_manual_opt6_observation": "legacy index; shared or ambiguous",
+    "performance_monitor": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "manual_performance_handoff_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "user_requested_accuracy_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e",
+    "user_requested_erqa_current": "20261010-minimax-m31-w8a8-ppu-tp8-e2e"
+  }
+}

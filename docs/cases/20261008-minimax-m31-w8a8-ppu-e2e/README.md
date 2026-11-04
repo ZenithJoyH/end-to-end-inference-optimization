@@ -1,4 +1,4 @@
-# 20261008-minimax-m31-w8a8-ppu-e2e：MiniMax-M3.1 W8A8 / PPU 总吞吐优化
+# 20261008-minimax-m31-w8a8-ppu-e2e：MiniMax-M3.1 Flash W8A8（09-29 preview） / PPU 总吞吐优化
 
 ## 1. 摘要
 
@@ -6,7 +6,7 @@
 
 执行规则为 SOP v0.40 / 2026-09-22，验收范围 formal，当前 plan-016。独立优化容器镜像谱系与挂载门禁通过，源8025服务按授权停止、源容器仍运行。fw-001+fw-002+op-002 原源码实验组合完整GPQA170/198=85.86%达到81%门槛，单配置P1K基线2466.07token/s已准入；尚无已接受累计收益或保留改动。formal01原始基线P99TTFT轮间波动11.49%而停止，其他角色未运行。全rank trace之后的GC计时诊断仅在短Prefill预热第2轮发现长GC，测量轮没有，临时补丁已撤除、原始4套源码恢复且105+2通过。新formal02按所有角色6轮预热+5轮测量冻结，中位数验收和原门限不变、算术均值补充报告，第一独立原始基线6+5轮全部有效、完整准入和资源通过；5测量吞吐均值232.07token/s、中位231.95token/s，吞吐spread0.72%、P99TTFT spread1.31%、quiet0。第一优化候选capture、fresh107和相同稳定身份精度gate rebind/check已通过，6+5性能测量已启动。P1K未关闭，P4K/P16K/P32K未测，最终四场景验收incomplete。
 
-模型记录：[baseline](../../../models/MiniMax-M3.1-W8A8/ppu/baseline/README.md)、[optimize](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/README.md)、[acceptance](../../../models/MiniMax-M3.1-W8A8/ppu/acceptance/README.md)。本任务与旧M3 BF16实验独立。
+模型记录：[baseline](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/baseline/README.md)、[optimize](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/optimize/README.md)、[acceptance](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/acceptance/README.md)。本任务与旧M3 BF16实验独立。
 
 ## 2. 任务与验收契约
 
@@ -37,7 +37,7 @@ fw-001历史比较契约 `comparison-v3.json` scope=formal，同时绑定capture
 
 ## 4. 正确性护栏
 
-- [acc-001](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/acc-001.md) 使用本地精度Skill baseline-sanity，覆盖env-001；固定北京/巴黎问答正确，完成FULL decode graph capture；两次C1多token请求符合当前dispatcher选择条件，未启用直接replay计数器，该证据边界保留。
+- [acc-001](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/acc-001.md) 使用本地精度Skill baseline-sanity，覆盖env-001；固定北京/巴黎问答正确，完成FULL decode graph capture；两次C1多token请求符合当前dispatcher选择条件，未启用直接replay计数器，该证据边界保留。
 - 原sanity在请求前因expected_samples10而数据集预检失败，分类measurement-invalid；实际完整数据集198条，limit10控制子集。已隔离原产物 `accuracy/baseline-sanity/`，仅修正expected_samples198，在 `accuracy/baseline-sanity-repaired/` 同服务/C8/greedy45K、IDs0–9重跑已exit0；10唯一ID/20filter行完整，strict7/10、空/乱码/超时均0。accdiag-001 resolved，无模型精度下降归因。
 - heartbeat `minimax-m3-1-acc-001` 每30分钟只读监控，复用同一监控；无变化保持安静，实际精度终态暂停。fw-002完整198题exit0后工具确认PAUSED；新实例最小回归前另更新scope并恢复。
 - 正式任务provenance两次独立采集完全一致，SHA `430b9c86396c19aab5bb1d2fb2925a093a522e7d71b16f8ab767b74ca8599397`。198题契约 `accuracy/formal/contract.json` SHA `979bfdfb65a3e1697d524851f943923178951cfec1ec1dedffaa75ebec03cf42`；fw-001独立capture64为168/198=84.85%，fw-001+fw-002新组合为170/198=85.86%，均≥81%，分别绑定原生gate。新组合gate SHA `07663e9979f0f548a19b915c0ac7b1dfea30d7eeb65790b62d6b75ff1caba1b2`；重启须fresh runtime/minimal及明确rebind，不能交叉复用配置分数。
@@ -54,16 +54,16 @@ P1K原场景首轮预热600秒timeout/0完成请求，deferred-too-slow/incomple
 
 | ID | 内容 | 结果 | 决定 |
 |---|---|---|---|
-| [env-001](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/env-001.md) | 独立环境及谱系/挂载门禁 | verified / passed，8035 ready | complete |
-| [acc-001](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/acc-001.md) | 基础问答与前十题C8 | smoke正常，修复后10唯一ID完整，7/10无formal gate | complete |
-| [perf-001](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/perf-001.md) | P1K稳态入口与阶段视图 | 原P1K首轮timeout，缩减Mixed988.83token/s，Prefill较噪 | complete诊断视图 |
-| [fw-001](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/fw-001.md) | C64 graph覆盖 | 缩减Mixed988.83→6026.91token/s单实例；完整GPQA84.85%；Prefill准入失败后ABBA/trace归因 | incomplete，未保留 |
-| [fw-002](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/fw-002.md) | 有限Mixed PIECEWISE图 | 16rank图执行/105+2/GPQA170/198通过；对照两阶段准入通过，候选Prefill新编译与延迟波动超限，后续停止 | incomplete，未保留 |
-| [op-001](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/op-001.md) | 行索引动态输入行数 | 私有补丁全rank trace/105+2/新完整GPQA170/198通过；新targeted旧源码baseline静默失败，候选未测 | 未保留，PR needs_revision |
+| [env-001](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/env-001.md) | 独立环境及谱系/挂载门禁 | verified / passed，8035 ready | complete |
+| [acc-001](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/acc-001.md) | 基础问答与前十题C8 | smoke正常，修复后10唯一ID完整，7/10无formal gate | complete |
+| [perf-001](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/perf-001.md) | P1K稳态入口与阶段视图 | 原P1K首轮timeout，缩减Mixed988.83token/s，Prefill较噪 | complete诊断视图 |
+| [fw-001](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/fw-001.md) | C64 graph覆盖 | 缩减Mixed988.83→6026.91token/s单实例；完整GPQA84.85%；Prefill准入失败后ABBA/trace归因 | incomplete，未保留 |
+| [fw-002](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/fw-002.md) | 有限Mixed PIECEWISE图 | 16rank图执行/105+2/GPQA170/198通过；对照两阶段准入通过，候选Prefill新编译与延迟波动超限，后续停止 | incomplete，未保留 |
+| [op-001](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/op-001.md) | 行索引动态输入行数 | 私有补丁全rank trace/105+2/新完整GPQA170/198通过；新targeted旧源码baseline静默失败，候选未测 | 未保留，PR needs_revision |
 
 op-001实验补丁已归档，pr_readiness=needs_revision；无已接受组合收益。每个优化点使用稳定experiment-id、单变量比较与回归，按规划复盘触发条件继续排序。
 
-当前进展以模型optimize/state.yml为准：fw-001原始P1K单实例约10.51×仍缺独立重复/回退。fw-002旧源码GPQA170/198=85.86%通过81%阈值；其Prefill候选末轮新编译与TTFT/E2E波动超限，已停止该invocation的Mixed/revert。plan-009定位图外索引后，op-001私有FlagGems完整树SHA d40d650e通过34trace/16rank模型图、105+2及新完整GPQA170/198=85.86%；newgate37f094da独立绑定本次评测，198实际API请求/新缓存命令另核验。监控终态PAUSED。新targeted固定graph配置、只改变FG源码，新对照105+2/rebind完成，但第12轮16个新cumsum source使静默失败，Mixed/candidate/revert取消。plan-010转既有原生cumsum的独立张量可行性 [op-002](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/op-002.md)。图外元数据调优仍在，平台边界和最终工程整理needs_revision。无已接受组合性能收益，全部旧轮及manifest保留。
+当前进展以模型optimize/state.yml为准：fw-001原始P1K单实例约10.51×仍缺独立重复/回退。fw-002旧源码GPQA170/198=85.86%通过81%阈值；其Prefill候选末轮新编译与TTFT/E2E波动超限，已停止该invocation的Mixed/revert。plan-009定位图外索引后，op-001私有FlagGems完整树SHA d40d650e通过34trace/16rank模型图、105+2及新完整GPQA170/198=85.86%；newgate37f094da独立绑定本次评测，198实际API请求/新缓存命令另核验。监控终态PAUSED。新targeted固定graph配置、只改变FG源码，新对照105+2/rebind完成，但第12轮16个新cumsum source使静默失败，Mixed/candidate/revert取消。plan-010转既有原生cumsum的独立张量可行性 [op-002](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/op-002.md)。图外元数据调优仍在，平台边界和最终工程整理needs_revision。无已接受组合性能收益，全部旧轮及manifest保留。
 
 ## 8. 最终候选与回归
 
@@ -73,7 +73,7 @@ op-001实验补丁已归档，pr_readiness=needs_revision；无已接受组合�
 
 远端 commands/ 保存执行前命令与SHA，manifests/保存身份和门禁，logs/保存服务日志，accuracy/与performance/保存原始评测证据；所有大产物及私有题目保留远端，不入仓库。源恢复脚本已归档；当前保持优化8035服务及源容器，后续变更只作用于优化环境。没有提交、推送或删除既有材料。
 
-plan-010的op-002只追加cumsum_out排除项，源码不变；336张量/14 graph、模型C8+2和34trace全16rank原生scan/模型图证明passed。恢复无profiler后105+2/新完整198及匹配性能尚待执行；微基准约2倍调用加速不等于端到端收益，候选未保留。准确身份和SHA见模型optimize/state.yml及[op-002](../../../models/MiniMax-M3.1-W8A8/ppu/optimize/op-002.md)。
+plan-010的op-002只追加cumsum_out排除项，源码不变；336张量/14 graph、模型C8+2和34trace全16rank原生scan/模型图证明passed。恢复无profiler后105+2/新完整198及匹配性能尚待执行；微基准约2倍调用加速不等于端到端收益，候选未保留。准确身份和SHA见模型optimize/state.yml及[op-002](../../../models/MiniMax-M3.1-Flash-W8A8/ppu/20261008-minimax-m31-w8a8-ppu-e2e/optimize/op-002.md)。
 
 最新op-002新配置GPQA198已通过170/198=85.86%，唯一题目/原生gate/新缓存及实际198请求均核验；配置单变量targeted在原路径Prefill基线因quiet66及P99TTFT/E2E波动13.52%/12.24%停止，候选未测。plan-011转为独立建立native配置原始P1K Mixed稳态基线，只报告单配置事实；当前没有通过全部角色的组合性能结论，P1K及最终四场景仍incomplete。
 

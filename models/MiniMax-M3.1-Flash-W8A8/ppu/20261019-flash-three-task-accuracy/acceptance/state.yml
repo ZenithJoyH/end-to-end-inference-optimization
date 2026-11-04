@@ -1,0 +1,19 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261019-flash-three-task-accuracy",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "user-flash1019-tp8",
+    "topology": "TP8:device0-device7"
+  },
+  "stage": "acceptance",
+  "current": {
+    "status": "incomplete",
+    "next_action": "no final performance acceptance requested; wait for native accuracy results"
+  },
+  "experiments": [],
+  "metrics": [],
+  "scope": "accuracy-only three datasets; no final E2E acceptance"
+}

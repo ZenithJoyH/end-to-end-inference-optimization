@@ -1,0 +1,750 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261020-latest-stack-tp8-0-7-accuracy",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "latest-stack-review001",
+    "topology": "TP8:physical0-7"
+  },
+  "stage": "optimize",
+  "current": {
+    "status": "all_three_native_completed_verified",
+    "candidate": "minimaxM3.1-opt-latest-20261020",
+    "model_path": "/mnt/cpfs/models/MiniMax-M3.1-Flash-W8A8-FlagOS-20261019",
+    "physical_devices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "source_case": "20261020-latest-stack-migration",
+    "no_performance": true,
+    "accuracy_status": "completed_gpqa_gate_passed_math500_erqa_score_only",
+    "next_action": "await user direction; monitor paused; model service retained; no automatic optimization/performance",
+    "service_port": 8045,
+    "served_model_name": "MiniMax-M3.1-latest",
+    "monitor": {
+      "id": "minimax-m3-1-acc-001",
+      "status": "PAUSED",
+      "interval_minutes": 30,
+      "notification_policy": "meaningful changes/completion/failure/action only"
+    },
+    "controller": {
+      "bootstrap": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/bootstrap-dispatch.json",
+      "advance": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/advance-dispatch.json"
+    },
+    "suite_root": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01",
+    "source_roots": {
+      "plugin": "/workspace/vllm-plugin-fl",
+      "fv": "/workspace/flaggems-vllm",
+      "fg": "/workspace/minimax-m31-latest-stack-20261020/fg"
+    },
+    "source_trees": {
+      "plugin": "f10e3075a69092f992135853987e45d82e18d59b2ac680edf34b23ed1a06baa5",
+      "fv": "2f62194e14f5f49eb579532aacbafd20716db372f260a2396b32fe4e1fe13f26",
+      "fg": "1798d770ab7e7247d9b91c45870297776a3f041055d5da8ec854cdd34178c8be"
+    },
+    "runtime_versions_observed": {
+      "flagtree": "0.7.0+ppu3.6",
+      "torch": "2.10.0",
+      "vllm": "0.24.0+empty",
+      "vllm-plugin-fl": "0.0.0+ga696859b9.d20261020",
+      "flag_gems": "5.4.0rc2.post1+g8200f71f5",
+      "flaggems-vllm": "0.3.0.dev1"
+    },
+    "model_minimal_status": "passed",
+    "device_graph_status": "passed",
+    "service": {
+      "model_name": "MiniMax-M3.1-latest",
+      "model_path": "/mnt/cpfs/models/MiniMax-M3.1-Flash-W8A8-FlagOS-20261019",
+      "base_url": "http://127.0.0.1:8045/v1/chat/completions",
+      "mode": "graph",
+      "optimization_container_name": "minimaxM3.1-opt-latest-20261020",
+      "prefix_cache": false
+    },
+    "formal_score": 0.8383838383838383,
+    "formal_gate": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/accuracy-gate.json",
+      "sha256": "af3d3397059ea16f160df265b93e05e96b2c41e113513fe6b84fcb0049536eab"
+    },
+    "service_manifest": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/service/service.json",
+      "sha256": "9bd77f88513f0c518e6303a13a90e3d3e93ccaec807c362083da5a7924f609f0"
+    },
+    "native_minimal_receipt": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/service/minimal-receipt.json",
+      "sha256": "eb9bde0f1c48bb6e795b6f25d31ed59f19b18c09a6ebe51473edf838b3be6340"
+    },
+    "gpqa_final": {
+      "status": "passed",
+      "task": "gpqa_diamond_generative_cot",
+      "metric": "exact_match,strict-match",
+      "score": 0.8383838383838383,
+      "correct": 166,
+      "unique_samples": 198,
+      "physical_rows": 396,
+      "threshold": 0.81,
+      "gate": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/accuracy-gate.json",
+        "sha256": "af3d3397059ea16f160df265b93e05e96b2c41e113513fe6b84fcb0049536eab"
+      },
+      "native_stage_result": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/result.json",
+        "sha256": "989d2ef07f3fe2b4a6c920567fb1bf3bb7cc0aaec3cdac37dffc256e0d4e6b9b"
+      },
+      "read_only_native_gate_check": "PASS: formal accuracy acceptance verified",
+      "observed_at_utc": "2026-10-20T12:34:09Z",
+      "same_bound_service_verified": true
+    },
+    "math500_final": {
+      "status": "completed-score-only-no-threshold",
+      "task": "math_500",
+      "metric": "exact_match,none",
+      "score": 0.94,
+      "correct": 470,
+      "unique_samples": 500,
+      "physical_rows": 500,
+      "threshold": null,
+      "generation_kwargs_matches_frozen_task_proof": true,
+      "native_stage_result": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/result.json",
+        "sha256": "dfc5c3281486f7ffd5574b914bcbada9029d58080754171d6c5de24f87abc1b2"
+      },
+      "native_results": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/outputs/latest-first8-user-t1-math500-20261020-01/8293d163560d4e9b9f31af4985c1a9e7/math_500/MiniMax-M3.1-latest/results_2026-10-20T12-43-03.398789.json",
+        "sha256": "75c80a69ca8177a2f40b4da173029adbbd4c67e107719636d2151a96990018e9"
+      },
+      "native_samples": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/outputs/latest-first8-user-t1-math500-20261020-01/8293d163560d4e9b9f31af4985c1a9e7/math_500/MiniMax-M3.1-latest/samples_math_500_2026-10-20T12-43-03.398789.jsonl",
+        "sha256": "07a38ee04a0dc3263866cb49b5bf433172aaba2cff2dd40f04dc28fe36305cd9"
+      },
+      "observed_at_utc": "2026-10-20T13:03:48Z",
+      "returncode": 0
+    },
+    "erqa_progress": {
+      "completed_unique": 400,
+      "expected_samples": 400,
+      "item_files": 400,
+      "duplicate_ids": 0,
+      "unexpected_id_count": 0,
+      "malformed_items": 0,
+      "NUL_only_items": 0,
+      "raw_item_answer_empty": 0,
+      "completion_budget_hits": 8,
+      "native_output_root": "pgt-mmeval:/mnt/op017-latest-stack-first8-t1-suite-20261020-01/outputs/erqa",
+      "method": "existing audit.py progress, actual question_id set intersection with frozen400 IDs; not expected_samples/cache",
+      "observed_at_utc": "2026-10-20T15:04:41.890325+00:00",
+      "status": "completed_actual_ID_set_verified"
+    },
+    "erqa_final": {
+      "status": "completed-native-score-only-no-threshold",
+      "correct": 244,
+      "unique_samples": 400,
+      "score": 0.61,
+      "accuracy_percent": 61.0,
+      "threshold": null,
+      "actual_evaluated": 400,
+      "unique_ID_set_matches_frozen400": true,
+      "duplicate_ids": 0,
+      "unexpected_id_count": 0,
+      "malformed_items": 0,
+      "output_health": {
+        "NUL_only_items": 0,
+        "raw_item_answer_empty": 0,
+        "completion_budget_hits": 8
+      },
+      "native_results": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-output/erqa/erqa_result.json",
+        "sha256": "01e2f5bf0a9fa3f2192ea2db4afb0464a3b2d58b8d6ca16cb647fa3552d56ddb"
+      },
+      "native_evaluated": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-output/erqa/erqa_evaluated.json",
+        "sha256": "99d50e8d1af7ea61e6b2c9aad73dd87727b236e4c15f34264ea13f9c701dd280"
+      },
+      "native_audit": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-audit.json",
+        "sha256": "c350915f131c6bfa89aeb15f929a5b2fb206dda38d8daf852ba6170d61e9bce5"
+      },
+      "native_stage_result": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/result.json",
+        "sha256": "aa1330cb3fbc161b55633519e3b3ccc512660b804c8415abc31de0458c164812"
+      },
+      "returncode": 0,
+      "native_completed_at_utc": "2026-10-20T14:44:42.911101+00:00",
+      "observed_at_utc": "2026-10-20T15:04:41.890325+00:00",
+      "grading": "unchanged native FlagEvalMM; no ERQA threshold or GPQA gate"
+    },
+    "suite_result": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/result.json",
+      "sha256": "2b79fa50d9420846b60d2ab146d5ea8d79aede6a9583086146b340ef24bdb2cf"
+    }
+  },
+  "experiments": [
+    {
+      "experiment_id": "acc-001",
+      "document": "acc-001.md",
+      "status": "all_three_native_completed_verified",
+      "direction": "correctness/full-native-three-task",
+      "remote_case": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy",
+      "scripts": [
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-bootstrap-20261020.py",
+          "sha256": "8e64a293d332892b0b4ad905f0f4f563349d6d403bf837503d7eecb2d27addad"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-dense-graph-20261020.py",
+          "sha256": "c3d601e1cb3a09265c48ec0fd4130fc4546452601ea13df3debc27277c7d6818"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-sdpa-graph-20261020.py",
+          "sha256": "4e8f6585cd0057d4a3609308c8a90c19bd886fc817084047422da321983041fa"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-model-graph-regression-20261020.py",
+          "sha256": "e3d7cf6258e1f50526f6cf2efa39705459d8f1ec3b248084fdc814799431031b"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-eval-tools-20261020.tar.gz",
+          "sha256": "86a40f3251fe54abdeb0b6f8f43b5048ea3d383487c14fe8e4e9cd6f9b0170ef"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-tools-manifest-20261020.json",
+          "sha256": "d725bec04fa44ec59126db5aba696e20a6f7383a7bdf93ba0110d24305154e0f"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-dispatch-bootstrap-20261020.py",
+          "sha256": "5c6745eb8547b0ce59156144ac2e0ab52844d0b3b5b2b2f2c3a0b4ab9a97afc6"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-suite-20261020.py",
+          "sha256": "8c052df1805aa3af260159347d737d8c365c97b710a20ab1213ea682fd2961db"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-service-capture-20261020.py",
+          "sha256": "32003546e3b737fb6b5290da5b3ffa271517499606a3de2ee8bd7b8897487e1a"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-math-native-20261020.py",
+          "sha256": "c285e6b9260a5e5fe75de01e12b0e52540328bbd891b15d587e4e0aed474e4d8"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-erqa-adapter-20261020.py",
+          "sha256": "170168a6f21c1ab44ce805d15a14a0329a84a1d9fc6b17a96312fdbd1699dd1a"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-erqa-native-audit-20261020.py",
+          "sha256": "b2ec2fbe88e8dff3cfaa640cdbd1075e1ea7756131715b33639360b70370d79e"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-advance-20261020.py",
+          "sha256": "a4242253c0027df95cc49a38fc716a719dbac8a43b1794c75e5254f692e3eb3f"
+        },
+        {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/latestacc-dispatch-advance-20261020.py",
+          "sha256": "40dd0df506231bdd7595e4462236cdb07d86b4d803efb5c740fa0080f3a7491c"
+        }
+      ],
+      "method": {
+        "skill": "skills/inference-accuracy-evaluation/SKILL.md",
+        "mode": "formal-gate",
+        "bundle_sha256": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+        "preceding_mode": "minimal-regression"
+      },
+      "sampling": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": -1
+      },
+      "tasks": {
+        "gpqa": {
+          "name": "gpqa_diamond_generative_cot",
+          "samples": 198,
+          "task_default_generation_limit": 18000,
+          "concurrency": 32,
+          "threshold": 0.81
+        },
+        "math500": {
+          "name": "math_500",
+          "samples": 500,
+          "task_default_generation_limit": 28000,
+          "concurrency": 32,
+          "threshold": null
+        },
+        "erqa": {
+          "samples": 400,
+          "max_tokens": 30000,
+          "concurrency": 16,
+          "threshold": null
+        }
+      },
+      "authorization": "current user explicitly frees first8 PPUs and asks full accuracy on current latest Plugin combination; reuse prior three-task/sampling authorization",
+      "constraints": [
+        "physical0-7 only",
+        "preserve Qwen8-15 and source container",
+        "no source/vLLM/weights change",
+        "no automatic whole-task retry",
+        "no performance tests"
+      ],
+      "covered_prior_experiments": [
+        "review-001",
+        "adapter-004",
+        "adapter-003",
+        "adapter-002",
+        "env-002",
+        "tests-001"
+      ],
+      "monitor": {
+        "id": "minimax-m3-1-acc-001",
+        "status": "PAUSED",
+        "interval_minutes": 30,
+        "notification_policy": "meaningful changes/completion/failure/action only",
+        "cleanup_evidence": "automation_update returned PAUSED after whole queue exit0; no service/process stopped"
+      },
+      "device_result": {
+        "status": "passed",
+        "physical_devices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "dense_int8": {
+          "cases": 56,
+          "graph_replays_per_case": 2,
+          "impl_id": "default.flagos"
+        },
+        "model_operators": {
+          "tests": 9,
+          "failures": 0,
+          "skipped": 0
+        },
+        "fusion_moe": {
+          "tests": 34,
+          "failures": 0,
+          "skipped": 0
+        },
+        "vision_sdpa": {
+          "cases": 16,
+          "graph_replays_per_case": 2
+        },
+        "native_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation"
+      },
+      "runtime_version_note": "Read-only version probe expected vllm0.24.0 exactly and failed solely on actual +empty suffix; record actual0.24.0+empty. FlagTree matches0.7.0+ppu3.6. Device/model workflow unaffected; no source/package mutation or task retry.",
+      "minimal_regression": {
+        "status": "passed",
+        "mode": "minimal-regression",
+        "device_result": {
+          "status": "passed",
+          "physical_devices": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "dense_int8": {
+            "cases": 56,
+            "graph_replays_per_case": 2,
+            "impl_id": "default.flagos"
+          },
+          "model_operators": {
+            "tests": 9,
+            "failures": 0,
+            "skipped": 0
+          },
+          "fusion_moe": {
+            "tests": 34,
+            "failures": 0,
+            "skipped": 0
+          },
+          "vision_sdpa": {
+            "cases": 16,
+            "graph_replays_per_case": 2
+          },
+          "native_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation"
+        },
+        "model_requests": 105,
+        "smokes": 2,
+        "FULL_capture_sizes": 7,
+        "PIECEWISE_capture_sizes": 7,
+        "model_graph_replay_evidence": "native capture and >=2 decode iterations inferred from prompt plateau/full concurrency generation delta at8/33/64; no direct per-graph counter",
+        "receipt": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/service/minimal-receipt.json",
+          "sha256": "eb9bde0f1c48bb6e795b6f25d31ed59f19b18c09a6ebe51473edf838b3be6340"
+        }
+      },
+      "native_evidence": {
+        "bootstrap-result.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/bootstrap-result.json",
+          "sha256": "157cf98ed7eba27eb4e37670cb1c146f4c29a3a959b50bf05d38a3aeeb70010d"
+        },
+        "validation/clone-gate.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/clone-gate.json",
+          "sha256": "f5b01c238400d79e127437f3c1b44db0fccee08b77822870cec6ba885152f2d1"
+        },
+        "validation/operator-complete.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/operator-complete.json",
+          "sha256": "e86a8b5cd5c1bdf801a2bbe2a88b2fcf78c038f7c1a06314bfbba930f58bb4be"
+        },
+        "validation/device-admission.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/device-admission.json",
+          "sha256": "008c5abf318c0b511ee5ceb34f2610699c7c1b51330c4bbedb6a9eef5cd3d2df"
+        },
+        "validation/source-frozen.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/source-frozen.json",
+          "sha256": "49b09cee28806a3b82fcd77ff1a89441f3f781824a2da4717b331ce3407f8710"
+        },
+        "validation/dense-int8-dispatch-01.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/dense-int8-dispatch-01.json",
+          "sha256": "f8998763f381ddf27dae8c0835446f001bfdeb35b975c87566c46487a8b08a52"
+        },
+        "validation/model-operators.xml": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/model-operators.xml",
+          "sha256": "6db694146acaed57218103043e03e1631ea041343675cb01f05057c8d434ec24"
+        },
+        "validation/fusion-moe.xml": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/fusion-moe.xml",
+          "sha256": "c0228b04d8e114f7265463f712ac6f83768b3c12827eab01114c6cb64da3425d"
+        },
+        "validation/sdpa-graph.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/validation/sdpa-graph.json",
+          "sha256": "bbbfa7591f83bf78cc058c6893d01ff89b78cba936250f4b09b86eeff9d18f00"
+        },
+        "service/minimal-receipt.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/service/minimal-receipt.json",
+          "sha256": "eb9bde0f1c48bb6e795b6f25d31ed59f19b18c09a6ebe51473edf838b3be6340"
+        },
+        "service/minimal/summary.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/service/minimal/summary.json",
+          "sha256": "e43831f1d7e866a9bfc5f4c2990eafd05e4fa1715745ce2c19cbef7d3bfd0662"
+        },
+        "service/launch-command.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/service/launch-command.json",
+          "sha256": "efa8df2a70e2f3e6662169ca1740da148c8f68e5a9bdbeed8f28aeaaab9e886c"
+        },
+        "commands/start-model-latest-first8-20261020.sh": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/start-model-latest-first8-20261020.sh",
+          "sha256": "eca3ab9b20758383b69ce3345fd2c34029126ce02318a443777d30c758877667"
+        },
+        "suite/prepared.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/prepared.json",
+          "sha256": "1fd747d875deb2c322874a37af376e4ec716044324a97550114ec2a3f033cd68"
+        },
+        "suite/contract.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/contract.json",
+          "sha256": "e2383c3817a647a70c31c26b176495fb6e54db218ca203563d73cff3e27037e8"
+        },
+        "suite/queue-dispatch.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/queue-dispatch.json",
+          "sha256": "2b1ddbc5199bac8e5fdf730b9512eba8d07aec8ab525a22fbbf3d922ca4c359a"
+        },
+        "suite/queue-binding.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/queue-binding.json",
+          "sha256": "771cda4a07763772cf9eb911de789681fe16b3164d3295dce7df11d657b9a0c9"
+        },
+        "suite/service/service.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/service/service.json",
+          "sha256": "9bd77f88513f0c518e6303a13a90e3d3e93ccaec807c362083da5a7924f609f0"
+        },
+        "suite/service/runtime.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/service/runtime.json",
+          "sha256": "1b81a8cab145ab56f279b523a5b2390107a87dfd86cc92fd7e9e844f08adaf42"
+        },
+        "suite/service/source.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/service/source.json",
+          "sha256": "ba83f31f828fb660c4493b9324e08918060a8705daa9a1a4a3c63ce9d7faa689"
+        },
+        "suite/gpqa/config.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/config.json",
+          "sha256": "1e6c6ecebad7c5dc82234ec73c2f358eebe14dbe76274cefa1f76faabb58ea69"
+        },
+        "suite/gpqa/contract.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/contract.json",
+          "sha256": "ccddf6fd27afc719cdad26656c3e2f56d7dc0ba4ea5b667a353f273b2c92e9ec"
+        },
+        "suite/gpqa/launch-command.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/launch-command.json",
+          "sha256": "0596b5c0cd30125f7eb877adad26ad0d1e1a3a9441a6daf056678c12d90faca6"
+        },
+        "suite/gpqa/runner.process.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/runner.process.json",
+          "sha256": "33c201cd913a99aaab9b97437262b0ae1b2162639fb5a245cf20f208af95dd35"
+        },
+        "suite/lm-eval-payload-task-proof.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/lm-eval-payload-task-proof.json",
+          "sha256": "bd7774be3ae3ae3204907533ba894c8b98753a0490f6b2ca3fbb1e259fee546c"
+        },
+        "suite/erqa/dataset-proof.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/dataset-proof.json",
+          "sha256": "80a3cf493cffab553280373bcf578ed5c05d8e5a8dff1733516632bce17f070e"
+        },
+        "suite/erqa/payload-proof.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/payload-proof.json",
+          "sha256": "6bec6c6701e4cee149b6f6192eefd170e71d70f622241f99a426239f641ee7fc"
+        },
+        "suite/gpqa/accuracy-gate.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/accuracy-gate.json",
+          "sha256": "af3d3397059ea16f160df265b93e05e96b2c41e113513fe6b84fcb0049536eab"
+        },
+        "suite/gpqa/result.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/result.json",
+          "sha256": "989d2ef07f3fe2b4a6c920567fb1bf3bb7cc0aaec3cdac37dffc256e0d4e6b9b"
+        },
+        "suite/math500/result.json": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/result.json",
+          "sha256": "dfc5c3281486f7ffd5574b914bcbada9029d58080754171d6c5de24f87abc1b2"
+        },
+        "suite/math500/native-results": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/outputs/latest-first8-user-t1-math500-20261020-01/8293d163560d4e9b9f31af4985c1a9e7/math_500/MiniMax-M3.1-latest/results_2026-10-20T12-43-03.398789.json",
+          "sha256": "75c80a69ca8177a2f40b4da173029adbbd4c67e107719636d2151a96990018e9"
+        },
+        "suite/math500/native-samples": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/outputs/latest-first8-user-t1-math500-20261020-01/8293d163560d4e9b9f31af4985c1a9e7/math_500/MiniMax-M3.1-latest/samples_math_500_2026-10-20T12-43-03.398789.jsonl",
+          "sha256": "07a38ee04a0dc3263866cb49b5bf433172aaba2cff2dd40f04dc28fe36305cd9"
+        },
+        "suite_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/result.json",
+          "sha256": "2b79fa50d9420846b60d2ab146d5ea8d79aede6a9583086146b340ef24bdb2cf"
+        },
+        "advance_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/advance-result.json",
+          "sha256": "56ee00136c0246ad38d154d37f209910d9d5e0f189dad8eedaebd681e8113197"
+        },
+        "erqa_stage_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/result.json",
+          "sha256": "aa1330cb3fbc161b55633519e3b3ccc512660b804c8415abc31de0458c164812"
+        },
+        "erqa_native_audit": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-audit.json",
+          "sha256": "c350915f131c6bfa89aeb15f929a5b2fb206dda38d8daf852ba6170d61e9bce5"
+        },
+        "erqa_native_results": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-output/erqa/erqa_result.json",
+          "sha256": "01e2f5bf0a9fa3f2192ea2db4afb0464a3b2d58b8d6ca16cb647fa3552d56ddb"
+        },
+        "erqa_native_evaluated": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-output/erqa/erqa_evaluated.json",
+          "sha256": "99d50e8d1af7ea61e6b2c9aad73dd87727b236e4c15f34264ea13f9c701dd280"
+        },
+        "erqa_dataset_proof": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/dataset-proof.json",
+          "sha256": "80a3cf493cffab553280373bcf578ed5c05d8e5a8dff1733516632bce17f070e"
+        },
+        "erqa_exit": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/exit-code.json",
+          "sha256": "d1e2667acea15a051b36e5b9ce8e0bea8d53ec8ad1aa5cfe6735f8e00bd8964b"
+        },
+        "erqa_config": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/config.json",
+          "sha256": "d6cdb3f0466e42f4fd1fe47ff9d177ce15eeeeb793757135b9f0f8fd9321bcb2"
+        },
+        "erqa_payload_proof": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/payload-proof.json",
+          "sha256": "6bec6c6701e4cee149b6f6192eefd170e71d70f622241f99a426239f641ee7fc"
+        }
+      },
+      "accuracy_evaluation": {
+        "mode": "formal-gate",
+        "GPQA_status": "passed",
+        "score": 0.8383838383838383,
+        "threshold": 0.81,
+        "gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/accuracy-gate.json",
+          "sha256": "af3d3397059ea16f160df265b93e05e96b2c41e113513fe6b84fcb0049536eab"
+        },
+        "Math500_status": "completed-score-only-no-threshold",
+        "ERQA_status": "completed-native-score-only-no-threshold",
+        "progress_count_method": "physical JSONL lines, unique doc_id; no cache counts",
+        "actual_samples_written": 198,
+        "server_running_requests": 0,
+        "server_waiting_requests": 0
+      },
+      "startup": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/commands/start-model-latest-first8-20261020.sh",
+        "sha256": "eca3ab9b20758383b69ce3345fd2c34029126ce02318a443777d30c758877667"
+      },
+      "execution_validation": {
+        "queue-binding.json": {
+          "alive": true,
+          "argv_startticks_verified": true
+        },
+        "gpqa/runner.process.json": {
+          "alive": true,
+          "argv_startticks_verified": true
+        }
+      },
+      "formal_performance_allowed": false,
+      "gpqa_final": {
+        "status": "passed",
+        "task": "gpqa_diamond_generative_cot",
+        "metric": "exact_match,strict-match",
+        "score": 0.8383838383838383,
+        "correct": 166,
+        "unique_samples": 198,
+        "physical_rows": 396,
+        "threshold": 0.81,
+        "gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/accuracy-gate.json",
+          "sha256": "af3d3397059ea16f160df265b93e05e96b2c41e113513fe6b84fcb0049536eab"
+        },
+        "native_stage_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/gpqa/result.json",
+          "sha256": "989d2ef07f3fe2b4a6c920567fb1bf3bb7cc0aaec3cdac37dffc256e0d4e6b9b"
+        },
+        "read_only_native_gate_check": "PASS: formal accuracy acceptance verified",
+        "observed_at_utc": "2026-10-20T12:34:09Z",
+        "same_bound_service_verified": true
+      },
+      "last_meaningful_monitor_event": {
+        "event": "all_three_complete_erqa244of400_61pct_monitor_paused",
+        "time_utc": "2026-10-20T15:04:41.890325+00:00"
+      },
+      "math500_final": {
+        "status": "completed-score-only-no-threshold",
+        "task": "math_500",
+        "metric": "exact_match,none",
+        "score": 0.94,
+        "correct": 470,
+        "unique_samples": 500,
+        "physical_rows": 500,
+        "threshold": null,
+        "generation_kwargs_matches_frozen_task_proof": true,
+        "native_stage_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/result.json",
+          "sha256": "dfc5c3281486f7ffd5574b914bcbada9029d58080754171d6c5de24f87abc1b2"
+        },
+        "native_results": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/outputs/latest-first8-user-t1-math500-20261020-01/8293d163560d4e9b9f31af4985c1a9e7/math_500/MiniMax-M3.1-latest/results_2026-10-20T12-43-03.398789.json",
+          "sha256": "75c80a69ca8177a2f40b4da173029adbbd4c67e107719636d2151a96990018e9"
+        },
+        "native_samples": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/math500/outputs/latest-first8-user-t1-math500-20261020-01/8293d163560d4e9b9f31af4985c1a9e7/math_500/MiniMax-M3.1-latest/samples_math_500_2026-10-20T12-43-03.398789.jsonl",
+          "sha256": "07a38ee04a0dc3263866cb49b5bf433172aaba2cff2dd40f04dc28fe36305cd9"
+        },
+        "observed_at_utc": "2026-10-20T13:03:48Z",
+        "returncode": 0
+      },
+      "erqa_progress": {
+        "completed_unique": 400,
+        "expected_samples": 400,
+        "item_files": 400,
+        "duplicate_ids": 0,
+        "unexpected_id_count": 0,
+        "malformed_items": 0,
+        "NUL_only_items": 0,
+        "raw_item_answer_empty": 0,
+        "completion_budget_hits": 8,
+        "native_output_root": "pgt-mmeval:/mnt/op017-latest-stack-first8-t1-suite-20261020-01/outputs/erqa",
+        "method": "existing audit.py progress, actual question_id set intersection with frozen400 IDs; not expected_samples/cache",
+        "observed_at_utc": "2026-10-20T15:04:41.890325+00:00",
+        "status": "completed_actual_ID_set_verified"
+      },
+      "erqa_final": {
+        "status": "completed-native-score-only-no-threshold",
+        "correct": 244,
+        "unique_samples": 400,
+        "score": 0.61,
+        "accuracy_percent": 61.0,
+        "threshold": null,
+        "actual_evaluated": 400,
+        "unique_ID_set_matches_frozen400": true,
+        "duplicate_ids": 0,
+        "unexpected_id_count": 0,
+        "malformed_items": 0,
+        "output_health": {
+          "NUL_only_items": 0,
+          "raw_item_answer_empty": 0,
+          "completion_budget_hits": 8
+        },
+        "native_results": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-output/erqa/erqa_result.json",
+          "sha256": "01e2f5bf0a9fa3f2192ea2db4afb0464a3b2d58b8d6ca16cb647fa3552d56ddb"
+        },
+        "native_evaluated": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-output/erqa/erqa_evaluated.json",
+          "sha256": "99d50e8d1af7ea61e6b2c9aad73dd87727b236e4c15f34264ea13f9c701dd280"
+        },
+        "native_audit": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/native-audit.json",
+          "sha256": "c350915f131c6bfa89aeb15f929a5b2fb206dda38d8daf852ba6170d61e9bce5"
+        },
+        "native_stage_result": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/erqa/result.json",
+          "sha256": "aa1330cb3fbc161b55633519e3b3ccc512660b804c8415abc31de0458c164812"
+        },
+        "returncode": 0,
+        "native_completed_at_utc": "2026-10-20T14:44:42.911101+00:00",
+        "observed_at_utc": "2026-10-20T15:04:41.890325+00:00",
+        "grading": "unchanged native FlagEvalMM; no ERQA threshold or GPQA gate"
+      },
+      "terminal_verified": {
+        "status": "all-three-completed-readonly-verified",
+        "gpqa_unique_samples": 198,
+        "gpqa_physical_rows": 396,
+        "math500_unique_samples": 500,
+        "math500_physical_rows": 500,
+        "math500_generation_kwargs_matches_task_proof": true,
+        "erqa_items_unique": 400,
+        "erqa_evaluated": 400,
+        "erqa_correct": 244,
+        "erqa_native_accuracy_percent": 61.0,
+        "all_native_stage_and_queue_returncodes": 0,
+        "current_service_identity_unchanged": true,
+        "current_service_health": 200,
+        "current_requests_running": 0,
+        "current_requests_waiting": 0,
+        "advance_queue_erqa_processes_exited": true,
+        "read_only_GPQA_gate_check": "PASS: formal accuracy acceptance verified",
+        "no_remote_writes_or_inference_requests_by_monitor": true,
+        "time_utc": "2026-10-20T15:04:41.890325+00:00"
+      },
+      "suite_result": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-tp8-0-7-accuracy/accuracy/latest-stack-first8-t1-suite-20261020-01/result.json",
+        "sha256": "2b79fa50d9420846b60d2ab146d5ea8d79aede6a9583086146b340ef24bdb2cf"
+      },
+      "performance_note": "No performance requested/launched; full accuracy completion does not automatically resume optimization."
+    }
+  ],
+  "metrics": [
+    {
+      "scenario_id": "gpqa_diamond_generative_cot",
+      "role": "candidate",
+      "metric": "exact_match,strict-match",
+      "value": 0.8383838383838383,
+      "unit": "fraction",
+      "scope": "formal198_unique_current_latest_first8",
+      "experiment_id": "acc-001"
+    },
+    {
+      "scenario_id": "math_500",
+      "role": "candidate",
+      "metric": "exact_match,none",
+      "value": 0.94,
+      "unit": "fraction",
+      "scope": "native500_unique_score_only_current_latest_first8",
+      "experiment_id": "acc-001"
+    },
+    {
+      "scenario_id": "erqa",
+      "role": "candidate",
+      "metric": "accuracy",
+      "value": 0.61,
+      "unit": "fraction",
+      "scope": "native400_unique_score_only_current_latest_first8",
+      "experiment_id": "acc-001"
+    }
+  ]
+}

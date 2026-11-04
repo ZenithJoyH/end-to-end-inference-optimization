@@ -1,0 +1,375 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261021-no-topk-patch-tp8-accuracy",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "user-no-topk-patch-20261021",
+    "topology": "TP8:physical0-7"
+  },
+  "stage": "optimize",
+  "current": {
+    "status": "all_three_native_completed_verified",
+    "candidate": "user-removed-topk-patch",
+    "next_action": "await user direction; model service retained; no automatic optimization/performance",
+    "remote_case_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy",
+    "run_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01",
+    "formal_performance_allowed": false,
+    "progress_monitor": {
+      "automation_id": "minimax-m3-1-acc-001",
+      "status": "PAUSED",
+      "interval_minutes": 30,
+      "paused_reason": "whole queue terminal, all native evidence independently verified",
+      "terminal_verified_at_utc": "2026-10-21T07:55:23.109899+00:00"
+    },
+    "accuracy_status": "completed_GPQA_gate_passed_Math500_ERQA_score_only"
+  },
+  "experiments": [
+    {
+      "experiment_id": "acc-001",
+      "document": "acc-001.md",
+      "status": "completed_verified",
+      "direction": "accuracy validation of user top-k patch removal",
+      "mode": [
+        "minimal-regression",
+        "formal-gate"
+      ],
+      "user_authorization": "2026-10-21 user released physical0–7, removed topk patch, requested accuracy reevaluation",
+      "service": {
+        "host": "PPU-07",
+        "container": "minimaxM3.1-opt-latest-20261020",
+        "port": 8045,
+        "physical_devices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "model_path": "/mnt/cpfs/models/MiniMax-M3.1-Flash-W8A8-FlagOS-20261019"
+      },
+      "source": {
+        "plugin_tree": "1df234c69c9b15f621f0fa1ad805b50fcd8381848f610c8c28aba49604027251",
+        "fv_tree": "2f62194e14f5f49eb579532aacbafd20716db372f260a2396b32fe4e1fe13f26",
+        "fg_tree": "1798d770ab7e7247d9b91c45870297776a3f041055d5da8ec854cdd34178c8be",
+        "changed_files": [
+          "vllm_fl/dispatch/backends/vendor/thead/patch.py",
+          "tests/unit_tests/dispatch/test_thead_launch_compat.py"
+        ],
+        "agent_source_changes": false
+      },
+      "skill_bundle": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+      "contract": {
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": -1,
+        "seed": 42,
+        "gpqa": {
+          "samples": 198,
+          "generation_limit": 18000,
+          "concurrency": 32,
+          "threshold": 0.81
+        },
+        "math500": {
+          "samples": 500,
+          "generation_limit": 28000,
+          "concurrency": 32,
+          "threshold": null
+        },
+        "erqa": {
+          "samples": 400,
+          "generation_limit": 30000,
+          "concurrency": 16,
+          "threshold": null
+        },
+        "prefixcache": "disabled",
+        "single_invocation_each": true,
+        "whole_task_retries": false,
+        "no_performance": true
+      },
+      "commands": {
+        "latestacc-bootstrap-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-bootstrap-20261021.py",
+          "sha256": "5b3cecd2c2709fd3807778fe43d07d8ccd146e6957bf4d936771675e64b88993"
+        },
+        "latestacc-dense-graph-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-dense-graph-20261021.py",
+          "sha256": "42509a6403ea2b72fe20fb71248d91ac517251ede4fcbb35d3bae0e7ba176180"
+        },
+        "latestacc-sdpa-graph-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-sdpa-graph-20261021.py",
+          "sha256": "26ec4cf3c723322bdda6bf20395cb410d44c92b84489d084058e4104b20e59c1"
+        },
+        "latestacc-model-graph-regression-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-model-graph-regression-20261021.py",
+          "sha256": "2b08953d19ebc9c5c10ebbf75269416a02b9a79e2965ba5c6eeb7f8f562c4b88"
+        },
+        "latestacc-dispatch-bootstrap-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-dispatch-bootstrap-20261021.py",
+          "sha256": "984ed44f57b303474454c2ead54d2b6f17d0ad4a6a3775db220de99042ebaffd"
+        },
+        "latestacc-suite-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-suite-20261021.py",
+          "sha256": "b5ad0a5900b6f0e03dda9a716f58aeda70cef5f04715c6d0f2afa00591440ebd"
+        },
+        "latestacc-service-capture-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-service-capture-20261021.py",
+          "sha256": "32003546e3b737fb6b5290da5b3ffa271517499606a3de2ee8bd7b8897487e1a"
+        },
+        "latestacc-math-native-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-math-native-20261021.py",
+          "sha256": "a5c3e5dfdb96eb6d4239876c174613ce1379be09959efec73eee30734ff00a07"
+        },
+        "latestacc-erqa-adapter-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-erqa-adapter-20261021.py",
+          "sha256": "170168a6f21c1ab44ce805d15a14a0329a84a1d9fc6b17a96312fdbd1699dd1a"
+        },
+        "latestacc-erqa-native-audit-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-erqa-native-audit-20261021.py",
+          "sha256": "b2ec2fbe88e8dff3cfaa640cdbd1075e1ea7756131715b33639360b70370d79e"
+        },
+        "latestacc-advance-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-advance-20261021.py",
+          "sha256": "0c255acd05d014e00506f9f6c09fd756b94b30d46fa8d4578d484092d5cd9213"
+        },
+        "latestacc-dispatch-advance-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-dispatch-advance-20261021.py",
+          "sha256": "eed9758cc802157862ad218d92853280084b03598432789fe5fb492743737b2d"
+        },
+        "latestacc-dispatch-bootstrap-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-dispatch-bootstrap-v2-20261021.py",
+          "sha256": "4ce964f72270db8ea59db22243e6e126ccdc1c0b9d3eef525e1ce0810b218be4"
+        },
+        "latestacc-service-capture-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-service-capture-v2-20261021.py",
+          "sha256": "621f6d74f16e34d3b6e86ec86db8581a6b40723aba39e881ab10128ec607411e"
+        },
+        "latestacc-suite-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-suite-v2-20261021.py",
+          "sha256": "a328ed6be73d179acfc5d44d3399b3fd7e9f20b6d448146f186f74fee4a8467d"
+        },
+        "latestacc-advance-v2-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/latestacc-advance-v2-20261021.py",
+          "sha256": "48bdb505e7d207b3358ce11cce001704b5da03f940958400e11d08dea6991f3e"
+        },
+        "replace-waiting-advance-20261021.py": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/commands/replace-waiting-advance-20261021.py",
+          "sha256": "713945019deca52a266f08e80c61dabb6fc0f35c662807ffb9d27b64768890c0"
+        }
+      },
+      "remote_case_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy",
+      "status_boundaries": "No old score/gate reuse; device/model failure stops followups; valid below81 GPQA preserves result and completes other explicitly requested datasets only.",
+      "preparation_issue": {
+        "reason": "dispatch archive filename remained20261020 while new copy named20261021; no subprocess/device/model started",
+        "action": "preserve first dispatch; archive v2 resolving filenames and requiring empty tools directory"
+      },
+      "monitor": {
+        "automation_id": "minimax-m3-1-acc-001",
+        "status": "PAUSED",
+        "interval_minutes": 30,
+        "paused_reason": "whole queue terminal, all native evidence independently verified",
+        "terminal_verified_at_utc": "2026-10-21T07:55:23.109899+00:00"
+      },
+      "execution": {
+        "bootstrap": "bootstrap-dispatch.json",
+        "advance": "advance-dispatch-v2.json",
+        "superseded_advance": "advance-dispatch.json; intentionally stopped while waiting before prepare",
+        "identity_policy": "parse fresh argv/startticks from active dispatch files; no historical PID",
+        "scope": "physical0–7 only, no kernel/source changes, no performance",
+        "status": "all-native-stages-and-controller-exited0; target-model-retained"
+      },
+      "minimal_status": {
+        "thead_compat_unit": "5 passed",
+        "dense_graph": "56 passed",
+        "model_operators": "9 passed",
+        "fusion_moe": "34 passed",
+        "vision_sdpa": "16 passed",
+        "model_graph_minimal": "105 requests + 2 smoke passed; FULL/PIECEWISE capture7/7 each; replay inferred from decode metrics at full concurrency"
+      },
+      "runtime_versions": {
+        "flagtree": "0.7.1.dev1+ppu3.6",
+        "triton": "3.6.0",
+        "torch": "2.10.0",
+        "vllm": "0.24.0+empty",
+        "flag_gems": "5.4.0rc2.post1+g8200f71f5"
+      },
+      "control_supersede": "replace only waiting advance before any preparation/full requests, record actual compiler dynamically; bootstrap/model untouched",
+      "validation_artifacts": {
+        "source_frozen": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/validation/source-frozen.json",
+          "sha256": "8afd10a4e9b46efdee781b5ef7d508f5a084516c956f8d5c9f556a828eea419c"
+        },
+        "operator_complete": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/validation/operator-complete.json",
+        "model_log": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/logs/model-service.log"
+      },
+      "decision": "accuracy-evaluation-completed; no performance decision",
+      "results": {
+        "gpqa": {
+          "unique_samples": 198,
+          "physical_rows": 396,
+          "metric": "exact_match,strict-match",
+          "score": 0.8636363636363636,
+          "correct": 171,
+          "returncode": 0,
+          "stage_result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/gpqa/result.json",
+            "sha256": "555f7f4807dc69927ed8021f485d6c21f32f43d937b246c4726b4eb78c0e5fb5"
+          },
+          "native_results": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/gpqa/outputs/no-topk-first8-user-t1-gpqa-20261021-01/8264ad8540bc4bbf8b46d6faa9f90e18/gpqa_diamond_generative_cot/MiniMax-M3.1-latest/results_2026-10-21T05-10-30.391933.json",
+            "sha256": "b2af1f62671f8dc77634b0ee3e6c607448285ef1ec21a5db422912a9524bce28"
+          },
+          "native_samples": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/gpqa/outputs/no-topk-first8-user-t1-gpqa-20261021-01/8264ad8540bc4bbf8b46d6faa9f90e18/gpqa_diamond_generative_cot/MiniMax-M3.1-latest/samples_gpqa_diamond_generative_cot_2026-10-21T05-10-30.391933.jsonl",
+            "sha256": "b186efaa275ab6ff5ff6b429f0ec74eb55ef34a5497cb679bb24045de6cd22cc"
+          },
+          "threshold": 0.81,
+          "gate": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/gpqa/accuracy-gate.json",
+            "sha256": "8920045509b77162eb9daef37fba1381502f33023b283925915d921db4103f66"
+          }
+        },
+        "math500": {
+          "unique_samples": 500,
+          "physical_rows": 500,
+          "metric": "exact_match,none",
+          "score": 0.94,
+          "correct": 470,
+          "returncode": 0,
+          "stage_result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/math500/result.json",
+            "sha256": "adf53b3d5814174b7d38ab41e330fd02bce273cb1bffb824609d573883d80933"
+          },
+          "native_results": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/math500/outputs/no-topk-first8-user-t1-math500-20261021-01/3e76d7e201294710b184827b249d4c7f/math_500/MiniMax-M3.1-latest/results_2026-10-21T05-34-53.142758.json",
+            "sha256": "52c23d655072afbddf483a393fa9daf2d8338f1ce2cea7a39689714a9ec222d2"
+          },
+          "native_samples": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/math500/outputs/no-topk-first8-user-t1-math500-20261021-01/3e76d7e201294710b184827b249d4c7f/math_500/MiniMax-M3.1-latest/samples_math_500_2026-10-21T05-34-53.142758.jsonl",
+            "sha256": "07a38ee04a0dc3263866cb49b5bf433172aaba2cff2dd40f04dc28fe36305cd9"
+          },
+          "threshold": null,
+          "generation_kwargs_matches_frozen_proof": true
+        },
+        "erqa": {
+          "unique_samples": 400,
+          "actual_evaluated": 400,
+          "ID_set_matches_frozen400": true,
+          "correct": 265,
+          "score": 0.6625,
+          "accuracy_percent": 66.25,
+          "threshold": null,
+          "returncode": 0,
+          "output_health": {
+            "NUL_only_items": 0,
+            "raw_item_answer_empty": 0,
+            "completion_budget_hits": 9
+          },
+          "native_results": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/erqa/native-output/erqa/erqa_result.json",
+            "sha256": "90d18463ca2893bf65641de1dc1c6cca2a18284adeef72cdf718fc09cbd59b0d"
+          },
+          "native_evaluated": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/erqa/native-output/erqa/erqa_evaluated.json",
+            "sha256": "a647ebcfa4b68ca3d8768c2b4b1cf166097bc0e1bde6ced63568a29e47eed4e9"
+          },
+          "native_audit": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/erqa/native-audit.json",
+            "sha256": "036761dc0196c26f14dcd2c4a89e2bfb249288a356734514e8a6bab60cd8a225"
+          },
+          "stage_result": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/erqa/result.json",
+            "sha256": "479db2cd741d678ecb0da00039c7f7d27aa94b38b9ae670e0f71a3b8be22a704"
+          },
+          "dataset_proof": {
+            "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/erqa/dataset-proof.json",
+            "sha256": "c4db14928c07fb5a7a5e1ac5b6b2b9f20b84f33de46de92b1ced9b5f0ef9674f"
+          }
+        }
+      },
+      "terminal_verified": {
+        "service_identity_unchanged": true,
+        "source_runtime_unchanged": true,
+        "health": 200,
+        "requests_running": 0,
+        "requests_waiting": 0,
+        "runtime_packages": {
+          "flagtree": "0.7.1.dev1+ppu3.6",
+          "torch": "2.10.0",
+          "vllm": "0.24.0+empty"
+        },
+        "read_only_GPQA_gate_check": "PASS: formal accuracy acceptance verified",
+        "no_new_model_requests_remote_writes_or_gates_by_monitor": true,
+        "service_manifest": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/service/service.json",
+          "sha256": "cc7c8dcd7a9632edffd696b77093829280cde740b8ca2a534c8344240e678863"
+        }
+      },
+      "bound_evaluation_processes_exited": {
+        "advance-dispatch-v2.json": true,
+        "accuracy/no-topk-first8-t1-suite-20261021-01/queue-binding.json": true,
+        "accuracy/no-topk-first8-t1-suite-20261021-01/erqa/runner.process.json": true
+      },
+      "suite_result": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/result.json",
+        "sha256": "562bfc731bdcb52e4ebcb7b1df1599e817c0582402ab8acb9aaac1ebe6fd76d5"
+      },
+      "advance_result": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/advance-result.json",
+        "sha256": "04100449bbd8d529afbe290c00ebd5fc18f41736387be474e331cf161a996d8a"
+      },
+      "formal_performance_allowed": false,
+      "completed_at_local": "2026-10-21 15:29:27 Asia/Shanghai",
+      "observed_at_utc": "2026-10-21T07:55:23.109899+00:00",
+      "accuracy_evaluation": {
+        "mode": "formal-gate",
+        "covered_experiment_ids": [
+          "acc-001"
+        ],
+        "metric": "exact_match,strict-match",
+        "score": 0.8636363636363636,
+        "threshold": 0.81,
+        "result": "passed",
+        "gate": {
+          "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-no-topk-patch-tp8-accuracy/accuracy/no-topk-first8-t1-suite-20261021-01/gpqa/accuracy-gate.json",
+          "sha256": "8920045509b77162eb9daef37fba1381502f33023b283925915d921db4103f66"
+        },
+        "read_only_native_gate_check": "PASS: formal accuracy acceptance verified",
+        "next_trigger": "user-requested work or changed service/source/config; no automatic performance"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "scenario_id": "gpqa_diamond_generative_cot",
+      "role": "candidate",
+      "metric": "exact_match,strict-match",
+      "value": 0.8636363636363636,
+      "unit": "fraction",
+      "scope": "fresh_full_native_198_current_no_topk_patch_TP8_first8",
+      "experiment_id": "acc-001"
+    },
+    {
+      "scenario_id": "math_500",
+      "role": "candidate",
+      "metric": "exact_match,none",
+      "value": 0.94,
+      "unit": "fraction",
+      "scope": "fresh_full_native_500_current_no_topk_patch_TP8_first8",
+      "experiment_id": "acc-001"
+    },
+    {
+      "scenario_id": "erqa",
+      "role": "candidate",
+      "metric": "accuracy",
+      "value": 0.6625,
+      "unit": "fraction",
+      "scope": "fresh_full_native_400_current_no_topk_patch_TP8_first8",
+      "experiment_id": "acc-001"
+    }
+  ]
+}

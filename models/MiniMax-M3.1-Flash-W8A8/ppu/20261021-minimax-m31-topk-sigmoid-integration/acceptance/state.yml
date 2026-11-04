@@ -1,0 +1,18 @@
+{
+  "schema_version": 4,
+  "stage": "acceptance",
+  "identity": {
+    "case_id": "20261021-minimax-m31-topk-sigmoid-integration",
+    "model": "MiniMax-M3.1-Flash-W8A8-FlagOS-20261019",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "latest-stack-plugin-1df234c-fv-2f62194",
+    "topology": "isolated-container CPU contracts; TP8 model not started"
+  },
+  "current": {
+    "status": "not_run",
+    "reason": "Scoped router integration only; no model service or performance measurement"
+  },
+  "experiments": [],
+  "metrics": []
+}

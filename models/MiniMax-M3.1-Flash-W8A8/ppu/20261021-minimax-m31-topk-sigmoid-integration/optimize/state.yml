@@ -1,0 +1,529 @@
+{
+  "schema_version": 4,
+  "policy_version": "SOP 0.40",
+  "policy_date": "2026-09-22",
+  "acceptance_scope": "diagnostic",
+  "host": "PPU-07",
+  "source_container": "minimaxM3.1-opt-latest-20261020",
+  "target_container": "minimaxM3.1-opt-topk-sigmoid-20261021",
+  "remote_case_dir": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration",
+  "accuracy_status": "incomplete",
+  "performance_status": "not_run",
+  "current": {
+    "status": "op-005-implemented-CPU-validated-awaiting-free-device",
+    "service_started": false,
+    "device_tests": "not_run",
+    "parent_service": "untouched",
+    "image_lineage": "verified",
+    "mount_parity": "passed",
+    "next_action": "Actual Thead quantizer/fusion/full-experts graph comparison on safely free device, then decide Plugin full-entry integration; no automatic service or task started",
+    "candidate_experiments": [
+      "op-001",
+      "env-002",
+      "review-002",
+      "op-003",
+      "op-005"
+    ],
+    "latest_record": "../../20261021-topk-sigmoid-tp8-accuracy/optimize/review-004.md",
+    "complete_entry_experiments_retained": false
+  },
+  "experiments": [
+    {
+      "document": "op-001.md",
+      "classification": "operator/replace",
+      "status": "retained-in-isolated-container",
+      "scope": "ordinary biased sigmoid router -> existing FlagGems-vllm topk_sigmoid",
+      "stop_condition": "clone lineage/mount failure or CPU contract failure",
+      "validation": "26 CPU/mock passed; 2 device tests deselected; graph/formal not_run",
+      "performance_gain": null,
+      "experiment_id": "op-001",
+      "decision": "experimental; model not started"
+    },
+    {
+      "experiment_id": "env-002",
+      "document": "env-002.md",
+      "classification": "dependency-upgrade",
+      "status": "retained-in-isolated-container",
+      "scope": "official latest FlagGems-vllm main + preserve existing optimization patch",
+      "stop_condition": "patch/API conflict or CPU validation fails; no service deployment",
+      "validation": "FV-only CPU112 passed; real import/API passed; hardware not_run",
+      "decision": "official main 0dfb5cd plus unchanged retained optimization bodies; private canonical install"
+    },
+    {
+      "experiment_id": "review-002",
+      "document": "review-002.md",
+      "classification": "framework/maintainability",
+      "status": "retained-in-isolated-container",
+      "scope": "Review all Plugin adaptation differences; simplify obsolete operator adapters without changing semantics",
+      "validation": "CPU118 passed, 9 device tests deselected; hardware/graph/formal not_run",
+      "decision": "2 production files, 2 existing tests; source net -36 lines; no new dispatch/env/global hooks"
+    },
+    {
+      "experiment_id": "op-003",
+      "document": "op-003.md",
+      "classification": "operator/feature-support",
+      "status": "retained-in-isolated-container",
+      "scope": "FV Thead full experts + split SwiGLU-OAI and explicit gemm1_*; Plugin bridge stays",
+      "semantic_boundary": "reuse generic packed activation and validation; retain existing Thead round-to-even quantizer; do not substitute Plugin round-away fusion",
+      "first_falsification": "CPU full-orchestration contract with kernel stand-ins, params/shape rejection and wrapper forwarding",
+      "stop_condition": "failed scoped regression; no model/performance promotion",
+      "validation": "FV29 + Plugin118 CPU passed; device graph collected only",
+      "decision": "Thead full packed API support implemented; Plugin bridge kept; no service/performance promotion",
+      "final_disposition": "reverted_by_review004_20261022",
+      "superseded_by": "../../20261021-topk-sigmoid-tp8-accuracy/optimize/review-004.md"
+    },
+    {
+      "experiment_id": "compat-004",
+      "document": "compat-004.md",
+      "classification": "operator/compatibility-diagnosis",
+      "status": "completed-with-compatibility-blockers",
+      "scope": "Compare Plugin split bridge with FV Thead full experts; no production changes",
+      "first_falsification": "Source fingerprint and exact quantizer/activation/config comparison; CPU half-tie and zero-row counterexamples",
+      "stop_condition": "Any numerical difference prevents drop-in equivalence claim; no service or device use",
+      "validation": "Actual Thead CPU quantizer: half-tie mismatches4/7 in BF16 and FP16; native Triton arithmetic mirrored on CPU. Activation forwarding same; default configs differ.",
+      "decision": "Keep Plugin bridge; no source or service changes; direct switch not validated"
+    },
+    {
+      "experiment_id": "op-005",
+      "document": "op-005.md",
+      "classification": "operator/compatibility-fix",
+      "status": "implemented-in-isolated-container-device-validation-pending",
+      "scope": "FV Thead full packed dynamic per-token W8A8: vLLM-compatible quant1/quant2, existing activation-quant fusion, bounded GEMM policy; Plugin bridge unchanged",
+      "first_falsification": "CPU actual half-tie and zero-row quantizer tests plus full-orchestration stand-ins; real device graph only when safely available",
+      "stop_condition": "source drift, non-target path regression or test failure stops candidate promotion",
+      "validation": "FV CPU58 + Plugin CPU118 passed; 13 FV and9 Plugin device tests deselected; JIT source AST/reverse patch check passed; real hardware/graph/formal not_run",
+      "decision": "Retain unselected FV full-entry fix experimentally; Plugin bridge unchanged; no model/performance deployment",
+      "final_disposition": "reverted_by_review004_20261022",
+      "superseded_by": "../../20261021-topk-sigmoid-tp8-accuracy/optimize/review-004.md"
+    }
+  ],
+  "commands": {
+    "clone": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/clone.py",
+      "sha256": "de1c0823b5ee66f7f08fe70ce02e59b763b6eba8438d7a4a0af71cfd6f42c549"
+    },
+    "integrate": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/integrate.py",
+      "sha256": "4b5e69fcf25b95e6e690ee396eccd7cd735d59b1ca54e92780774a67293374f1"
+    },
+    "integrate_v2": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/integrate-v2.py",
+      "sha256": "b4a4feab6e98bc041534038757e130206b00bb8bcb6914293594ff0f10640262"
+    },
+    "test_fix": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/test-fix.py",
+      "sha256": "846f326596dbea4ffa295322626ffb23c751bbd2a3f213909d8e583e152504ed"
+    },
+    "finalize": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/finalize.py",
+      "sha256": "a0c6f8fada77acf14d6a75e6dabc1854e66fe085281c5e75b9a75b70b9ce8ad3"
+    },
+    "finalize_v2": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/finalize-v2.py",
+      "sha256": "72429ad0f3d2a23818e3923be223c4779188baf301a25a63f837a12e715996ab"
+    },
+    "prepare_refresh": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/prepare-refresh.py",
+      "sha256": "67de5bb622afd04d16bbce0b07b9e4165fb80a652c4b051b2dd2dc4e95194959"
+    },
+    "refresh_baseline": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/refresh-baseline.py",
+      "sha256": "52b72aa38b8099128c616e60eaf47e29697293f7f4a507e62e8c229998c76c7c"
+    },
+    "upgrade_review": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/upgrade-review.py",
+      "sha256": "496bb536117fd150e4200764239e9515c041f6a7606ea55849e7b50cbd98989a"
+    },
+    "audit_refresh": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/audit-refresh.py",
+      "sha256": "2542dea5e168928fa21b020ba05e4787f665f4f61a7ef1e95961b1f27ef553bd"
+    },
+    "op003_control": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op003-control.py",
+      "sha256": "081a1b537fd4d5c6eee67c042e67b20154236951194822ad722ce0988a5ea8df"
+    },
+    "op003_finalize": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op003-finalize.py",
+      "sha256": "7cefa80166ed2b7f60c83dcf7a0f0e9ba2f9d7df493f427e2c10bb8617a107eb"
+    },
+    "compat004_check": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/compat004-check.py",
+      "sha256": "4da2b867ca7e5bf1f2ccea3dcb849b5ee01141e6f5bf12966b1aec8a97572e30"
+    },
+    "op005_control": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op005-control.py",
+      "sha256": "1741f2f780d3a3718e3a503e1658245d92b882a88bd2dbc34f04315191861c6f"
+    },
+    "op005_repair_control": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op005-repair-control.py",
+      "sha256": "09fbc957af21a1016746da76fb0474f964426429fc86125fe453a359388dd01b"
+    },
+    "op005_validated_control": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op005-validated-control.py",
+      "sha256": "b5e5a89e4fcbd6018667ac102e8d93d981ada28fd813564f85e4eacc0ced98dc"
+    },
+    "op005_finalize_control": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op005-finalize-control.py",
+      "sha256": "6ac8435e4cc0cc42d6dfc85bd2790ec47f3ac8b0e9797fa9ab8c50b68913862e"
+    },
+    "op005_finalize_control_v2": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/op005-finalize-control-v2.py",
+      "sha256": "a7031cc8c1f6d0368256f08977ec96a4e036290f8dcf5b35f2f4a61d5740b5b2"
+    }
+  },
+  "patch": {
+    "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/topk-sigmoid-v2.patch",
+    "sha256": "98f4fc0a2b3db44e8ed85e5f64f0c5c76203f8ca523dae7abc21aa0908ab49c5"
+  },
+  "control_preflight": {
+    "initial_dispatch": "syntax error before tests and edits; preserved integration.log",
+    "corrected_dispatch": "integrate-v2.py",
+    "metadata_note": "FlagTree provides triton runtime without triton distribution metadata; final audit v2 reads actual module version"
+  },
+  "stage": "optimize",
+  "identity": {
+    "case_id": "20261021-minimax-m31-topk-sigmoid-integration",
+    "model": "MiniMax-M3.1-Flash-W8A8-FlagOS-20261019",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "latest-stack-plugin-1df234c-fv-2f62194",
+    "topology": "isolated-container CPU contracts; TP8 model not started"
+  },
+  "metrics": [],
+  "diagnosis": {
+    "issue_id": "testdiag-001",
+    "classification": "measurement-invalid",
+    "failure": "new tuple-identity assertion and CPU registration device query",
+    "root_cause": "confirmed by trace; production source unchanged by test fix",
+    "failed_log": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/logs/candidate.log",
+    "first_result": {
+      "passed": 24,
+      "failed": 2,
+      "deselected": 2
+    },
+    "candidate_promotion": "CPU test contract corrected; no hardware promotion",
+    "skill": "skills/inference-accuracy-diagnosis/SKILL.md",
+    "resolution": "26 CPU/mock passed; production functions unchanged by test correction"
+  },
+  "runtime": {
+    "plugin": {
+      "root": "/workspace/vllm-plugin-fl",
+      "head": "a696859b9aa528dfd5b21f5da3403fdc16bac4cd",
+      "tree_sha256": "3a107b713a50cefc6455eaa5a93e33af1453cd4b92a009a2ba79f16f1e954c88",
+      "status": " M tests/unit_tests/dispatch/test_builtin_ops.py\n M tests/unit_tests/dispatch/test_flaggems_quantization.py\n M tests/unit_tests/ops/test_activation.py\n M tests/unit_tests/ops/test_fused_moe_layer.py\n M tests/unit_tests/quantization/test_w8a8_linear.py\n M tests/unit_tests/quantization/test_w8a8_moe.py\n M tests/unit_tests/quantization/test_w8a8_moe_experts.py\n M vllm_fl/__init__.py\n M vllm_fl/dispatch/backends/flaggems/flaggems.py\n M vllm_fl/dispatch/backends/flaggems/impl/quantization.py\n M vllm_fl/dispatch/backends/flaggems/register_ops.py\n M vllm_fl/dispatch/backends/reference/reference.py\n M vllm_fl/dispatch/backends/reference/register_ops.py\n M vllm_fl/ops/fused_moe/activation.py\n M vllm_fl/ops/fused_moe/fused_moe.py\n M vllm_fl/ops/fused_moe/router.py\n M vllm_fl/quantization/w8a8/linear.py\n M vllm_fl/quantization/w8a8/moe_experts.py\n M vllm_fl/worker/worker.py\n?? tests/unit_tests/dispatch/test_thead_launch_compat.py\n?? tests/unit_tests/patches/test_minimax_m3_registration.py\n?? vllm_fl/dispatch/backends/vendor/thead/patch.py\n?? vllm_fl/patches/minimax_m3.py\n"
+    },
+    "fv": {
+      "root": "/workspace/flaggems-vllm",
+      "head": "0dfb5cd7478e58320e81124d31473f06eac79aba",
+      "tree_sha256": "168b03fafa75978507a73571e95f303dc06c3c544ec8342dbefe64563c4a8862",
+      "status": " M benchmark/test_triton_scaled_mm.py\n M src/flaggems_vllm/ops/__init__.py\n M src/flaggems_vllm/ops/fused_moe.py\n M src/flaggems_vllm/runtime/backend/_thead/ops/__init__.py\n M src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py\n M tests/test_triton_scaled_mm.py\n?? src/flaggems_vllm/runtime/backend/_thead/ops/triton_scaled_mm.py\n?? tests/test_swigluoai_quant_int8.py\n"
+    },
+    "fg": {
+      "root": "/workspace/minimax-m31-latest-stack-20261020/fg",
+      "head": "8200f71f51d784d54a5a51019cb955acb74d64c1",
+      "tree_sha256": "1798d770ab7e7247d9b91c45870297776a3f041055d5da8ec854cdd34178c8be",
+      "status": ""
+    },
+    "compiler_sha256": "bffec8df8a14bb14b203887bcf254da251c2c84f86929d6431f9d87f1956c832",
+    "versions": {
+      "flagtree": "0.7.1.dev1+ppu3.6",
+      "vllm": "0.24.0+empty",
+      "torch": "2.10.0"
+    },
+    "triton_runtime_version": "3.6.0",
+    "FV_distribution_version": "0.3.0.dev1"
+  },
+  "source_runtime": {
+    "plugin": {
+      "root": "/workspace/vllm-plugin-fl",
+      "head": "a696859b9aa528dfd5b21f5da3403fdc16bac4cd",
+      "tree_sha256": "1df234c69c9b15f621f0fa1ad805b50fcd8381848f610c8c28aba49604027251"
+    },
+    "fv": {
+      "root": "/workspace/flaggems-vllm",
+      "head": "fa78ddee4c3e78ce5047213ff0ef02acff34b2d5",
+      "tree_sha256": "2f62194e14f5f49eb579532aacbafd20716db372f260a2396b32fe4e1fe13f26"
+    },
+    "fg": {
+      "root": "/workspace/minimax-m31-latest-stack-20261020/fg",
+      "head": "8200f71f51d784d54a5a51019cb955acb74d64c1",
+      "tree_sha256": "1798d770ab7e7247d9b91c45870297776a3f041055d5da8ec854cdd34178c8be"
+    },
+    "compiler_sha256": "bffec8df8a14bb14b203887bcf254da251c2c84f86929d6431f9d87f1956c832",
+    "versions": {
+      "flagtree": "0.7.1.dev1+ppu3.6",
+      "vllm": "0.24.0+empty",
+      "torch": "2.10.0"
+    },
+    "triton_runtime_version": "3.6.0"
+  },
+  "validation": {
+    "baseline_cpu": {
+      "passed": 16,
+      "deselected": 2
+    },
+    "candidate_cpu": {
+      "passed": 26,
+      "deselected": 2
+    },
+    "ast": "passed",
+    "reverse_patch_check": "passed",
+    "device_numerical": "not_run",
+    "graph": "not_run",
+    "formal_accuracy": "not_run",
+    "performance": "not_run",
+    "service_started": false,
+    "pr_readiness": "experimental",
+    "minimal_regression": "incomplete (hardware, graph and model coverage not run)",
+    "mode": "minimal-regression",
+    "skill": "skills/inference-accuracy-evaluation/SKILL.md",
+    "evidence": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/validation/final-report.json"
+  },
+  "local_record_check": {
+    "scope": "new case links/schema only",
+    "global": "failed on unrelated existing process artifacts; not modified"
+  },
+  "fv_refresh": {
+    "upstream_main": "0dfb5cd7478e58320e81124d31473f06eac79aba",
+    "existing_kernels": "unchanged bodies; Thead export merged with new upstream exports",
+    "baseline_tests": [
+      "tests/unit_tests/dispatch/test_builtin_ops.py",
+      "tests/unit_tests/dispatch/test_flaggems_quantization.py",
+      "tests/unit_tests/dispatch/test_cached_op.py",
+      "tests/unit_tests/dispatch/test_thead_launch_compat.py",
+      "tests/unit_tests/ops/test_activation.py",
+      "tests/unit_tests/ops/test_fused_moe_layer.py",
+      "tests/unit_tests/quantization/test_w8a8_linear.py",
+      "tests/unit_tests/quantization/test_w8a8_moe.py",
+      "tests/unit_tests/quantization/test_w8a8_moe_experts.py",
+      "tests/unit_tests/patches/test_minimax_m3_registration.py"
+    ],
+    "test_scope": "CPU/mock; no device allocation",
+    "planned_plugin_source_line_delta": -36,
+    "kept_guard": "vLLM functional W8A8 still drops packed gate parameters; Thead full experts still SiLU only",
+    "baseline_result": {
+      "passed": 112,
+      "deselected": 9
+    },
+    "status": "installed",
+    "new_head": "0dfb5cd7478e58320e81124d31473f06eac79aba",
+    "new_tree": "afcaf99ed34a956e67b38630a7f9e238e657091414e9bc4f3390ed13c47e5f1d",
+    "distribution_version": "0.3.0.dev1",
+    "source_kernels_unchanged": true,
+    "API_bindings": {
+      "topk_sigmoid": "flaggems_vllm.ops.topk_sigmoid",
+      "triton_scaled_mm": "flaggems_vllm.runtime.backend._thead.ops.triton_scaled_mm",
+      "fused_experts_impl": "flaggems_vllm.runtime.backend._thead.ops.fused_moe",
+      "invoke_fused_moe_triton_kernel": "flaggems_vllm.runtime.backend._thead.ops.fused_moe",
+      "moe_align_block_size_triton": "flaggems_vllm.runtime.backend._thead.ops.fused_moe",
+      "try_swigluoai_uninterleave_quant_int8": "flaggems_vllm.runtime.backend._thead.ops.fused_moe"
+    },
+    "source_container_unchanged": true
+  },
+  "validation_current": {
+    "mode": "minimal-regression",
+    "covered_experiments": [
+      "op-005"
+    ],
+    "overall": "incomplete (device/graph/model not_run)",
+    "FV_CPU_contracts": 58,
+    "Plugin_CPU_regression": 118,
+    "FV_device_tests_deselected": 13,
+    "Plugin_device_tests_deselected": 9,
+    "receipt": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/validation/op005-final-report.json",
+    "receipt_sha256": "93bc3485eac02d4fe94fde623faa044faccb85e8c50e211148250b22f848a248",
+    "formal_accuracy": "not_run",
+    "performance": "not_run",
+    "pr_readiness": "experimental",
+    "skill_bundle": {
+      "schema_version": 1,
+      "bundle_sha256": "6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2",
+      "files": {
+        "SKILL.md": "477b1039908456804d97354e123b0ee6a0eba172dc89e5cb2b11c101f08abdaa",
+        "agents/openai.yaml": "7ab437758d1ab29efc3546a406ebd776f58c0aba3ba6566d2d3ec81a5992f05a",
+        "interface.json": "bae5c835ffc5784c8eb2cbb63211f4e460e57a0d6136782f6ebd35b10f5d41ba"
+      },
+      "interface": {
+        "schema_version": 1,
+        "capability_id": "e2e/accuracy",
+        "interface_version": "1.0.0",
+        "selector": "operation",
+        "operations": [
+          "baseline-sanity",
+          "minimal-regression",
+          "formal-gate",
+          "gate-check"
+        ],
+        "result_contract": "e2e-native-accuracy/v1",
+        "resources": [
+          "SKILL.md"
+        ]
+      }
+    }
+  },
+  "external_refresh_artifacts": [
+    {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/refresh-fv-before.tar.gz",
+      "sha256": "952fb9116e8dbbdce85a2ca056e287fa6a45880a962f4860d13864334eefed95"
+    },
+    {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/refresh-plugin-before.tar.gz",
+      "sha256": "45622342ce9e86f0ace8d4f3e6994ebc898012739814351e367d50dd863ce338"
+    },
+    {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/refresh-fv-final.patch",
+      "sha256": "6d1aab5bb0bcc1ca629b34423e9bd24b34b5df57e593619e2a547fbbf42fa642"
+    },
+    {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/refresh-plugin-review.patch",
+      "sha256": "e49176a6626cf48d224ac55b712f6ad95d1b66cb42bfd994e497c7cccc7117c9"
+    },
+    {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/refresh-plugin-main-final.patch",
+      "sha256": "a411a4e10e793296e0299031eb75d16f2b6d47eee6ff526c8b5859748e3db983"
+    }
+  ],
+  "op003_patch": {
+    "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/op003-thead-split-experts-final.patch",
+    "sha256": "a0537689bc7472728e2f64e8b793a2425e6c724dd5e5ec34ba9d301374b319c9"
+  },
+  "op003": {
+    "state": "installed-in-isolated-container",
+    "source_files": [
+      "src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py",
+      "tests/test_swigluoai_quant_int8.py"
+    ],
+    "full_api": [
+      "fused_experts_impl",
+      "inplace_fused_experts",
+      "outplace_fused_experts"
+    ],
+    "parameters": [
+      "gemm1_alpha",
+      "gemm1_beta",
+      "gemm1_clamp_limit"
+    ],
+    "parameter_contract": "finite real non-bool; clamp_limit>=0; reject gate args on SiLU",
+    "packed_layout": "w1=[E,2I,H], w2=[E,H,I]",
+    "activation": "generic packed implementation reused",
+    "quantization": "Thead existing round-to-even unchanged; Plugin standalone fusion remains round-away",
+    "Plugin_bridge": "unchanged and still selected; new full API not deployed in model",
+    "baseline_CPU": 1,
+    "candidate_CPU": 29,
+    "Plugin_CPU_regression": 118,
+    "GPU_and_graph": "two full-API BF16/FP16 replay cases and eight existing fusion cases collected only",
+    "unchanged_functions": "All other Thead module function source bodies byte-identical",
+    "next": "actual full-experts kernels and graph on free device; formal model eval only after integration/scheduling",
+    "final_disposition": "removed_from_installed_source_by_review004",
+    "final_record": "../../20261021-topk-sigmoid-tp8-accuracy/optimize/review-004.md"
+  },
+  "compat004": {
+    "status": "not-equivalent-for-drop-in-switch",
+    "receipt": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/validation/compat004-result.json",
+    "receipt_sha256": "5f76e258a8f7cfdc6b236f60c69db01986d3df78e6cfde949718fc605aff1c9c",
+    "command": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/commands/compat004-check.py",
+      "sha256": "4da2b867ca7e5bf1f2ccea3dcb849b5ee01141e6f5bf12966b1aec8a97572e30"
+    },
+    "source_sha256": {
+      "vllm/model_executor/layers/fused_moe/utils.py": "7707cb5fdc4945c061d0972fb7386cb13c0c164701e15bffa946a8daec25b9e8",
+      "vllm/model_executor/layers/quantization/utils/int8_utils.py": "0f9bda33a7204fd521dd82884b0f287f2715a5026be824ac8cc4baac4a901926",
+      "vllm/model_executor/layers/fused_moe/fused_moe.py": "57a3f7efc9624f5c437908892ed5109a81ba0dbf45e1c6ac8a1438a23131f207",
+      "plugin/vllm_fl/quantization/w8a8/moe_experts.py": "cd5de72228f142ad2a40fdbecd20800946d0e9d81fddaaae4443bfea1ee45987",
+      "plugin/vllm_fl/ops/fused_moe/fused_moe.py": "61023d7a2966e2de9bd3303858c58c29c0b91c8334c722d6a65464845c99c93c",
+      "plugin/vllm_fl/ops/fused_moe/activation.py": "5075035c42aba2a4a32851c540c9b259e7f82b3134aacb6cc14502ba201f7736",
+      "plugin/vllm_fl/dispatch/backends/flaggems/flaggems.py": "3440ebfbe686623fb8c1b7e6110ed83b17a55bfb27de73480e4b81e12136470e",
+      "fv/src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py": "5ee5b3cc2b3d1ee9e5958634b79075ba8ef5536ea1f424dd2a52ea16ed93d0a0",
+      "fv/src/flaggems_vllm/ops/fused_moe.py": "f71f41a8215bca5f08115f3b1ead6eedc45c8f4b9ca8fb4808bc868ada950520"
+    },
+    "CPU_only": true,
+    "native_kernel": "not executed; source arithmetic mirrored",
+    "activation": "same generic packed activation with identical three-parameter forwarding",
+    "quantization": "round mode/floor dtype/arithmetic differ; FP16 zero row yields zero scale in existing Thead quantizer",
+    "performance_paths": "full entry lacks activation-quant fusion; default configs miss retained K256 whitelist; no E2E performance measured",
+    "Plugin_bridge": "unchanged",
+    "hardware_graph_formal": "not_run",
+    "control_preflight": "initial local launcher placeholder CODE matched PYTHONDONTWRITEBYTECODE; remote parser failed before execution; corrected unique placeholders, single diagnostic execution",
+    "NV_source_review": {
+      "current_Plugin_split": "bridge selected without platform discrimination",
+      "FV_NV_full_API": "generic implementation, packed API present; hardware not_run",
+      "FV_NV_quantization": "generic default also round-to-even; not equivalent to original Plugin provider",
+      "root_cause": "independent pipeline implementations and quantization contracts; not NV vs PPU interface restriction",
+      "repair_plan": "Thead packed dynamic W8A8 quant1/quant2 align original provider, reuse retained fusion, preserve bounded tuning then validate before Plugin unification",
+      "implementation": "not changed in this follow-up"
+    }
+  },
+  "op005_diagnosis": {
+    "issue_id": "quantdiag-005",
+    "skill": "skills/inference-accuracy-diagnosis/SKILL.md",
+    "classification": "numerical-semantic-regression (CPU fallback only)",
+    "status": "CPU-numerical-reproducer-and-affected-regression-passed",
+    "trigger": "minimal-regression CPU FP32 near_ties mismatch; 54passed/1failed/3skipped/10deselected",
+    "candidate_promotion": "CPU stage only; hardware/graph/model still pending",
+    "last_known_good": "op005-baseline 29CPU passed",
+    "failing_evidence": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/logs/op005-candidate.log",
+    "root_cause": "CPU signed-floor subtraction maps -.49999997 - (-1) to .5 in FP32, incorrectly rounding to -1; actual result versus expected 0 is preserved in failure trace",
+    "fix": "compute magnitude fraction before applying sign; GPU libdevice.round unaffected",
+    "device_tests": "not_run; all16cards occupied",
+    "revalidation_collection_issue": "New parameterized small-batch test omitted rows argument; collection failed before execution. Correct test signature only; numerical implementation unchanged.",
+    "audit_note": "finalizer-v1 docker top requested args without mandatory PID column; read-only audit failed after numerical/Plugin regressions passed. v2 uses pid,args; no source/test changes.",
+    "revalidation": "58 FV CPU contracts plus118 Plugin CPU passed; exact near-tie literal output confirmed; no GPU or model claim",
+    "evidence_after": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/validation/op005-final-report.json"
+  },
+  "op005": {
+    "source_files": [
+      "tests/test_swigluoai_quant_int8.py",
+      "src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py"
+    ],
+    "base_head": "0dfb5cd7478e58320e81124d31473f06eac79aba",
+    "before_tree": "0d175b43254808b6dc3e197eba92cdabc5f672f14e98fb5c88746c9c6db41a45",
+    "after_tree": "168b03fafa75978507a73571e95f303dc06c3c544ec8342dbefe64563c4a8862",
+    "source_sha256": {
+      "tests/test_swigluoai_quant_int8.py": "4b432058ab5a6a88bc05a16f77662d7e2a4824deed5312d4226f2e78a3e62946",
+      "src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py": "05000e71cb39495e6589d0d94aa85fb2b6191aab035af080a4a3d8e912c4472a"
+    },
+    "patch": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/patches/op005-validated.patch",
+      "sha256": "cc5ba49917554c4aa04ad7128e04a33e4f9cdd98b5bdabe609ca9e1cdae9c846"
+    },
+    "receipt": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-sigmoid-integration/validation/op005-final-report.json",
+      "sha256": "93bc3485eac02d4fe94fde623faa044faccb85e8c50e211148250b22f848a248"
+    },
+    "gate_scope": "split + dynamic per-token W8A8, no static scales/block quant; original SiLU/static/block paths unchanged",
+    "quant1_and_quant2": "FP32 absmax/floor1e-10; reciprocal multiply; half-away rounding, same shared GPU helper for fused/fallback; CPU functional fallback checked",
+    "zero_scale": {
+      "torch.float16": 7.874016109271631e-13,
+      "torch.bfloat16": 7.874016109271631e-13,
+      "torch.float32": 7.874016109271631e-13
+    },
+    "fusion": "reuse existing BF16 split384 try helper; unsupported cases use packed activation plus matching quantizer",
+    "bounded_config": "reuse existing _EXPECTED_CONFIGS at M64/1024/8192 and _gemm1_config 810E/shape guards; preserve stage-specific INT32 selection; mock contract only",
+    "alignment": "packed dynamic path uses existing non-TLE alignment; naive small-M disabled only there",
+    "changed_existing_functions": [
+      "fused_experts_impl",
+      "_swigluoai_uninterleave_quant_int8_kernel"
+    ],
+    "new_internal_helpers": [
+      "_retained_split_w8a8_config",
+      "_split_int8_values",
+      "_split_quant_int8",
+      "_split_quant_int8_kernel"
+    ],
+    "Plugin_bridge": "unchanged and still selected",
+    "non_target_sources": "Plugin/FG/compiler unchanged; no generic/NV source change",
+    "resource_state": "all16cards have compute workloads; no GPU tests attempted",
+    "device_graph_formal": "not_run",
+    "model_service_started": false,
+    "performance": "not_run",
+    "pr_readiness": "experimental",
+    "format_tools": "black/flake8/isort unavailable; AST and reverse patch whitespace checks passed",
+    "final_disposition": "removed_from_installed_source_by_review004",
+    "final_record": "../../20261021-topk-sigmoid-tp8-accuracy/optimize/review-004.md"
+  },
+  "final_source_review": {
+    "status": "complete_entry_experiments_removed_split_retained",
+    "record": "../../20261021-topk-sigmoid-tp8-accuracy/optimize/review-004.md",
+    "note": "integration-stage test results preserved as historical; current source facts in linked review"
+  }
+}

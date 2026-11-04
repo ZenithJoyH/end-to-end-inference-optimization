@@ -1,0 +1,434 @@
+schema_version: 4
+identity:
+  case_id: 20261010-minimax-m31-w8a8-ppu-tp8-e2e
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: tp8-fix001-scenario-entry
+  topology: TP8; user configuration plus correctness fix-001
+stage: baseline
+current:
+  status: P1K singleinstance steady baseline passed; Prefill incomplete; remaining phase baselines planned
+  scope: historical local record; runtime not revalidated on 2026-11-02
+  candidate: TP8 user configuration + fix-001
+  accuracy_status: historical 170/198; binding not revalidated
+  performance_status: scenario-entry-only
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput_mean
+  value: 1968.2341084239304
+  unit: token/s
+  scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final acceptance
+  source_pointer: /scenario_entry/native_baseline/total_token_throughput_mean
+  evidence: &id001
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/entry-p1k/runs/tp8-entry-mixed-target-01/run-record.json
+    sha256: d295bf4b257414c4e55dc667900a3886794fe209d0df8fc09fe04a45144f1681
+  phase: mixed
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput_median
+  value: 1968.3652400773008
+  unit: token/s
+  scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final acceptance
+  source_pointer: /scenario_entry/native_baseline/total_token_throughput_median
+  evidence: *id001
+  phase: mixed
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_ttft_ms
+  value: 9031.903886528065
+  unit: ms
+  scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final acceptance
+  source_pointer: /scenario_entry/native_baseline/guards_mean/p99_ttft_ms
+  statistic: mean
+  evidence: *id001
+  phase: mixed
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_tpot_ms
+  value: 63.88286447691746
+  unit: ms
+  scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final acceptance
+  source_pointer: /scenario_entry/native_baseline/guards_mean/p99_tpot_ms
+  statistic: mean
+  evidence: *id001
+  phase: mixed
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_itl_ms
+  value: 58.33761019011338
+  unit: ms
+  scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final acceptance
+  source_pointer: /scenario_entry/native_baseline/guards_mean/p99_itl_ms
+  statistic: mean
+  evidence: *id001
+  phase: mixed
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: p99_e2el_ms
+  value: 71918.42344960508
+  unit: ms
+  scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final acceptance
+  source_pointer: /scenario_entry/native_baseline/guards_mean/p99_e2el_ms
+  statistic: mean
+  evidence: *id001
+  phase: mixed
+- scenario_id: p128-d256-c64-n64-tp8-decode
+  role: baseline
+  metric: total_token_throughput
+  value: 1642.0511934841834
+  unit: token/s
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/decode/metrics/total_token_throughput/median
+  evidence: &id002
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/phase-followup-01/runs/tp8-followup-decode-01/run-record.json
+    sha256: 33dac86e2aeaa9de591d6a3f8d023d62e747bc0b82fe14601767edc4ef9c16d8
+  statistic: median
+  phase: decode
+- scenario_id: p128-d256-c64-n64-tp8-decode
+  role: baseline
+  metric: p99_ttft_ms
+  value: 1576.6203322075307
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/decode/metrics/p99_ttft_ms/median
+  evidence: *id002
+  statistic: median
+  phase: decode
+- scenario_id: p128-d256-c64-n64-tp8-decode
+  role: baseline
+  metric: p99_tpot_ms
+  value: 53.810884261357714
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/decode/metrics/p99_tpot_ms/median
+  evidence: *id002
+  statistic: median
+  phase: decode
+- scenario_id: p128-d256-c64-n64-tp8-decode
+  role: baseline
+  metric: p99_itl_ms
+  value: 53.93938830122352
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/decode/metrics/p99_itl_ms/median
+  evidence: *id002
+  statistic: median
+  phase: decode
+- scenario_id: p128-d256-c64-n64-tp8-decode
+  role: baseline
+  metric: p99_e2el_ms
+  value: 14965.055108834058
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/decode/metrics/p99_e2el_ms/median
+  evidence: *id002
+  statistic: median
+  phase: decode
+- scenario_id: p1024-d128-c64-n64-tp8-mixed-milestone
+  role: baseline
+  metric: total_token_throughput
+  value: 4648.994518552233
+  unit: token/s
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/mixed_milestone/metrics/total_token_throughput/median
+  evidence: &id003
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/phase-followup-01/runs/tp8-followup-mixed-milestone-01/run-record.json
+    sha256: 21bad0ceb010a783bdf55cc8464b183b5005f62e2b764335a928c47286a750d9
+  statistic: median
+  phase: mixed_milestone
+- scenario_id: p1024-d128-c64-n64-tp8-mixed-milestone
+  role: baseline
+  metric: p99_ttft_ms
+  value: 9044.042515568435
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/mixed_milestone/metrics/p99_ttft_ms/median
+  evidence: *id003
+  statistic: median
+  phase: mixed_milestone
+- scenario_id: p1024-d128-c64-n64-tp8-mixed-milestone
+  role: baseline
+  metric: p99_tpot_ms
+  value: 112.2923370356136
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/mixed_milestone/metrics/p99_tpot_ms/median
+  evidence: *id003
+  statistic: median
+  phase: mixed_milestone
+- scenario_id: p1024-d128-c64-n64-tp8-mixed-milestone
+  role: baseline
+  metric: p99_itl_ms
+  value: 1067.8901153057814
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/mixed_milestone/metrics/p99_itl_ms/median
+  evidence: *id003
+  statistic: median
+  phase: mixed_milestone
+- scenario_id: p1024-d128-c64-n64-tp8-mixed-milestone
+  role: baseline
+  metric: p99_e2el_ms
+  value: 15844.752472620457
+  unit: ms
+  scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain or formal
+    scenario closure; ALL3 measured rounds retained
+  source_pointer: /scenario_entry/phase_baselines/mixed_milestone/metrics/p99_e2el_ms/median
+  evidence: *id003
+  statistic: median
+  phase: mixed_milestone
+scenario_entry:
+  remote_case_dir: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e
+  status: P1K singleinstance steady baseline passed; Prefill incomplete; remaining phase baselines planned
+  source_service: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/manifests/scenario-entry-service.json
+  user_reports: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/user-csv-index.json
+  native_baseline:
+    mode: baseline
+    scenario_id: p1024-d1024-c64-n128
+    status: passed
+    instances: 1
+    warmup_rounds: 6
+    measured_rounds: 3
+    all_measures_retained: true
+    total_token_throughput_mean: 1968.2341084239304
+    total_token_throughput_median: 1968.3652400773008
+    total_token_throughput_values:
+    - 1969.5309106605164
+    - 1966.8061745339742
+    - 1968.3652400773008
+    total_token_throughput_relative_spread: 0.0013842634847764366
+    guards_mean:
+      p99_ttft_ms: 9031.903886528065
+      p99_tpot_ms: 63.88286447691746
+      p99_itl_ms: 58.33761019011338
+      p99_e2el_ms: 71918.42344960508
+    max_guard_relative_spread: 0.003971134190858053
+    review:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/entry-p1k/baseline-review-mixed-target.json
+      sha256: 569c4e8c36aa9ccb9ea3458412a7c50001f29e0619d9006946c688077722f489
+    run_record: *id001
+    claim_scope: correct TP8 single-instance scenario-entry baseline facts; no candidate speedup/formal scenario closure/final
+      acceptance
+  accuracy_gate:
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/accuracy/fix001-formal/accuracy-gate.json
+    sha256: 492470e965f1263459937f56656105e7fc38d2a0bd7a6bf41293fe5f7504f759
+  scope: previous TP16 fields remainhistorical; no crossTP speedup
+  current_service:
+    path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/manifests/fix001-service-verified.json
+    sha256: f64f55ccd1c33caac199a9bd830d781ec7d2611f698476857bcbb5daf4d7c17d
+  baseline_origin: userTP8 configuration plus mandatorycorrectnessfix001; originalfailedpath cannotbevalidaccuracy baseline
+  accuracy_score: 0.8585858585858586
+  phase_baselines:
+    decode:
+      mode: baseline
+      phase: decode
+      scenario_id: p128-d256-c64-n64-tp8-decode
+      parent_target_scenario_id: p1024-d1024-c64-n128
+      status: passed
+      metrics:
+        total_token_throughput:
+          values:
+          - 1642.0511934841834
+          - 1633.792945335234
+          - 1644.581851074952
+          mean: 1640.1419966314565
+          median: 1642.0511934841834
+          relative_spread: 0.0065703833001854554
+        p99_ttft_ms:
+          values:
+          - 1573.0598114524037
+          - 1576.6203322075307
+          - 1580.1120677497238
+          mean: 1576.5974038032193
+          median: 1576.6203322075307
+          relative_spread: 0.0044730212805550945
+        p99_tpot_ms:
+          values:
+          - 53.810884261357714
+          - 54.09260437067817
+          - 53.69045706600972
+          mean: 53.8646485660152
+          median: 53.810884261357714
+          relative_spread: 0.007473345033975467
+        p99_itl_ms:
+          values:
+          - 53.93938830122352
+          - 54.260734571143985
+          - 53.86750032193959
+          mean: 54.02254106476903
+          median: 53.93938830122352
+          relative_spread: 0.007290298640547939
+        p99_e2el_ms:
+          values:
+          - 14965.055108834058
+          - 15040.694732666016
+          - 14941.33078251034
+          mean: 14982.36020800347
+          median: 14965.055108834058
+          relative_spread: 0.0066397316570534805
+      warmup_check:
+        status: passed
+        metric: total_token_throughput
+        values:
+        - 1663.1621323017596
+        - 1637.9179122784278
+        - 1644.1070683199705
+        relative_spread: 0.0153543649983377
+        max_relative_spread: 0.05
+      run_record: *id002
+      review:
+        path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/phase-followup-01/baseline-review-decode.json
+        sha256: e586e5a77e18cbb37669a796192ceb4e8c12ca8df815f95d8992fcdc877f3144
+      claim_scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain
+        or formal scenario closure; ALL3 measured rounds retained
+    mixed_milestone:
+      mode: baseline
+      phase: mixed-milestone
+      scenario_id: p1024-d128-c64-n64-tp8-mixed-milestone
+      parent_target_scenario_id: p1024-d1024-c64-n128
+      status: passed
+      metrics:
+        total_token_throughput:
+          values:
+          - 4648.994518552233
+          - 4667.377541469237
+          - 4642.825745995905
+          mean: 4653.065935339125
+          median: 4648.994518552233
+          relative_spread: 0.00528109796115184
+        p99_ttft_ms:
+          values:
+          - 9044.042515568435
+          - 9033.973907083273
+          - 9049.59225741215
+          mean: 9042.536226687953
+          median: 9044.042515568435
+          relative_spread: 0.0017269213741523334
+        p99_tpot_ms:
+          values:
+          - 112.2923370356136
+          - 111.88615822548589
+          - 112.3950959834468
+          mean: 112.19119708151543
+          median: 112.2923370356136
+          relative_spread: 0.004532257243871394
+        p99_itl_ms:
+          values:
+          - 1067.5562950130552
+          - 1067.8901153057814
+          - 1068.0042485427111
+          mean: 1067.8168862871826
+          median: 1067.8901153057814
+          relative_spread: 0.0004194753029694124
+        p99_e2el_ms:
+          values:
+          - 15844.752472620457
+          - 15784.721980551258
+          - 15865.276756146923
+          mean: 15831.583736439547
+          median: 15844.752472620457
+          relative_spread: 0.005084003409637523
+      warmup_check:
+        status: passed
+        metric: total_token_throughput
+        values:
+        - 4643.540484259597
+        - 4645.837381223774
+        - 4637.825526689597
+        relative_spread: 0.0017253762643688777
+        max_relative_spread: 0.05
+      run_record: *id003
+      review:
+        path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e/performance/phase-followup-01/baseline-review-mixed-milestone.json
+        sha256: bd228be8e94a6701b97f5436314ab90bc04c416333dc3c007ad864fb548abc8d
+      claim_scope: Single TP8 instance baseline facts only; phase metrics are frontend/scheduler proxies, no candidate gain
+        or formal scenario closure; ALL3 measured rounds retained
+provenance:
+  path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-02/minimax-original/models/MiniMax-M3.1-W8A8/ppu/baseline/state.yml
+  sha256: 7e84524dd4ce51c05c9f310aa62c3eea6f456a4962afd5d5ef6fab5899c8578f
+target:
+  model_path: /mnt/cpfs/models/MiniMax-M3.1-preview-private-W8A8-FlagOS-20260929
+  source_container_name: minimaxM3.1
+  optimization_container_name: minimaxM3.1-opt-20261008
+  remote_work_root: /mnt/nfs/users/jinghao/minimaxM3.1/optimize
+  remote_case_dir: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261010-minimax-m31-w8a8-ppu-tp8-e2e
+  image_lineage: verified
+  mount_parity: passed
+  source_image_id: sha256:66aba903fec3373d3518183f77227a713fb20e0fbf48038e6c813329cbd53172
+  optimization_image_id: sha256:78d8e42f2f21568667fd8727be790073b34f2683de2d9c2b734813aaf3b5a8fe
+  source_service_stop_authorization: User explicitly authorized stopping source 8025 model service and proceeding with optimization,
+    2026-10-08 current conversation.
+runtime_at_entry:
+  TP: 8
+  port: 8025
+  host: PPU-07
+  optimization_container: minimaxM3.1-opt-20261008
+  capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 1024
+  - 2048
+  - 4096
+  - 8192
+  cudagraph_mode: FULL_AND_PIECEWISE
+  blacklist: conv3d,cudnn_convolution
+  current_worker_count: 8
+  current_diagnostic_TP: 8
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: P1K singleinstance steady baseline passed; Prefill incomplete; remaining phase baselines planned
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 已列出原始观测；是否满足正式基线契约仍以原回执和稳态/身份条件为准。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

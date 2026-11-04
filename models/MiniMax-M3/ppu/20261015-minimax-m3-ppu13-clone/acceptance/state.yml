@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261015-minimax-m3-ppu13-clone
+  model: MiniMax-M3
+  platform: ppu
+  host: PPU-13
+  baseline_id: ppu13-current-code-unmeasured-20261015
+  topology: TP16:device0-device15
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

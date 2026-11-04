@@ -1,0 +1,196 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261021-topk-unpatch-removal",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "not-established-component-verification-only",
+    "topology": "TP8:physical0-7; component checks only, see legacy_record"
+  },
+  "stage": "optimize",
+  "current": {
+    "status": "topk_patch_removed_verified",
+    "candidate": "minimaxM3.1-opt-latest-20261020",
+    "accuracy_status": "not_run",
+    "performance_status": "not_run",
+    "next_action": "组件/编译验证不构成正式模型精度或性能验收；后续须按目标服务重新建立证据。"
+  },
+  "experiments": [
+    {
+      "experiment_id": "compat-001",
+      "document": "compat-001.md",
+      "status": "topk_patch_removed_verified",
+      "scenario_id": "component-only",
+      "scope": "historical component verification; no formal performance"
+    }
+  ],
+  "metrics": [],
+  "legacy_record": {
+    "experiment_id": "compat-001",
+    "status": "topk_patch_removed_verified",
+    "container": "minimaxM3.1-opt-latest-20261020",
+    "plugin_root": "/workspace/vllm-plugin-fl",
+    "flagtree": "0.7.1.dev1+ppu3.6",
+    "changed_files": [
+      "/workspace/vllm-plugin-fl/tests/unit_tests/dispatch/test_thead_launch_compat.py",
+      "/workspace/vllm-plugin-fl/vllm_fl/dispatch/backends/vendor/thead/patch.py"
+    ],
+    "GQA_class_and_installer_byte_identical": true,
+    "other_sources_unchanged": true,
+    "source_check": "Final three-source fingerprints match verified candidate",
+    "verification": {
+      "status": "topk_removed_unit_and_actual_hook_verified",
+      "unit_tests_passed": 13,
+      "skipped": 0,
+      "failed": 0,
+      "plugin_import": "/workspace/vllm-plugin-fl/vllm_fl/dispatch/backends/vendor/thead/patch.py",
+      "topk_wrapper_type": "triton.runtime.autotuner.Heuristics",
+      "native_autotune_type": "triton.runtime.autotuner.Autotuner",
+      "native_K_candidates": [
+        2048,
+        1024,
+        512,
+        256,
+        128,
+        64
+      ],
+      "actual_hook_topk_identity_unchanged": true,
+      "GQA_hook_installed_and_idempotent": true,
+      "flagtree": "0.7.1.dev1+ppu3.6",
+      "code_and_test_files": {
+        "vllm_fl/dispatch/backends/vendor/thead/patch.py": {
+          "before": "86f00e4d86773381c4458a60a2d5942edbac48878cff0f16226b35b2cf7bbaba",
+          "after": "b0ecc6d69c4f42690842b2871810a642172c032fbbb1a7513b9c1869c2f2a8ae"
+        },
+        "tests/unit_tests/dispatch/test_thead_launch_compat.py": {
+          "before": "d0aeb1fbbcbe3256a5b2d966eb46740b34eea58024dbc005aad29e65cd7252fb",
+          "after": "834d1485555ba2bd2529a9b9c01a3a8cad4e54a0c8415b0065d2f0f315f2b23d"
+        }
+      },
+      "unit_xml": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/verification-visible0/unit.xml",
+        "sha256": "2f9f67f184fb30229291b3a1de9ddb254dbf1af13085daa7802a5a450a2c55e7"
+      },
+      "formal_accuracy": "not_run_service_stopped",
+      "model_minimal": "not_run_service_stopped",
+      "performance": "not_run"
+    },
+    "service_was_stopped_before_change": true,
+    "service_current_state": "stopped",
+    "service_started_or_restarted_by_this_task": false,
+    "model_minimal": "not_run_service_stopped",
+    "formal_accuracy": "not_run; old score/gate not reused",
+    "performance": "not_run",
+    "initial_test_failure_preserved": {
+      "classification": "test environment could not query capabilities with all devices hidden",
+      "native_paths": [
+        "unit.log",
+        "unit.xml",
+        "test-environment-correction.json"
+      ],
+      "corrected_scope": "physical0 capability visible;13 non-GPU tests passed,4GPU tests deselected"
+    },
+    "prior_operator_evidence": "20261021-minimax-m31-topk-unpatch-01: native path8cards50numerical/graph100replays passed; tie selection difference documented and removal explicitly requested by user",
+    "pr_readiness": "experimental; model-level validation outstanding",
+    "time_utc": "2026-10-21T03:33:50Z",
+    "evidence": {
+      "change-result.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/change-result.json",
+        "sha256": "341e3c75211a3cf22ab8aa0bb3cd9440e1fde1751a55c5734cddd0138cdf8559"
+      },
+      "topk-removal.patch": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/topk-removal.patch",
+        "sha256": "2abc4737685b04213fd7cb928fea028cf2523c696a742c4e9800865ff966edc9"
+      },
+      "source-before.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/source-before.json",
+        "sha256": "097397c58309b6c282579f4f913789820417ceb04e3d058933258af88157ab05"
+      },
+      "source-after.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/source-after.json",
+        "sha256": "44f2879b9ff73707d93ad2d3447b79100d52c58dc9b55b4c6d48a1d56888edce"
+      },
+      "verification-visible0/verification-result.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/verification-visible0/verification-result.json",
+        "sha256": "48726a8d052d9c1657c89cfabb6efc4001752be83204e665b0f2da60d836c9b3"
+      },
+      "verification-visible0/unit.xml": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/verification-visible0/unit.xml",
+        "sha256": "2f9f67f184fb30229291b3a1de9ddb254dbf1af13085daa7802a5a450a2c55e7"
+      },
+      "verification-visible0/git-diff-check.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/verification-visible0/git-diff-check.json",
+        "sha256": "53b3790c87ca15dba61fc27495cf997e00b1a5fabc356f5eab167ebf320d4ece"
+      },
+      "test-environment-correction.json": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/test-environment-correction.json",
+        "sha256": "7a65d59c2653f16461a677185bb604f893c79fdca82ef29fbe9fc1c31d010662"
+      },
+      "unit.xml": {
+        "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01/unit.xml",
+        "sha256": "1127adc8ca7c2d9507815b35ceb1dd7187c367e5b43dca7d74a9f8175350f30b"
+      }
+    },
+    "remote_case": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-topk-removal-01",
+    "remote_result_sha256": "f3dc94847a67424cfb6df97baca4c611fc490340764ad56d3bae4216f82dc173",
+    "formal_performance_allowed": false
+  },
+  "record_maintenance": {
+    "date": "2026-11-02",
+    "scope": "原回执原样保留在 legacy_record；仅规范结构和补齐入口。",
+    "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/optimize/state.yml"
+  },
+  "local_record_archive": {
+    "archived_at": "2026-11-02",
+    "manifest": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json",
+    "scope": "local verified archival; remote evidence not revalidated",
+    "files": [
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/change-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/change-receipt.json",
+        "sha256": "3d21e81f054bfe692496d4042b0326ad51b1903d1ae5c5010788b15f8740e899"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/finalize-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/finalize-receipt.json",
+        "sha256": "ddf0cb89220ed67d2a88ae40afa5970250b4fe25cf8e5b87186e34c869cc5701"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/finalize-removal.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/finalize-removal.py",
+        "sha256": "6e0d5018d4dcfae5fbd67f9b4779a2ff653980334e61365ee117a868bcf5ff4b"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/remove-topk.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/remove-topk.py",
+        "sha256": "84998957e5601434376724c0de8c0d7a73377c2975e14ebedfbccc7ae95ad881"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/verification-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/verification-receipt.json",
+        "sha256": "dfe86b3dd8f844a082a3ddab03facb0e6b8628a0963cf17423322f8b7b095250"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/verify-removal-visible0.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/verify-removal-visible0.py",
+        "sha256": "730b012d9e032cdb68c01ba3f2e2065be9ee5a19fd76c463cb3ba8dd42cd0bb8"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/verify-removal.py",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/verify-removal.py",
+        "sha256": "0bbb73a68df002516e878dc94ffd01954606d4b997fb98535d36de21119a6060"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/visible0-receipt.json",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/commands/visible0-receipt.json",
+        "sha256": "51d49daf6cf3bd1413bae52f9a18dbec5bf723d60729a210b13c7a9d5cf5e454"
+      },
+      {
+        "original_path": "models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/topk-removal.patch",
+        "path": "/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-topk-unpatch-removal/topk-removal.patch",
+        "sha256": "2abc4737685b04213fd7cb928fea028cf2523c696a742c4e9800865ff966edc9"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261021-topk-sigmoid-tp8-accuracy
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: user-topk-sigmoid-op005-20261021
+  topology: TP8:physical0-7
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

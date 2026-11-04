@@ -1,0 +1,20 @@
+schema_version: 4
+identity:
+  case_id: 20261021-topk-unpatch-validation
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: not-established-component-verification-only
+  topology: TP8:physical0-7; component checks only, see legacy_record
+stage: acceptance
+current:
+  status: incomplete
+  accuracy_status: not_evaluated_in_this_stage
+  performance_status: not_run
+  next_action: 本次仅整理历史记录；精度/组件验证见 optimize，正式四场景性能验收未建立。
+experiments: []
+metrics: []
+record_maintenance:
+  date: '2026-11-02'
+  source: ../optimize/state.yml
+  scope: 补齐阶段入口，不代表执行新评测或核验远端状态。

@@ -1,0 +1,72 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261019-flash-three-task-accuracy",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "user-flash1019-tp8",
+    "topology": "TP8:device0-device7"
+  },
+  "stage": "baseline",
+  "current": {
+    "status": "not_run",
+    "next_action": "accuracy-only request; performance not in scope"
+  },
+  "experiments": [],
+  "metrics": [],
+  "environment": {
+    "host": "PPU-07",
+    "container": "minimaxM3.1-opt-20261008",
+    "served_name": "MiniMax-M3.1",
+    "model_path": "/mnt/cpfs/models/MiniMax-M3.1-Flash-W8A8-FlagOS-20261019",
+    "max_model_len": 100000,
+    "tensor_parallel_size": 8,
+    "graph": "FULL_AND_PIECEWISE [1,2,4,8,16,32,64]",
+    "prefix_cache": "enabled user configuration preserved",
+    "service_manifest": {
+      "path": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261019-minimax-m31-flash-ppu-tp8-accuracy/accuracy/user-flash1019-t1-suite-20261019-02/service/service.json",
+      "sha256": "09a75c64407ecca27f362e32b2013073b5cc0c380060ff676ce1b1a86c49f08c"
+    },
+    "image_id": "sha256:78d8e42f2f21568667fd8727be790073b34f2683de2d9c2b734813aaf3b5a8fe",
+    "mount_parity": "actual existing optimization container matches established /mnt bind",
+    "source_state": "fresh source/runtime SHA in current run, no source changes"
+  },
+  "baseline_record_review": {
+    "reviewed_at": "2026-11-02",
+    "classification": "explicit-no-performance",
+    "original_status": "not_run",
+    "formal_target_coverage": [
+      {
+        "scenario_id": "p1024-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "本阶段原记录明确未执行性能测试。"
+      },
+      {
+        "scenario_id": "p4096-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "本阶段原记录明确未执行性能测试。"
+      },
+      {
+        "scenario_id": "p16384-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "本阶段原记录明确未执行性能测试。"
+      },
+      {
+        "scenario_id": "p32768-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "本阶段原记录明确未执行性能测试。"
+      }
+    ],
+    "metrics_source": "state.yml structured fields only; Markdown is not a numeric source",
+    "remote_revalidated": false
+  }
+}

@@ -1,0 +1,1118 @@
+schema_version: 3
+policy_version: '0.39'
+record_kind: current_optimization_state
+updated_at: '2026-10-15T11:23:11+08:00'
+status: op013_code_migrated_to_latest_runtime_validation_pending
+current_target_scenario_id: p1024-d1024-c64-n128
+current_combined_candidate: minimaxM3-latest-20260924 private code contains fw-006 FlagGems SQL reflection + op-003 Plugin
+  thead.yaml blacklist + experimental op-011 MoE M32 BK64/stages2; no model service or current gate
+planning_review:
+  review_id: review-007-op010-mixed-itl-variance
+  evidence_cutoff: '2026-09-23T22:28:00+08:00'
+  result: op010_live_hit_and_repeatable_d256_throughput_signal_but_both_frozen_aba_comparisons_incomplete_due_baseline_or_candidate_p99_itl_spread
+  current_objective: Improve P1024/D1024/C64/N128 end-to-end output throughput and tail latency while guarding TTFT, correctness,
+    graph replay, and cross-phase behavior.
+  baseline_identity: Current retained 131072-context TP16 BF16 path, max_num_seqs=32, max_num_batched_tokens=8192, prefix
+    cache disabled, FULL_DECODE_ONLY graph sizes 1/2/4/8/16/32. TP16 stdout instrumentation proved 16/16 workers execute FlagGems
+    invoke_fused_moe_triton_kernel, including M32 GEMM2 B=(128,6144,192) incoming BK128; Plugin CachedOp selection logs alone
+    did not prove the executed branch.
+  current_candidate_identity: Retained fw-006 targeted schema reflection plus op-003 private Plugin thead.yaml blacklist [conv3d,cudnn_convolution];
+    op-010 vendor override has been precisely reverted. Independent optimization container 8023 service is now original-source
+    revert instance bd37abcbf719:8023:1368844:288789027, health 200; the user-authorized old 8013 service remains stopped.
+    This service has no fresh 198-question formal gate.
+  experiment_ledger_since_review:
+  - op-002 operator/improve rejected; dominant M32 fused-MoE config gain 3.81% was below threshold and only about 1.4% of
+    historical summed device activity before host/overlap effects.
+  - fw-003 framework diagnostic complete; unprofiled 6.946 s gap localized to worker CPU with all PPUs idle, while profiler-on
+    attempts did not reproduce it.
+  - fw-004 framework diagnostic complete; triggered native stacks showed CPython tuple/dict/string/object construction on
+    representative ranks.
+  - fw-005 framework diagnostic complete; 4/4 Python stacks identified FlagGems SQLAlchemy full-schema reflection for the
+    index m32/n32 config lookup.
+  - fw-006 framework retained performance-only; single-table reflection passed D256 baseline/candidate/revert, D1024 candidate
+    checkpoint, graph/smoke, and fixed-10 minimal regression.
+  - accformal-004 full 198-question GPQA C64 max_gen_toks=60000 formal gate passed 180/198=0.9090909091 against threshold
+    0.88, bound to the former 8023 service.
+  - Post-gate read-only inspection found the former EngineCore exited unexpectedly at 11:44:25+08 and port 8023 refused connections;
+    a different port-8013 max_model_len=100000 service is running in the container and is not a comparable replacement.
+  - op-004 T-Head FlagGems-vllm paired Gate/Up search was negative at M32 (-30.22%) but tested a different implementation
+    from the live Plugin fast path; it does not eliminate the live FlagGems kernel.
+  - op-005 native linear replacement passed isolated micro and fixed-10 regression, but same-contract D256 baseline/candidate/revert
+    output throughput 464.28/411.02/464.30 tok/s rejected it; original linear code restored.
+  - prof-002 TP16 current 131K mixed capture completed on all 16 ranks. Rank0 Decode-only summed activity linear 5.756 s and
+    MoE 5.363 s; Mixed MoE 2.089 s, linear 1.757 s and sparse forward 1.001 s. These are overlapping activity sums, not E2E
+    critical-path percentages.
+  - op-008 corrected the earlier no-hit inference. Plugin CachedOp selection was logged, but FlagGems Python logger suppressed
+    the first two diagnostic probes. A stdout probe proved 16/16 workers each executed 16 FlagGems invoke_fused_moe_triton_kernel
+    stage shapes in graph/smoke. M32 GEMM2 B=(128,6144,192), config BM16/BN64/BK128; exact-stage M32 BK64 single-card complete-call
+    A/B/A improved 15.16%, numerics and graph/two replays passed. The diagnostic source was reverted.
+  - op-006 synthetic generic-versus-T-Head comparison has no live-path performance interpretation; its M32 +9.75% and small-M
+    regressions are scoped to the isolated full-call setup only.
+  - op-007 generic full-call GEMM2 BK64 search/independent confirmation showed +14.89%/+16.13% single-card M32 and graph replay,
+    but private get_default_config integration recorded zero hits during TP16 graph/health/smoke. The no-hit service was stopped,
+    source reverted to SHA256 a780da6348ba611640b546b47c60b79baa1312094386ce8f49d99d0d8e4750af; no candidate accuracy/E2E
+    run. Its unmodified D256 baseline completed 6/6 rounds with output throughput 464.97/464.83/463.81 tok/s in measured rounds.
+  - op-009 T-Head full-call wrapper passed isolated +20.15% but had zero live TP16 hits, so it was rejected and reverted before
+    accuracy or E2E testing.
+  - op-010 T-Head top-level invoke stage2 M32 BK64 passed isolated bitwise/graph and 16/16 TP16 live-hit proof; fixed GPQA
+    10/10 strict-match with no timeout, empty output or 60K truncation. Two separately frozen no-profiler P1024/D256/C64/N128
+    A/B/A series observed +7.98% and +7.79% output throughput, with original-source revert reproduction and no TTFT/TPOT median
+    regression. Both comparison receipts are incomplete due P99 ITL within-process spread (first series candidate, second
+    series baseline); the candidate was reverted, no D1024/formal accuracy gate and no PR readiness claim.
+  - perfdiag-001 read-only classified 18 measured rounds. Extra 300-500 ms ITL gaps occur in both candidate and original-source
+    roles; second-series baseline outlier had 56 additional events concentrated in later request waves' first four tokens,
+    while the first-series candidate outlier also had tail-token events. Server 10-second logs show recurrent Running/Waiting
+    32/32 and prompt/decode throughput alternation, but cannot prove a unique server root cause. No model/source change.
+  phase_bottlenecks:
+    prefill: Historical prof-001 rank0 block-sparse GQA forward accumulated 1.019 s over 627 calls; dedicated Prefill baseline
+      was 8936.15 total tok/s. This trace predates the 131K/blacklist service and needs refresh before prioritizing a Prefill
+      kernel change.
+    decode: Current prof-002 rank0 Decode-only summed activity linear 5.756 s/74256 calls and fused_moe_kernel 5.363 s/28406
+      calls. op-008 stdout probe established M32 GEMM1 A=(32,6144), B=(128,384,6144), C=(32,4,384) and GEMM2 A=(128,192),
+      B=(128,6144,192), C=(32,4,6144), both BM16/BN64/BK128. Profiler-on activity is not E2E critical path.
+    mixed: Current prof-002 rank0 Mixed summed activity MoE 2.089 s, linear 1.757 s, sparse forward 1.001 s, ring all_reduce
+      0.711 s. fw-006 removed host reflection bubble. op-010 D256 Mixed output throughput gain repeated around 8%, but both
+      formalized comparison receipts are incomplete because P99 ITL spread exceeded the frozen 15% limit in different roles.
+      D1024 formal P1K baseline/candidate/revert remains incomplete.
+    interaction: Detailed D256 request traces show a system-level 268 ITL gaps above 500 ms in every second-series measured
+      round, and the baseline outlier has 56 additional 300-500 ms gaps concentrated at the first four generated tokens of
+      later request waves. With max_num_seqs=32 and C64/N128 this suggests Prefill/Decode wave interference or queue timing;
+      client evidence does not prove a unique server root cause. The currently healthy 8023 original-source revert service
+      lacks a fresh 198-question accuracy gate, and old 8013/old 8023 instances cannot substitute.
+  cumulative_results:
+    p1024-d1024-c64-n128: One retained framework fix (fw-006) and no retained op-010 change. Historical isolated D256 first-round
+      throughput improved 41.89% and max single ITL fell 84.48% with revert reproduction; D1024 candidate median output was
+      532.80 tok/s with no multi-second gap. Historical formal GPQA accuracy was 180/198 on an exited service. Full P1K cumulative
+      speedup and current-service accuracy remain unclaimable. op-010's +7.98%/+7.79% are only observed D256 milestone A/B/A
+      differences under incomplete receipts, not a retained or formal cumulative gain.
+  ranked_directions:
+  - rank: 1
+    direction: Diagnose P1024/D256/C64/N128 Mixed first-token wave ITL variance before any op-010 re-evaluation
+    classification: framework
+    target_phase: mixed
+    supporting_evidence: op-010 live hit and two A/B/A series consistently show about 8% output-throughput signal with revert
+      reproduction, while baseline as well as candidate can independently produce large P99 ITL spread. Existing per-request
+      records localize the extra baseline gaps to later-wave first tokens.
+    opposing_evidence: Current client traces cannot distinguish server scheduling, prefill interference, network timing or
+      other host noise; changing warmup from 3 to 5 did not eliminate the baseline outlier. This diagnostic has no retained
+      throughput gain by itself.
+    first_experiment: perfdiag-001 analyzed all 18 measured rounds and found wave-correlated client gaps but no unique server
+      cause. If further certainty is necessary, freeze a narrowly triggered profiler-on request-wave transition trace while
+      preserving no-profiler performance results separately; do not retroactively drop rounds or promote op-010 from incomplete
+      data.
+    success_threshold: Resolve critical-path origin or explicitly keep unresolved; only after a newly frozen same-contract
+      A/B/A and correctness gate may op-010 be reconsidered.
+  - rank: 2
+    direction: M32 linear projection algorithm or epilogue screen, not cache-config replacement
+    classification: operator/improve
+    target_phase: decode_mixed
+    supporting_evidence: prof-001 linear_kernel accumulated 7.653/20.286 s rank0 device activity across 78374 calls; op-001
+      identified eight BF16 production shapes, including M32 K6144 N12512 with 0.13944 ms isolated p50.
+    opposing_evidence: op-005's two-shape native linear path improved isolated micro but reduced D256 E2E output throughput
+      11.47% in A/B/A; a different mechanism and graph-specific evidence are needed.
+    first_experiment: On refreshed graph trace first rank linear time by exact shape/call count, then compare one distinct
+      compatible algorithm or fusion at the dominant shape against the current cache path without changing the whole service.
+    success_threshold: At least 10% weighted linear time reduction across production shapes, BF16 agreement, no material other-shape
+      regression and graph proof; otherwise stop before E2E integration.
+  - rank: 3
+    direction: MiniMax-M3 block-sparse GQA forward/decode screen
+    classification: operator/replace
+    target_phase: prefill_decode
+    supporting_evidence: prof-001 forward and decode kernels together accumulated 1.519 s/rank, about 7.5% of historical device-sum;
+      exact kernels resolve to vLLM MiniMax-M3 common ops, not FlagGems-vllm sparse_attn_triton.
+    opposing_evidence: Much smaller ceiling than MoE/linear; a compatible faster implementation and a Plugin extension point
+      are unproven. Direct vLLM source editing is outside current authorization.
+    first_experiment: Read-only extract actual top-k/head/paged-KV shapes and assess an existing compatible backend with equivalent
+      semantics; stop if replacement needs direct vLLM modification without explicit approval.
+    success_threshold: At least 10% weighted sparse-attention gain on exact Prefill/Decode shapes with semantic and graph
+      equivalence; otherwise defer.
+  deferred_directions:
+  - Linear config replacement is eliminated by op-001 across all eight production shapes.
+  - op-002/op-004 and op-006 synthetic complete-call experiments do not prove gains on the live Plugin CachedOp stage path;
+    preserve their bounded results but do not use them for promotion.
+  - op-005 native linear replacement is eliminated by D256 A/B/A end-to-end regression despite isolated micro gain; original
+    source was restored.
+  - op-006 direct generic-FlagGems to T-Head complete-call replacement rejected by M32 <10% and small-M regression; no service
+    integration.
+  - op-007 get_default_config BK64 full-call micro win is invalid for live service promotion because the modified function
+    recorded zero hits; no candidate E2E test was run and the source was reverted.
+  - PPU collective kernels accumulated 1.45-2.09 s/rank in prof-001, but the rank spread and overlap/critical-path contribution
+    are unresolved; keep communication as a profiling sentinel rather than claiming an operator replacement win.
+  - conv3d/cudnn_convolution blacklist solved a 131K startup dummy-profile failure and is not a demonstrated steady-state
+    text inference hotspot.
+  - max_num_batched_tokens=4096 is eliminated by fw-001 due lower throughput/TPOT and no stall removal.
+  - Isolated empty FlagGems cache is eliminated by fw-002; retain the separate WAL initialization defect as engineering debt
+    only.
+  immediate_experiment: pending_new_mixed_tail_contract_or_bounded_profiler_trace
+  required_skills:
+  - inference-profiling prof-002 completed with 16-rank capture and phase split
+  - key-operator-analysis for exact live dispatch and MoE replacement screen
+  - inference-performance-evaluation checkpoint and formal intermediate-single-target for any promoted operator candidate
+  - inference-accuracy-evaluation formal-gate after any source/config change; existing gate remains historical to the exited
+    instance
+  blockers:
+  - The 180/198 passing accuracy gate is bound to an exited former 8023 service. Current original-source revert service has
+    health 200 and identity bd37abcbf719:8023:1368844:288789027, but no valid current formal gate; a future source/config/service
+    change requires a fresh gate or eligible rebind under the accuracy Skill.
+  - op-010 cannot be promoted from either D256 A/B/A receipt because both are incomplete on frozen P99 ITL stability, despite
+    repeated output-throughput signal. Its private vendor patch is reverted; no full D1024 or 198-question candidate result
+    exists.
+  - prof-002 trace represents current 131K path, but profiler-on time is diagnostic and cannot be compared with no-profiler
+    E2E throughput.
+  - The user has not frozen a business P1K completion/SLO criterion; the retained tail fix cannot be declared globally complete.
+  superseded_decisions: review-006 itself incorrectly inferred that CachedOp selection meant full-call FlagGems was bypassed.
+    op-008 stdout proved FlagGems stage launch actually runs in all workers; op-007 get_default_config patch alone was still
+    ineffective because its exact function did not hit. op-008 tests the actual dispatch boundary and passed isolated screen.
+    fw-006 remains retained; accformal-004 gate is historical to its exited service.
+  next_review_trigger: After a newly frozen Mixed tail stability contract and one valid comparable A/B/A, or after a bounded
+    server timing trace proves a new optimization direction.
+experiments:
+- experiment_id: op-013-migrate-retained-optimizations-to-latest
+  document: op-013-migrate-retained-optimizations-to-latest.md
+  classification: environment_migration
+  status: code_migrated_static_and_import_verified
+  decision: target_runtime_validation_pending_due_tp16_resource_conflict
+  source_container: minimaxM3-opt-20260921
+  target_container: minimaxM3-latest-20260924
+  target_image_id: sha256:41d96df0b7b416e1e887fe1c4dab21dfc12819875524993f90213fe29214f541
+  source_mount_parity: passed_for_directory_mounts
+  target_model_service: absent_before_and_after_migration
+  migration_scope: Retained fw-006 FlagGems SQL reflection, op-011/012 experimental T-Head MoE M32 specialization, op-003
+    Plugin thead.yaml blacklist.
+  target_file_sha256:
+    flaggems_sql: c70511b6afa820e0cc5bd469fe22e5f51b8f8ca176eaef57af13183ce1426db3
+    flaggems_thead_fused_init: fae31da546fd72fb937a9a79033e3dae09ac730446d90eeeb08367da1ace9f9d
+    flaggems_thead_fused_moe: dcbfa3fd2011711fcd05a1045a3d918907f87c6b11039ee69a537b53c2f9e9ed
+    plugin_thead_yaml: 2b80df497c6200f190570d9ee3400c3935b758ca6fe2fa3993adc25eacd690e4
+  static_validation: Python syntax and YAML passed; flag_gems and vllm_fl import from target private workspace; exported MoE
+    module is _thead.fused.fused_moe; T-Head blacklist API returns conv3d and cudnn_convolution.
+  untouched_target_changes: FlagGems-vllm two modified files and Plugin four existing .orig untracked files preserved; shared
+    start-model.sh SHA unchanged.
+  accuracy_status: not_run_on_target
+  performance_status: not_run_on_target
+  graph_replay_status: not_run_on_target
+  pr_readiness: experimental
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-migration-to-latest
+  - /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-migration-to-latest/commands/op013-migrate-retained-optimizations-20261015-v2.sh
+  - /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-migration-to-latest/commands/op013-rollback-migration-20261015.sh
+  - /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-migration-to-latest/manifests/file-sha256.txt
+- experiment_id: op-012-start-model-config-moe-rebaseline
+  document: op-012-start-model-config-moe-rebaseline.md
+  classification: operator_improve
+  status: incomplete_candidate_left_running
+  decision: experimental_candidate_restored_on_8013_not_promoted_due_ttft_variance
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone_scenario_id: p1024-d256-c64-n128
+  hypothesis: Restored op-011 M32 GEMM2 BK64/stages2 may improve the start-model.sh 8013 configuration, but old 8023 measurements
+    and gates do not transfer.
+  primary_variable: Exact op-011 private FlagGems patch versus original source with the new 8013 configuration held identical
+    across roles.
+  source_script_sha256: ce6d0ec10b67a3c3fa9cb5d5969d50251fbc3327b562bbc129d73223eea3d3c7
+  service_command_sha256: 368b3e3c56da19cf0222e900defc5feb4cbd27f73f11e27fb8cf15b4917b06fb
+  launcher_sha256: 9d9e0fccd78765524ec0938f1046da16eb4a7b66cad27ac0e8e58cd4d72afe66
+  accuracy_status: minimal_regression_10_of_10_passed_formal_198_not_run
+  performance_status: targeted_d256_baseline_and_candidate_complete_comparison_incomplete_no_revert
+  performance_summary: Baseline/candidate output throughput medians 628.824/586.626 tok/s on the new 8013 configuration; descriptive
+    -6.71 percent. P99 TTFT within-process spreads 33.45/24.31 percent exceed the frozen 15 percent limit; no valid gain/regression
+    attribution or third role. Candidate server logs show Running 64 requests in 32 aggregate windows, while the restored
+    MoE guard is M32; production hit coverage requires a finer runtime proof.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/start-model.sh
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/patches/op011-thead-m32-gemm2-bk64-stages2.patch
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op012-8013-candidate-manifest.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/op012-8013-minimal-regression
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op012-8013-d256-warmup5-baseline/run-record.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op012-8013-d256-warmup5-candidate/run-record.json
+- experiment_id: op-011-thead-m32-gemm2-pipeline-stages
+  document: op-011-thead-m32-gemm2-pipeline-stages.md
+  classification: operator_improve
+  status: incomplete_reverted
+  decision: not_promoted_due_frozen_p99_itl_stability_and_revert_drift
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone_scenario_id: p1024-d256-c64-n128
+  hypothesis: At the live BF16 M32 GEMM2 stage, BK64 from op-010 reduced single-stage latency; lowering only num_stages from
+    4 to 2 or 3 may further reduce pipeline overhead or register pressure without changing the math or dispatch boundary.
+  primary_variable: num_stages 4 versus 2 or 3 while keeping BK64, BM16, BN64, warps4 and all inputs fixed; original BK128/stages4
+    is an anchor only.
+  search_gate: Exact stage full-call three-seed independent A/B/A p50 improvement at least 5 percent for the selected stage
+    count, BF16 reference agreement, target graph capture and two replays; reject on any numerical/graph failure.
+  promotion_gate: Only after a positive micro screen, implement a strict T-Head vendor shape guard; prove 16/16 TP16 live
+    hits, fallback and minimal regression, then same-contract no-profiler baseline/candidate/revert including the P1K Mixed
+    milestone. The prior op-010 incomplete receipt is not promotable evidence.
+  resource_boundary: PPU-07 independent minimaxM3-opt-20260921 container only. Stop and restore only its bound 8023 service
+    after exact identity and absence of evaluator/benchmark clients; source adaptation container, model and shared mounts
+    untouched.
+  accuracy_mode: minimal-regression passed on candidate service bd37abcbf719:8023:1383226:292858289; 10/10 unique GPQA strict-match,
+    0 timeout/empty/60K truncation; formal-gate required before formal performance
+  progress_monitor:
+    kind: heartbeat
+    automation_id: minimax-m3-op011-minimal-gpqa-c8-60k
+    interval_minutes: 30
+    status: paused
+    monitored_path: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/op011-minimal-regression
+  performance_mode: targeted for P1024/D256/C64/N128; no formal P1K claim from a reduced milestone
+  active_performance_service_instance: bd37abcbf719:8023:1456618:293547846
+  performance_plan_sha256: 4ed3a76e6b2a8d20277cfece3641461bb5f5f5b502e2c7a14c29a1e0efaa8e2c
+  performance_comparison_sha256: e9f20ed7d53af81f31b890dca63c24ec17726835242dfb3903b21cbb342f4db4
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op011-moe-stage-screen.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op011-moe-stage-screen.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op011-candidate-performance-manifest.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/op011-minimal-regression
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op011-d256-warmup5-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op011-d256-warmup5-wave2-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op011-wave2-candidate-manifest.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op011-wave2-revert-manifest.json
+  micro_result:
+    selected_stages: 2
+    status: screen_passed
+    paired_gain_percent_by_seed:
+    - 14.48711120099362
+    - 14.067814336105885
+    - 14.306723268644893
+    same_bk64_bitwise: true
+    graph_capture_and_two_replays: passed
+    result_sha256: c24e4842ac250847cb0ba50f3b8cff850026197123edc8fc7dcc566110e83147
+  targeted_performance:
+    scenario_id: p1024-d256-c64-n128
+    baseline_candidate_revert_output_throughput_toks_per_s:
+    - 464.7721162864576
+    - 512.3626672345811
+    - 463.07116531545415
+    candidate_diagnostic_gain_percent: 10.239545205158455
+    comparison_status: incomplete
+    comparison_sha256: b0d10ea2416c5a8abe029ef36ac378a3d72ecd60980e2a36e9709984ec577b6c
+    issues:
+    - candidate_p99_itl_excessive_within_process_spread
+    - revert_p99_itl_excessive_within_process_spread
+    - baseline_revert_p99_itl_drift
+    source_state: original_moe_restored; fw006_sql_and_thead_blacklist_retained
+    formal_p1k_and_198_question_gate: not_run_for_this_candidate
+  stop_condition: Micro improvement below 5 percent, inconsistent seeds, numerical or graph failure, no live service hit,
+    or Mixed end-to-end guard failure; restore original-source service without candidate promotion.
+- experiment_id: perfdiag-001-p1k-mixed-first-token-itl-variance
+  classification: framework
+  status: complete
+  decision: partially_attributed_no_code_change
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone_scenario_id: p1024-d256-c64-n128
+  hypothesis: P99 ITL spread in incomplete op-010 A/B/A receipts is driven by first-token interference as new request waves
+    prefill under max_num_seqs=32, rather than by the M32 MoE tile change.
+  primary_variable: None; read-only correlation of existing 18 measured rounds and server scheduling logs.
+  resource_boundary: No service/source changes or duplicate evaluator; inspect only existing op-010 detailed performance artifacts
+    and logs under the user-provided case directory.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op010-d256-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op010-d256-warmup5-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op010-perf2-baseline-131k-server.log
+  stop_condition: Existing client/server timestamps establish wave-correlated gaps but cannot prove unique server vs host/network
+    source; unresolved root cause recorded, op-010 frozen verdict unchanged. Triggered.
+- experiment_id: op-010-thead-invoke-m32-gemm2-bk64
+  classification: operator_improve
+  status: complete
+  decision: incomplete_reverted_no_promotion
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: Override the top-level FlagGems invoke_fused_moe_triton_kernel in T-Head vendor backend and change only M32
+    BF16 stage2 BK128 to BK64; op-008 proved this exact symbol executes on all 16 TP workers, whereas op-009 full-call wrapper
+    did not.
+  primary_variable: Exact live M32 GEMM2 BLOCK_SIZE_K 128 to 64; fallback for every other shape/config/dtype/device.
+  search_gate: Actual top-level invoke M32 stage single-card A/B/A +37.19%, bitwise numeric and graph capture/two replay passed;
+    TP16 graph/health/smoke 16/16 worker hit confirmed.
+  promotion_gate: 16 worker actual-hit, graph and replay, fixed-10 GPQA minimal regression, same-contract no-profiler P1K
+    D256 A/B/A, then D1024 and fresh full GPQA gate.
+  resource_boundary: Only private FlagGems source in independent optimization container; op-010 patch precisely reverted,
+    current 8023 service is original-source op010-perf2-revert, adaptation container untouched.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op008-moe-invoke-print-131k-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op009-vendor-live-config-micro.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/op009-nohit-vendor-revert
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/op010-minimal-regression
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op010-d256-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op010-d256-warmup5-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/op010-perf2-revert-source
+  stop_condition: Frozen D256 Mixed comparison remains incomplete due within-process P99 ITL spread after one same-contract
+    repeat with longer uniform warmup; stop candidate promotion and diagnose Mixed tail variance. Triggered.
+- experiment_id: op-009-thead-m32-gemm2-bk64-integration
+  classification: operator_improve
+  status: complete
+  decision: rejected_no_live_hit_reverted
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: On PPU-ZW810E BF16 E128/H6144/I192/topk4 Decode M32, changing only GEMM2 BLOCK_SIZE_K 128 to 64 at the actual
+    stage config selection may improve no-profiler Mixed throughput without altering Prefill or other Decode buckets.
+  primary_variable: Exact M32 GEMM2 BK128 to BK64; no other kernel tile, stage, model semantic, or service configuration change.
+  shape_contract: Native op-008 stdout stage record, 16/16 worker coverage; BK64 exact-boundary fake-weight M32 full-call
+    A/B/A 0.50043/0.42454/0.50044 ms, +15.16%, numerical and graph/two replay passed.
+  search_gate: passed_isolated_only
+  promotion_gate: Vendor dispatch actual hit, target graph capture/two replay, fixed-10 minimal GPQA regression, no-profiler
+    P1K D256 same-contract A/B/A with TTFT guard, then D1024 and fresh full GPQA threshold 0.88.
+  resource_boundary: User-approved 8013 stopped; no model service now active. Only private source in independent optimization
+    container may change; adaptation container untouched.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op008-moe-invoke-print-131k-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op008-live-stage-bk64-micro.json
+  stop_condition: Vendor override misses, wrong config/shape, graph or accuracy failure, or D256 A/B/A no end-to-end benefit.
+- experiment_id: op-008-plugin-cachedop-moe-invoke-shape-proof
+  classification: operator_improve
+  status: complete
+  decision: live_stage_proved_and_exact_boundary_micro_passed
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: A guarded GEMM2 BK64 launch may reduce the live Plugin CachedOp→FlagGems stage latency, but only if exact TP16
+    A/B/config and graph bucket match.
+  primary_variable: First diagnostic logs the actual unchanged Plugin-to-FlagGems invoke arguments once per distinct stage/shape;
+    no performance claim or tile change until that evidence is complete.
+  shape_contract: Derived from native live TP16 invocation, not synthetic E128 full-call assumptions.
+  search_gate: Exact stage/config proof and at least 10% same-shape isolated full-stage or transaction gain with numerical
+    agreement and other-M guards.
+  promotion_gate: Candidate actual-hit log, graph capture/two replays, fixed-10 GPQA minimal regression, no-profiler P1K D256
+    baseline/candidate/revert with Prefill/TTFT guard, then D1024 and new full GPQA threshold-0.88 gate.
+  resource_boundary: User-approved 8013 stopped; no model service now active. Only private source in independent optimization
+    container may change; source adaptation container untouched.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op007-candidate-comparison-131k-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op007-ineffective-candidate-runtime.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/op007-ineffective-candidate-revert-source
+  stop_condition: Live invoke path or shapes do not support exact BK64 hypothesis, diagnostic service unhealthy, or target
+    hit cannot be proven.
+- experiment_id: op-007-generic-flaggems-moe-stage-config-screen
+  classification: operator_improve
+  status: complete
+  decision: rejected_invalid_live_dispatch_reverted
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: The actual generic FlagGems MoE path may have a stage-specific M32 tile workpoint with at least 10% complete-call
+    gain while preserving other Decode graph buckets.
+  primary_variable: One generic FlagGems fused-MoE stage-specific tile parameter at a time in a process-local single-card
+    search; no persistent source or service change until the frozen search gate passes.
+  shape_contract: M1/2/4/8/16/32, E128, hidden6144, per-TP intermediate192, top-k4, BF16, runtime SiLU, no bias.
+  numerical_contract: Compare with unmodified current FlagGems call on identical tensors; BF16 atol=0.12, rtol=0.03, finite
+    output and no input/weight mutation.
+  search_gate: At least 10% M32 full-call p50 improvement with no more than 5% p50 regression at any other tested M, numerical
+    agreement, and real candidate dispatch hit; otherwise reject without integration.
+  promotion_gate: Live TP16 shape/expert_map and implementation proof, independent confirmation, graph capture and two replays,
+    fixed-10 GPQA minimal regression, no-profiler P1K Decode/Mixed A/B/A with Prefill guard, then new full GPQA threshold-0.88
+    bound gate.
+  resource_boundary: Independent optimization container idle; source adaptation container untouched, no model service active
+    on 8013/8023.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-002-current-131k-p1k-mixed/summaries/rank0-phase-device-analysis.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op006-actual-moe-backends-screen.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op007-generic-moe-config-screen.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op007-generic-moe-bk64-confirmation.json
+  single_card_result: M32 full-call current/candidate/revert 0.45616/0.38248/0.45592 ms, candidate +16.13%; M16 +13.30%; M1/2/4/8
+    guards within 5%; allclose, finite and immutable across six M; M32 graph captured and replayed twice with allclose. This
+    is not an end-to-end result.
+  live_result: get_default_config specialization recorded zero hits in TP16 candidate service despite 6/6 graph, health and
+    smoke. Logs show Plugin CachedOp invoke_fused_moe_triton_kernel default.flagos; baseline D256 completed, but candidate
+    was not measured. The no-hit service was stopped and private MoE source reverted to SHA256 a780da6348ba611640b546b47c60b79baa1312094386ce8f49d99d0d8e4750af.
+  stop_condition: No valid at-least-10% M32 full-call gain, any numerical/other-M guard failure, or live TP16 dispatch mismatch.
+- experiment_id: op-006-actual-flag-gems-versus-thead-moe-screen
+  classification: operator_replace
+  status: complete
+  decision: rejected_no_source_change
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: Replacing the actual Plugin fast-path generic FlagGems fused-MoE complete call with the available T-Head FlagGems-vllm
+    implementation may improve BF16 runtime SiLU graph Decode/Mixed performance.
+  primary_variable: Call backend for the complete fused-MoE transaction only; no model semantic, weight, tokenizer or service
+    change during initial screen.
+  shape_contract: M1/2/4/8/16/32, E128, hidden6144, per-TP intermediate192, top-k4, BF16, runtime SiLU, no bias. Model config
+    hidden_act=swigluoai but MiniMaxM2MoE does not override FusedMoE default activation=silu.
+  numerical_contract: Current generic FlagGems result versus T-Head result on identical tensors; BF16 atol=0.12 and rtol=0.03
+    plus finite output and input/weight immutability.
+  search_gate: At least 10% M32 full-call p50 improvement with numerical agreement and no material regression at other M;
+    otherwise reject with no service integration.
+  promotion_gate: If search passes, independent repeat, target dispatch proof, graph capture/two replays, minimal GPQA regression,
+    no-profiler P1K Decode/Mixed baseline/candidate/revert with Prefill guard, and a new full GPQA 0.88 gate before formal
+    performance.
+  resource_boundary: Independent optimization container only; 8013 service stopped with user's authorization and profiler
+    8023 service stopped after capture; source adaptation container untouched.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-002-current-131k-p1k-mixed/summaries/rank0-phase-device-analysis.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-002-current-131k-p1k-mixed/summaries/moe-stage-shape-probe.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/performance/benchmark-op006-actual-moe-backends.py
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op006-actual-moe-backends-screen.json
+  result_sha256: 177d04617ee33229c1ad90d009dc0f434f181ef62bc678fbf0e0c4e97238595f
+  result: All six M passed BF16 allclose, finite output and input/weight immutability. M32 current 0.50276 ms versus T-Head
+    0.45372 ms, only 9.754% faster than current and below frozen 10% screen gate. M1/2/4/8 T-Head regressed by 20.06/15.41/11.89/11.69%;
+    M16 improved 14.71%. No service/source integration.
+  stop_condition: Any numerical mismatch, output semantics mismatch, graph incompatibility, less than 10% M32 complete-call
+    gain, or material small-M regression.
+- experiment_id: op-005-native-linear-backend-screen
+  classification: operator_replace
+  status: complete
+  decision: rejected_reverted_end_to_end_regression
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: At least one frequent MiniMax-M3 BF16 M32 linear projection may run faster through the already available native
+    PyTorch implementation than the verified FlagGems cached kernel, even though op-001 eliminated alternate FlagGems configs.
+  primary_variable: FlagGems ops.linear uses a saved native aten.mm CUDA handle only for T-Head contiguous BF16 M32 K6144
+    N384/1024 without bias; all other inputs retain the original Triton path.
+  shape_contract: Eight op-001 production M32 BF16 bias-free shapes, including K6144 N384/768/1024/1536/12512 and K192/512/768
+    N6144.
+  numerical_contract: Native PyTorch reference; FlagGems output must satisfy BF16 atol=0.08 and rtol=0.02, and neither implementation
+    may alter input/weight.
+  search_gate: At least one exact production shape shows at least 10% complete-call p50 gain with numerical agreement; no
+    source or service change during search. Production call weights, graph proof and cross-shape guards are required before
+    any promotion.
+  promotion_gate: Exact-shape hit/fallback and two graph replays pass in single-card micro; the new TP16 131K service passes
+    6/6 graph and two short smoke requests. Fixed-10 GPQA C8 minimal regression passed strict 10/10, 0 timeout/empty/truncation.
+    Boundary dtype/layout/bias checks passed. P1K Decode/Mixed no-profiler baseline/candidate/revert and new full GPQA 0.88
+    gate remain required before formal performance.
+  resource_boundary: User-approved 8013 service stopped. Candidate service bd37abcbf719:8023:1118369:286109985 stopped exactly
+    after minimal regression, and PPU compute processes cleared. Independent optimization container only; source adaptation
+    container untouched.
+  source_change: Private /workspace/FlagGems/src/flag_gems/ops/linear.py original SHA256 4d46bae0804ac32b698582d010d5f0e02d3570c6703efff9d1d666e2bf43fd94;
+    candidate SHA256 40468058e6e664448573e10663b89b5aa467b052a0b2c56191243760c5c99bef; exact backup in case patches/op005-linear-original.py.
+  heartbeat: minimax-m3-op005-minimal-regression, 30 minutes, PAUSED after terminal success
+  minimal_regression_result: Fixed first 10 GPQA greedy/C8, strict 10/10, flexible 6/10, zero timeout/empty, max completion
+    22449 below 30000, runner exit 0; diagnostic only, not a formal gate.
+  baseline_comparison_service: bd37abcbf719:8023:1175787:286344218; original linear SHA, 131K TP16 graph 6/6, health200, two
+    short smoke responses 24 completion tokens/nonempty; stopped exactly after D256 baseline.
+  d256_baseline: op005-d256-baseline-01 complete, six valid rounds, no errors, warmup spread 0.50%; three measured total tok/s
+    2333.48/2321.41/2316.26. Comparison pending.
+  d256_candidate: op005-d256-candidate-01 complete, six valid rounds, no errors, warmup spread 0.31%; three measured total
+    tok/s 2030.90/2055.11/2059.33 and higher P99 TPOT. Revert confirmed baseline recovery.
+  d256_revert: op005-d256-revert-01 complete, six valid rounds, no errors; three measured total tok/s 2325.72/2321.52/2308.86,
+    restoring baseline.
+  d256_comparison: Output tok/s medians baseline/candidate/revert 464.28/411.02/464.30; candidate -11.47%, P99 TTFT +10.71%,
+    P99 TPOT +13.07%. Comparator overall incomplete because baseline P99 ITL three-round spread exceeds 15%; remaining measured
+    metrics violate promotion gates, so candidate rejected without formal performance or new 198Q accuracy claim.
+  reverted_source: Private FlagGems linear.py SHA256 4d46bae0804ac32b698582d010d5f0e02d3570c6703efff9d1d666e2bf43fd94 verified;
+    original-linear service bd37abcbf719:8023:1201737:286530453 healthy after A/B/A.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op001-linear-config-microbenchmark.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/summaries/rank0.txt
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op005-guarded-linear-regression.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op005-linear-boundary-regression.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op005-candidate-service-manifest.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op005-baseline-performance-manifest.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op005-d256-baseline-01/run-record.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op005-d256-candidate-01/run-record.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op005-d256-revert-01/run-record.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/op005-d256-aba-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/op005-minimal-regression
+  next_action: Refresh current 131K original-linear service Prefill/Decode/Mixed critical-path profile and review next bounded
+    optimization candidate; do not promote op005 or reuse old full GPQA gate.
+  stop_condition: Numerical failure, implementation identity ambiguous, no meaningful per-shape gain, or resource conflict.
+- experiment_id: op-004-fused-moe-m32-paired-gate-up
+  classification: operator_improve
+  status: complete
+  decision: rejected_no_source_change
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  hypothesis: The existing T-Head PAIR_GATE_UP_DOT path may reuse the hidden-state tile across gate/up projections for the
+    dominant graph M32 BF16 MiniMax-M3 MoE shape, reducing the full fused-MoE transaction beyond the rejected op-002 tile/stage
+    search.
+  primary_variable: GEMM1 PAIR_GATE_UP_DOT false to true; no service/source change during the first isolated microbenchmark.
+  shape_contract: E128, hidden6144, per-TP intermediate192, top-k4, BF16, SiLU, no bias; M1/2/4/8/16/32 guard matrix with
+    M32 primary.
+  reference: Current T-Head fused_experts_impl output and existing op-002 exact-shape result.
+  search_gate: At least 10% reduction in the complete M32 fused-MoE call with BF16 allclose at atol=0.12 and rtol=0.03, with
+    no material regression at other observed graph buckets; otherwise reject without service integration.
+  promotion_gate: If search passes, run independent confirmation, graph capture and two replays, minimal-regression, P1K Decode
+    and Mixed no-profiler targeted candidate/revert with Prefill guard, then a fresh full GPQA formal gate before formal performance.
+  resource_boundary: User explicitly permitted stopping the container's port-8013 TP16 service on 2026-09-23. Verify its exact
+    PID, command, log and port before TERM; do not touch the source adaptation container or other services. Current port-8013
+    service occupies all 16 PPUs, so no concurrent GPU microbenchmark.
+  rollback: The microbenchmark monkeypatches get_default_config only inside its own process and restores it; no source file
+    is changed. If a later service candidate is needed, use an isolated private source copy and restore the previous service
+    configuration on failure.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op002-fused-moe-config-screen.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/summaries/phase-rank-analysis.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/op004-stop-8013.sh
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/performance/benchmark-op004-paired-gate-up.py
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op004-paired-gate-up-search.json
+  result_sha256: e4904cbd6978d2946fa4f59c4ac44b46356e215923da57fa5a40fa894ffd5ef9
+  result: One-card PPU-ZW810E complete-call search; M32 current 0.45224 ms versus paired 0.58892 ms (30.22% slower), M16 current
+    0.31316 versus paired 0.36652 ms (17.04% slower). BF16 allclose passed for all six M; paired path actually hit GEMM1 at
+    M16/M32. M1/2/4/8 did not hit the paired GEMM1 branch and their small changes are timing noise. No source or service candidate
+    was installed.
+  resource_transition: User-authorized exact port-8013 process 1017803 (start_ticks 285091266) received TERM; process exited,
+    port refused health, and ppu-smi showed no running compute processes afterward. Source adaptation container untouched.
+  next_action: Do not integrate paired Gate/Up; screen a distinct already-available exact-shape implementation before authoring
+    a new kernel.
+  stop_condition: satisfied; M32 complete-call benefit was below 10% and was a material regression.
+- experiment_id: accformal-004-gpqa-c64-60k-131k-threshold88
+  classification: accuracy_formal_gate
+  status: complete
+  decision: accuracy_gate_passed_for_former_service
+  hypothesis: The current fw-006 plus op-003 131072-context service with max_gen_toks=60000 will recover enough previously
+    truncated answers to meet the frozen 0.88 full-GPQA threshold.
+  scope: full 198-question gpqa_diamond_generative_cot, C64, seed 42, strict-match
+  service: bd37abcbf719:8023:895010:279945667, max_model_len=131072, prefix caching disabled, FULL_DECODE_ONLY graph
+  generation: temperature=1, top_p=0.95, top_k=20, max_gen_toks=60000
+  threshold: 0.88
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accformal-004-gpqa-c64-60k-131k-threshold88
+  result: Native run-record process_succeeded=true and accuracy-gate.json passed=true with strict-match score 180/198=0.9090909091
+    versus threshold 0.88. The gate-bound service exited later at 11:44:25+08 and is unavailable for new tests.
+  next_experiment: Re-establish a comparable isolated candidate service and follow the accuracy skill rebind/full-gate rules
+    before consuming accuracy in performance validation.
+  stop_condition: satisfied; formal run and gate terminally complete.
+- experiment_id: op-003-conv3d-blacklist-131k-startup
+  classification: operator_replace_fallback
+  status: complete
+  decision: retained_for_accuracy_diagnostic
+  hypothesis: Blacklisting the T-Head conv3d direct and wrapper entrypoints in Plugin thead.yaml will route the 131K startup
+    dummy profile away from the failing FlagGems Triton conv3d implementation.
+  scope: MiniMax-M3 TP16 BF16 startup profile and graph/smoke only
+  change: vllm_fl/dispatch/config/thead.yaml flagos_blacklist adds conv3d and cudnn_convolution
+  result: The final 131K service passed the prior failure point, 6/6 graph capture, health, and Beijing smoke; active service
+    bd37abcbf719:8023:895010:279945667.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op003-conv3d-blacklist
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op003-thead-yaml-entrypoint-131k-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/op003-thead-yaml-entrypoint-maxlen131k
+  next_experiment: accdiag-003b-gpqa-truncated-60k-131k-blacklist
+  stop_condition: satisfied for startup unblock only; formal performance and full accuracy remain untested
+- experiment_id: accdiag-003-gpqa-truncated-60k
+  classification: accuracy_diagnostic
+  status: cancelled_superseded
+  decision: preserved_then_restarted_on_131k_blacklist_service
+  hypothesis: Replaying every 30K-truncated occurrence with max_tokens=60000 will quantify how much of the GPQA loss is caused
+    by the output cap rather than model answer selection.
+  scope: 64 source occurrences across request seeds 1234/2026/3407, 31 unique doc_ids, C64
+  service: bd37abcbf719:8023:862604:278807310, max_model_len=65536, maximum observed prompt plus generation=62637
+  formal_gate: false
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accdiag-003-gpqa-truncated-60k
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/accdiag003-131k-server.log
+  result: The 65K run completed 1/64 with zero errors before user-requested cancellation; evidence was preserved and not merged
+    into the replacement run.
+  next_experiment: accdiag-003b-gpqa-truncated-60k-131k-blacklist
+  stop_condition: Any source checksum mismatch, request exceeds service context, service identity changes, or native response
+    evidence is incomplete.
+- experiment_id: accdiag-003b-gpqa-truncated-60k-131k-blacklist
+  classification: accuracy_diagnostic
+  status: complete
+  decision: diagnostic_complete
+  hypothesis: Replaying all 64 prior 30K-truncated occurrences with max_tokens=60000 on a 131072-context service will isolate
+    output-cap effects without the former server-context ambiguity.
+  scope: 64 source occurrences across request seeds 1234/2026/3407, 31 unique doc_ids, C64
+  service: bd37abcbf719:8023:895010:279945667, max_model_len=131072, maximum observed prompt plus generation=62637
+  service_change: Plugin vllm_fl/dispatch/config/thead.yaml blacklists conv3d and cudnn_convolution so the T-Head video-tower
+    dummy profile falls back from the failing FlagGems Triton path.
+  formal_gate: false
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accdiag-003b-gpqa-truncated-60k-131k-blacklist
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/op003-thead-yaml-entrypoint-131k-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op003-conv3d-blacklist
+  result: All 64 requests succeeded with zero errors or empty outputs; 31 still truncated at 60000, while correct answers
+    increased from 20 to 39 with 23 wrong-to-correct and 4 correct-to-wrong flips.
+  next_experiment: accformal-004-gpqa-c64-60k-131k-threshold88
+  stop_condition: Any source checksum mismatch, request exceeds service context, service identity changes, or native response
+    evidence is incomplete.
+- experiment_id: accdist-001-gpqa-c64-multiseed3
+  classification: accuracy_diagnostic
+  status: complete
+  decision: diagnostic_complete_below_reference
+  hypothesis: Three explicitly different API request seeds will quantify the score/truncation distribution hidden by the non-reproducible
+    single C64 sampling run.
+  scope: full 198-question GPQA, C64, request seeds 1234/2026/3407, lm-eval seed fixed at 42
+  aggregation: mean/min/max plus 10000-resample question-cluster bootstrap two-sided 95% interval; report per-seed 30K truncation
+    rate
+  formal_gate: false
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accdist-001-gpqa-c64-multiseed3
+  result: Scores 175/198, 173/198, and 173/198; mean 0.877104, min 0.873737, max 0.883838, question-cluster bootstrap 95%
+    interval [0.835017, 0.915825], truncations 20/20/24, zero timeout or empty output.
+  next_experiment: accdiag-003-gpqa-truncated-60k
+  stop_condition: Any seed lacks exactly 198 unique strict-match questions, the service identity changes, or native evidence
+    is incomplete.
+- experiment_id: env-001-source-facts-and-replication
+  classification: framework
+  status: complete
+  decision: environment_gate_passed
+  hypothesis: The adapted writable-layer state can be snapshotted into an immutable image and reproduced with identical directory
+    mounts without modifying the source container.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/manifests/source-container.inspect.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/manifests/mount-comparison.json
+  result: Exact adapted image reused; image_lineage verified; mount parity passed; repository/import identities match; optimization
+    container is idle.
+  stop_condition: image_lineage or mount_parity failure
+- experiment_id: fw-001-p1k-mixed-prefill-interference
+  classification: framework
+  status: complete
+  decision: rejected_reverted
+  hypothesis: At C64/N128, later admission or chunked-Prefill waves intermittently pause active Decode requests for 16-21
+    seconds; a smaller max_num_batched_tokens workpoint may reduce the stall without materially reducing output throughput.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/baseline-p1k-decode-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/baseline-p1k-mixed-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/p1k-request-wave-analysis
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall
+  profiling_result: TP rank 0-15 coverage passed, but the 16-21 second slow path was not reproduced; normal-path compute was
+    rank-balanced and collective spread is not causal evidence. Stall attribution remains incomplete.
+  result: The maintained comparison was incomplete because the original baseline was unstable and baseline-to-revert drift
+    exceeded limits. Against the stable 8192 revert, 4096 was 1.80% lower in output throughput and 1.45% worse in P99 TPOT;
+    its cold first round still stalled.
+  result_evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw001-baseline-8192-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw001-candidate-4096-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw001-revert-8192-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw001-8192-4096-8192-comparison.json
+  next_experiment: fw-002-flaggems-autotune-cache-isolation
+  stop_condition: satisfied; 4096 is not retained
+- experiment_id: fw-002-flaggems-autotune-cache-isolation
+  classification: framework
+  status: complete
+  decision: rejected_reverted
+  hypothesis: Synchronous FlagGems LibTuner cache misses and AABS1/AABS0 cache contamination cause the intermittent multi-second
+    request stalls; an isolated AABS0 cache plus controlled warmup can remove the stalls without changing steady-state kernel
+    semantics.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/fw001-flaggems-linear-config-distribution.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/fw001-revert-8192-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/fw002-isolated-cache-diagnostic-server.log
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/fw002-clean-cache-db-preparation.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw002-preinitialized-clean-cache-cold-hot-02
+  result: A fresh TP16 cache first exposed a SQLite WAL initialization race. Single-process WAL preinitialization fixed startup,
+    but the two complete P1024/D256 rounds added no runtime autotune records and reached only 290.76/400.36 output tok/s with
+    31.72% warmup spread; the second round remained below the stable default-cache revert at 464.52 tok/s.
+  next_experiment: Rank operator candidates from the prof-001 fused_moe and linear hotspots, then run the cheapest shape-specific
+    microbenchmark before any source modification.
+  stop_condition: satisfied; no request-time cache miss coincided with the stalls and the isolated cache did not approach
+    baseline throughput
+- experiment_id: op-001-linear-decode-cache-config
+  classification: operator/replace
+  status: complete
+  decision: rejected_reverted
+  hypothesis: All cached align32(M)=32 MiniMax-M3 BF16 linear shapes use legacy configs outside the current AABS0 candidate
+    set; replacing the affected shapes with a currently supported config may reduce steady-state decode cost.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op001-linear-cache-targets.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/summaries/phase-rank-analysis.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op001-linear-config-microbenchmark.json
+  result: All eight cached configs passed BF16 reference checks and were the fastest option for their exact production shape;
+    none of the current eight configs improved p50. The legacy entries are useful tuned results, not a replaceable regression.
+  next_experiment: Inspect the T-Head fused MoE stage split and exact decode shapes for a lower-cost microbenchmark candidate,
+    or return to service-level stall attribution if no untested operator mechanism remains.
+  stop_condition: satisfied; no current supported config beat cached config on any production shape
+- experiment_id: op-002-fused-moe-decode-stage-config-screen
+  classification: operator/improve
+  status: complete
+  decision: rejected_reverted
+  hypothesis: A bounded stage-specific tile/group/stage variant can improve the T-Head fused MoE full pipeline for MiniMax-M3
+    decode M=1/2/4/8/16/32 over the current PPU stage split.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/summaries/phase-rank-analysis.json
+  - /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_thead/ops/fused_moe.py
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/op002-fused-moe-config-screen.json
+  result: All candidates passed numerical checks. M16 stages3 improved 15.95% but its observed graph bucket appeared only
+    2 times versus 497 M32 buckets; the dominant M32 stages2 gain was 3.81%, below the 5% weighted operator threshold and
+    about 1.4% theoretical end-to-end upper bound before host time.
+  next_experiment: Return to bounded slow-path capture; normal-path linear and MoE low-cost config replacements are now exhausted.
+  stop_condition: satisfied; production-weighted gain is below threshold
+- experiment_id: fw-003-bounded-mixed-stall-capture
+  classification: framework
+  status: complete
+  decision: diagnostic_complete_no_code_change
+  hypothesis: The intermittent 16-21 second request gap can be reproduced within two profiled Mixed attempts and distinguished
+    as a host, device, collective, or scheduler admission gap using synchronized evidence.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone: P1024/D256/C64/N128; one unprofiled warmup plus exactly two profiled rounds
+  slow_path_threshold: any per-request single ITL >= 5 seconds
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-003-bounded-mixed-stall-capture
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/fw003-timeline-correlation-v5.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/fw003-restore-no-profiler-service
+  result: Both profiled rounds had 16/16 rank coverage but no >=5 s ITL (max about 0.781 s). The unprofiled warmup captured
+    35 >=5 s gaps, max 6.946 s. During the gap the host was about 90% idle with zero I/O wait, all 16 workers consumed about
+    one CPU core each, and all PPUs reached 0% utilization before uneven recovery. This narrows the issue to worker-side CPU
+    work/spin/lazy initialization or memory faults, but no user-space function stack was captured.
+  next_experiment: fw-004-bounded-worker-stack-on-stall
+  stop_condition: satisfied; exactly two profiled rounds completed, service restored, and no profiler-on timing is used as
+    a performance result
+- experiment_id: fw-004-bounded-worker-stack-on-stall
+  classification: framework
+  status: complete
+  decision: diagnostic_complete_no_code_change
+  hypothesis: A triggered stack sample during the all-worker-CPU/device-idle interval can distinguish compilation or lazy
+    import, allocator/page-fault handling, collective busy wait, or another worker-side CPU path.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone: Up to six no-profiler P1024/D256/C64/N128 diagnostic rounds; stack attach makes all timings diagnostic-only.
+  trigger: After >=50% PPU utilization in the same active client process, two consecutive one-second samples where all 16
+    PPUs are <=20% utilization.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-004-bounded-worker-stack-on-stall
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-004-bounded-worker-stack-on-stall/trigger/symbolized-main-threads.json
+  result: The first of six diagnostic rounds triggered after all 16 PPUs were 0% utilized for two consecutive seconds. Four
+    representative worker main threads resolved to PySequence_Tuple, _PyEval_EvalFrameDefault, dictresize, and _PyUnicode_JoinArray;
+    rank0 also hit PyObject_Malloc and _PyObject_GC_NewVar. This supports Python object construction/allocation rather than
+    collective busy wait, but the exact Python caller is still unknown because py-bt is unavailable.
+  next_experiment: fw-005-faulthandler-python-stack-on-stall
+  stop_condition: satisfied; one trigger captured, six diagnostic rounds completed, and health/text smoke passed
+- experiment_id: fw-005-faulthandler-python-stack-on-stall
+  classification: framework
+  status: complete
+  decision: diagnostic_complete_no_code_change
+  hypothesis: A signal-triggered Python faulthandler dump during the worker-CPU/device-idle interval will identify the exact
+    Python module and function constructing tuples, dictionaries, strings, and objects.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone: Up to six no-profiler P1024/D256/C64/N128 diagnostic rounds under a diagnostic-only sitecustomize faulthandler
+    handler; SIGUSR2 and SIGUSR1 were superseded by verified real-time signal 40 after runtime handler conflicts.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-005-faulthandler-python-stack-on-stall
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-005-faulthandler-python-stack-on-stall-v2
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-005-faulthandler-python-stack-on-stall-v3
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/fw005-restore-no-sitecustomize-service
+  result: The v3 first round reproduced max single ITL 7.139 s and output throughput 319.13 tok/s; later rounds were stable
+    at 462.95-466.77 tok/s. All four representative workers were inside SQLAlchemy automap schema reflection called by FlagGems
+    ConfigCache for the linearized index m32/n32 path. The active Triton 3.6 SQLite cache has 605 tables, so every worker
+    reflected the full schema on a first table lookup. Diagnostic hooks were removed and the original graph service passed
+    health and text smoke.
+  next_experiment: fw-006-flaggems-targeted-schema-reflection
+  stop_condition: satisfied; exact Python file/function was captured and the no-sitecustomize service was restored
+- experiment_id: fw-006-flaggems-targeted-schema-reflection
+  classification: framework
+  status: complete
+  decision: retained_accuracy_passed_formal_performance_pending
+  hypothesis: Restricting SQLAlchemy automap reflection to the requested FlagGems config table will eliminate the synchronized
+    multi-second worker CPU/device-idle gap without changing selected configs or kernel semantics.
+  parent_target_scenario_ids:
+  - p1024-d1024-c64-n128
+  milestone: Same-config P1024/D256/C64/N128 baseline/candidate/revert focused on first-round and stable-round throughput,
+    TTFT, TPOT, and max single ITL.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-005-faulthandler-python-stack-on-stall-v3
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/fw006-patch-and-unit-test.txt
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw006-baseline-original
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw006-candidate-targeted-reflection
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw006-revert-original
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw006-p1k-candidate-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-minimal-regression
+  change: FlagGems build_sql_model_by_db now checks the requested table and reflects only that table instead of automapping
+    all 605 tables; patch SHA256 c222f7ff28bf8ba5e66cc7f4e0fff58fbd548704201c5a06c9d9f0e6b5c21363.
+  milestone_result: D256 first-round output throughput improved 41.89% and max single ITL fell 84.48%; original-code revert
+    reproduced a 7.112 s gap. Stable candidate/revert throughput was effectively unchanged.
+  checkpoint_result: Maintained performance-only P1024/D1024 run completed 6/6 rounds with 128/128 successes per round and
+    passed warmup stability. Measured output throughput was 533.89/532.80/532.50 tok/s and P99 ITL 58.34/58.57/58.99 ms; no
+    multi-second gap occurred. Historical same-config baseline comparison is descriptive only because it was not bound to
+    the new contract.
+  correctness: Minimal regression passed fixed-first-10 GPQA greedy/C8 with strict 10/10, flexible 7/10, zero timeout/empty/garbled
+    output; two 30k length truncations match baseline observations. Graph capture, health, and text smoke passed. This is
+    not a formal 198-question accuracy gate.
+  active_service_instance: bd37abcbf719:8023:588850:273180627
+  next_experiment: The replacement 60K/131K accformal-004 gate passed 180/198 on a later service; before formal performance,
+    restore a comparable isolated service, follow rebind rules, and complete P1K contract-bound baseline/candidate/revert.
+  stop_condition: satisfied for isolated milestone retention; formal P1K performance remains pending, not blocked by the earlier
+    30K accuracy result.
+resource_gate:
+  status: passed
+  source_service: minimaxM3 container port 8013 TP16 process tree
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/release-source-service-20260921-02
+  result: User-authorized service stop completed; source container remains running, port 8013 is free, and all PPU compute
+    processes drained before optimization launch.
+baseline_service:
+  container: minimaxM3-opt-20260921
+  port: 8023
+  status: ready_correct_no_prefix
+  launch_command: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/minimax-m3-no-prefix-baseline-service-command-ppu07-20260921.sh
+  log: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/logs/baseline-no-prefix-server.log
+  note: AABS0, max_model_len 65536, max_num_seqs 32, capture sizes 1/2/4/8/16/32, and prefix cache disabled. Six graph captures
+    and two post-capture replays passed with correct Beijing/Paris outputs.
+  restored_after_profiler:
+    service_instance_id: bd37abcbf719:8023:315660:271128966
+    manifest: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/manifests/post-prof001-restored-service.json
+    transition: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/transitions/prof-001-restore-no-profiler
+    result: no-profiler argv verified; 6/6 graph captures, health, and smoke passed
+accuracy_evaluation:
+  skill: inference-accuracy-evaluation
+  mode: baseline-sanity
+  result: passed_with_output_health_observation
+  score: 1.0
+  scope: fixed_first_10_gpqa_greedy_c8
+  unique_samples: 10
+  timeouts: 0
+  output_health_observation: doc_ids 7 and 8 reached 30000 completion tokens and finish_reason length; strict-match remained
+    10/10
+  evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/baseline-sanity
+  monitor:
+    automation_id: minimax-m3-ppu07-baseline-sanity
+    interval_minutes: 30
+    status: paused_after_terminal
+  latest_minimal_regression:
+    experiment_ids:
+    - fw-006-flaggems-targeted-schema-reflection
+    mode: minimal-regression
+    result: passed
+    scope: fixed_first_10_gpqa_greedy_c8_plus_sql_existing_missing_graph_smoke
+    strict_match: 1.0
+    flexible_extract: 0.7
+    unique_samples: 10
+    timeouts: 0
+    output_health_observation: two 30000-token finish_reason length outputs match baseline; zero empty or garbled outputs
+    formal_gate: not_run
+    evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-minimal-regression
+    monitor:
+      automation_id: minimax-m3-fw006-minimal-regression
+      interval_minutes: 30
+      status: paused_after_terminal
+  latest_formal_gate:
+    experiment_ids:
+    - fw-006-flaggems-targeted-schema-reflection
+    mode: formal-gate
+    result: failed_below_threshold
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.88
+    expected_samples: 198
+    completed_unique_samples: 198
+    score: 0.8686868686868687
+    correct: 172
+    timeouts: 0
+    request_errors: 0
+    num_concurrent: 64
+    service_instance_id: bd37abcbf719:8023:588850:273180627
+    evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88
+    launched_at: '2026-09-22T10:17:47+08:00'
+    terminal_at: '2026-09-22T11:21:00+08:00'
+    gate_record: not_created_below_threshold
+    run_record: not_created_below_threshold
+    monitor:
+      automation_id: minimax-m3-fw006-formal-gpqa-c64
+      interval_minutes: 30
+      status: paused_after_terminal
+  latest_distribution_diagnostic:
+    experiment_id: accdist-001-gpqa-c64-multiseed3
+    component_mode: formal-gate
+    aggregate_scope: diagnostic_distribution
+    result: complete_below_reference
+    request_seeds:
+    - 1234
+    - 2026
+    - 3407
+    lm_eval_seed: 42
+    expected_samples_per_seed: 198
+    num_concurrent: 64
+    reference_threshold: 0.88
+    aggregate_rule: mean/min/max and question-cluster bootstrap 95% interval over 10000 resamples; no formal gate is issued
+    evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accdist-001-gpqa-c64-multiseed3
+    launched_at: '2026-09-22T14:49:01+08:00'
+    per_seed_scores:
+    - 0.8838383838
+    - 0.8737373737
+    - 0.8737373737
+    aggregate_mean: 0.8771043771
+    bootstrap_95_percent_interval:
+    - 0.835016835
+    - 0.9158249158
+    truncations_per_seed:
+    - 20
+    - 20
+    - 24
+    formal_gate: false
+    monitor:
+      automation_id: minimax-m3-accdist001-gpqa-multi-seed-c64
+      interval_minutes: 30
+      status: paused_after_terminal
+  active_truncation_diagnostic:
+    experiment_id: accdiag-003b-gpqa-truncated-60k-131k-blacklist
+    result: complete
+    source_occurrences: 64
+    unique_doc_ids: 31
+    max_tokens: 60000
+    num_concurrent: 64
+    server_max_model_len: 131072
+    max_observed_prompt_plus_generation: 62637
+    service_instance_id: bd37abcbf719:8023:895010:279945667
+    plugin_thead_yaml_blacklist:
+    - conv3d
+    - cudnn_convolution
+    formal_gate: false
+    successful: 64
+    errors: 0
+    empty_outputs: 0
+    truncated_at_60000: 31
+    original_correct: 20
+    new_correct: 39
+    wrong_to_correct: 23
+    correct_to_wrong: 4
+    evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accdiag-003b-gpqa-truncated-60k-131k-blacklist
+    monitor:
+      automation_id: minimax-m3-accdiag003-truncated-60k
+      interval_minutes: 30
+      status: paused_after_terminal
+  active_formal_gate:
+    experiment_id: accformal-004-gpqa-c64-60k-131k-threshold88
+    result: passed_for_former_service
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.88
+    expected_samples: 198
+    num_concurrent: 64
+    max_gen_toks: 60000
+    seed: 42
+    server_max_model_len: 131072
+    service_instance_id: bd37abcbf719:8023:895010:279945667
+    launcher_pid: 3074644
+    launched_at: '2026-09-23T10:03:00+08:00'
+    score: 0.9090909090909091
+    correct: 180
+    passed: true
+    gate: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accformal-004-gpqa-c64-60k-131k-threshold88/accuracy-gate.json
+    service_now: exited_at_2026-09-23T11:44:25+08:00
+    evidence: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/accformal-004-gpqa-c64-60k-131k-threshold88
+    monitor:
+      automation_id: minimax-m3-accformal004-gpqa-c64-60k
+      interval_minutes: 30
+      status: paused_after_terminal
+performance_evaluation:
+  skill: inference-performance-evaluation
+  mode: baseline
+  result: baseline_complete_with_cross_round_instability
+  evidence:
+    prefill: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/baseline-p1k-prefill-02
+    decode: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/baseline-p1k-decode-01
+    mixed: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/baseline-p1k-mixed-01
+  latest_checkpoint:
+    mode: checkpoint
+    scope: performance_only
+    scenario_ids:
+    - p1024-d1024-c64-n128
+    result: candidate_run_complete_comparison_formal_incomplete
+    run_record: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/performance/fw006-p1k-candidate-01/run-record.json
+    plan: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/performance/perf-fw006-p1k-checkpoint-plan.json
+    contract: /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/commands/performance/fw006-p1k-checkpoint-comparison.json
+    result_summary: Candidate completed 3 warmup plus 3 measured rounds with 128/128 successes each and warmup spread 0.65%.
+      Measured median output throughput 532.80 tok/s, P99 TTFT 64552.63 ms, P99 TPOT 60.001 ms, P99 ITL 58.567 ms. No exact
+      candidate-bound formal accuracy gate, so formal comparison was not run.
+profiling:
+  skill: inference-profiling
+  mode: capture
+  profile_id: prof-001-p1k-mixed-stall
+  result: incomplete_for_stall_attribution
+  rank_coverage: 16_of_16
+  traces: 17
+  result_summary: The profiled round completed 64/64 requests with P99 ITL 710.84 ms and did not exercise the 16-21 second
+    stall. Normal-path device duration spread was 2.95%; collective spread was 31.34% but is not causal evidence without the
+    slow path.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/client/MiniMax-M3/diagnostic-49fe0fef62cb4262aa91ee0b9a8a74ad/diagnostic.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/summaries/phase-rank-analysis.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/prof-001-p1k-mixed-stall/SHA256SUMS
+  latest_profile_id: fw-003-bounded-mixed-stall-capture
+  latest_result: Two profiled rounds had complete TP16 coverage but did not reproduce the slow path. A synchronized unprofiled
+    warmup did reproduce a 6.946 s ITL gap and localized it to all-worker CPU activity with a device-idle interval; exact
+    function attribution remains incomplete.
+  latest_evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/profiling/fw-003-bounded-mixed-stall-capture
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/fw003-timeline-correlation-v5.json
+accuracy_incidents:
+- issue_id: accdiag-001-null-output-config-drift
+  trigger: baseline-sanity preflight smoke
+  classification: launch_configuration_drift_confirmed_at_bundle_boundary
+  gate_blocking: false
+  reproduction: current graph instance deterministically returns NUL for completions, chat, and two archived known-good prompts
+  last_known_good: PPU-13 graph-service-run2, image sha256:f222f9a173b320d799ada39791979828f6abc5218063616b7efdf05873c52c1f
+  failing_candidate: PPU-07 service instance bd37abcbf71936c9c5865a01d993b12107954855e12123eb6650781dedde7188-337-268927884
+  resolved_boundary: The drifted AABS1/100k/no-prefix/default-51-capture configuration produced NUL output; the verified AABS0/65k/maxseq32/six-capture
+    delivery bundle restored valid output, and disabling prefix cache as a subsequent single variable retained correctness.
+  root_cause_confidence: confirmed_at_configuration_bundle_boundary_individual_drift_variable_not_isolated
+  bisection: AABS0 alone on the drifted configuration and AABS1 eager both failed startup with HGGC illegal memory; the delivery
+    bundle started and returned valid text; prefix-cache disable then passed as a single variable.
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/baseline-service-chat-replay-20260921-01
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-001-known-good-prompts-current-graph
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-001-delivered-config-replay
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-001-no-prefix-replay
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/baseline-sanity
+  performance_may_continue: true
+- issue_id: accdiag-002-gpqa-below-threshold
+  trigger: fw006 candidate-bound formal GPQA gate
+  classification: inherited_accuracy_blocker_suspected_with_sampling_and_truncation_sensitivity
+  gate_blocking: true
+  formal_result: 172/198=0.8686868687 below threshold 0.88; evidence valid with 198 unique questions, 0 timeout, and 0 request
+    error
+  historical_comparison: Against upstream PPU-13 redesign 177/198, current has 11 regressions and 6 improvements. Nontruncated
+    correctness improved 164 to 165; all net loss is in 30000-token-truncated outputs, where correct count fell 13 to 7.
+  identity_boundary: Upstream 177/198 used an older PPU-13 redesign/index-topk service. The current PPU-07 no-patch+AABS0
+    path had no upstream full-GPQA gate, so 177/198 is not a last-known-good result for this execution path.
+  current_reproducer: Exact formal payload repeated twice concurrently for regression docs 69/121/131 on the same service.
+    All six response hashes differed; doc 69 flipped B to correct D, docs 121 and 131 flipped formal wrong answers C/D to
+    correct B/A, and completion lengths/finish reasons also changed.
+  root_cause_confidence: confirmed_formal_contract_sampling_nondeterminism_with_truncation_amplification_fw006_not_formally_bisected
+  evidence:
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/accuracy/fw006-formal-gpqa-c64-threshold88
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-002-gpqa-below-threshold/sample-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-002-gpqa-below-threshold/upstream-178-vs-177-comparison.json
+  - /mnt/nfs/users/jinghao/minimaxM3/20260921-minimax-m3-ppu-e2e/results/accdiag-002-gpqa-below-threshold/repeated-current-service.json
+  performance_may_continue: false
+next_directions:
+- Freeze a reproducible accuracy contract before rerunning formal: greedy for deterministic regression, or repeated multi-seed
+    scoring with a confidence rule if sampling semantics must be retained; report 30K truncation separately.
+- Keep the optional fw-006 candidate/revert bisection separate from the confirmed contract instability; prepared scripts have
+  not been executed and the current service has not been restarted.
+- P1K formal and scenario closure require a new candidate-bound 198-question formal score at or above 0.88. Do not advance
+  to P4K before that gate.
+- Keep the fw-002 SQLite WAL initialization race separate from performance claims; do not retain the empty isolated cache.
+- Treat doc_id 7/8 30k truncation as an output-health observation; it does not independently fail accuracy under project policy.
+supplementary_documents:
+- document: accdiag-001-null-output-config-drift.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: accdiag-002-gpqa-below-threshold.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: accdiag-003-gpqa-truncated-60k.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: accdiag-003b-gpqa-truncated-60k-131k-blacklist.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: accdist-001-gpqa-c64-multiseed3.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: accformal-004-gpqa-c64-60k-131k-threshold88.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: env-001-source-facts-and-replication.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: fw-001-p1k-mixed-prefill-interference.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: fw-002-flaggems-autotune-cache-isolation.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: fw-003-bounded-mixed-stall-capture.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: fw-004-bounded-worker-stack-on-stall.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: fw-005-faulthandler-python-stack-on-stall.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: fw-006-flaggems-targeted-schema-reflection.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-001-linear-decode-cache-config.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-002-fused-moe-decode-stage-config-screen.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-003-conv3d-blacklist-131k-startup.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-004-fused-moe-m32-paired-gate-up.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-005-native-linear-backend-screen.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-006-actual-flag-gems-versus-thead-moe-screen.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-007-generic-flaggems-moe-stage-config-screen.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-008-plugin-cachedop-moe-invoke-shape-proof.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-009-thead-m32-gemm2-bk64-integration.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: op-010-thead-invoke-m32-gemm2-bk64.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: perfdiag-001-p1k-mixed-first-token-itl-variance.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值

@@ -1,0 +1,77 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261020-latest-stack-migration",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "flash1019-retained-stack",
+    "topology": "TP8:validation-devices8-15;source0-7-preserved"
+  },
+  "stage": "baseline",
+  "current": {
+    "status": "source_archived",
+    "candidate": "minimaxM3.1-opt-20261008",
+    "next_action": "source preserved; migration source snapshot verified"
+  },
+  "experiments": [],
+  "metrics": [],
+  "source": {
+    "container": "minimaxM3.1-opt-20261008",
+    "source_heads": {
+      "Plugin": "08da21cb39601752040196232b60a152382c0f8f",
+      "FlagGems-vllm": "46387d7f96050204c1b932f35680a3ea03896fa6",
+      "FlagGems": "3b76f81d4113e585f7fead01f46113dd249dc9a9"
+    },
+    "image_snapshot": "sha256:fa277a90c47e9123d8ccd7066861e70dda6d52298b9abe2fbeafe15c46fbe9d0",
+    "image_lineage": "verified",
+    "mount_parity": "passed",
+    "remote_case": "/mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261020-minimax-m31-latest-stack-migration",
+    "note": "no performance baseline measured; previous Flash scores are historical, not new stack validation"
+  },
+  "baseline_record_review": {
+    "reviewed_at": "2026-11-02",
+    "classification": "explicit-no-performance",
+    "original_status": "source_archived",
+    "formal_target_coverage": [
+      {
+        "scenario_id": "p1024-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "迁移来源存档；设备/模型验证仍待执行，无性能调度。",
+        "evidence_pointer": "../optimize/state.yml#/current/next_action"
+      },
+      {
+        "scenario_id": "p4096-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "迁移来源存档；设备/模型验证仍待执行，无性能调度。",
+        "evidence_pointer": "../optimize/state.yml#/current/next_action"
+      },
+      {
+        "scenario_id": "p16384-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "迁移来源存档；设备/模型验证仍待执行，无性能调度。",
+        "evidence_pointer": "../optimize/state.yml#/current/next_action"
+      },
+      {
+        "scenario_id": "p32768-d1024-c64-n128",
+        "status": "not_run",
+        "metric_indices": [],
+        "scope": "measurement-summary-only; original role/scope retained; no new formal validation",
+        "reason": "迁移来源存档；设备/模型验证仍待执行，无性能调度。",
+        "evidence_pointer": "../optimize/state.yml#/current/next_action"
+      }
+    ],
+    "metrics_source": "state.yml structured fields only; Markdown is not a numeric source",
+    "remote_revalidated": false,
+    "classification_basis": {
+      "source": "../optimize/state.yml#/current/next_action",
+      "reason": "迁移来源存档；设备/模型验证仍待执行，无性能调度。"
+    }
+  }
+}

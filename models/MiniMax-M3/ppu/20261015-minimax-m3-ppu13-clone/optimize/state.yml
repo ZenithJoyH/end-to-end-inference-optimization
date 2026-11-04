@@ -1,0 +1,111 @@
+schema_version: 4
+identity:
+  case_id: 20261015-minimax-m3-ppu13-clone
+  model: MiniMax-M3
+  platform: ppu
+  host: PPU-13
+  baseline_id: ppu13-current-code-unmeasured-20261015
+  topology: TP16:device0-device15
+stage: optimize
+current:
+  status: accformal005_full_gpqa_passed_183_of_198
+  candidate: same_base_image_plus_ppu07_current_inference_source_state
+  next_action: await_next_user_objective_current_service_accuracy_gate_valid
+  source_host: PPU-07
+  source_container: minimaxM3-latest-20260924
+  target_container: minimaxM3-latest-20260924
+  target_container_id: 97cffbb2cec03a0df9fa30cdb3c780ea5737f2352d48afd9488859ec8f8fa456
+  image_id: sha256:41d96df0b7b416e1e887fe1c4dab21dfc12819875524993f90213fe29214f541
+  image_lineage: same_base_image_verified_source_trees_streamed
+  mount_parity: passed
+  model_service: user_started_8024_tp16_bf16_100k_seq64_prefix_cache_enabled
+  graph_capture: startup_log_proves_full_decode_and_piecewise_mixed_completed
+  accuracy: accformal005_passed_0.9242424242424242_threshold_0.88
+  service_instance_id: 97cffbb2cec0:8024:701:475142525
+  performance: not_run
+experiments:
+  - experiment_id: accformal-005-ppu13-gpqa-c64-60k
+    document: accformal-005-ppu13-gpqa-c64-60k.md
+    scenario_id: gpqa_diamond_generative_cot_198_c64
+    status: passed
+    direction: formal_accuracy
+    mode: formal-gate
+    metric: exact_match,strict-match
+    threshold: 0.88
+    expected_unique_questions: 198
+    concurrency: 64
+    max_gen_toks: 60000
+    seed: 42
+    score: 0.9242424242424242
+    correct_questions: 183
+    completed_unique_questions: 198
+    finished_at: '2026-10-15T14:14:02.735395+08:00'
+    elapsed_seconds: 5673.284068
+    evaluator_exit_code: 0
+    gate_issue_exit_code: 0
+    current_service_and_source_reverified: true
+    gate_recheck: passed
+    started_at: '2026-10-15T12:39:29+08:00'
+    native_request_started_at: '2026-10-15T12:39:44+08:00'
+    service_instance_id: 97cffbb2cec0:8024:701:475142525
+    service_manifest_sha256: 63099018a177279799a65fca1d4918444361598fe2f8c9288e813667a8e7d784
+    config_sha256: 1d407124bf19ccbe35fc6f3a1912f7337cacf48451a7486dfbf455209b166e68
+    provenance_sha256: dd9f6b65e3c92c1321de2aeaff82a3606d623e92e67d982529df3f7220a45b8f
+    preflight: passed
+    progress_monitor:
+      kind: heartbeat
+      interval_minutes: 30
+      automation_id: minimax-m3-ppu13-accformal005-gpqa-c64
+      status: paused
+      notification_policy: meaningful_progress_failure_action_or_completion
+      cleanup_evidence: automation_update returned PAUSED after terminal completion on 2026-10-15
+    native_run_id: d5effb3c4aaa47e09ffa50d97c02310d
+    last_observation:
+      observed_at: '2026-10-15T14:40:22+08:00'
+      elapsed_seconds: 5673.284068
+      completed_unique_questions: 198
+      matched_cache_questions: 198
+      interim_strict_correct: 183
+      interim_strict_scored: 198
+      interim_score_is_formal: true
+      cache_timeouts: 0
+      completed_response_empty_outputs: 0
+      garbled_question_count: 1
+      garbled_question_ids: [147]
+      completed_response_60k_truncations: 11
+      completed_response_stop_count: 187
+      max_completed_response_completion_tokens: 60000
+      evaluation_error_log_entries: 0
+      evaluation_log_updated_at: '2026-10-15T14:14:02+08:00'
+      final_artifact_updated_at: '2026-10-15T14:14:03+08:00'
+      service_log_updated_at: '2026-10-15T14:14:10+08:00'
+      service_running_requests: 0
+      service_waiting_requests: 0
+      service_kv_cache_percent: 0.0
+      terminal_result_available: true
+      eta: null
+    remote_case_dir: /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-ppu13-gpqa-c64
+    evidence: /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-ppu13-gpqa-c64/accuracy/evaluation.log
+    final_result: /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-ppu13-gpqa-c64/accuracy/final-result.json
+    gate: /mnt/nfs/users/jinghao/minimaxM3/20261015-minimax-m3-ppu13-gpqa-c64/accuracy/accuracy-gate.json
+    final_result_sha256: 3a4a15987779e8853acc6d3bba67df0efe5f3089504897133a6518c3e8383377
+    gate_sha256: 1581ef7f6ea06e53141ef57d69f9d2ffe7b44dff83772626ac9539e3ac53b4f0
+    native_result_sha256: 52d3a51adab56b3b22965e08ef028c3f5a7859791e0362ee47eca634c5e3149d
+    native_samples_sha256: 7d490ea0e7da02b0db2bc3fd751393d6f9a4910a460cecd5a5c50aac042ff7de
+    run_record_sha256: 8a53590173239e232c75d035eda5eeb5f2e3b5bafa0764e2186f2cf58ece424e
+    sample_rows: 396
+    sample_filters: {strict-match: 198, flexible-extract: 198}
+    conclusion_boundary: Gate binds only the current PPU-13 8024 service and enabled-prefix configuration; full performance acceptance remains not_run.
+  - experiment_id: env-001-cross-host-current-container
+    document: env-001-cross-host-current-container.md
+    scenario_id: environment_only
+    status: complete_container_only
+    direction: container_replication
+    evidence: PPU-07 source and PPU-13 target image/mount inspect, repository HEAD/status/diff hashes, five key file SHA, import/config proof; detail in document
+metrics:
+  - scenario_id: gpqa_diamond_generative_cot_198_c64
+    role: candidate
+    metric: exact_match_strict_match
+    value: 0.9242424242424242
+    unit: fraction
+    scope: formal-gate

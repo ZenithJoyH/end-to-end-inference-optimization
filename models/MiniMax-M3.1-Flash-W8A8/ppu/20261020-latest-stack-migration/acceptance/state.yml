@@ -1,0 +1,19 @@
+{
+  "schema_version": 4,
+  "identity": {
+    "case_id": "20261020-latest-stack-migration",
+    "model": "MiniMax-M3.1-Flash-W8A8",
+    "platform": "ppu",
+    "host": "PPU-07",
+    "baseline_id": "flash1019-retained-stack",
+    "topology": "TP8:validation-devices8-15;source0-7-preserved"
+  },
+  "stage": "acceptance",
+  "current": {
+    "status": "not_run",
+    "candidate": "minimaxM3.1-opt-latest-20261020",
+    "next_action": "device/model regression and fresh formal accuracy pending"
+  },
+  "experiments": [],
+  "metrics": []
+}

@@ -1,0 +1,87 @@
+schema_version: 4
+identity:
+  case_id: 20261008-minimax-m31-w8a8-ppu-e2e
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: original-adapted-tp16-anchor
+  topology: TP16; original adapted configuration
+stage: acceptance
+current:
+  status: incomplete
+  scope: historical local record; runtime not revalidated on 2026-11-02
+experiments: []
+metrics: []
+policy_version: '0.40'
+policy_date: '2026-09-22'
+acceptance_scope: formal
+accuracy_status: incomplete
+performance_status: incomplete
+target:
+  model_path: /mnt/cpfs/models/MiniMax-M3.1-preview-private-W8A8-FlagOS-20260929
+  source_container_name: minimaxM3.1
+  optimization_container_name: minimaxM3.1-opt-20261008
+  remote_work_root: /mnt/nfs/users/jinghao/minimaxM3.1/optimize
+  remote_case_dir: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e
+  image_lineage: verified
+  mount_parity: passed
+  source_image_id: sha256:66aba903fec3373d3518183f77227a713fb20e0fbf48038e6c813329cbd53172
+  optimization_image_id: sha256:78d8e42f2f21568667fd8727be790073b34f2683de2d9c2b734813aaf3b5a8fe
+  source_service_stop_authorization: User explicitly authorized stopping source 8025 model service and proceeding with optimization,
+    2026-10-08 current conversation.
+objective:
+  main_metric: total_throughput_tps
+  guards:
+  - ttft
+  - tpot
+  - itl
+  - stability
+  performance_objective: steady_state
+  cold_start_in_scope: false
+  relative_improvement_threshold: null
+accuracy:
+  task: gpqa_diamond_generative_cot
+  expected_samples: 198
+  metric: exact_match,strict-match
+  threshold: 81
+  threshold_unit: percent
+  criterion: score >= threshold
+  result: incomplete
+  threshold_fraction: 0.81
+  metric_status: Native metric verified in source model historical results; current evaluator provenance pending
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+runtime:
+  engine_version: 0.24.0+empty
+  plugin_revision: cafe6363c8c3de5ba4693b91643089c17b3ab87c
+  plugin_dirty: true
+  flaggems_revision: 6b49cff993956bff8cef495abd84f2acb6a63df6
+  flaggems_dirty: false
+  tensor_parallel: 16
+  mode: FULL_DECODE_ONLY
+  capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  max_num_seqs: 64
+  max_num_batched_tokens: 8192
+  max_model_len: 204800
+  prefix_caching: false
+  port: 8035
+  dtype: bfloat16
+  quantization: compressed-tensors W8A8
+external_evidence:
+  root: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261008-minimax-m31-w8a8-ppu-e2e
+  lineage: manifests/lineage.json
+  mounts: manifests/mount-comparison.json
+  source_stop: manifests/source-service-stop.json
+  service_log: logs/baseline-service.log
+provenance:
+  path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-02/minimax-original/models/MiniMax-M3.1-W8A8/ppu/acceptance/state.yml
+  sha256: c2c7f0e33a23a53082b5acd613aaac027938333d1ea65f444727f862e9fde9cb

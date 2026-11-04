@@ -1,0 +1,153 @@
+schema_version: 4
+identity:
+  case_id: 20261021-flagtree071-issue1407
+  model: MiniMax-M3.1-Flash-W8A8
+  platform: ppu
+  host: PPU-07
+  baseline_id: not-established-component-verification-only
+  topology: TP8:physical0-7; component checks only, see legacy_record
+stage: optimize
+current:
+  status: default_compiler_upgraded_service_ready
+  candidate: minimaxM3.1-opt-latest-20261020
+  accuracy_status: not_run
+  performance_status: not_run
+  next_action: 组件/编译验证不构成正式模型精度或性能验收；后续须按目标服务重新建立证据。
+experiments:
+- experiment_id: compiler-001
+  document: compiler-001.md
+  status: default_compiler_upgraded_service_ready
+  scenario_id: component-only
+  scope: historical component verification; no formal performance
+metrics: []
+legacy_record:
+  status: default_compiler_upgraded_service_ready
+  time_utc: '2026-10-21T01:36:51Z'
+  container: minimaxM3.1-opt-latest-20261020
+  version:
+    flagtree: 0.7.1.dev1+ppu3.6
+    triton: 3.6.0
+    triton_file: /usr/local/lib/python3.12/site-packages/triton/__init__.py
+  port: 8045
+  physical_devices:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  health_http: 200
+  request_counters:
+  - vllm:num_requests_running{engine="0",model_name="MiniMax-M3.1-latest"} 0.0
+  - vllm:num_requests_waiting{engine="0",model_name="MiniMax-M3.1-latest"} 0.0
+  compiler_diagnostic:
+    compiler: 0.7.1.dev1+ppu3.6
+    real_model_native_topk:
+      status: native_compiled_no_launch
+      load_map: {}
+      candidate_K:
+      - 2048
+      - 1024
+      - 512
+      - 256
+      - 128
+      - 64
+      - 2048
+      all_native_compiled: true
+      fixed_control: compiled_no_launch
+    public_reduced_repro:
+      zero_extent_still_shrinks_K_to1: true
+      CompileTimeAssertionFailure: true
+      declared_K128_passes: true
+    conclusion: real_model_compilation_unblocked_but_general_issue_not_fully_fixed
+    no_gpu_execution: true
+    workarounds: retained unchanged
+    native_evidence:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/default/native-model-repro/result.json
+      sha256: 3d09a48d954cda83457e6665a73a1ed390450f0a43f20ffa85c4d58d313e4c4f
+    public_evidence:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/default-public-probe.log
+      sha256: a0a2eb99e437d4207f7f872d47684fbce33c62d64822acb3f147c10c6983183a
+  sources_unchanged: true
+  workarounds_unchanged: true
+  formal_accuracy: not_run_on_new_compiler; earlier scores remain historical
+  performance: not_run
+  original_startup_scripts: unchanged; new case startup copy used
+  evidence:
+    wheel.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/wheel.json
+      sha256: c76806ab09d2c7b3a24bf5be4ff1d7ec82f1d15a9c5701106c01fa951afb4ae6
+    before.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/before.json
+      sha256: 334008d06e0040072cafa4901b7d803e14a693c721244d15c5580c2561e03b30
+    backup-files.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/backup-files.json
+      sha256: bd032ebbac629ae3a824f326d6b26534d052ac3f68d290d133ba431e7a308aba
+    default-installed-verified.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/default-installed-verified.json
+      sha256: 0b8e5774486d30b6a17a491c00e7567d43117ebdb9a0a3a9b36b77f35e624208
+    compiler-verification-result.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/compiler-verification-result.json
+      sha256: fbb7b71a4b42873d3d1fd7b4d5f02eb3f3a016c4bc8afaf7daf3e97a1a994e1d
+    default/native-model-repro/result.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/default/native-model-repro/result.json
+      sha256: 3d09a48d954cda83457e6665a73a1ed390450f0a43f20ffa85c4d58d313e4c4f
+    default-public-probe.log:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/default-public-probe.log
+      sha256: a0a2eb99e437d4207f7f872d47684fbce33c62d64822acb3f147c10c6983183a
+    restart-port-reuse-exit.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/restart-port-reuse-exit.json
+      sha256: c365161d39236fe0f1d32937fbc549796b8487d8faf65ed3879b96897c78ea5d
+    port-preflight-recovery.json:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/port-preflight-recovery.json
+      sha256: 00ab4c9978d66d7814a878fb7d85eb7d228b2a544b1d59059c19274f20167e03
+    model-service.log:
+      path: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/model-service.log
+      sha256: 2a5611676e5001de3e6f9a9a83660c939605ed929eadd0483161a6918e47d40d
+  experiment_id: compiler-001
+  remote_case: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01
+  remote_result_sha256: fa69338ae38e9d84ac94ac576bec0d5d231c439d78f8e1d4e52d322078769ba6
+  workers_verified: 8
+  graph_capture:
+    PIECEWISE: 7/7
+    FULL: 7/7
+    replay: not_verified_in_this_compiler_install_task
+  rollback_archive: /mnt/nfs/users/jinghao/minimaxM3.1/optimize/20261021-minimax-m31-flagtree071-issue1407-01/flagtree-0.7.0-installed-backup.tar.gz
+record_maintenance:
+  date: '2026-11-02'
+  scope: 原回执原样保留在 legacy_record；仅规范结构和补齐入口。
+  original_path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/state.yml
+local_record_archive:
+  archived_at: '2026-11-02'
+  manifest: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json
+  scope: local verified archival; remote evidence not revalidated
+  files:
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/finalize-readiness.py
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/finalize-readiness.py
+    sha256: 0cf8c185b44c0c771b485f03219c2b98284919b9b10bb27533f76e70e10759ce
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/finalize-receipt.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/finalize-receipt.json
+    sha256: 4a2aae28c585c248c625ce6b85f6c647214a1f9df582dc466ba56656c693b8b9
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/prepare-and-probe.py
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/prepare-and-probe.py
+    sha256: df4d660437f20ecf4c01da7af03c98712250ae4736972d9495702a483480f89f
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/prepare-receipt.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/prepare-receipt.json
+    sha256: 519a3f8afc23d2145cc9168397522bf3ab2a7d688abae8c300486bb84c62487d
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/switch-and-restart.py
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/switch-and-restart.py
+    sha256: 5bb5a1e1fa7e7401596ba7ea8927d88737832647c02a45cd1921fbceac1ba2ac
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/switch-receipt.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/switch-receipt.json
+    sha256: 457733c71d060c9cbfa1caf6c81fcc184364d5a56af0bb720b351e61b279d24a
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/verify-default-repros.py
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/verify-default-repros.py
+    sha256: 5eb50793f5d14b36f1174cca185465b9d87cdb1f1c1af7fdba1a6c9c13e764ac
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/verify-receipt.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/commands/verify-receipt.json
+    sha256: 15fa3f7bcf1e5842cc67eb9bdb196ba45c344ccb14dc980738b706f206feaf1f
+  - original_path: models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/state.yml
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/MiniMax-M3.1-Flash-W8A8/ppu/20261021-flagtree071-issue1407/state.yml
+    sha256: abf36f34ea002ee601f9f35aa6f5c049a58e73b311dc37012fa01beabfe82a25
