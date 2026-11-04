@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261015-hy4-preview-ppu13-clone
+  model: hy4-preview
+  platform: ppu
+  host: PPU-13
+  baseline_id: hy4-opt-20260914-snapshot
+  topology: TP16:device0-device15
+stage: acceptance
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

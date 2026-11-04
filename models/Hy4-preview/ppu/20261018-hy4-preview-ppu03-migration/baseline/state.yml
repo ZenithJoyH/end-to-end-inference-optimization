@@ -1,0 +1,76 @@
+schema_version: 4
+identity:
+  case_id: 20261018-hy4-preview-ppu03-migration
+  model: Hy4-preview
+  platform: ppu
+  host: PPU-03
+  baseline_id: plugin08da21cb-fgv46387d7f-fg3ba1d1d9
+  topology: TP16-PPU-ZW810E
+stage: baseline
+current:
+  status: preflight_complete
+  candidate: plugin024plus-hy4-migration
+  next_action: Preflight archived; final migrated runtime is recorded in optimize/acceptance
+experiments: []
+metrics: []
+scope: compatibility_migration_and_startup_only
+environment:
+  container: hy4-preview
+  source_backup: /workspace/.hy4-preview-update-20261018-01/originals
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01
+  plugin_head: 08da21cb39601752040196232b60a152382c0f8f
+  flaggems_vllm_head: 46387d7f96050204c1b932f35680a3ea03896fa6
+  flaggems_head: 3ba1d1d99010de56d12088992f8b0da3444d90ca
+  vllm_head: ee0da84ab9e04ac7610e28580af62c365e898389
+  model_path: /mnt/cpfs/models/Hy4-preview-W8A8-linear-moe
+  config_sha256: 894bbe4e1dea2ac68993891795d3397f71bd2e4c92aae89ba443c10ebca462c2
+  source_start_script: /mnt/nfs/users/jinghao/hy4-preview/start_hyv4-preview.sh
+  devices:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  endpoint: http://127.0.0.1:8010
+  graph_mode: FULL_DECODE_ONLY
+performance:
+  status: not_applicable
+  reason: User requested HY4 migration and startup validation, not performance optimization
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: explicit-no-performance
+  original_status: preflight_complete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p4096-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p16384-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  - scenario_id: p32768-d1024-c64-n128
+    status: not_run
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段原记录明确未执行性能测试。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

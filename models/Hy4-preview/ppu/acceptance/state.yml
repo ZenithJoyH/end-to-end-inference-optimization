@@ -1,0 +1,27 @@
+schema_version: 1
+record_kind: acceptance_state
+updated_at: "2026-09-19"
+model: Hy4-preview
+platform: ppu
+status: incomplete
+final_candidate_frozen: false
+accuracy:
+  status: passed
+  imported_adaptation_score: 0.9091
+  imported_threshold: 0.87
+  formal_score: 0.9292929292929293
+  formal_threshold: 0.87
+  completed_samples: 198
+  timeouts: 0
+  gate_sha256: 503516c80851a17c27620bccfae7440792fa8d444f136023e830ca2fe47ee77a
+  run_record_sha256: 55ecb5e6a69774a2c773bc010d50b875c1f8cfa5f3a20dcfb6afd2ff3d7065f4
+  artifact_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/accuracy/formal-gate-20260918-f7d1aaa-a26a902-01
+  note: bound to the evaluated 2026-09-19 service identity; later restarts or code changes require a new matching gate
+performance:
+  status: incomplete
+  completed_formal_scenarios: []
+rollback:
+  status: not_applicable
+missing:
+  - frozen final candidate
+  - final formal performance results

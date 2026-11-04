@@ -1,0 +1,222 @@
+schema_version: 4
+identity:
+  case_id: 20261020-hy4-preview-ppu03-batched8192
+  model: Hy4-preview
+  platform: ppu
+  host: PPU-03
+  baseline_id: env031-fgv45e14232-batched2048
+  topology: TP16-PPU-ZW810E
+stage: baseline
+current:
+  status: archived_prefill_mixed_valid_decode_warmup_incomplete
+  candidate: env031-baseline2048-historical-measurements
+  next_action: Baseline evidence preserved; no further measurement running
+experiments: []
+metrics:
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline2048
+  metric: output_throughput
+  value: 10.2022328999442
+  unit: token/s
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline2048
+  metric: mean_ttft_ms
+  value: 59579.14058980532
+  unit: ms
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline2048
+  metric: mean_tpot_ms
+  value: 319.80725685198695
+  unit: ms
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline2048
+  metric: mean_itl_ms
+  value: 319.80725939112426
+  unit: ms
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline2048
+  metric: mean_e2el_ms
+  value: 100194.66221000766
+  unit: ms
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline2048
+  metric: output_throughput
+  value: 0.09370177158729455
+  unit: token/s
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline2048
+  metric: mean_ttft_ms
+  value: 52135.89774345746
+  unit: ms
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline2048
+  metric: mean_e2el_ms
+  value: 52135.89748938102
+  unit: ms
+  scope: targeted finite_batch C8 N8 prefixdisabled env031;2admittedmeasured
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline2048
+  metric: input_throughput
+  value: 95.95061410538963
+  unit: token/s
+  scope: P1024 D1 C8 N8;clientphase proxy
+- scenario_id: scout-p128-d128-c8-n8
+  role: baseline2048
+  metric: output_throughput
+  value: null
+  unit: token/s
+  scope: incomplete:4warmupfailedstability;0measured
+environment:
+  source_container: hy4-preview
+  optimization_container: hy4-preview-perf-20261020-02
+  source_container_status: original8010/2048/prefix enabled restored onenv031;perfmodelsstopped
+  optimization_image_id: sha256:9add2f46146e3abd349c202d8d9be97c5fa96196d671fbb6a488e70ac0867626
+  image_lineage: verified
+  mount_parity: passed
+  mounts: /mnt:/mnt RW rprivate; private/workspace
+  plugin_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  plugin_patch_sha256: 2973cdb3f0d197b3153e50252cf7003bff7bfa79fe961ae5972f792c4843d677
+  plugin_package_sha256: 1b61d74986cac6a1fdb8da574e406835940b872e45f6a9febc321d7a2ac6803e
+  flaggems_vllm_head: 45e142327d06c65feaa0406b16417b609d6c32ff
+  flaggems_head: 3ba1d1d99010de56d12088992f8b0da3444d90ca
+  engine_version: 0.24.0+empty
+  engine_read_only: true
+  model_path: /mnt/cpfs/models/Hy4-preview-W8A8-linear-moe
+  tp: 16
+  graph_mode: FULL_AND_PIECEWISE
+  capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  gpu_memory_utilization: 0.85
+  max_model_len: 100000
+  performance_prefix_cache: false
+  source_restore_budget: 2048
+  source_restore_prefix_cache: true
+artifact_root: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02
+acceptance_scope: performance_only
+policy_version: SOP0.40
+policy_date: '2026-09-22'
+accuracy_status: full_not_run_no87percent_gate
+explicit_diagnostic_authorization: User requests8192performance despite no fullaccuracy; bounded fw002 only
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+phase_results:
+  scout-p1024-d128-c8-n8:
+    stage: mixed
+    record:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/performance/baseline-mixed-01/run-record.json
+      sha256: 5335f889e08487fac8f15f390335dbb13fd00c45b2652beeda0b0dbea2755bdf
+    warmup:
+      scout-p1024-d128-c8-n8:
+        status: passed
+        metric: output_throughput
+        values:
+        - 10.160332976575932
+        - 10.253078952691816
+        relative_spread: 0.009086768682986244
+        max_relative_spread: 0.2
+  scout-p1024-d1-c8-n8:
+    stage: prefill
+    record:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/performance/baseline-prefill-01/run-record.json
+      sha256: c635bd6a839fe0591d652e2e8bf822640eccc0ac49c5a5d2c4ce614f2c4eae01
+    warmup:
+      scout-p1024-d1-c8-n8:
+        status: passed
+        metric: output_throughput
+        values:
+        - 0.09394980948177192
+        - 0.09419243636653106
+        relative_spread: 0.002579185590829655
+        max_relative_spread: 0.2
+decode_gap:
+  status: incomplete_failed_warmup
+  record: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/performance/baseline-decode-01/run-record.json
+  warmup_last2_output_tps:
+  - 21.409044512149727
+  - 44.81163895457409
+  relative_spread: 0.7068061885584215
+  threshold: 0.2
+  measured_rounds: 0
+  all_warmup_requests_successful: true
+  rerun: false
+restored_service:
+  status: passed
+  container: hy4-preview
+  endpoint: http://127.0.0.1:8010
+  service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+  manifest:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/source-recovery/service-before.json
+    sha256: 50eadcc6a5bce1412911b4821447e3eb17accfeb3f9f9e169b47b77d0a357d2f
+  max_num_batched_tokens: 2048
+  prefix_cache_enabled: true
+  actual_prefix_hit_tokens: 2624.0
+  smoke_passed: 9
+  graph: FULL_AND_PIECEWISE; PrefillPIECEWISE/MixedPIECEWISE/DecodeFULL16rank each>=2distinctsteps
+  observers_detached: 16
+  source_revision: env031 FGV45e14232/FG3ba1d1d9
+  production_sources_unchanged_vs_trial_baseline: true
+  final_verification:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/results/final-verification.json
+    sha256: b527267761cec83388fd03efa4d0424b96b36a59f4b2ec11e26fcb433ad2c0e6
+  not_formal_accuracy_or_performance_gate: true
+evidence_archive:
+  status: verified_non_destructive_mirror
+  canonical_root_in_both_containers: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02
+  files_verified: 431
+  manifest_sha256: e202b1e2bfa4745b7a84c85d89b16b2e3037166f96952d75785c2fc645749f98
+  receipt_path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/evidence-mirror-receipt.json
+  original_paths_preserved: true
+  source_recovery_evidence: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/source-recovery
+  source_recovery_note: freshsource proof separately frozen; currentservice log may grow
+performance_status: incomplete_diagnostic_only
+formal_target_status:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: archived_prefill_mixed_valid_decode_warmup_incomplete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

@@ -1,0 +1,363 @@
+schema_version: 4
+identity:
+  case_id: 20261020-hy4-preview-ppu03-initial-perf
+  model: Hy4-preview
+  platform: ppu
+  host: PPU-03
+  baseline_id: env030-01027922-TP16
+  topology: TP16-PPU-ZW810E
+stage: baseline
+current:
+  status: baseline_facts_archived_overall_decode_incomplete
+  candidate: env030-source-unchanged
+  next_action: Reuse only matching stable reduced Prefill/Mixed facts; re-establish Decode before any formal performance claim
+experiments: []
+metrics:
+- scenario_id: scout-p128-d128-c8-n8
+  role: baseline
+  metric: output_throughput
+  value: 33.19921444475973
+  unit: token/s
+  scope: observed-unsteady
+- scenario_id: scout-p128-d128-c8-n8
+  role: baseline
+  metric: mean_ttft_ms
+  value: 16611.169643118046
+  unit: ms
+  scope: observed-unsteady
+- scenario_id: scout-p128-d128-c8-n8
+  role: baseline
+  metric: mean_tpot_ms
+  value: 146.17504272839113
+  unit: ms
+  scope: observed-unsteady
+- scenario_id: scout-p128-d128-c8-n8
+  role: baseline
+  metric: mean_e2el_ms
+  value: 35175.40006962372
+  unit: ms
+  scope: observed-unsteady
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline
+  metric: output_throughput
+  value: 10.177078522622795
+  unit: token/s
+  scope: reduced milestone steady_state
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline
+  metric: mean_ttft_ms
+  value: 59794.034089369234
+  unit: ms
+  scope: reduced milestone steady_state
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline
+  metric: mean_tpot_ms
+  value: 320.0689241863919
+  unit: ms
+  scope: reduced milestone steady_state
+- scenario_id: scout-p1024-d128-c8-n8
+  role: baseline
+  metric: mean_e2el_ms
+  value: 100442.787461041
+  unit: ms
+  scope: reduced milestone steady_state
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline
+  metric: output_throughput
+  value: 0.09239060912793885
+  unit: token/s
+  scope: reduced milestone steady_state
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline
+  metric: mean_ttft_ms
+  value: 52869.71296131378
+  unit: ms
+  scope: reduced milestone steady_state
+- scenario_id: scout-p1024-d1-c8-n8
+  role: baseline
+  metric: mean_e2el_ms
+  value: 52869.712739950046
+  unit: ms
+  scope: reduced milestone steady_state
+policy_version: SOP0.40
+acceptance_scope: performance_only
+accuracy_status: current_full_accuracy_not_established
+performance_status: incomplete_overall_due_decode_variability
+source_handoff:
+  project: current workspace migration case
+  case_id: 20261018-hy4-preview-ppu03-migration
+  experiment_id: env-030
+  patch_sha256: 01027922b8f081e680ac8a4ef833788510fc1e14227fa81582ff098d654afa81
+  source_manifest_sha256: 955b6b1391b7965d36cf734bf69db932d9c7419fe4ce66907ed26d24217761ff
+  runtime_reverified: true
+authorization:
+  user_request: 先跑一个初步的性能看看吧，先简单优化下推理性能
+  diagnostic_exception: true
+  scope: one P1K reduced baseline and at most one evidence-based single-variable candidate plus revert; no GPQA or formal
+    acceptance
+  gems_must_remain_unchanged: true
+environment:
+  host: PPU-03
+  source_container: hy4-preview
+  optimization_container: hy4-preview-perf-20261020-01
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01
+  image_lineage: pending
+  mount_parity: pending
+  source:
+    plugin_patch: 01027922b8f081e680ac8a4ef833788510fc1e14227fa81582ff098d654afa81
+    regular_files: 614
+    source_manifest_sha256: 955b6b1391b7965d36cf734bf69db932d9c7419fe4ce66907ed26d24217761ff
+    gems:
+      FlagGems-vllm:
+        head: 46387d7f96050204c1b932f35680a3ea03896fa6
+        tracked_files_sha256: e822aba62d64c4c3af105297d1e06326180ac570fd8c2ffd52809b5786b020c6
+        branch: gems-opt
+        status: clean
+      FlagGems:
+        head: 3ba1d1d99010de56d12088992f8b0da3444d90ca
+        tracked_files_sha256: 68791c7afe30201cf167daf88f8bddf05fc191afc6d0daf28414b22cb67027a5
+        branch: gems-opt
+        status: clean
+    model_config_sha256: 894bbe4e1dea2ac68993891795d3397f71bd2e4c92aae89ba443c10ebca462c2
+    model_index_sha256: 14694cc4639eb2f8c9996d4674ad24927b690b0f8441f3f30d31912988bbb9c1
+    tokenizer_config_sha256: 15267c495102b0ce259408a0b3a9dc11a6de74dd7dd8ef5b9757f64252a9b2df
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+formal_scenarios:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+measurement_contract:
+  mode: baseline
+  test_scope: targeted milestone
+  performance_objective: steady_state
+  cold_start_in_scope: false
+  parent_scenario_id: p1024-d1024-c64-n128
+  formal_scenarios_omitted: true
+  client: installed vllm bench serve; maintained evaluation/performance/vllm_perf.py
+  stages:
+    prefill: P1024/D1/C8/N8; TTFT/input throughput proxies incl scheduling/network
+    decode: P128/D128/C8/N8; TPOT/ITL proxies with residual prefill
+    mixed: P1024/D128/C8/N8; target for single-variable decision
+  warmup_rounds:
+    prefill: 2
+    decode: 4
+    mixed: 4
+  measured_rounds: 2
+  round_timeout_seconds: 180
+  steady_state_rule: last2 warmup output throughput relative spread<=0.20; retain all measured rounds
+  generation:
+    seed: 42
+    temperature: 0
+    ignore_eos: true
+    fixed_random_lengths: true
+  artifacts:
+    plan-prefill.json:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/plan-prefill.json
+      sha256: 2369297526ebe4e980382dbf6feaef767ef61c599c563523f679c96de124b991
+    plan-decode.json:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/plan-decode.json
+      sha256: 992b339a56aae4f8d11bb73c0e115fcc8d7392a92fe9e43ea00d52b10f7d0881
+    plan-mixed.json:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/plan-mixed.json
+      sha256: 24556ddd39fe43c1e5fd51a82f9a062ea7ecb8732bd7a81ab34bf545d22b769c
+    comparison-mixed.json:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/comparison-mixed.json
+      sha256: cd67d7f43d9198f8ddaeedf6529206e6477e29868af8cf577e98bb6f9f20e138
+    performance-skill.json:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/performance-skill.json
+      sha256: 4e27796b3c628daa6266a4ecdd356c446e172fe0de25d3fced7ddc11abd145ae
+  acceptance: performance_only, min1 distinct service per role x2 measured rounds; no formal/long-term claims
+service_instance_id: e058fab1c7682b8b347eba5cdc7dd65e9f33600c696b45ab666e9edb9b6f46e7
+source_manifest_path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/baseline/service-before.json
+source_manifest_sha256: a807ca4ed905f2e86c4bf365e63873aec9b080c4ee83f64ad0861cfa24f1befe
+runtime_guard:
+  smoke_c8: 9/9 passed
+  prefill_mixed_decode: 16rank each>=2 distinct replay steps
+  paged: 2x2689tokens OK, prefix cache disabled
+  observers_detached: 16
+  formal_accuracy: not_run
+phase_results:
+  scout-p128-d128-c8-n8:
+    validation_method: maintained check_run
+    stage: decode
+    measured_rounds: 2
+    metrics:
+      failed_requests: 0.0
+      successful_requests: 8.0
+      benchmark_duration: 35.255922922398895
+      total_input_tokens: 1024.0
+      total_output_tokens: 1024.0
+      request_throughput: 0.2593688628496854
+      output_throughput: 33.19921444475973
+      peak_output_throughput: 88.0
+      total_token_throughput: 66.39842888951947
+      mean_ttft_ms: 16611.169643118046
+      median_ttft_ms: 23181.093720020726
+      p99_ttft_ms: 23181.95667081978
+      mean_tpot_ms: 146.17504272839113
+      median_tpot_ms: 95.06405758722795
+      p99_tpot_ms: 260.332111523516
+      mean_itl_ms: 146.17504444482964
+      median_itl_ms: 94.44447583518922
+      p99_itl_ms: 97.45660359039903
+      mean_e2el_ms: 35175.40006962372
+      p99_e2el_ms: 35254.942097752355
+    service_instance_id: e058fab1c7682b8b347eba5cdc7dd65e9f33600c696b45ab666e9edb9b6f46e7
+    run_record:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/performance/baseline-decode-02/run-record.json
+      sha256: 2108a129bf17fb5e468ef68f0ee04fb7690bc02a90f68f7f83902026411fc0b1
+    warmup:
+      scout-p128-d128-c8-n8:
+        status: passed
+        metric: output_throughput
+        values:
+        - 44.73112677377333
+        - 44.664038492337646
+        relative_spread: 0.001500937578357381
+        max_relative_spread: 0.2
+    steady_state_status: incomplete-measured-spread
+    all_admitted_measured_rounds_retained: true
+  scout-p1024-d128-c8-n8:
+    validation_method: maintained check_run
+    stage: mixed
+    measured_rounds: 2
+    metrics:
+      failed_requests: 0.0
+      successful_requests: 8.0
+      benchmark_duration: 100.61832416988909
+      total_input_tokens: 8192.0
+      total_output_tokens: 1024.0
+      request_throughput: 0.07950842595799058
+      output_throughput: 10.177078522622795
+      peak_output_throughput: 80.0
+      total_token_throughput: 91.59370670360514
+      mean_ttft_ms: 59794.034089369234
+      median_ttft_ms: 65180.893421405926
+      p99_ttft_ms: 87032.7957415767
+      mean_tpot_ms: 320.0689241863919
+      median_tpot_ms: 277.88829535069897
+      p99_tpot_ms: 691.0524707396814
+      mean_itl_ms: 320.06892646519896
+      median_itl_ms: 107.4387498665601
+      p99_itl_ms: 11074.972571246326
+      mean_e2el_ms: 100442.787461041
+      p99_e2el_ms: 100616.31971477997
+    service_instance_id: e058fab1c7682b8b347eba5cdc7dd65e9f33600c696b45ab666e9edb9b6f46e7
+    run_record:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/performance/baseline-mixed-02/run-record.json
+      sha256: cdfc88ae696787ce4a8acfc4f15a9ee8a2f78a6655460e780ea91555ad81cc3c
+    warmup:
+      scout-p1024-d128-c8-n8:
+        status: passed
+        metric: output_throughput
+        values:
+        - 10.128413419253992
+        - 10.1897191506662
+        relative_spread: 0.0060345832670633945
+        max_relative_spread: 0.2
+    steady_state_status: passed
+    all_admitted_measured_rounds_retained: true
+  scout-p1024-d1-c8-n8:
+    validation_method: maintained native result/configuration validators plus input/output SHA; Mixed-only TPOT/ITL comparison
+      not applicable toD1
+    stage: prefill
+    measured_rounds: 2
+    metrics:
+      failed_requests: 0.0
+      successful_requests: 8.0
+      benchmark_duration: 86.58963486226276
+      total_input_tokens: 8192.0
+      total_output_tokens: 8.0
+      request_throughput: 0.09239060912793885
+      output_throughput: 0.09239060912793885
+      peak_output_throughput: 2.0
+      total_token_throughput: 94.70037435613733
+      mean_ttft_ms: 52869.71296131378
+      median_ttft_ms: 54305.45810656622
+      p99_ttft_ms: 85837.16728026047
+      mean_e2el_ms: 52869.712739950046
+      p99_e2el_ms: 85837.16708615888
+    service_instance_id: e058fab1c7682b8b347eba5cdc7dd65e9f33600c696b45ab666e9edb9b6f46e7
+    run_record:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/performance/baseline-prefill-01/run-record.json
+      sha256: b2564b5d00e0948b098f65e45abce30496ce50bca3c17d4718b967b15e73b822
+    warmup:
+      scout-p1024-d1-c8-n8:
+        status: passed
+        metric: output_throughput
+        values:
+        - 0.09175815519049105
+        - 0.09222682292259957
+        relative_spread: 0.00509463040858087
+        max_relative_spread: 0.2
+    steady_state_status: passed
+    all_admitted_measured_rounds_retained: true
+recovery:
+  reason: Decode warmup spread0.21625717731482572 >0.20; all requests valid but no measured rounds
+  old_run: baseline-decode-01
+  next_runs:
+  - baseline-decode-02
+  - baseline-mixed-02
+  max_recovery_revisions: 1
+  thresholds_unchanged: true
+restored_service:
+  status: passed
+  container: hy4-preview
+  endpoint: http://127.0.0.1:8010
+  service_instance_id: e6562463824a7aebecb1d655b8efdcfe1d2c27321329cff33a0a1f4b36304805
+  manifest:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/source-recovery/service-before.json
+    sha256: 17bbca17c4bb84e69b06d55503f7a0077160b87e4bc139ff1901872588703480
+  max_num_batched_tokens: 2048
+  prefix_cache_enabled: true
+  actual_prefix_hit_tokens: 2624.0
+  smoke_passed: 9
+  graph: FULL_AND_PIECEWISE; Prefill PIECEWISE/Mixed PIECEWISE/Decode FULL,16rank each>=2distinctsteps
+  observers_detached: 16
+  production_sources_and_gems_unchanged: true
+  final_verification:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/results/final-verification.json
+    sha256: 8946c53967a269b870b236648ecda153921344018b7c26e69c072ec85c7ad823
+  not_a_performance_or_accuracy_gate: true
+evidence_archive:
+  status: verified_non_destructive_mirror
+  canonical_root_in_both_containers: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01
+  files_verified: 523
+  manifest_sha256: b68a640938ac85228969d22dd1662066f4a445d69ddf7e883d1a25d9cac8e1e1
+  receipt_path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/evidence-mirror-receipt.json
+  absolute_original_paths_preserved: true
+  source_recovery_evidence: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/source-recovery
+  source_recovery_note: Fresh runtime/graph/prefix proof is separately frozen in JSON and final-verification; live service
+    log may continue growing
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: baseline_facts_archived_overall_decode_incomplete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

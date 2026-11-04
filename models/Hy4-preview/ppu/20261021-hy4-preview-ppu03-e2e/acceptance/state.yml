@@ -1,0 +1,108 @@
+schema_version: 4
+identity:
+  case_id: 20261021-hy4-preview-ppu03-e2e
+  model: Hy4-preview
+  platform: ppu
+  host: PPU-03
+  baseline_id: env031-FGV45e14232-batched2048
+  topology: TP16-PPU-ZW810E
+stage: acceptance
+current:
+  status: incomplete_no_formal_candidate_acceptance
+  candidate: env031+fw002+yaml001+15line fw003 retained andnewfunctionalvalidated;004targeted gains only, noformal
+    gate
+  next_action: Follow existing006 revert Mixed after Prefill9rounds admitted; freshafter/drift/comparison pending,
+    no formal gate.
+experiments: []
+metrics: []
+policy_version: '0.15'
+policy_date: '2026-09-07'
+acceptance_scope: diagnostic
+accuracy_status: source_acc006_passed_only_new_candidate_fullgate_not_run
+performance_status: 004_all4_targeted_passed_only_formal4scene_not_run
+target_catalog:
+  order:
+  - p1024-d1024-c64-n128
+  - p4096-d1024-c64-n128
+  - p16384-d1024-c64-n128
+  - p32768-d1024-c64-n128
+  current: p1024-d1024-c64-n128
+  final_full_status: not_run
+connection_issue:
+  status: resolved
+  observed_at: '2026-10-22T00:03:18.714093+08:00'
+  ssh_stdout: no available gateway
+  last_verified_prefill_warmups: 5
+  mutation_policy: no installation/restart/relaunch until fresh instance/process/run evidence checked
+  last_check: '2026-10-22T09:41:40.518568+08:00'
+  last_target_marker_received: true
+  ssh_exit_code: 0
+  ssh_exit_not_accepted: false
+  remote_controller_terminal_status: complete_all3_stages_9rounds
+milestone_summary:
+  prefill: passed
+  decode: incomplete TTFT spread
+  mixed: passed output4.838976x in C8N8 reduced workload
+  formal_claim: false
+  scope: historical fw001 B/C/R, not current combination
+terminal_backup:
+  status: backup_verified
+  root: /tmp/hy4-preview-ppu03-perf-20261021-01/performance-result-backup-fw001
+  files: 739
+  bytes: 17125983
+  manifest_sha256: f6fe3c2a652797b1d7462be6f010e0865460837064e61f000c45d60f4577237c
+  time: 1792639606.5120873
+  archive_sha256: fe73f454e9f646524dbcaefcb130b230d26996d9df833beb85a70a2e61b59dbe
+ttft_diagnosis:
+  result: core/scheduler mechanism located, original Decode incomplete retained
+  partial_capture: six8/8warmup; zero measured; native failed warmup stability preserved
+  new_formal_gate: false
+  backup_root: /tmp/hy4-preview-ppu03-perf-20261021-01/ttft-diagnosis-backup-001
+  analysis_sha256: a719ea3485c96c744c87e7663a970f5579b8fb57748e9d2f686e62da43c0abf7
+  current_plain_service_restored: true
+mixed_block_diagnosis:
+  status: dominant_block_confirmed
+  result: First5row indexer Decode TopK JIT; PPU make_ttgir dominates. Compile-only validation, not performance
+    acceptance.
+  conclusion_sha256: 19b1665816247709b052b931914daa84cd288e081b544d33597bf2890a17a33c
+  backup_root: /tmp/hy4-preview-ppu03-perf-20261021-01/mixed-block-backup-001
+  source_and_libraries_unchanged: true
+  new_formal_gate: false
+  accuracy_evaluation: not_started_user_prohibited
+  original_decode_comparison: incomplete_unchanged
+current_candidate_validation:
+  experiment_id: fw-002
+  scope: bounded startup/graph/paging/exactMixed only
+  status: passed_requested_validation
+  service_instance_id: 370a7e05ae178c9d9ea6f057c53baae79ac6acd6e032b9951a9448443c80acb8
+  final_result_sha256: 39d44a08fd6beda187fa3202efe8e32b482d02bc808e6f4b42be491216eda7b1
+  formal_gate: false
+  accuracy_evaluation: not_started_user_prohibited
+configuration_followup:
+  status: default_yaml_equivalent_no_restart
+  formal_gate: false
+  model_requests: 0
+  yaml_sha256: 806be2eaffcee45e6e5cfd81a458541914b48719e575fef62c64549f0f3ebc1f
+  evidence_sha256: fa960857781c6c2013335af3d449422d2bc64b8b013d1cf5a714abde56a3d20d
+fw003_terminal:
+  status: incomplete_baseline_decode_admission
+  terminal_evidence:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261021-01/fw003-range-batch-002/terminal-freeze.json
+    sha256: 1efff111c830580fa02b01de1fc6f1398a0a9d8536ed0a90deb0ce5016ba39c7
+  baseline: Prefill/Mixed/P4K6warm+3measured passed; Decode6warm0measured failed
+  current_candidate_installed: false
+  new_formal_gate: false
+  source_and_service_unchanged: true
+  validation_scope: Trial001 startup/16rank three phases >=2 replay/9smoke+C8/two13249token paging, explicitly
+    inherited by trial002; observers detached
+  planning_review: review-004
+fw003_current_trial:
+  id: '006'
+  status: revert_prefill9rounds_admitted_mixed_collecting
+  source_current: before954b3049 restored;newrevert validationrunning
+  new_gate: false
+  evidence_root: /workspace/.hy4-preview-migration-20261018-01/perf-20261021-01/fw003-scale-c16-006
+  coordinator_sha256: b238474819ddcca03830bc2cb519d54bb93c487ede7e1d06e91a46c4375e9698
+  baseline_validation_sha256: f791c0782ef12a83831353ef8f2cdb0d38dc421c12f87ca4fae272051fdad798
+  candidate_validation_sha256: ed2dbf060f67d60c965b9e660fa3ec92baf44aed477156545896851ea10ea2d6
+  revert_validation_sha256: 630abda4ae7e680a7641d5571395d45edb27a3e0e7d290409c71e14da52d1177

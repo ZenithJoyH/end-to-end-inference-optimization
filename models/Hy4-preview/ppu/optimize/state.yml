@@ -1,0 +1,2938 @@
+schema_version: 1
+record_kind: current_optimization_state
+updated_at: '2026-09-20'
+model: Hy4-preview
+platform: ppu
+host: PPU-07
+status: optimizing
+current_target:
+  scenario_id: p16384-d1024-c64-n128
+  user_requested_scenario_id: p16384-d1024-c64-n128
+  phase_analysis_status: scenario_entry_baseline_planned_prefill_decode_mixed_evidence_pending
+current_candidate:
+  retained_changes:
+  - id: hyv4-indexer-block128
+    classification: operator/improve
+    commit: 4e73d7c7b4661fced68c07f18ef6faa51ba094ff
+    plugin_sha256: e0f45312dacfb3ea64b3a6c2b77d730145ffeac0599dc3bb179d06b6bb53650e
+    scope: request-bounded 128-row prefill sparse-attention indexer batching
+  pending_changes:
+  - id: thead-mm-out-blacklist
+    classification: operator/replace
+    repository: vllm-plugin-FL
+    base_commit: 4e73d7c7b4661fced68c07f18ef6faa51ba094ff
+    candidate_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    remote_branch: origin/support-hy4-preview
+    push_verified: true
+    scope: route mm.out away from the FlagOS/FlagGems dispatch path on T-Head
+    validation: service_profile_hit_mm_kernel_general_removed
+    note: the pre-existing index blacklist entry remains untouched
+  - id: flaggems-sparse-mla-hq4-tile
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: bca444b8569294e7d4e4deff7ddfec7f05682033
+    candidate_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    remote_branch: origin/support-hy4-preview
+    push_verified: true
+    scope: add BK64/BH4/4-warp/2-stage autotune candidate for TP16 HQ4
+    validation: operator_and_service_profile_hit
+  - id: flaggems-thead-sparse-mla-splitk
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: bca444b8569294e7d4e4deff7ddfec7f05682033
+    candidate_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    remote_branch: origin/support-hy4-preview
+    push_verified: true
+    scope: T-Head-only Split-K specialization for SQ<=64/HQ4/DQK576/TOPK2048
+    validation: boundary_correctness_fallback_graph_wrapper_and_service_profile_hit
+    note: SQ128 measured negative before the final SQ<=64 guard and now falls back
+  - id: hyv4-indexer-prefill-host-metadata-cache
+    classification: framework
+    repository: vllm-plugin-FL
+    base_commit: 4e73d7c7b4661fced68c07f18ef6faa51ba094ff
+    candidate_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    remote_branch: origin/support-hy4-preview
+    push_verified: true
+    scope: cache three invariant prefill metadata host copies on each per-execution chunk across Indexer layers
+    validation: unit_equivalence_and_service_reprofile_passed
+  - id: flaggems-thead-sparse-mla-sq2048-bk32
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    remote_branch: origin/support-hy4-preview
+    pushed: true
+    included_in_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+    scope: exact T-Head SQ2048/HQ4/DQK576/TOPK2048/DV512 BK32/BH4/4-warp/1-stage specialization
+    active_source_sha256: 86d968c9fa8959d7d81967c9e9065b7c0181486347d8b2d5af676790112d7f60
+    validation: correctness_graph_operator_and_targeted_profiler_off_ab_revert_passed
+  - id: hyv4-indexer-block-row-range-topk
+    classification: framework
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    scope: remove dense causal mask and generic torch.topk from blocked prefill Indexer by reusing row-range Top-K dispatch
+    active_source_sha256: 940e04f9424244966c5641124a5e84fae6f84d583c77c65bf9c2ddeb67f501dc
+    validation: focused_unit_6_passed_and_operator_microbenchmark_passed_e2e_pending
+  - id: hyv4-indexer-prefill-host-metadata-builder-shim
+    classification: framework
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    depends_on: hyv4-indexer-prefill-host-metadata-cache
+    scope: derive invariant Indexer host row ranges from existing CPU builder inputs before model execution
+    active_source_sha256: 38a7965b6bd9a2f27de64fb4dd8c9b96eca97b8179c74296a4d1e1e5a865a4b7
+    validation: plugin_unit_8_passed_graph_service_reprofile_16_of_16_ranks_passed
+  - id: flaggems-thead-sparse-mla-bk32-prefill-range
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    pushed: true
+    included_in_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+    depends_on: flaggems-thead-sparse-mla-sq2048-bk32
+    scope: extend BK32/BH4/4-warp/1-stage guard to measured 128<=SQ<=2048 HQ4 prefill shapes
+    active_source_sha256: 680eff6be15e259d36036f82958fb383ba1acc781bee1046caa246ae99e4f4fc
+    validation: sq_sweep_correctness_graph_capture_two_replays_and_focused_pytest_8_passed
+  - id: hyv4-indexer-full-range-bypass
+    classification: framework
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    depends_on: hyv4-indexer-prefill-host-metadata-builder-shim
+    scope: skip key gather, QK, ReLU, head reduction and TopK when every valid row position must be selected
+    active_source_sha256: 7c1843727800a6e1bc5252c28aaf33f0801da672442aa4ad145c7ce613ec6ea2
+    validation: exact_indices_graph_replay_plugin_unit_9_passed_service_reprofile_16_of_16_ranks
+  - id: hyv4-indexer-exact-fused-pointwise
+    classification: operator/improve
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    depends_on: hyv4-indexer-full-range-bypass
+    scope: fuse Indexer BF16 ReLU and head-weight multiply while retaining native BF16 sum order
+    active_source_sha256: 7c1843727800a6e1bc5252c28aaf33f0801da672442aa4ad145c7ce613ec6ea2
+    validation: product_and_logits_bitwise_exact_full_chain_graph_replay_plugin_unit_9_passed_service_reprofile
+  - id: flaggems-thead-w8a8-fused-moe-four-warps
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    pushed: true
+    included_in_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+    relocated_to_thead_backend_commit: 7bca7a3a60fb3fa75c3ab15ecf4d96b7d3cce680
+    implementation_path: src/flag_gems/runtime/backend/_thead/fused/fused_moe.py
+    scope: PPU-ZW810E int8_w8a8 uses four warps for M>=256
+    active_source_sha256: fa78e4c2e193be632399d0fb6749e1e031a4acae8f46e11c09651608ea4dde21
+    validation: operator_exact_graph_capture_two_replays_and_26_config_tests_passed
+  - id: flaggems-thead-w8a8-exact-per-token-quant
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    pushed: true
+    included_in_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+    relocated_to_thead_backend_commit: 7bca7a3a60fb3fa75c3ab15ecf4d96b7d3cce680
+    implementation_path: src/flag_gems/runtime/backend/_thead/fused/fused_moe.py
+    depends_on: flaggems-thead-w8a8-fused-moe-four-warps
+    scope: fuse the exact libdevice div_rn+rint per-token INT8 quantization chain for contiguous PPU-ZW810E tensors with hidden
+      size <=8192
+    active_source_sha256: d7a1fbf37fe0ac92d493abdac957b00a4d3f20da865e58d30fcd2bb298a27641
+    validation: bitwise_quant_and_full_operator_exact_graph_capture_two_replays_and_56_tests_passed
+  - id: flaggems-thead-hy4-moe-sum-dispatch
+    classification: operator/improve
+    repository: FlagGems
+    base_commit: 5c2b9a1618c36651f96108d56f076361965f2d53
+    pushed: true
+    included_in_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+    relocated_to_thead_backend_commit: 7bca7a3a60fb3fa75c3ab15ecf4d96b7d3cce680
+    implementation_path: src/flag_gems/runtime/backend/_thead/fused/moe_sum.py
+    scope: bypass generic Triton autotuner dispatch for contiguous T-Head BF16 TopK8 hidden6144 reductions using measured
+      fixed tiles
+    active_source_sha256: 7419f5d69971ddfb85507e6adb0671d1120334c1f85a11f0ab09872f19b8b8a2
+    validation: bitwise_exact_graph_capture_two_replays_76_moe_sum_tests_and_56_fused_moe_tests_passed
+  - id: hyv4-sparse-index-convert-blockn2048
+    classification: framework
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    scope: use one BLOCK_N=2048 program per T-Head HY4 sparse-index row when TopK2048 valid counts are requested without prefill
+      workspace
+    active_source_sha256: 7e42a416fcf72c091a5dabfcdde11f292bf73b25cf9ca0cd09f5848cc89c845e
+    validation: indices_and_counts_bitwise_exact_graph_capture_two_replays_and_plugin_unit_10_passed
+  - id: hyv4-thead-native-router-mm
+    classification: operator/replace
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    scope: replace only T-Head HY4 FP32 6144x256 router linear with native torch.mm when effective FlagGems dispatch excludes
+      mm and reduced-precision matmul is disabled
+    active_source_sha256: 7e42a416fcf72c091a5dabfcdde11f292bf73b25cf9ca0cd09f5848cc89c845e
+    validation: native_dispatch_proven_2.78x_to_11.46x_bf16_wrapper_speedup_graph_capture_two_replays_plugin_tests_and_user_reported_gpqa_91_92_passed
+  - id: hyv4-indexer-single-row-prefix-translate
+    classification: framework
+    repository: vllm-plugin-FL
+    base_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    pushed: true
+    included_in_commit: f3769d6350931a18cb78450bad703df22f70be68
+    scope: replace single-row boolean-index in-place translation with an exact fixed valid-prefix add
+    active_source_sha256: 7e65f86944f8720145d1edaa6c35c56072cf37ce55692630d32be5b3631204ed
+    validation: count_0_1_17_1024_2048_exact_invalid_tail_preserved_graph_capture_two_replays_and_plugin_unit_14_passed
+  active_configuration: max_num_batched_tokens=2048
+  accuracy_status: user_confirmed_current_environment_gpqa_passed_20260918
+  accuracy_metric:
+    name: GPQA
+    score_percent: 91.92
+  accuracy_evidence_boundary: user_reported_remote_score_without_native_result_path_in_current_record
+source_control:
+  pushed_at: '2026-09-18'
+  vllm_plugin_fl:
+    previous_commit: 38f350b13fc15f08eb4641e1d6d1980ba3fc16aa
+    commit: f7d1aaa9935dd8d613376601504a793b11ee34e0
+    subject: 'perf(thead): dispatch Hy4 ops through FlagGems-vllm'
+    pre_dispatch_switch_commit: f3769d6350931a18cb78450bad703df22f70be68
+    remote: https://github.com/ZenithJoyH/vllm-plugin-FL.git
+    branch: support-hy4-preview
+    remote_head_verified: true
+    worktree_clean_after_commit: true
+    pending_diff: none
+    focused_tests: 33_passed
+    runtime_dispatch:
+      fused_experts_impl: flaggems_vllm.runtime.backend._thead.ops.fused_moe
+      sparse_mla: flaggems_vllm.runtime.backend._thead.fused.flashmla_sparse
+    graph_validation: target_w8a8_capture_and_two_replays_bitwise_exact
+    compatibility_fallback: use_existing_flaggems_symbol_only_when_flaggems_vllm_package_or_symbol_is_absent
+    ruff: not_run_command_missing_in_target_container
+  flaggems:
+    previous_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+    commit: 0e02755770011d517c8de591bf91998bbcf30ad1
+    commits:
+    - sha: 7bca7a3a60fb3fa75c3ab15ecf4d96b7d3cce680
+      subject: 'refactor(thead): move fused MoE specializations to backend'
+    - sha: 0e02755770011d517c8de591bf91998bbcf30ad1
+      subject: 'test(thead): fix fused MoE backend assertions'
+    remote: https://github.com/ZenithJoyH/FlagGems.git
+    branch: support-hy4-preview
+    remote_head_verified: true
+    worktree_clean_after_commit: true
+    pending_diff: none
+    focused_tests: 141_passed
+    backend_dispatch:
+      fused_experts_impl: _thead.fused.fused_moe
+      moe_sum: _thead.fused.moe_sum
+    common_source_delta_from_5c2b9a16: none
+    graph_validation: capture_and_two_replays_exact
+    m2048_operator_validation:
+      generic_median_ms: 2.4793939664959908
+      thead_backend_median_ms: 2.2046894300729036
+      speedup: 1.1246001058815813
+      output: bitwise_exact
+      result: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/fused-moe-backend-refactor-20260918/source-and-graph-validation.json
+      result_sha256: cec0831d2202b847bbb2d1c9619fcb35f24bb779ff07ec6103b01f366091ce13
+  flaggems_vllm:
+    base_commit: 6e7ac61de4f76cb12a8ff739c395f295e693d3bc
+    commit: a26a90258de8bcad0a5d831f38b52f755c6a73b0
+    commits:
+    - sha: 1d532a5
+      subject: 'fix(thead): route INT8 W8A8 MoE configs'
+    - sha: 2888ef1
+      subject: 'perf(thead): fuse exact per-token INT8 quantization'
+    - sha: cf156f8
+      subject: 'perf(thead): specialize Hy4 MoE reduction'
+    - sha: d579bfe
+      subject: 'perf(thead): specialize Hy4 sparse MLA'
+    - sha: a26a902
+      subject: 'test(thead): cover Hy4 operator specializations'
+    remote: https://github.com/ZenithJoyH/FlagGems-vllm.git
+    branch: support-hy4-preview
+    remote_head_verified: true
+    target_worktree_clean_after_commit: true
+    focused_tests:
+      hy4_ops: 20_passed
+      moe_sum: 72_passed
+      fused_experts_effective: 46_passed_12_skipped
+    excluded_test_boundary: 20_vllm_reference_cases_require_unavailable_cuda_extensions_on_ppu
+    m2048_operator_comparison:
+      flaggems_median_ms: 2.2172625176608562
+      flaggems_vllm_median_ms: 2.16731708496809
+      flaggems_vllm_speedup_vs_flaggems: 1.0230448202707272
+      exact: false
+      max_abs_diff: 0.1328125
+    moe_sum_comparison:
+      exact: true
+      max_abs_diff: 0.0
+    activation_status: plugin_dispatch_switched_by_f7d1aaa
+  transfer:
+    direct_push_from_target: failed_missing_github_https_credentials
+    fallback: verified_git_bundles_downloaded_and_pushed_with_local_credentials
+    plugin_bundle_sha256: 4bde3805b40381f400d9301e244c24ae537ec5f0d53c72977588b72748519fd5
+    flaggems_bundle_sha256: db87831e44693a7df338917888005a1969d19c4b63735d84575eed3d0914106f
+    flaggems_thead_refactor_bundle_sha256: 0f3dcc6d21e2f851da80a9606c615f06281cd4e67cc26537dd5b908dc522583d
+    flaggems_vllm_split_bundle_sha256: 89e5e6b5fcd9f7e0f2846d5b76452c5b94f5adb4d44c5d0b36a7e9e55a219f9c
+    plugin_flaggems_vllm_switch_bundle_sha256: 6ed11d1346a42c1b7a0990bff34b052de20ebf0ddbbde46504a5861f198caffb
+performance:
+  ledger: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/optimize/performance-measurements.json
+  latest_experiment: 20260917-c64-parent-checkpoint-and-current-stack-reprofile
+  latest_result: parent_checkpoint_plus_22_percent_new_hotspot_migration_and_indexer_sync_candidate_validated
+  formal_target_status: incomplete
+  conclusion_boundary: The latest user CSV is a stable profiler-off checkpoint for P4096/D1024/C64/N128, not an A/B/revert
+    acceptance result. The new Indexer builder shim, full-range bypass, and exact pointwise fusion passed reduced service
+    reprofile and graph validation. The latest P4096/D128/C32/N32 profiler-on diagnosis and operator results are not E2E evidence.
+    The new exact W8A8 quantizer, moe_sum dispatch and sparse-index conversion shim passed isolated and graph validation;
+    the combined source still requires a parent-scenario profiler-off retest.
+  latest_user_checkpoint:
+    source: /mnt/nfs/users/jinghao/hy4-preview/test/benchmark_results/hy4/hy4_4096in_1024out_c64_n128_20260916_082820.csv
+    sha256: bc89271bc32e611420927edea225be2ba02860acecb3fdd129de08a40bf5fdb0
+    scenario_id: p4096-d1024-c64-n128
+    steady_runs:
+    - Run2
+    - Run3
+    summary_output_throughput_tok_s: 224.03
+    summary_total_throughput_tok_s: 1120.12
+    summary_mean_ttft_ms: 41980.26
+    summary_mean_tpot_ms: 241.78
+    comparison_to_20260915_171828:
+      output_throughput_improvement: 0.03569
+      mean_ttft_improvement: 0.05299
+      mean_tpot_improvement: 0.03144
+    cold_run_status: pathological_and_unresolved
+    cold_run_duration_s: 5350.86
+  latest_targeted_comparison:
+    status: passed
+    changed_paths:
+    - /flaggems_sha256
+    issues: []
+    prefill_sentinel_output_throughput_improvement: 0.012178239700883274
+    mixed_output_throughput_improvement: 0.01291179986995231
+    prefill_sentinel_mean_ttft_improvement: 0.015237835484629501
+    mixed_mean_ttft_improvement: 0.018439174381663398
+    prefill_sentinel_mean_tpot_improvement: 0.008963907797088702
+    mixed_mean_tpot_improvement: 0.008418945767756486
+    comparison: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/sq2048-bk32-targeted-comparison-20260915.json
+    comparison_sha256: 207cdf76e139ffe9bbe5958775f29304e7926d4003a7ac5c8d2646fc33330c92
+  nearest_no_profiler_context:
+    source: /mnt/nfs/users/jinghao/hy4-preview/test/benchmark_results/hy4/hy4_4096in_1024out_c64_n128_20260915_100132.csv
+    scenario_id: p4096-d1024-c64-n128
+    steady_runs:
+    - Run2
+    - Run3
+    summary_output_throughput_tok_s: 132.49
+    summary_total_throughput_tok_s: 662.47
+    note: context only; request count differs from the user-selected N64 target
+  sparse_mla_operator_microbenchmark:
+    shape: SQ8/HQ4/DQK576/SKV8192/TOPK2048/DV512/sink/topk_length
+    baseline_bh16_bk64_w4_s2_median_us: 194.333005
+    candidate_bh4_bk64_w4_s2_median_us: 176.849997
+    speedup: 1.098858
+    wrapper_candidate_median_us: 177.629995
+    sq_sweep_speedup:
+      sq1: 1.100076
+      sq8: 1.09669
+      sq64: 1.068503
+      sq256: 1.452044
+      sq2048: 1.555999
+    correctness: passed
+    graph_capture_replay: passed_capture_and_three_replays
+    conclusion_boundary: operator-only; no profiler-off service or parent-scenario result
+  sparse_mla_splitk_operator_microbenchmark:
+    guard: vendor=thead,SQ<=64,HQ=4,DQK=576,TOPK=2048,DV=512,sink+topk_length
+    workload_note: topk_length swept from 0 to 2048 to represent growing sparse context
+    wrapper_speedup:
+      sq1: 2.676648
+      sq8: 2.664235
+      sq32: 2.100815
+      sq64: 1.141513
+      sq128_fallback: 0.999039
+    max_output_abs_error: 6.103515625e-05
+    max_lse_abs_error: 4.76837158203125e-07
+    boundary_cases:
+    - zero_length
+    - all_invalid_indices
+    - positive_and_negative_infinite_sink
+    correctness: passed
+    graph_capture_replay: passed_capture_and_three_replays_with_changed_input
+    focused_pytest: 5_passed
+    conclusion_boundary: operator-only; final P4096/D1024/C64/N64 profiler-off A/B pending
+  indexer_metadata_cache_isolated_profile:
+    layer_calls: 21
+    cuda_memcpy_async_count_baseline: 105
+    cuda_memcpy_async_count_candidate: 3
+    conversion_reduction_percent: 97.142857
+    host_elapsed_ms_baseline: 131.138537
+    host_elapsed_ms_candidate: 2.477598
+    isolated_host_speedup: 52.929709
+    sequence_id_equivalence: passed_against_torch_searchsorted
+    focused_pytest: 5_passed
+    conclusion_boundary: isolated metadata path only; Indexer body and service-level critical path not measured
+  sparse_mla_sq2048_bk32_operator:
+    guard: vendor=thead,SQ=2048,HQ=4,DQK=576,TOPK=2048,DV=512,bfloat16,int32,contiguous,sink+topk_length
+    baseline_config: BK64/BH4/4-warps/2-stages
+    candidate_config: BK32/BH4/4-warps/1-stage
+    baseline_median_us: 6381.84
+    candidate_median_us: 5984.712
+    speedup: 1.06636
+    length_pattern_speedup:
+      all_512: 1.1117
+      all_1024: 1.0814
+      ramp_1_2048: 1.1208
+      all_2048: 1.0688
+    max_abs_error: 0.0001220703125
+    fallback_sq1024: passed
+    graph_capture_replay: passed_capture_and_two_replays
+    conclusion_boundary: operator and reduced targeted E2E passed; parent P4K pending
+  sparse_mla_sq2048_followup:
+    decision: retain_existing_bk32_bh4_and_reject_followups
+    random_sparse_indices: true
+    tested_tiles:
+    - BK16/BH4/4-warps/1-stage
+    - BK16/BH4/4-warps/2-stages
+    - BK16/BH4/8-warps/1-stage
+    - BK16/BH2/4-warps/1-stage
+    - BK32/BH2/4-warps/1-stage
+    - BK32/BH2/4-warps/2-stages
+    - BK16/BH1/4-warps/1-stage
+    - BK32/BH1/4-warps/1-stage
+    result: all_slower_than_BK32/BH4/4-warps/1-stage
+    splitk:
+      tested_splits:
+      - 2
+      - 4
+      tested_bk:
+      - 32
+      - 64
+      best_all_2048_speedup: 0.9012008463181549
+      best_ramp_1_2048_speedup: 0.5960538712880585
+      workspace_mib_range:
+      - 32.125
+      - 64.25
+      decision: rejected
+    evidence:
+      tile_sweep: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/sparse-mla-sq2048-followup-20260916.jsonl
+      splitk: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/sparse-mla-sq2048-splitk-20260916.jsonl
+    conclusion_boundary: SQ2048/HQ4 PPU microbenchmark; no new Sparse MLA source change retained
+  indexer_row_range_topk_operator:
+    decision: retain_for_user_e2e_retest
+    mechanism: reuse top_k_per_row_prefill row ranges and remove dense causal mask plus generic torch.topk
+    shapes:
+      rows32_width2048_speedup: 1.0925488656524858
+      rows64_width2048_speedup: 1.1293590150708264
+      rows128_width2048_speedup: 1.5431324245175684
+      rows128_width4096_speedup: 1.1842215280277781
+    correctness:
+      selected_score_multiset_match: true
+      max_selected_score_error: 0.0
+      width4096_tie_rows_with_different_indices: 33
+      note: different indices only occurred for exactly tied scores; existing provider semantics allow unordered/tie-equivalent
+        selections
+      focused_pytest: 6_passed
+      diff_check: passed
+    source_sha256: 940e04f9424244966c5641124a5e84fae6f84d583c77c65bf9c2ddeb67f501dc
+    patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/plugin-hy4-indexer-provider-20260916.patch
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/indexer-block-topk-provider-20260916-rerun.jsonl
+    conclusion_boundary: blocked prefill Indexer microbenchmark only; user E2E retest pending
+  max_num_batched_tokens:
+    active_value: 2048
+    optimality: best_retained_among_tested_2048_and_4096_not_global_optimum
+    rejected_4096:
+      p4096_d32_c8_n8_output_throughput_change: 0.0019526109016356973
+      p99_itl: approximately_doubled
+      kv_capacity_tokens: 389379
+      baseline_2048_kv_capacity_tokens: 401791
+    next_sweep:
+    - 1024
+    - 1536
+    - 2048
+    - 3072
+    rule: keep_2048_for_code_retest_then_test_batch_token_limit_as_an_independent_variable
+  indexer_builder_shim_reprofile:
+    scenario_id: p4096-d128-c8-n8
+    profiler_timing_boundary: diagnostic_only
+    indexer_mixed_total_ms_before: 5283.668
+    indexer_mixed_total_ms_after: 3789.854
+    indexer_mixed_total_reduction: 0.28272
+    mixed_memcpy_api_wait_ms_before: 1774.774
+    mixed_memcpy_api_wait_ms_after: 1.372
+    mixed_memcpy_wait_reduction: 0.99923
+    decode_memcpy_api_wait_ms_before: 310.392
+    decode_memcpy_api_wait_ms_after: 4.12
+    pageable_dtoh_inside_indexer_after: 0
+    profiler_on_output_throughput_tok_s_before: 35.45
+    profiler_on_output_throughput_tok_s_after: 37.14
+    focused_pytest: 8_passed
+    conclusion_boundary: reduced profiler-on diagnostic; parent profiler-off retest pending
+  sparse_mla_bk32_prefill_range_operator:
+    guard: vendor=thead,128<=SQ<=2048,HQ4,DQK576,TOPK2048,DV512,bfloat16,int32,contiguous,sink+topk_length
+    baseline_config: BK64/BH4/4-warps/2-stages
+    candidate_config: BK32/BH4/4-warps/1-stage
+    tested_sq:
+    - 128
+    - 256
+    - 512
+    - 1024
+    - 1536
+    - 2048
+    tested_length_patterns:
+    - ramp
+    - all_2048
+    speedup_range:
+    - 1.029942
+    - 1.184792
+    max_abs_error: 0.0001220703125
+    graph_capture_replay: passed_capture_and_three_replays_including_changed_input
+    focused_pytest: 8_passed
+    source_sha256: 680eff6be15e259d36036f82958fb383ba1acc781bee1046caa246ae99e4f4fc
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/sparse-mla-hq4-bk32-sq-sweep-20260916.jsonl
+    conclusion_boundary: operator-only for newly added SQ range; parent profiler-off retest pending
+  indexer_full_range_and_exact_pointwise:
+    profiling_scope:
+      parent_scenario_id: p4096-d1024-c64-n128
+      milestone_scenario_id: p4096-d64-c16-n16
+      rationale: preserve exact P4K, double prior diagnostic concurrency, keep 1024 total output tokens, and bound trace size
+      phase_marker_limitation: later chunked-Prefill continuations are mislabeled as Decode; whole-trace kernels and launch
+        grids are authoritative
+    full_range_bypass:
+      guard: max(row_end-row_start)<=min(topk,output_width)
+      dense_reference_speedup_range:
+      - 8.462
+      - 12.665
+      exact_valid_prefix_indices: true
+      graph_capture_replay: passed_capture_and_three_replays_including_changed_input
+      removed_rank0_kernel_calls_each:
+        bmm: 5376
+        relu: 5376
+        sum_reduce: 5376
+        prefill_topk: 5376
+      replacement_kernel_calls: 5376
+      replacement_kernel_total_ms: 8.503
+      rank0_indexer_total_ms:
+        before: 16441.335
+        candidate: 11975.788
+        relative_reduction: 0.27161
+      source_sha256_after_bypass: bc567ade22696146200042e8e29745535c86fa2dc9479051c2d2f7892ed3c9f3
+    scoring_block_rows_sweep:
+      tested:
+      - 64
+      - 128
+      - 256
+      - 512
+      best: 128
+      decision: keep_existing_128
+      projected_speedup_vs_128:
+        64: 0.89036
+        256: 0.91424
+        512: 0.95177
+    exact_fused_pointwise:
+      mechanism: fuse BF16 ReLU and weight multiply; preserve native torch.sum reduction
+      product_exact_fraction: 1.0
+      logits_exact_fraction: 1.0
+      reduction_chain_speedup: 1.29257
+      full_scoring_block_speedup: 1.09168
+      graph_capture_replay: passed_capture_and_three_replays_including_changed_input
+      focused_pytest: 9_passed
+      whole_trace_pointwise_ms:
+        before_relu_plus_mul: 353.904
+        candidate_fused: 173.354
+        relative_reduction: 0.51017
+      whole_trace_device_total_ms:
+        before: 40147.078
+        candidate: 39968.609
+        relative_reduction: 0.004445
+      rank0_indexer_total_ms:
+        before: 11975.788
+        candidate: 11521.408
+        relative_reduction: 0.03794
+      profiler_on_output_throughput_tok_s:
+        before: 25.3509
+        candidate: 25.4657
+        relative_improvement: 0.004528
+      source_sha256: 7c1843727800a6e1bc5252c28aaf33f0801da672442aa4ad145c7ce613ec6ea2
+    sparse_mla_status:
+      rank0_whole_trace_fraction_after: 0.29471
+      sq2048_calls: 2496
+      total_generic_calls: 2574
+      total_ms_after: 11779.021
+      decision: retain_BK32; reject_more_tile_and_splitk_sweeps
+    evidence:
+      before_profile: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d64-c16-n16-concurrency-capture-20260916-04
+      full_range_profile: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d64-c16-n16-full-range-reprofile-20260916-05
+      exact_pointwise_profile: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d64-c16-n16-exact-pointwise-reprofile-20260916-06
+      kernel_compare: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/indexer-full-range-kernel-compare-20260916.json
+    conclusion_boundary: reduced profiler-on diagnostic; parent profiler-off A/B/revert remains pending
+profiling:
+  experiment_id: p4k-d128-c8-n8-post-commit-reprofile-20260915-03
+  skill_mode: reprofile_then_analyze
+  result: complete_hotspot_migration_and_indexer_disjoint_analysis
+  parent_scenario_id: p4096-d1024-c64-n64
+  milestone_scenario_id: p4096-d128-c8-n8
+  workload_delta: output 1024->128, concurrency 64->8, requests 64->8
+  service_status_after_analysis: stopped_and_port_released
+  trace_validation:
+    expected_ranks: 16
+    observed_ranks: 16
+    integrity: passed
+    approximate_compressed_size_per_rank_mib: 71
+  hit_evidence:
+    mm_kernel_general:
+      before_calls: 111633
+      before_decode_ms: 35455.906
+      before_decode_fraction: 0.334
+      after_calls: 0
+    sparse_mla_splitk_decode:
+      stage1_calls: 28885
+      stage1_ms: 1391.394
+      stage2_calls: 28885
+      stage2_ms: 83.717
+    remaining_generic_sparse_mla:
+      calls: 1835
+      decode_ms: 11768.033
+      decode_fraction: 0.2003
+      attributed_shape: SQ2048/HQ4/DQK576/TOPK2048/DV512
+  rank0_indexer_disjoint_ms:
+    prefill:
+      total_before: 1414.041
+      total_after: 743.904
+      cuda_memcpy_async_wait_before: 652.255
+      cuda_memcpy_async_wait_after: 6.93
+    mixed:
+      total_before: 10195.819
+      total_after: 5752.353
+      cuda_memcpy_async_wait_before: 4418.831
+      cuda_memcpy_async_wait_after: 4.253
+    decode:
+      total_before: 14193.56
+      total_after: 6339.257
+      cuda_memcpy_async_wait_before: 7825.059
+      cuda_memcpy_async_wait_after: 25.13
+  sampled_phase_hotspots:
+    prefill:
+      generic_sparse_mla: 0.2264
+      ring_all_reduce: 0.2228
+      fused_moe: 0.1335
+      scaled_mm: 0.1057
+      linear: 0.0558
+    mixed:
+      ring_all_reduce: 0.233
+      generic_sparse_mla: 0.2191
+      fused_moe: 0.1264
+      scaled_mm: 0.1003
+      linear: 0.0529
+    decode:
+      generic_sparse_mla: 0.2003
+      linear: 0.1427
+      fused_moe: 0.1353
+      scaled_mm: 0.0993
+      one_shot_all_reduce: 0.0466
+      ring_all_reduce: 0.038
+  rank0_decode_cpu_inclusive_ms:
+    cuda_event_synchronize_before: 20896.043
+    cuda_event_synchronize_after: 9143.0
+    cuda_graph_launch_before: 15249.23
+    cuda_graph_launch_after: 6916.0
+    limitation: inclusive/nested CPU durations overlap and are diagnostic only
+  conclusion: The mm_out route removed mm_kernel_general. The Indexer metadata cache cut DtoH host waits by 98.9%-99.9%, leaving
+    the Indexer body as the dominant residual component. Split-K hit SQ<=64; the remaining generic sparse MLA hotspot was
+    attributed to SQ2048 and motivated the BK32 specialization.
+  evidence:
+    trace_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/profiling/p4k-d128-c8-n8-post-commit-reprofile-20260915-03/traces
+    result_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d128-c8-n8-post-commit-reprofile-20260915-03
+    phase_analysis_sampled: phase-analysis-sampled.json
+    phase_analysis_rank0_cpu: phase-analysis-rank0-cpu.json
+    indexer_breakdown: indexer-breakdown-rank0.json
+    sparse_mla_shape_correlation: sparse-mla-correlation-rank0.json
+    hotspot_migration_summary_sha256: 1a0813e18c640fa746923ebc0817241e48c07d9dbc26a7ffb0893aa6921e0148
+external_artifacts:
+  root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e
+planning_checkpoint:
+  review_id: 20260916-post-c32-moe-and-index-convert
+  evidence_cutoff: '2026-09-16T23:12:00+08:00'
+  trigger: four_post_profile_operator_experiments_completed_with_two_retained_and_two_rejected
+  current_combination: block128_indexer+mm_out_blacklist+HQ4_tile+thead_splitk+indexer_metadata_cache+sq2048_bk32+indexer_row_range_topk+builder_host_metadata_shim+bk32_prefill_range+full_range_bypass+exact_fused_pointwise+thead_scaled_mm_prefill_configs+thead_w8a8_four_warps+thead_w8a8_exact_quant+thead_hy4_moe_sum_dispatch+hyv4_sparse_index_blockn2048
+  cumulative_speedup: no_new_parent_measurement; operator projections indicate a materially larger prefill opportunity but
+    are not additive E2E evidence
+  cumulative_boundary: checkpoint identity does not isolate the newest changes; do not add operator projections, profiler-on
+    gains, or overlapping device shares as an end-to-end claim
+  hotspot_migration: sparse-index conversion now has a validated 4.616x M2048 candidate against a 2.88_percent_prefill hotspot;
+    combined parent retest is now the highest-information next experiment
+  experiment_ledger:
+  - id: 20260916-indexer-builder-host-metadata
+    classification: framework
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: retained_pending_parent_retest
+    result: pageable DtoH removed; Mixed memcpy wait -99.92%; reduced profiler-on output throughput +4.77%
+  - id: 20260916-sparse-mla-bk32-prefill-range
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    decision: retained_pending_parent_retest
+    result: SQ128-2048 operator speedup 1.030x-1.185x; graph and 8 focused tests passed
+  - id: 20260916-parent-checkpoint-analysis
+    classification: evidence
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: incomplete
+    result: steady runs stable at 224.03 output tok/s; Run1 5350.86s remains unexplained
+  - id: 20260916-indexer-row-range-topk
+    classification: framework
+    phase: prefill
+    decision: retained
+    result: present in latest user checkpoint and reprofile; isolated contribution remains unknown
+  - id: 20260916-indexer-full-range-bypass
+    classification: framework
+    phase:
+    - prefill
+    - mixed
+    decision: retained_pending_parent_retest
+    result: exact bypass removed 5376 calls each of QK/Relu/reduce/TopK on rank0; aggregate Indexer wall -27.16% in reduced
+      reprofile
+  - id: 20260916-indexer-scoring-block-rows
+    classification: framework
+    phase: prefill
+    decision: failed
+    result: 128 rows remains fastest; 64/256/512 projected 4.8%-11.0% slower and alter threshold-adjacent selections
+  - id: 20260916-indexer-fully-fused-reduction
+    classification: operator/improve
+    phase: prefill
+    decision: superseded
+    result: 2.318x full scoring block but changed 0.077% of selected set; replaced by exact hybrid
+  - id: 20260916-indexer-exact-fused-pointwise
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    decision: retained_pending_parent_retest
+    result: BF16 products and FP32 logits bitwise exact; full block 1.092x; pointwise kernel time -51.0%; whole device sum
+      -0.445%
+  - id: 20260916-parent-checkpoint-155355
+    classification: evidence
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: incomplete
+    result: steady output throughput +1.683%, mean TTFT -4.546%, mean TPOT -1.199%, median ITL +1.409%; checkpoint has no
+      same-run A/B/revert identity
+  - id: 20260916-thead-scaled-mm-prefill-configs
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    decision: retained_pending_parent_retest
+    result: six M2048 wrapper shapes 1.001x-1.551x; weighted projected device saving 510.391ms; graph and exactness passed;
+      runtime tile hit proven
+  - id: 20260916-thead-w8a8-fused-moe-four-warps
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: retained_pending_parent_retest
+    result: M2048 modified-source full operator 1.0607x; bitwise exact; graph capture plus two replays and 26 config tests
+      passed
+  - id: 20260916-router-linear-tiles
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: superseded_by_numerical_audit
+    result: preserving BLOCK_K32 made alternate tiles 1.5x-7.4x slower; the earlier positional Top8 metric did not distinguish
+      order from expert-set changes
+  - id: 20260917-router-linear-numerical-audit
+    classification: operator/replace
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: reopened_pending_live_activation_and_accuracy_gate
+    result: native highest-precision MM was 3.43x-5.61x faster at M1024/M2048; Top8 expert sets were identical and one row
+      per shape only reordered adjacent experts; TF32 changed 10/2048 sets and remains rejected
+  - id: 20260917-hyv4-native-router-mm-integration
+    classification: operator/replace
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: retained_pending_model_accuracy_and_parent_retest
+    result: guarded Plugin path hit native aten::mm vendor GEMM; BF16-input wrapper speedup 2.78x-11.46x for M1-2048; graph
+      replay exact; one M2048 random row changed Top8 set at a 0.001755 cutoff margin
+  - id: 20260916-w8a8-direct-sum
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: rejected_and_reverted
+    result: atomic GEMM2 reduction was 0.813x at M256 and 0.340x at M2048, non-deterministic, and differed by up to 0.125
+  - id: 20260916-w8a8-exact-quant-and-moe-sum
+    classification: operator/improve
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: retained_pending_parent_retest
+    result: exact fused quantizer plus four-warp path gives M2048 full MoE 1.1238x; moe_sum gives 1.303x at M256 and 1.0718x
+      at M2048; graph and bitwise checks passed
+  - id: 20260916-hyv4-sparse-index-blockn2048
+    classification: framework
+    phase:
+    - prefill
+    - mixed
+    - decode
+    decision: retained_pending_parent_retest
+    result: M256 1.567x and M2048 4.616x with bitwise indices/counts and graph replay; projected Prefill device upper bound
+      from the 2.88% hotspot is about 2.25%
+  decisions:
+  - retain builder-time host metadata shim because trace removes the measured pageable DtoH wait
+  - retain BK32 range only for measured 128<=SQ<=2048; keep SQ<=64 Split-K and 65<=SQ<128 fallback
+  - keep max-num-batched-tokens=2048 as the code-retest control, not as a proven global optimum
+  - keep Run1 cold pathology separate from steady Run2/Run3 and do not hide it in the mean
+  - do not infer newest combined parent gain from profiler-on or operator-only measurements
+  - keep 128 scoring rows; reject larger/smaller partitions on measured P4K shape
+  - retain exact pointwise fusion and reject the faster non-bitwise reduction variant
+  - stop further SQ2048 tile/Split-K sweeps because measured candidates were exhausted or negative
+  - retain three T-Head scaled-mm configs because all six dominant M2048 shapes hit them and graph/exactness passed
+  - treat the 1.28% whole-device scaled-mm estimate as an upper-bound projection, not an additive end-to-end claim
+  - retain the PPU W8A8 four-warp rule only for M>=256; reject stage2 BLOCK_N=256 because the full operator regressed
+  - retain exact libdevice per-token INT8 quantization; reject the faster reciprocal variant because it changed threshold-adjacent
+    quantized values
+  - retain the T-Head HY4 moe_sum fixed dispatch; reject atomic direct-sum fusion because it is slower and non-deterministic
+  - retain the guarded native highest-precision router MM integration pending model accuracy and parent-scenario retest; keep
+    TF32/high/medium precision rejected
+  - retain sparse-index BLOCK_N=2048 only for T-Head TopK2048 valid-count calls without prefill workspace
+  ranked_next_directions:
+  - rank: 1
+    candidate: profiler-off P4096/D1024/C64/N128 retest of the combined source including sparse-index BLOCK_N=2048, exact
+      W8A8 quantization, moe_sum dispatch and scaled-mm configs at max-num-batched-tokens=2048
+    success_condition: repeatable steady output throughput improvement with no TTFT/TPOT/ITL or failure regression
+    stop_condition: no measurable gain, any correctness/stability regression, or source identity mismatch
+  - rank: 2
+    candidate: compare the post-retest service hotspot distribution with the C32 profile before selecting another sparse-MLA,
+      communication, or scheduler experiment
+    success_condition: a repeatable critical-path hotspot with a bounded candidate and same-shape guard
+    stop_condition: no stable hotspot migration or only overlapped non-critical activity remains
+  - rank: 3
+    candidate: independent max-num-batched-tokens sweep at 1024/1536/2048/3072 after code retest
+    success_condition: same-code same-workload repeatable throughput or latency improvement
+    stop_condition: lower throughput, tail-latency regression, failures, or material KV-capacity loss
+  immediate_experiment: model-accuracy gate followed by user-run profiler-off P4096/D1024/C64/N128 retest of Plugin SHA256
+    7e42a416...c845e plus FlagGems sparse-MLA SHA256 680eff6b...e4f4fc, T-Head tune-config SHA256 2b44781b...65e220, fused_moe.py
+    SHA256 d7a1fbf3...7641, and moe_sum.py SHA256 7419f5d6...b8a2 at max-num-batched-tokens=2048
+  stop_conditions:
+  - output throughput fails the frozen improvement threshold
+  - any correctness, graph, request-failure, or latency guard regresses
+  - runtime source hashes do not match the retained candidate
+  next_review_trigger: parent_retest_completed_or_batch_token_sweep_completed
+next_actions:
+- optimize the Decode generic sparse MLA score-selected path at the observed grid2048 and grid2029 shapes; require exact graph-safe
+  microbenchmark gain before another service run
+- keep max-num-batched-tokens at 2048 because no scanned candidate passed both the throughput and P99 ITL guards
+- retain the SQ4096 full-prefix range extension as a pending operator candidate, but do not claim service benefit while the
+  launch configuration caps batching at 2048
+- run a new accuracy gate before promoting the current uncommitted Plugin and FlagGems-vllm source combination
+runtime_state:
+  optimization_container: hy4-opt-20260914
+  source_adaptation_container: hy4
+  service_running: false
+  port_8010_listening: false
+  accelerator_released: true
+  active_flaggems_variant: sq2048_bk32_plus_thead_scaled_mm_plus_thead_w8a8_four_warps_exact_quant_plus_hy4_moe_sum_dispatch
+  active_flaggems_source_sha256: 680eff6be15e259d36036f82958fb383ba1acc781bee1046caa246ae99e4f4fc
+  active_plugin_variant: indexer_full_range_bypass_plus_exact_fused_pointwise_plus_sparse_index_blockn2048_plus_native_router_mm_plus_single_row_prefix_translate
+  active_plugin_source_sha256: 7e65f86944f8720145d1edaa6c35c56072cf37ce55692630d32be5b3631204ed
+  active_flaggems_thead_tune_config_sha256: 2b44781bbbb28f76f20f522ae8a52067c595cf7bfdd48ee02d92516eed65e220
+  active_flaggems_fused_moe_sha256: d7a1fbf37fe0ac92d493abdac957b00a4d3f20da865e58d30fcd2bb298a27641
+  active_flaggems_moe_sum_sha256: 7419f5d69971ddfb85507e6adb0671d1120334c1f85a11f0ab09872f19b8b8a2
+  active_flaggems_branch: support-hy4-preview
+  active_plugin_branch: codex/deploy-pr477-20260910
+  active_flaggems_commit: aaac34ca6cdd2838b39263b90831f12b34050a68
+  active_plugin_commit: f3769d6350931a18cb78450bad703df22f70be68
+  remote_branch_for_both_repositories: support-hy4-preview
+  note: dedicated C64 profiling service was stopped and 8010 is free; both source worktrees are clean and the final commits
+    are pushed and remote-head verified
+latest_checkpoint_and_scaled_mm:
+  checkpoint:
+    candidate_csv: /mnt/nfs/users/jinghao/hy4-preview/test/benchmark_results/hy4/hy4_4096in_1024out_c64_n128_20260916_155355.csv
+    candidate_sha256: 20ecc9c793027db3069858424ef46c1142041ff28a4eeea71a240b9dbc5041a8
+    baseline_csv: /mnt/nfs/users/jinghao/hy4-preview/test/benchmark_results/hy4/hy4_4096in_1024out_c64_n128_20260916_082820.csv
+    baseline_sha256: bc89271bc32e611420927edea225be2ba02860acecb3fdd129de08a40bf5fdb0
+    steady_output_tok_s:
+      baseline: 224.03
+      candidate: 227.8
+      improvement: 0.016828
+    steady_total_tok_s:
+      baseline: 1120.12
+      candidate: 1138.97
+      improvement: 0.016829
+    mean_ttft_ms:
+      baseline: 41980.26
+      candidate: 40071.84
+      improvement: 0.04546
+    mean_tpot_ms:
+      baseline: 241.78
+      candidate: 238.88
+      improvement: 0.011994
+    median_itl_ms:
+      baseline: 147.62
+      candidate: 149.7
+      improvement: -0.01409
+    cold_run1_duration_s:
+      baseline: 5350.86
+      candidate: 774.99
+      candidate_vs_steady_ratio: 1.346872
+    result: checkpoint_only_no_same_run_abr_identity
+  e2e_dilution_analysis:
+    exact_pointwise_local_reduction: 0.51017
+    exact_pointwise_whole_trace_device_reduction: 0.004445
+    explanation: Amdahl bound plus inclusive Indexer waits, cross-stream overlap, reduced-profile coverage mismatch, and remaining
+      sparse-MLA/MoE/communication/decode hotspots
+  scaled_mm_candidate:
+    classification: operator/improve
+    repository: FlagGems
+    scope: add three T-Head-only generic autotune candidates for dominant M2048 Prefill shapes
+    trace_rank0:
+      calls: 44928
+      total_ms: 4485.144
+      whole_device_fraction: 0.1122
+    wrapper_speedup_range:
+    - 1.000828
+    - 1.550843
+    weighted_six_shape_ms:
+      baseline: 4041.731
+      candidate: 3531.34
+      saving: 510.391
+      reduction: 0.12628
+    projected_scaled_mm_reduction: 0.113796
+    projected_whole_device_upper_bound: 0.01277
+    config_count: 7
+    runtime_selection: all_six_dominant_shapes_hit_one_of_the_three_new_configs
+    graph_validation: passed_prefill_and_decode_capture_plus_two_replays_exact
+    max_abs_diff: 0.0
+    source_sha256: 2b44781bbbb28f76f20f522ae8a52067c595cf7bfdd48ee02d92516eed65e220
+    decision: retained_pending_parent_profiler_off_retest
+    evidence:
+      pre: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operators/scaled-mm-prefill-tiles-20260916-01/summary.json
+      candidate: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operators/scaled-mm-prefill-tiles-20260916-02/summary.json
+      graph: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operators/scaled-mm-prefill-config-validation-20260916-01/summary.json
+      selected_configs: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operators/scaled-mm-selected-configs-20260916-01/summary.json
+larger_profile_and_fused_moe:
+  profile:
+    experiment_id: p4k-d128-c32-n32-scaled-mm-reprofile-20260916-07
+    workload:
+      prompt_tokens: 4096
+      output_tokens: 128
+      concurrency: 32
+      requests: 32
+    parent_scenario: p4096-d1024-c64-n128
+    trace_ranks: 16
+    trace_validation: 16_of_16_gzip_and_json_passed
+    trace_size_gib: 2.3
+    diagnostic_requests:
+      success: 32
+      failed: 0
+    sampled_rank_device_spread:
+      prefill: 0.0138
+      mixed: 0.0407
+      decode: 0.011
+    phase_hotspots:
+      prefill:
+        sparse_mla: 0.2813
+        fused_moe: 0.1852
+        scaled_mm: 0.1251
+        ring_all_reduce: 0.1039
+        linear: 0.0773
+      mixed:
+        sparse_mla: 0.2786
+        fused_moe: 0.1635
+        scaled_mm: 0.1105
+        ring_all_reduce: 0.0851
+        linear: 0.0683
+      decode:
+        sparse_mla: 0.2877
+        fused_moe: 0.155
+        linear: 0.1047
+        scaled_mm: 0.0949
+        ring_all_reduce: 0.0508
+    phase_marker_caveat: chunked_prefill_continuations_may_be_labeled_decode
+    result_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d128-c32-n32-scaled-mm-reprofile-20260916-07
+    trace_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/profiling/p4k-d128-c32-n32-scaled-mm-reprofile-20260916-07/traces
+  fused_moe_candidate:
+    dispatch: FlagGemsW8A8Experts_to_flag_gems_fused_experts_impl
+    dominant_shape:
+      M: 2048
+      E: 256
+      topk: 8
+      w1:
+      - 256
+      - 256
+      - 6144
+      w2:
+      - 256
+      - 6144
+      - 128
+    rejected_candidate: gemm2_block_n_256_full_operator_speedup_0.9962x
+    retained_scope: PPU-ZW810E_and_int8_w8a8_and_M_ge_256
+    median_speedups:
+      M256: 1.0605
+      M512: 1.1536
+      M1024: 1.1666
+      M2048: 1.0436
+    source_validation_ms:
+      generic_baseline: 2.49665
+      candidate: 2.221641
+      speedup: 1.123786
+    correctness: bitwise_exact
+    graph_validation: capture_plus_two_replays_bitwise_exact
+    unit_tests: 56_passed
+    source_sha256: d7a1fbf37fe0ac92d493abdac957b00a4d3f20da865e58d30fcd2bb298a27641
+    decision: retained_pending_parent_profiler_off_retest
+    evidence_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/fused-moe-warps4-20260916
+  conclusion_boundary: profiler-on diagnosis plus operator-only validation; no parent-scenario end-to-end claim
+post_c32_operator_cycle:
+  profile_provenance_note: phase-analysis-sampled.json reused stale scenario metadata from p4096-d128-c8-n8, but trace paths,
+    32_of_32 request evidence, kernel counts and hotspot durations are from p4096-d128-c32-n32; whole-trace kernels remain
+    authoritative
+  router_linear:
+    decision: retained_pending_model_accuracy_and_parent_retest
+    native_mm_speedup_range:
+    - 3.44
+    - 17.38
+    native_mm_precision:
+      float32_matmul_precision: highest
+      allow_tf32: false
+    native_mm_large_m_top8_set_equal_fraction: 1.0
+    native_mm_large_m_order_only_rows:
+      M1024: 1
+      M2048: 1
+    reordered_positions:
+      M1024_row851:
+      - 4
+      - 5
+      M2048_row1358:
+      - 2
+      - 3
+    fp64_sample_error:
+      flaggems:
+        max_abs: 0.0009010099
+        mean_abs: 7.80109e-05
+        rmse: 0.000111627
+      native_highest:
+        max_abs: 0.0061827962
+        mean_abs: 0.0012585076
+        rmse: 0.0015981427
+    root_cause: different full-FP32 vendor GEMM accumulation_and_tiling_order; not TF32 and not a Top8 cutoff crossing in
+      the measured random inputs
+    block_k_probe:
+      BK32_us: 873.31
+      BK64_us: 1486.28
+      BK128_us: 2216.2
+      outputs_vs_current: bitwise_exact
+    rejected_tf32_probe:
+      M2048_us: 144.65
+      max_abs_vs_flaggems: 0.110878
+      top8_set_changed_rows: 10
+    exact_tile_result: current_BLOCK_K32_tile_remains_fastest
+    evidence:
+      tile_sweep: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/router-linear-20260916/router-linear-narrow.json
+      numerical_audit: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/router-linear-20260917/router-linear-numerics-audit.json
+      integration: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/router-linear-20260917/native-router-mm-integration.json
+    integration:
+      guard: T-Head_and_H6144_E256_and_bias_false_and_FP32_weight_output_and_highest_precision_and_TF32_false_and_effective_FlagGems_mm_disabled
+      dispatch_proof: aten::mm_to_PPU_vendor_FP32_GEMM
+      bf16_input_wrapper_speedup:
+        M1: 9.3723
+        M16: 7.2161
+        M64: 11.463
+        M256: 9.0318
+        M1024: 4.4276
+        M2048: 2.7781
+      candidate_equals_direct_native_mm: true
+      old_flinear_equals_direct_flaggems: true
+      route_set_changes:
+        M1: 0
+        M16: 0
+        M64: 0
+        M256: 0
+        M1024: 0
+        M2048: 1
+      M2048_changed_row:
+        row: 170
+        baseline_cutoff_margin: 0.0017547607
+        row_max_abs_diff: 0.0048522949
+      graph_validation: capture_plus_two_replays_eager_exact
+      tests: 17_passed
+      source_sha256: 7e42a416fcf72c091a5dabfcdde11f292bf73b25cf9ca0cd09f5848cc89c845e
+      pr_readiness: experimental_accuracy_and_parent_retest_pending
+  w8a8_exact_quant:
+    method: triton_libdevice_div_rn_plus_rint
+    activation_quant_us:
+      a1_baseline: 302.0
+      a1_candidate: 100.3
+      a2_baseline: 88.9
+      a2_candidate: 41.9
+    quantized_values_and_scales: bitwise_exact
+    combined_full_moe_speedup_m2048: 1.123786
+    graph_validation: capture_plus_two_replays_bitwise_exact
+  direct_sum:
+    decision: rejected_and_reverted
+    speedup:
+      M256: 0.81283
+      M2048: 0.33971
+    repeatability: failed
+    max_abs_diff: 0.125
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/fused-moe-direct-sum-20260916/moe-direct-sum.json
+  moe_sum_dispatch:
+    guard: T-Head_and_bfloat16_and_topk8_and_hidden6144_and_contiguous
+    speedup:
+      M256: 1.303137
+      M2048: 1.071833
+    correctness: bitwise_exact
+    graph_validation: capture_plus_two_replays_bitwise_exact
+    tests:
+      moe_sum: 76_passed
+      fused_moe: 56_passed
+    source_sha256: 7419f5d69971ddfb85507e6adb0671d1120334c1f85a11f0ab09872f19b8b8a2
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/moe-sum-20260916/moe-sum-source-verify.json
+  sparse_index_conversion:
+    guard: T-Head_and_topk2048_and_return_valid_counts_and_no_prefill_workspace
+    mechanism: BLOCK_N_128_to_2048_reduces_programs_and_valid_count_atomics_per_row_from_16_to_1
+    profile_share:
+      prefill: 0.028788
+      mixed: 0.026951
+      decode: 0.016677
+    isolated_speedup:
+      M256: 1.567196
+      M2048: 4.615752
+    projected_prefill_device_upper_bound: 0.022551
+    correctness: indices_and_counts_bitwise_exact
+    graph_validation: capture_plus_two_replays_bitwise_exact
+    plugin_tests: 10_passed
+    source_sha256: 7e42a416fcf72c091a5dabfcdde11f292bf73b25cf9ca0cd09f5848cc89c845e
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/index-convert-20260916/index-convert-shim-verify.log
+  combined_projection_boundary: scaled-mm approximately 1.28_percent plus fused-MoE approximately 1.9_to_2.2_percent plus
+    sparse-index Prefill approximately 2.25_percent and moe_sum at most 0.25_percent are overlapping phase/device upper bounds,
+    not additive E2E speedup
+latest_parent_checkpoint_and_c64_reprofile:
+  planning_review_id: 20260917-parent-checkpoint-c64-reprofile-indexer-prefix
+  checkpoint:
+    source: /mnt/nfs/users/jinghao/hy4-preview/test/benchmark_results/hy4/hy4_4096in_1024out_c64_n128_20260917_132531.csv
+    sha256: 9868b1f5c3e9f3559959c2e0286d393364499ea8a8f1c68ef97c8c5afdd2f5d9
+    scenario_id: p4096-d1024-c64-n128
+    steady_runs:
+    - Run2
+    - Run3
+    output_tok_s: 278.14
+    total_tok_s: 1390.72
+    duration_s: 471.24
+    mean_ttft_ms: 35993.83
+    mean_tpot_ms: 192.81
+    median_itl_ms: 110.25
+    p99_itl_ms: 1151.82
+    versus_20260916_155355:
+      output_throughput_improvement: 0.221
+      duration_improvement: 0.181
+      mean_ttft_improvement: 0.1018
+      mean_tpot_improvement: 0.1929
+      median_itl_improvement: 0.2635
+      p99_itl_improvement: 0.0893
+    versus_20260915_100132:
+      output_throughput_improvement: 1.0993
+      duration_improvement: 0.5236
+      mean_ttft_improvement: 0.502
+      mean_tpot_improvement: 0.526
+    result: checkpoint_only_no_same_run_abr_identity
+  cold_run:
+    run1_duration_s: 751.13
+    duration_vs_steady: 1.5939
+    output_throughput_regression_vs_steady: 0.3726
+    mean_ttft_increase_vs_steady: 1.4114
+    p99_itl_increase_vs_steady: 1.6817
+    diagnosis: service_internal_first_shape_autotune_or_cache_preparation_remains_material
+  profile:
+    experiment_id: p4k-d128-c64-n64-current-stack-reprofile-20260917-08
+    workload:
+      prompt_tokens: 4096
+      output_tokens: 128
+      concurrency: 64
+      requests: 64
+    parent_scenario: p4096-d1024-c64-n128
+    trace_ranks: 16
+    trace_validation: 16_of_16_gzip_and_json_passed
+    trace_size_gib: 3.786
+    result_status: salvaged_valid_traces_client_stop_profile_response_missing
+    sampled_cross_rank_device_spread:
+      prefill: 0.0051
+      mixed: 0.0329
+      decode: 0.0255
+    phase_hotspots:
+      prefill:
+        sparse_mla: 0.3114
+        fused_moe: 0.1979
+        scaled_mm: 0.1389
+        ring_all_reduce: 0.1269
+        native_router_mm: 0.031
+      mixed:
+        sparse_mla: 0.3355
+        fused_moe: 0.1604
+        scaled_mm: 0.1121
+        ring_all_reduce: 0.0854
+        bf16_direct_copy: 0.0655
+        native_router_mm: 0.025
+      decode:
+        sparse_mla: 0.3552
+        fused_moe: 0.1677
+        scaled_mm: 0.1065
+        ring_all_reduce: 0.0655
+        bf16_direct_copy: 0.0261
+        splitk_stage1: 0.0217
+        native_router_mm_rank0: 0.0187
+    interpretation: native router MM reduced the former router-linear hotspot to about 1.9%-3.1%; sparse MLA is now the dominant
+      measured device activity at 31%-36%
+    trace_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/profiling/p4k-d128-c64-n64-current-stack-reprofile-20260917-08
+    result_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d128-c64-n64-current-stack-reprofile-20260917-08
+  indexer_sync_diagnosis:
+    root_expression: topk_indices_buffer[token_start_valid_boolean_index]_inplace_add
+    mechanism: single-row_boolean_index_invokes_nonzero_then_long_to_and_host_stream_synchronization
+    counts:
+      aten_nonzero: 42
+      long_aten_to: 40
+      cuda_stream_synchronize: 126
+    sync_ancestors:
+      local_scalar_dense: 84
+      nonzero: 42
+    caveat: inclusive CPU waits overlap prior asynchronous device work and are not directly reclaimable
+  indexer_prefix_candidate:
+    change: add request offset directly to indices[:selection_limit] under the proven full-valid-prefix branch
+    guard_proof: branch is entered only when the valid request range exceeds selection_limit, so the provider fills the complete
+      prefix and the -1 tail must remain untouched
+    isolated_42_call_ms:
+      baseline: 2.842062
+      candidate: 0.359671
+      speedup: 7.9018
+      absolute_saving: 2.482391
+    correctness_counts:
+    - 0
+    - 1
+    - 17
+    - 1024
+    - 2048
+    graph_validation: capture_plus_two_replays_exact
+    plugin_tests: 14_passed
+    source_sha256: 7e65f86944f8720145d1edaa6c35c56072cf37ce55692630d32be5b3631204ed
+    decision: retained_pending_profiler_off_parent_retest
+    expected_boundary: removes a CPU synchronization barrier but isolated absolute time is only about 2.5ms per measured 42-call
+      chain, so expected E2E gain is small and must be measured
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-single-row-prefix-translate-20260917.json
+  decisions:
+  - retain the exact single-row prefix translation candidate pending profiler-off retest
+  - do not translate the observed 2.489s inclusive synchronization wait into an E2E saving claim
+  - stop repeating exhausted SQ2048 sparse-MLA tile and Split-K sweeps; a further MLA attempt requires a new mechanism or
+    shape boundary
+  - treat cold Run1 as a separate pre-warm/autotune/cache problem from steady-state kernel optimization
+  - keep max-num-batched-tokens=2048 fixed until the current code candidate is frozen
+  ranked_next_directions:
+  - rank: 1
+    candidate: profiler-off parent checkpoint with the single-row prefix translation enabled
+    success_condition: repeatable throughput or latency improvement with no failures and no TTFT/TPOT/ITL regression
+    stop_condition: change is below noise or any correctness/stability guard fails
+  - rank: 2
+    candidate: sparse MLA algorithmic or scheduling redesign targeted at the measured HQ4/DQK576/TOPK2048 shapes, not another
+      exhausted tile-only sweep
+    success_condition: exact graph-safe operator gain on measured per-phase shapes followed by parent-workload gain
+    stop_condition: extra workspace, precision drift, launch overhead, or overlap removes the projected critical-path benefit
+  - rank: 3
+    candidate: service pre-warm of first-seen graph and autotune shapes before accepting traffic
+    success_condition: Run1 converges toward steady Run2/Run3 without changing steady performance
+    stop_condition: warmup cost merely moves into measured traffic or increases startup failure risk
+  submission_gate:
+    user_accuracy_confirmation_date: '2026-09-18'
+    model_accuracy_status: passed_by_user_confirmation
+    metric:
+      name: GPQA
+      score_percent: 91.92
+    native_accuracy_artifact: unknown
+    plugin_pr_readiness: ready_for_review_with_non_target_platform_hardware_not_run
+    flaggems_pr_readiness: ready_for_review_with_non_target_platform_hardware_not_run
+formal_accuracy_gate_20260919:
+  status: passed
+  evaluated_service: plugin_f7d1aaa_flaggems_0e027557_flaggems_vllm_a26a902_plus_hq4_sq65_127_fix
+  metric: exact_match_strict_match
+  score: 0.9292929292929293
+  threshold: 0.87
+  samples: 198
+  timeouts: 0
+  native_run_uuid: 004dd92608e94977b18ed9567f88338b
+  gate_sha256: 503516c80851a17c27620bccfae7440792fa8d444f136023e830ca2fe47ee77a
+  run_record_sha256: 55ecb5e6a69774a2c773bc010d50b875c1f8cfa5f3a20dcfb6afd2ff3d7065f4
+  artifact_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/accuracy/formal-gate-20260918-f7d1aaa-a26a902-01
+  validator_repair: physical_newline_jsonl_framing_for_legal_u2028
+  conclusion_boundary: immutable gate for the evaluated service identity only; new code or restarted services require matching
+    regression evidence
+planning_review_20260919_post_formal_gate:
+  review_id: 20260919-post-formal-gate-sparse-mla-redesign
+  evidence_cutoff: formal GPQA gate plus p4k-d128-c64-n64-current-stack-reprofile-20260917-08 and live FlagGems-vllm a26a902
+    source inspection
+  objective: improve P4096/D1024/C64/N128 steady output throughput without TTFT/TPOT/ITL, graph, or accuracy regression
+  current_candidate:
+    plugin: f7d1aaa9935dd8d613376601504a793b11ee34e0
+    flaggems: 0e02755770011d517c8de591bf91998bbcf30ad1
+    flaggems_vllm: a26a90258de8bcad0a5d831f38b52f755c6a73b0_plus_uncommitted_hq4_sq65_127_capture_fix
+    service_state: stopped_after_accuracy_gate
+  cumulative_boundary: latest checkpoint shows large historical gain but lacks same-run baseline/candidate/revert for the
+    migrated three-repository combination; do not sum isolated operator projections
+  phase_bottlenecks:
+    prefill:
+      sparse_mla: 0.3114
+      fused_moe: 0.1979
+      scaled_mm: 0.1389
+      ring_all_reduce: 0.1269
+    mixed:
+      sparse_mla: 0.3355
+      fused_moe: 0.1604
+      scaled_mm: 0.1121
+      ring_all_reduce: 0.0854
+    decode:
+      sparse_mla: 0.3552
+      fused_moe: 0.1677
+      scaled_mm: 0.1065
+      ring_all_reduce: 0.0655
+    caveat: activity duration is not additive critical-path time; existing phase markers can classify chunked-prefill continuations
+      as decode
+  retained_dependencies:
+  - plugin_indexer_and_native_router_paths
+  - flaggems_vllm_hy4_w8a8_moe_and_sparse_mla_dispatch
+  - hq4_sparse_mla_bk32_for_sq65_2048
+  - hq4_splitk_only_for_sq1_64
+  rejected_or_deferred:
+  - repeated HQ4 BK/BH/warp/stage sweep: exhausted or negative
+  - SQ2048 Split-K: 0.901x best complete call plus 32.125 MiB workspace
+  - indexer-only follow-up: absolute remaining saving too small for the requested gain
+  - max-num-batched-tokens sweep: defer until the next code candidate is frozen
+  ranked_next_directions:
+  - rank: 1
+    classification: operator/improve
+    candidate: reuse the existing TLE sparse-MLA producer/two-consumer pipeline with BH4 for Hy4 HQ4
+    evidence_for: sparse MLA is 31-36 percent of measured device activity; existing TLE dataflow splits the 512-d output accumulator
+      across consumers and pipelines KV production
+    evidence_against: TLE currently gates on HQ divisible by 64 and fixed worker/register allocations may not compile or pay
+      off at BH4
+    first_experiment: direct private-kernel compile, correctness, and event-timed SQ128/512/2048 ramp/all-2048 comparison
+      without source edits
+    success_condition: allclose and at least 1.05x median complete-kernel improvement on representative large shapes
+    stop_condition: compile failure, numerical/graph failure, or less than 1.05x on SQ512 and SQ2048
+    rollback: no repository change for the first experiment
+  - rank: 2
+    classification: operator/improve
+    candidate: reorder sparse indices by KV address to improve gather locality
+    evidence_for: current top-k score order makes KV gathers effectively random and sparse MLA is dominant
+    evidence_against: an additional sort may cost more than the saved loads and changes reduction order
+    first_experiment: offline indices-only locality audit before any model-path change
+    stop_condition: existing locality is already high, sort overhead dominates, or numerical drift is material
+  - rank: 3
+    classification: framework
+    candidate: explicit service pre-warm for first-seen graph and autotune shapes
+    evidence_for: latest Run1 remains 1.59x slower than steady runs
+    evidence_against: moves startup cost rather than improving steady throughput
+    stop_condition: warmup does not converge Run1 or adds readiness risk
+  immediate_experiment: tle_hq4_direct_falsification_on_measured_sparse_mla_shapes
+  required_skills:
+  - inference_optimization_planning
+  - inference_profiling_analyze
+  - key_operator_analysis
+  next_review_trigger: TLE HQ4 is integrated and reprofiled, or TLE HQ4 fails and the locality audit completes
+optimization_20260919_full_prefix_sparse_mla_grouping:
+  status: retained_pending_service_retest_and_new_accuracy_gate
+  classification: operator/improve
+  repository: FlagGems-vllm
+  branch: support-hy4-preview
+  base_head: a26a90258de8bcad0a5d831f38b52f755c6a73b0
+  mechanism: group four adjacent full-range prefix queries and reuse each gathered KV tile across their 16 query heads
+  dispatch_guard:
+    platform: thead
+    shape:
+      hq: 4
+      dqk: 576
+      dv: 512
+      topk: 2048
+      sq_min: 384
+      sq_max: 2048
+    device_proof: each group requires consecutive positive lengths and exact equality between every shorter row prefix and
+      the fourth row prefix
+    fallback: ungrouped rows retain the legacy HQ4 BH4/BK32/4-warp/1-stage path
+  rejected_experiments:
+    tle_hq4:
+      result: rejected_compile_failure
+      reason: current PPU Triton backend rejects the TLE warp_specialize path
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-tle-hq4-20260919-01/summary.json
+    index_position_sort:
+      result: rejected
+      attention_only_speedup:
+        sq512: 1.0085
+        sq2048: 1.0039
+      combined_speedup:
+        sq512: 0.972
+        sq2048: 0.9368
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-index-locality-20260919-01/summary.json
+  exact_operator_result:
+    full_prefix_speedup:
+      sq512: 1.7597
+      sq2048: 2.8771
+    random_topk_speedup:
+      sq512: 0.9846
+      sq2048: 1.0022
+    sq128_behavior: legacy_path_retained
+    max_abs_error: 0.0
+    threshold: full-prefix SQ512/SQ2048 at least 1.10x and random-TopK fallback at least 0.95x
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-full-prefix-integrated-20260919-04/summary.json
+  runtime_profile:
+    experiment_id: p4k-d16-c16-n16-full-prefix-hit-profile-20260919-11
+    workload:
+      prompt_tokens: 4096
+      output_tokens: 16
+      concurrency: 16
+      requests: 16
+    parent_scenario: p4096-d1024-c64-n128
+    trace_validation: 16_of_16_gzip_valid
+    request_validation: 16_success_0_failed
+    result_status: salvaged_valid_traces_client_stop_profile_response_missing
+    phase_marker_caveat: chunked_prefill_continuations_can_be_labeled_decode
+    sparse_mla_named_kernel_us:
+      prefill:
+        grouped: 233050.355
+        fallback: 7326.281
+        classify: 1507.41
+      mixed:
+        grouped: 2072781.836
+        fallback: 751454.051
+      decode:
+        grouped: 580031.221
+        fallback: 18101629.765
+    interpretation: grouped full-prefix reuse dominates Prefill and is material in Mixed, while remaining Decode-labeled work
+      is primarily score-selected or sub-threshold fallback
+    indexer_mutually_exclusive_cpu_ms:
+      prefill:
+        body: 39.865
+        copy_wrapper: 0.048
+        memcpy_wait: 0.0
+        explicit_sync: 0.0
+      mixed:
+        body: 2031.395
+        copy_wrapper: 131.997
+        memcpy_wait: 8.7
+        explicit_sync: 0.0
+      decode:
+        body: 6742.986
+        copy_wrapper: 207.692
+        memcpy_wait: 7.808
+        explicit_sync: 0.0
+    indexer_interpretation: copy_and_sync_are_no_longer_the_bottleneck; further work_must_target_the_device_compute_body
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d16-c16-n16-full-prefix-hit-profile-20260919-11
+  threshold_refinement:
+    rejected_sq65_candidate:
+      full_prefix_speedup:
+        sq96: 0.4355
+        sq128: 0.4233
+        sq256: 0.7775
+        sq384: 1.3383
+        sq512: 1.8732
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-full-prefix-threshold-20260919-05/summary.json
+    retained_sq384_candidate:
+      grouped_speedup:
+        sq384: 1.3415
+        sq416: 1.5288
+        sq448: 1.6887
+        sq480: 1.7745
+      legacy_path_speedup:
+        sq320: 0.9877
+        sq352: 0.99
+      random_topk_min_speedup: 0.9843
+      max_abs_error: 0.0
+      decision: candidate
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-full-prefix-threshold384-20260919-06/assessment.json
+  validation:
+    focused_tests: 26_passed
+    graph: grouped_SQ384_and_SQ512_capture_and_replay_passed
+    diff_check: passed
+    source_sha256: dd51cddf57ab0675e85b39f061bfcc2e9f402e9476c912edcd823ca977dc0d15
+    test_sha256: a32d0f80aee0c6c12804e643215617ebf1a176cf1f09d7281f6a46d2e8cb62b1
+  patch:
+    remote: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/flaggems-vllm-hy4-full-prefix-grouping-20260919.patch
+    sha256: 34b366625bbe260406f05c8a6c11cc847478bbae5e22c35a77778f7dc72a22a2
+    threshold384_remote: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/flaggems-vllm-hy4-full-prefix-threshold384-20260919.patch
+    threshold384_sha256: f0b921d7b462d1c4b17aeb2bd99996d1f2bf8ee5fd042304af4b623cf6cdd328
+  expected_parent_boundary: P4K full-prefix chunks with SQ384 or larger can benefit; score-selected TopK and SQ352 or smaller
+    remain on the previous path, so operator speedup must not be projected directly to E2E
+  accuracy_boundary: the existing 92.93 percent formal gate belongs to the preceding service identity; this new code requires
+    a new matching accuracy gate before formal acceptance
+  service_state: stopped_after_valid_profile_and_focused_tests
+planning_review_20260919_post_full_prefix_reprofile:
+  review_id: 20260919-post-full-prefix-reprofile-indexer-body
+  evidence_cutoff: valid P4096_D16_C16_N16 profile plus SQ65 and SQ384 threshold sweeps and 26 focused tests
+  cumulative_boundary: full-prefix operator gains are proven and runtime hit is proven, but no profiler-off parent comparison
+    exists for the current code identity; do not add isolated speedups
+  retained_candidate:
+    repository: FlagGems-vllm
+    mechanism: full-prefix BQ4 grouping for SQ384_to_2048
+    source_sha256: dd51cddf57ab0675e85b39f061bfcc2e9f402e9476c912edcd823ca977dc0d15
+    service_state: stopped
+  rejected_or_stopped:
+  - C64_D128_trace_export: incomplete_all_16_gzip_streams_missing_footer_after_early_recovery
+  - SQ65_grouping_threshold: rejected_due_large_full_prefix_regressions_at_SQ96_128_256
+  - SQ320_352_grouping: retained_on_legacy_path_due_no_material_gain
+  - indexer_copy_sync_followup: stopped_because_exclusive_memcpy_wait_is_at_most_0.40_percent_and_explicit_sync_is_zero
+  phase_bottlenecks:
+    prefill:
+      fused_moe: 0.2435
+      scaled_mm: 0.1838
+      ring_all_reduce: 0.141
+      grouped_sparse_mla: 0.1347
+    mixed:
+      fused_moe: 0.2104
+      scaled_mm: 0.16
+      ring_all_reduce: 0.1181
+      grouped_sparse_mla: 0.1109
+      sparse_mla_fallback: 0.0402
+    decode_labeled:
+      sparse_mla_fallback: 0.3972
+      fused_moe: 0.1266
+      scaled_mm: 0.0968
+      ring_all_reduce: 0.0712
+    caveat: phase markers can classify chunked-prefill continuation as decode and device activity can overlap
+  ranked_next_directions:
+  - rank: 1
+    classification: operator/improve
+    candidate: attribute and reduce the remaining Indexer device-compute body, starting with score-selected BMM and non_tle_top_k_per_row_prefill
+      shapes
+    first_experiment: extract exact per-call shapes/counts inside Indexer from rank0 trace and benchmark only the dominant
+      shape
+    success_condition: exact TopK set and at least 1.10x on the dominant complete Indexer block with graph replay
+    stop_condition: remaining time is fragmented across shapes, tie behavior changes, or projected parent gain is below noise
+  - rank: 2
+    classification: operator/improve
+    candidate: remaining score-selected sparse MLA dataflow redesign rather than more BK_BH_warp_stage sweeps
+    first_experiment: separate full-prefix_grouped, random_topk_fallback, and SQ1_64_splitk counts by actual SQ
+    stop_condition: no high-frequency shape with a new reusable-data mechanism is found
+  - rank: 3
+    classification: operator_or_framework
+    candidate: fused_MoE_scaled_MM_or_ring_all_reduce_after_Indexer_body_is_bounded
+    stop_condition: isolated gain does not reduce parent critical path
+  immediate_experiment: indexer_device_body_shape_attribution_on_valid_rank0_trace
+  required_skills:
+  - inference_optimization_planning
+  - inference_profiling_analyze
+  - key_operator_analysis
+  next_review_trigger: Indexer dominant shape is optimized or rejected, or another valid runtime profile shows hotspot migration
+optimization_20260919_indexer_body_data_movement:
+  status: retained_pending_service_reprofile_and_new_accuracy_gate
+  classification: operator/improve
+  repository: vllm-plugin-FL
+  branch: support-hy4-preview
+  base_head: f7d1aaa9935dd8d613376601504a793b11ee34e0
+  trace_attribution:
+    workload:
+      prompt_tokens: 4096
+      output_tokens: 16
+      concurrency: 16
+      requests: 16
+    parent_scenario: P4096/D1024/C64/N128
+    indexer_intervals_rank0: 693
+    dominant_block_postprocess:
+      shape:
+      - 128
+      - 2048
+      count: 5019
+      operations:
+      - aten::ge
+      - aten::bitwise_not
+      - aten::add_
+      - aten::masked_fill_
+    paged_gather:
+      cache_shape:
+      - 6640
+      - 64
+      - 128
+      cache_stride:
+      - 8192
+      - 128
+      - 1
+      flattened_shape:
+      - 424960
+      - 128
+      finding: generic_index_select_transposes_and_clones_the_full_flattened_cache_before_selecting_roughly_2K_to_4K_rows
+    evidence:
+      shapes: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d16-c16-n16-full-prefix-hit-profile-20260919-11/indexer-body-shapes-rank0.json
+      parent_chains: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d16-c16-n16-full-prefix-hit-profile-20260919-11/indexer-parent-chains-rank0.json
+  retained_candidates:
+    block_topk_translation_fusion:
+      mechanism: fuse validity check, request offset translation, and invalid restoration into one in-place T-Head Triton
+        kernel
+      transform_speedup_rows128_topk2048: 1.52839
+      complete_block_speedup:
+        rows26_keys4096: 1.12324
+        rows128_keys4096: 1.02441
+      correctness: bitwise_exact_from_identical_raw_topk_indices
+      graph: capture_and_two_replays_passed
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-block-topk-integrated-fusion-20260919-01.json
+      patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/plugin-hyv4-block-topk-translate-fusion-20260919.patch
+      patch_sha256: bae0aa06aff5b2a1f551a9f42bb7f4b9dfe0c728f15ae0039a3c81d26830c260
+    inplace_exact_pointwise:
+      mechanism: T-Head reuses newly-created QK scores as exact BF16 pointwise output while retaining native sum order
+      reduction_chain_speedup:
+        rows26_keys4096: 1.02016
+        rows128_keys2048: 1.00621
+        rows128_keys4096: 1.13594
+      complete_block_speedup:
+        rows26_keys4096: 1.05937
+        rows128_keys4096: 1.05106
+      correctness: BF16_products_and_FP32_logits_bitwise_exact
+      graph: capture_and_two_replays_passed
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-indexer-inplace-pointwise-20260919-01.json
+      patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/plugin-hyv4-indexer-inplace-pointwise-20260919.patch
+      patch_sha256: f5dd43dd9b70308159c953d033d17b49990a6e134fd7540fe533b294bf18ae3a
+    thead_direct_paged_gather:
+      mechanism: read only request-selected paged-cache rows using original strides; avoid generic index_select full-cache
+        contiguous clone
+      vendor_boundary: vllm_fl/dispatch/backends/vendor/thead/impl/hyv4_indexer.py
+      speedup:
+        seq2041: 2.70175
+        seq3987: 2.65138
+        seq4096: 2.65535
+      median_delta_us:
+        seq2041: 43.66
+        seq3987: 42.35
+        seq4096: 43.09
+      correctness: bitwise_exact
+      graph: capture_and_two_input_change_replays_passed
+      evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-paged-sequence-direct-gather-20260919-01.json
+      patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/plugin-thead-hyv4-paged-sequence-gather-20260919.patch
+      patch_sha256: fe04bd0f2e783bbaf01b061039a529da6ea91da665c39d76c4c7e933f840cab8
+  applied_source_validation:
+    plugin_focused_tests: 16_passed
+    python_compileall: passed
+    git_diff_check: passed
+    ruff: not_run_not_installed
+    source_sha256:
+      hy_v4_py: 55251044f881615ba92119e59bb969841b2d384f1fed3b3ab3da3908a15a3235
+      thead_hyv4_indexer_py: c9e2df80e774f3829fc088dbace607a10442d9b79a88c3aeb00e95eafc6a3ba9
+      test_hy_v4_py: 0933edee2be9e1f3e09f89176f841314f37362f5ddb53199e73a90d1a929ad46
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-indexer-body-source-verify-20260919-01.json
+  caveats:
+  - shared TopK can choose different threshold-adjacent sets across independent identical calls; translation correctness therefore
+    uses identical raw indices
+  - isolated speedups are not additive and no profiler-off service A_B exists for this code identity
+  - existing 92.93 percent GPQA gate belongs to the preceding service identity
+  service_state: stopped_port_8010_free
+planning_review_20260919_post_indexer_body_data_movement:
+  review_id: 20260919-post-indexer-body-data-movement
+  evidence_cutoff: valid rank0 shape and parent-chain attribution plus three operator experiments, 16 focused tests, and applied-source
+    graph verification
+  cumulative_boundary: current Plugin and FlagGems-vllm candidates have no same-identity profiler-off parent measurement;
+    do not sum sparse_MLA and Indexer microbenchmark speedups
+  retained_candidates:
+  - block_topk_translation_fusion
+  - inplace_exact_pointwise
+  - thead_direct_paged_gather
+  - flaggems_vllm_full_prefix_sparse_mla_grouping_sq384_to_2048
+  rejected_or_stopped:
+  - indexer_copy_or_sync_work: stopped because exclusive wait is at most 0.40 percent and explicit sync is zero
+  - fully_fused_indexer_reduction: remains rejected because it changes threshold-adjacent TopK selections
+  - further_generic_index_select_tuning: superseded by exact direct paged gather
+  - isolated_microbenchmark_speedup_addition: prohibited
+  ranked_next_directions:
+  - rank: 1
+    classification: operator/diagnostic
+    candidate: bounded service reprofile of the retained Indexer plus full-prefix sparse MLA combination
+    first_experiment: rerun P4096/D16/C16/N16 and prove index_select_contiguous_clone plus ge_bitwise_not_add_masked_fill
+      disappear while request and trace validation pass
+    success_condition: runtime hit proof, no new synchronization, and a material reduction in mutually-exclusive Indexer body
+      or device activity
+    stop_condition: removed operators are replaced by equal-or-larger work or the profile cannot be validated
+  - rank: 2
+    classification: operator/improve
+    candidate: fuse or avoid remaining row-range normalization only if the bounded reprofile shows it is still material
+    stop_condition: contribution is below measurement noise or requires changing shared TopK ABI without parent benefit
+  - rank: 3
+    classification: operator_or_framework
+    candidate: return to fused_MoE_scaled_MM_or_ring_all_reduce after Indexer hotspot migration is measured
+    stop_condition: isolated gain does not reduce parent critical path
+  immediate_experiment: bounded_service_reprofile_P4096_D16_C16_N16_on_new_code_identity
+  required_skills:
+  - inference_profiling_analyze
+  - inference_optimization_planning
+  next_review_trigger: valid bounded reprofile confirms or rejects runtime benefit, or the candidate fails graph service capture
+optimization_20260919_indexer_body_runtime_reprofile:
+  status: retained_runtime_hit_proven_pending_profiler_off_and_accuracy_gate
+  classification: operator/improve
+  profile_id: p4k-d16-c16-n16-indexer-body-reprofile-20260919-12
+  workload:
+    prompt_tokens: 4096
+    output_tokens: 16
+    concurrency: 16
+    requests: 16
+  validation:
+    requests: 16_of_16_success
+    trace_ranks: 16_of_16_gzip_valid
+    graph_capture: 51_of_51
+    service_stopped: true
+    port_8010_released: true
+  same_scenario_indexer_ms:
+    prefill:
+      total:
+        baseline: 39.913492
+        candidate: 38.044257
+        reduction: 0.046832
+      body:
+        baseline: 39.865085
+        candidate: 38.003808
+        reduction: 0.046689
+    mixed:
+      total:
+        baseline: 2172.092035
+        candidate: 1552.198785
+        reduction: 0.28539
+      body:
+        baseline: 2031.394509
+        candidate: 1512.283414
+        reduction: 0.255544
+      copy_wrapper:
+        baseline: 131.997258
+        candidate: 29.259006
+        reduction: 0.778337
+      memcpy_wait:
+        baseline: 8.700269
+        candidate: 10.656365
+    decode_labeled:
+      total:
+        baseline: 6954.929942
+        candidate: 4425.707909
+        reduction: 0.363659
+      body:
+        baseline: 6742.986282
+        candidate: 4264.848937
+        reduction: 0.367513
+      copy_wrapper:
+        baseline: 207.691588
+        candidate: 157.389094
+        reduction: 0.242198
+      memcpy_wait:
+        baseline: 7.80832
+        candidate: 7.214345
+        reduction: 0.07607
+  removed_runtime_signatures:
+    decode_ge_bitwise_not_add_count:
+      baseline_each: 5355
+      candidate_each: 0
+    decode_index_select_count:
+      baseline: 714
+      candidate: 0
+    decode_contiguous_clone_count:
+      baseline_each: 714
+      candidate_each: 0
+    mixed_index_select_count:
+      baseline: 1176
+      candidate: 0
+    mixed_contiguous_clone_count:
+      baseline_each: 1176
+      candidate_each: 0
+  same_profiler_round_diagnostic:
+    output_throughput_tps:
+      baseline: 8.658718
+      candidate: 9.11084
+      improvement: 0.052216
+    total_token_throughput_tps:
+      baseline: 2225.290453
+      candidate: 2341.485761
+      improvement: 0.052216
+    mean_ttft_ms:
+      baseline: 15780.65065
+      candidate: 15015.596738
+      reduction: 0.048481
+    mean_tpot_ms:
+      baseline: 665.401774
+      candidate: 631.045122
+      reduction: 0.051633
+    p99_itl_ms:
+      baseline: 1142.383226
+      candidate: 1106.970475
+      reduction: 0.030999
+    boundary: profiler_enabled_diagnostic_only_first_cold_rounds_excluded
+  evidence:
+    result_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d16-c16-n16-indexer-body-reprofile-20260919-12
+    comparison: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d16-c16-n16-indexer-body-reprofile-20260919-12/indexer-body-before-after-comparison.json
+  caveats:
+  - profiler_on_diagnostic_only
+  - phase_markers_can_label_chunked_prefill_continuation_as_decode
+  - sampled_analyzer_top_level_scenario_metadata_is_stale_but_trace_and_contract_paths_are_current
+optimization_20260919_indexer_redundant_block_fill:
+  status: retained_pending_service_reprofile_and_accuracy_gate
+  repository: vllm-plugin-FL
+  mechanism: rely_on_outer_full_buffer_initialization_and_provider_full_block_overwrite
+  operator_speedup:
+    rows26_keys4096: 1.090847
+    rows128_keys2048: 1.085768
+    rows128_keys4096: 1.009015
+  correctness:
+    sentinel_remaining: 0
+    valid_counts: exact
+    selected_score_multisets: exact
+    graph_capture: passed
+    graph_replays: 2
+    plugin_focused_tests: 16_passed
+    python_compileall: passed
+    git_diff_check: passed
+  rejected_probes:
+    qk_layouts: explicit_bmm_chain_at_most_1.015x_while_transpose_and_einsum_regress
+    fused_row_range_normalization: dominant_rows128_keys2048_is_0.998x
+  source_identity:
+    plugin_head: f7d1aaa9935dd8d613376601504a793b11ee34e0
+    hy_v4_sha256: e4f9d10105a398480aff14e7302da9f0376a01a3ebd620a31cb7eab0f7907822
+    test_sha256: f239b646c2e623fccf22ad8d7b4ff981e5243e2c0602cead4574f2a0f89b385f
+    combined_patch_sha256: dc76b36e2d1b2774eeb36bd69e6836422948ed4df6d99d844e5a7dad9b278255
+  evidence:
+    microbenchmark: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-indexer-redundant-fill-20260919-01/summary.json
+    source_verify: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-indexer-redundant-fill-source-verify-20260919-01.json
+    qk_layouts: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-indexer-qk-layouts-20260919-01/summary.json
+    range_normalization: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hyv4-indexer-range-normalization-20260919-01/summary.json
+    patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/plugin-hyv4-indexer-body-combined-20260919.patch
+  service_state: stopped_port_8010_free
+planning_review_20260919_post_indexer_runtime_reprofile:
+  review_id: 20260919-post-indexer-runtime-reprofile
+  evidence_cutoff: valid_same_scenario_reprofile_plus_no_fill_qk_layout_and_range_normalization_operator_probes
+  cumulative_boundary: runtime Indexer reduction is proven under profiler but no profiler-off parent A_B_revert exists; do
+    not convert it to an E2E claim
+  retained_candidates:
+  - block_topk_translation_fusion
+  - inplace_exact_pointwise
+  - thead_direct_paged_gather
+  - redundant_block_fill_elimination
+  - flaggems_vllm_full_prefix_sparse_mla_grouping_sq384_to_2048
+  rejected_or_stopped:
+  - alternate_qk_layouts_due_at_most_1.5_percent_chain_gain
+  - fused_row_range_normalization_due_no_gain_on_dominant_shape
+  - fully_fused_indexer_reduction_due_topk_selection_changes
+  next_candidates:
+  - rank: 1
+    candidate: profiler_off_same_identity_P4K_milestone_before_more_Indexer_work
+    success_condition: material_Mixed_benefit_with_TTFT_TPOT_ITL_guards_and_same_source_identity
+  - rank: 2
+    candidate: score_selected_sparse_MLA_reuse_or_fused_MoE_critical_path_work
+    first_experiment: attribute_actual_SQ_and_topk_length_or_MoE_M_shapes_from_current_valid_trace
+    stop_condition: fragmented_shapes_or_projected_parent_gain_below_noise
+  - rank: 3
+    candidate: independent_max_num_batched_tokens_scan_1024_1536_2048_3072_after_code_freeze
+  immediate_experiment: stop_here_with_service_down_until_user_chooses_profiler_off_milestone_or_requests_more_operator_work
+optimization_20260919_w8a8_moe_padding_tiles:
+  status: retained_pending_service_reprofile_and_accuracy_gate
+  classification: operator/improve
+  repository: FlagGems-vllm
+  branch: support-hy4-preview
+  base_head: a26a902
+  target_shape:
+    M: 2048
+    E: 256
+    topk: 8
+    hidden: 6144
+    local_intermediate: 128
+  mechanism:
+  - reduce_expert_padding_with_block_m_32_for_routed_density_48_to_96
+  - use_block_k_128_only_for_large_gemm1_and_keep_gemm2_block_k_64
+  - keep_block_n_128_for_both_stages_at_target_density
+  launch_attribution:
+    cpu_op: vllm::moe_forward
+    input_dims:
+    - - 2048
+      - 6144
+    - - 2048
+      - 6144
+    dominant_kernel_average_us:
+    - 823.253
+    - 995.421
+  padding:
+    valid_rows: 16384
+    bm64:
+      padded_rows: 23360
+      ratio: 1.42578125
+    bm32:
+      padded_rows: 19872
+      ratio: 1.212890625
+  applied_source_result:
+    old_median_ms: 2.087309258058667
+    candidate_median_ms: 1.745682442560792
+    speedup: 1.1956981448451374
+    exact: true
+    graph_capture: passed
+    graph_replays: 2
+    tests: 26_passed
+    compileall: passed
+    git_diff_check: passed
+  projected_device_upper_bound:
+    prefill: 0.039379
+    mixed: 0.037971
+    decode_labeled: 0.021457
+    boundary: hotspot_share_projection_not_e2e_claim
+  rejected:
+    activation_quant_fusion:
+      isolated_speedup: 3.118526812734536
+      complete_moe_incremental_speedup: 1.0015066227177183
+      decision: reverted_below_complete_operator_threshold
+    configs:
+    - bm16
+    - bn256
+    - bk32
+    - two_stages
+    - four_stages
+    - eight_warps
+  source_identity:
+    fused_moe_sha256: d8e6ab2c703ddcb1e1c34f9569110363a38cc791d3876133ad51d54056717f3f
+    test_sha256: a9f26a613ea99c2df071e4d771f5ec0de001c509e965b2c3c9d38ccd4ec717f7
+    combined_patch_sha256: 2d694c33a9a40e1a7c05e7a4ddad3134bc3396a24112a61a254d0062c910db02
+  evidence:
+    sweep_1: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-flaggems-vllm-moe-padding-20260919-01.json
+    sweep_2: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-flaggems-vllm-moe-padding-20260919-02.json
+    source_verify: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-flaggems-vllm-moe-padding-source-20260919-01.json
+    rejected_fusion: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/hy4-flaggems-vllm-moe-combined-source-20260919-02.json
+    patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/flaggems-vllm-hy4-current-optimizations-20260919.patch
+  service_state: stopped_port_8010_free
+planning_review_20260919_post_moe_padding_tiles:
+  review_id: 20260919-post-moe-padding-tiles
+  cumulative_boundary: retained_MoE_gain_is_complete_operator_only_and_must_not_be_added_to_profiler_on_Indexer_or_sparse_MLA_gains
+  retained_candidates:
+  - flaggems_vllm_w8a8_moe_bm32_stage_split_bk
+  - flaggems_vllm_full_prefix_sparse_mla_grouping_sq384_to_2048
+  - plugin_indexer_body_and_redundant_fill_candidates
+  rejected_or_stopped:
+  - silu_mul_plus_int8_quant_fusion_because_complete_moe_increment_is_0.15_percent
+  - further_MoE_BN_BK_stage_warp_sweep_outside_the_validated_winner_neighborhood
+  - repeat_sparse_MLA_tile_and_splitk_sweeps_already_exhausted
+  next_candidates:
+  - rank: 1
+    candidate: bounded_service_reprofile_to_prove_new_MoE_launches_and_parent_critical_path_reduction
+    success_condition: runtime_hits_BM32_BK128_GEMM1_and_MoE_device_time_falls_materially
+  - rank: 2
+    candidate: score_selected_sparse_MLA_dataflow_only_if_reusable_indices_or_compactable_fallback_rows_are_proven
+    stop_condition: random_topk_has_no_cross_query_reuse_or_requires_host_sync
+  - rank: 3
+    candidate: independent_max_num_batched_tokens_scan_after_code_identity_freeze
+  immediate_experiment: keep_service_stopped_and_wait_for_profiler_off_or_bounded_reprofile_decision
+performance_20260919_p4k_d1k_c64_n128_current_combination:
+  skill: inference-performance-evaluation
+  mode: targeted
+  scope: performance_only
+  status: complete
+  scenario_id: p4096-d1024-c64-n128
+  stage: mixed
+  workload:
+    input_tokens: 4096
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    load_mode: finite_batch
+    warmup_rounds: 1
+    measured_rounds: 2
+    temperature: 0
+    ignore_eos: true
+  service:
+    host: PPU-07
+    container: hy4-opt-20260914
+    tensor_parallel_size: 16
+    max_num_batched_tokens: 2048
+    graph_mode: FULL_DECODE_ONLY
+    prefix_cache_state: disabled
+    image_id: sha256:ea47a837c46571801b826af06a374e12a5c4daa443c9a64065cea6758d9d939b
+    service_instance_id: 848575b2b0a829f9c52cdb820733394f6d085a984779e3905c52c20c1b546965:2946266:252169193
+    stopped_after_run: true
+    port_8010_released: true
+    ppu_processes_after_stop: none
+  source_identity:
+    plugin_head: f7d1aaa9935dd8d613376601504a793b11ee34e0
+    plugin_workspace_sha256: 50c5c6231a5fb2b385726d307d7f971bba360d0a321713d7e7cf849ab9ba2c9c
+    flaggems_vllm_head: a26a90258de8bcad0a5d831f38b52f755c6a73b0
+    flaggems_vllm_workspace_sha256: 9392382220a62e40d73afb9d6049ef1ffb0e2bf49e88370fd28471fb652d0048
+    flaggems_head: 0e02755770011d517c8de591bf91998bbcf30ad1
+    flaggems_workspace_sha256: d49f8bdff5e21a72dc9aa117a5b4184618a9e103d0c862bb48f4898ffb4c719d
+  validation:
+    run_record_status: complete
+    inputs_verified_before: true
+    inputs_verified_after: true
+    requests_each_round: 128_of_128_success
+    failed_requests_each_round: 0
+    input_tokens_each_round: 524288
+    output_tokens_each_round: 131072
+  rounds:
+    warmup:
+      duration_s: 682.671519
+      output_throughput_tps: 191.998635
+      total_token_throughput_tps: 959.993176
+      mean_ttft_ms: 81342.654283
+      mean_tpot_ms: 251.963884
+      p99_itl_ms: 3198.386572
+    measured_2:
+      duration_s: 414.681081
+      output_throughput_tps: 316.079045
+      total_token_throughput_tps: 1580.395223
+      mean_ttft_ms: 29824.090658
+      mean_tpot_ms: 171.360254
+      p99_itl_ms: 1045.857404
+    measured_3:
+      duration_s: 414.17323
+      output_throughput_tps: 316.466615
+      total_token_throughput_tps: 1582.333073
+      mean_ttft_ms: 29832.230116
+      mean_tpot_ms: 171.124257
+      p99_itl_ms: 1045.544989
+  measured_median:
+    duration_s: 414.427156
+    request_throughput_rps: 0.30886
+    output_throughput_tps: 316.27283
+    total_token_throughput_tps: 1581.364148
+    mean_ttft_ms: 29828.160387
+    median_ttft_ms: 5913.014675
+    p99_ttft_ms: 105773.456077
+    mean_tpot_ms: 171.242255
+    median_tpot_ms: 192.571867
+    p99_tpot_ms: 195.039828
+    mean_itl_ms: 171.242256
+    median_itl_ms: 103.772438
+    p99_itl_ms: 1045.701197
+    p99_e2el_ms: 303013.700518
+    output_throughput_relative_spread: 0.00122543
+  historical_context_20260917_132531:
+    comparison_status: context_only_not_same_plan_baseline_revert
+    output_throughput_improvement: 0.137099
+    total_token_throughput_improvement: 0.137083
+    duration_reduction: 0.12056
+    mean_ttft_reduction: 0.171298
+    mean_tpot_reduction: 0.11186
+    p99_itl_reduction: 0.092131
+  phase_analysis:
+    prefill:
+      status: measured_client_proxy_only
+      evidence: TTFT on mixed finite-batch workload
+    decode:
+      status: measured_client_proxy_only
+      evidence: TPOT and ITL on mixed finite-batch workload
+    mixed:
+      status: measured
+      evidence: complete parent workload with two stable measured rounds
+    cross_phase_guard_result: context_only
+  evidence:
+    root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260919-p4k-d1k-c64-n128-current-opt-01
+    plan_sha256: d7a069ded4a721c34a7e85d3e1085d6449000fa3f2e150afe7fd46593556e927
+    comparison_contract_sha256: 40e73555486d51f805f73fcfa26045e9d695d701b96b17060608bebb7ccba9cd
+    service_manifest_sha256: 9781b825a1cf7ffc5d3cb42da0d72b72a7303912d3db52672235360d4a09de62
+    run_record_sha256: cbcd09d858b2242d40e268210c2312c8bca6eab7eb37ae73c28a7c487f35a302
+    summary_sha256: ec6a3110701c3693cbcb6c1c181c1c3fe1f033f60a4893320cf847fb93e375bd
+  conclusion_boundary: current-candidate profiler-off checkpoint for exactly P4096/D1024/C64/N128; no same-plan baseline/revert
+    and no matching new accuracy gate, so not a formal performance pass
+  next_trigger: collect same-plan baseline and revert or issue a matching accuracy gate before formal close; use the stable
+    current result to rank the next hotspot
+profiling_20260919_p4k_d128_c64_n64_latest_combination:
+  skill: inference-profiling
+  status: complete_with_client_stop_profile_timeout
+  parent_scenario_id: p4096-d1024-c64-n128
+  milestone_scenario_id: p4096-d128-c64-n64
+  cold_start_excluded: true
+  trace_validation: 16_of_16_ranks_gzip_and_json_passed
+  phase_hotspots:
+    prefill:
+      ring_all_reduce: 0.2064
+      scaled_mm: 0.1836
+      fused_moe: 0.1784
+      grouped_sparse_mla: 0.1346
+    mixed:
+      generic_sparse_mla: 0.2674
+      scaled_mm: 0.1407
+      fused_moe: 0.1375
+      ring_all_reduce: 0.1055
+      grouped_sparse_mla: 0.0528
+    decode:
+      generic_sparse_mla: 0.3085
+      fused_moe: 0.1438
+      scaled_mm: 0.1212
+      ring_all_reduce: 0.072
+      grouped_sparse_mla: 0.0383
+      splitk_stage1: 0.0258
+  indexer_exclusive_breakdown:
+    mixed:
+      body: 0.95445
+      copy_wrapper: 0.0426
+      memcpy_wait: 0.00295
+      sync: 0.0
+    decode:
+      body: 0.96054
+      copy_wrapper: 0.03768
+      memcpy_wait: 0.00325
+      sync: 0.0
+  interpretation: generic score-selected sparse MLA is the next operator hotspot; Indexer copy and synchronization are no
+    longer material
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d128-c64-n64-latest-combined-reprofile-20260919-13
+optimization_20260919_sparse_mla_sq4096_range:
+  status: retained_pending_service_activation_and_accuracy_gate
+  classification: operator/improve
+  repository: FlagGems-vllm
+  branch: support-hy4-preview
+  head: a26a90258de8bcad0a5d831f38b52f755c6a73b0
+  change: extend_thead_hq4_full_prefix_grouped_path_max_sq_from_2048_to_4096
+  microbenchmark:
+    sq2560:
+      prefix_then_capped_speedup: 1.6556
+      random_speedup: 1.0003
+    sq3072:
+      prefix_then_capped_speedup: 1.3865
+      random_speedup: 0.9945
+    sq4096:
+      prefix_then_capped_speedup: 1.1605
+      random_speedup: 1.0209
+  correctness: exact
+  graph_capture_and_two_replays: passed
+  tests: 29_passed
+  current_source_sha256: b4c8104653acf593e9b6e3c35ca3376dba4f948b02e55c9493465892b933d73f
+  evidence:
+    microbenchmark: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-sq4096-extension-20260919-10/summary.json
+    source_apply: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/sparse-mla-sq4096-source-apply-20260919-11.json
+    patch: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/commands/flaggems-vllm-hy4-sparse-mla-sq4096-20260919.patch
+  boundary: current_max_num_batched_tokens_2048_does_not_activate_the_extended_range
+performance_20260919_p4k_d128_c64_n64_max_token_sweep:
+  skill: inference-performance-evaluation
+  mode: milestone
+  parent_scenario_id: p4096-d1024-c64-n128
+  milestone_scenario_id: p4096-d128-c64-n64
+  cold_start_excluded: true
+  protocol: one_warmup_plus_two_measured_rounds_per_configuration
+  source_identity_constant: true
+  frozen_guards:
+    minimum_output_throughput_improvement: 0.03
+    maximum_p99_itl_regression: 0.05
+  results:
+    tokens_2048:
+      output_tps: 69.483683
+      duration_s: 117.8982
+      p99_ttft_ms: 106891.83
+      p99_tpot_ms: 824.4413
+      p99_itl_ms: 1089.8149
+      decision: baseline_retained
+    tokens_2256:
+      output_tps: 69.52749
+      output_gain: 0.00063
+      p99_itl_regression: 0.0797
+      decision: rejected
+    tokens_2304:
+      output_tps: 72.02823
+      output_gain: 0.03662
+      p99_itl_regression: 0.05891
+      decision: rejected_narrow_tail_guard_failure
+    tokens_2560:
+      output_tps: 73.1683
+      output_gain: 0.05303
+      p99_itl_regression: 0.10558
+      decision: rejected
+    tokens_3072:
+      output_tps: 73.00664
+      output_gain: 0.0507
+      p99_itl_regression: 0.23199
+      decision: rejected
+    tokens_4096:
+      output_tps: 70.90997
+      output_gain: 0.02053
+      p99_itl_regression: 0.47974
+      decision: rejected
+  conclusion: no_configuration_passed_both_throughput_and_tail_latency_guards
+  launch_configuration_decision: keep_max_num_batched_tokens_2048
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260919-p4k-d128-c64-n64-mbt-sweep-sq4096-02
+planning_review_20260919_post_c64_mbt_sweep:
+  skill: inference-optimization-planning
+  review_id: 20260919-post-c64-mbt-sweep
+  retained_candidates:
+  - existing_plugin_indexer_body_optimizations
+  - existing_flaggems_vllm_w8a8_moe_padding_tiles
+  - flaggems_vllm_sparse_mla_sq4096_range_pending_activation
+  rejected_or_reverted:
+  - sparse_mla_bdp512_due_regression_on_all_tested_shapes
+  - decode_moe_m64_tile_sweep_due_best_speedup_below_1.05
+  - max_num_batched_tokens_2256_2304_2560_3072_4096_due_throughput_or_tail_guard_failure
+  - plugin_dynamic_mixed_token_budget_due_no_runtime_scheduler_injection
+  scheduler_experiment:
+    source_reverted: true
+    compileall: passed
+    git_diff_check: passed
+    test_file_removed: true
+    valid_candidate_result: false
+  ranked_next_directions:
+  - rank: 1
+    candidate: decode_generic_sparse_mla_score_selected_dataflow_for_grid2048_and_grid2029
+    first_experiment: exact_graph_safe_operator_microbenchmark_using_trace_observed_shapes
+    stop_condition: less_than_five_percent_operator_gain_or_any_topk_output_change
+  - rank: 2
+    candidate: prefill_ring_all_reduce_overlap_or_communication_organization
+    first_experiment: prove_non_overlapped_critical_path_share_before_code_change
+    stop_condition: activity_is_already_hidden_or_requires_vllm_source_change
+  - rank: 3
+    candidate: revisit_batch_scheduling_only_with_an_enginecore_preconstruction_extension_point
+    stop_condition: no_supported_plugin_extension_or_p99_itl_guard_regresses
+  immediate_experiment: sparse_mla_score_selected_shape_attribution_and_microbenchmark
+runtime_state_20260919_latest:
+  optimization_container: hy4-opt-20260914
+  service_running: false
+  port_8010_listening: false
+  accelerator_released: true
+  launch_script_modified_by_this_round: false
+  configured_max_num_batched_tokens: 2048
+  plugin:
+    branch: support-hy4-preview
+    head: f7d1aaa9935dd8d613376601504a793b11ee34e0
+    scheduler_experiment_reverted: true
+    expected_dirty_files:
+    - tests/unit_tests/models/test_hy_v4.py
+    - vllm_fl/models/hy_v4.py
+    - vllm_fl/dispatch/backends/vendor/thead/impl/hyv4_indexer.py
+  flaggems_vllm:
+    branch: support-hy4-preview
+    head: a26a90258de8bcad0a5d831f38b52f755c6a73b0
+    sparse_mla_sha256: b4c8104653acf593e9b6e3c35ca3376dba4f948b02e55c9493465892b933d73f
+    status: expected_uncommitted_operator_candidates
+  flaggems:
+    branch: support-hy4-preview
+    head: 0e02755770011d517c8de591bf91998bbcf30ad1
+    status: clean
+  accuracy_gate: existing_gate_does_not_cover_latest_uncommitted_source_identity
+optimization_20260920_latest_checkpoint_and_structural_probes:
+  status: complete_no_new_candidate_retained
+  latest_user_csv:
+    path: /mnt/nfs/users/jinghao/hy4-preview/test/benchmark_results/hy4/hy4_4096in_1024out_c64_n128_20260920_092514.csv
+    sha256: a8cc96b8caff2ed6516faa7dc65c26cc38e804232d83a9c43ef74a0b849556bf
+    cold_start_excluded: true
+    measured_output_tps:
+    - 311.64
+    - 312.1
+    median_output_tps: 311.87
+    relative_spread: 0.001475
+    median_duration_s: 420.27
+    context_only_change_vs_20260919_checkpoint:
+      output_tps: -0.01392
+      duration: 0.0141
+    comparison_boundary: different_runner_or_plan_so_not_a_formal_regression
+  sparse_mla_probes:
+    sink_algebra:
+      status: rejected
+      dominant_speedup_range:
+      - 0.929
+      - 0.938
+    exp2_online_softmax:
+      status: rejected
+      dominant_speedup_range:
+      - 0.955
+      - 0.962
+    native_direct:
+      score_selected_speedup_range:
+      - 1.056
+      - 1.089
+      full_prefix_speedup_range:
+      - 0.356
+      - 0.563
+      status: rejected_as_whole_batch_replacement
+    native_hybrid:
+      alternating_prefix_score_speedup_range:
+      - 1.2149
+      - 1.2167
+      pure_prefix_min_speedup: 0.8065
+      status: rejected_as_unconditional_hybrid
+  native_decode_plugin_ab:
+    status: rejected_and_reverted
+    classification: operator/replace
+    scenario_id: p4096-d128-c64-n64
+    parent_scenario_id: p4096-d1024-c64-n128
+    protocol: one_warmup_plus_two_measured_rounds_cold_excluded
+    runtime_hit: true
+    measured:
+      baseline:
+        output_tps: 69.464706
+        duration_s: 117.93043
+        p99_ttft_ms: 106885.709
+        mean_tpot_ms: 464.504
+        p99_itl_ms: 1091.105
+      candidate:
+        output_tps: 69.601109
+        duration_s: 117.699339
+        p99_ttft_ms: 106903.996
+        mean_tpot_ms: 463.113
+        p99_itl_ms: 1089.959
+      relative_change:
+        output_tps: 0.0019636
+        duration: -0.0019595
+        p99_ttft: 0.0001711
+        mean_tpot: -0.0029956
+        p99_itl: -0.0010503
+    threshold: output_tps_at_least_0.02
+    standard_receipt: incomplete_due_historical_manifest_nonunique_device_ids
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260920-p4k-d128-c64-n64-native-decode-03
+    reverted_patch_sha256: 9bfac1d98b749c950c91df17ab178318eb5533e44dc41dbc4d6665120bfef445
+  scaled_mm_int32_offsets:
+    status: rejected_no_source_change
+    exact: true
+    geometric_mean_speedup: 1.028323
+    observed_shape_speedups:
+      m2048_k6144_n2048: 1.01872
+      m2029_k6144_n2048: 0.93104
+      m2048_k2048_n6144: 1.0262
+      m2029_k2048_n6144: 1.02364
+      m2048_k6144_n576: 1.08709
+      m2029_k6144_n576: 1.09171
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/scaled-mm-int32-offsets-20260920-01/summary.json
+  runtime_state:
+    optimization_container: hy4-opt-20260914
+    service_running: false
+    port_8010_listening: false
+    plugin_native_decode_candidate_reverted: true
+    flaggems_modified_by_round: false
+    flaggems_vllm_modified_by_round: false
+planning_review_20260920_post_structural_probes:
+  review_id: 20260920-post-native-decode-and-scaled-mm
+  skill: inference-optimization-planning
+  retained_from_prior_rounds:
+  - plugin_indexer_body_optimizations
+  - flaggems_vllm_w8a8_moe_padding_tiles
+  - flaggems_vllm_sparse_mla_sq4096_range_pending_activation
+  rejected_or_reverted:
+  - sparse_mla_sink_algebra
+  - sparse_mla_exp2_online_softmax
+  - ppu_native_sparse_mla_whole_batch
+  - ppu_native_sparse_mla_pure_decode_due_only_0.196_percent_milestone_gain
+  - scaled_mm_int32_offsets_due_2029_regression_and_1.028_geomean
+  interpretation:
+  - simple_sparse_mla_kernel_arithmetic_and_native_replacement_are_exhausted
+  - indexer_copy_and_sync_are_below_material_share
+  - narrow_scaled_mm_n576_specialization_has_below_0.1_percent_projected_e2e_value
+  ranked_next_directions:
+  - rank: 1
+    classification: framework/diagnostic
+    candidate: prefill_and_mixed_ring_all_reduce_critical_path_overlap_attribution
+    evidence_for: ring_all_reduce_activity_share_is_20.64_percent_prefill_and_10.55_percent_mixed
+    first_experiment: derive_same_stream_predecessor_successor_gaps_and_overlap_from_valid_rank0_trace_without_code_change
+    success_condition: material_non_overlapped_share_and_plugin_level_communication_extension_point
+    stop_condition: activity_is_already_hidden_or_only_vllm_source_change_can_reorganize_it
+  - rank: 2
+    classification: operator/improve
+    candidate: expert_load_aware_w8a8_moe_partition_only_if_runtime_expert_histogram_proves_padding_headroom_beyond_current_bm32
+    stop_condition: projected_complete_operator_gain_below_1.05_or_graph_dynamic_control_required
+  - rank: 3
+    classification: operator/improve
+    candidate: sparse_mla_algorithmic_redesign_with_exact_score_selected_semantics
+    stop_condition: no_reuse_or_locality_signal_and_projected_e2e_gain_below_noise
+  next_action: communication_critical_path_attribution_before_any_new_source_change
+optimization_20260920_collective_critical_path:
+  status: critical_path_exposed_global_protocol_tuning_rejected
+  classification: framework_diagnostic
+  trace: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/profiling/p4k-d128-c64-n64-latest-combined-reprofile-20260919-13/traces/dp0_pp0_tp0_dcp0_ep0_rank0.1789812818133897607.pt.trace.json.gz
+  interval_union_v2:
+    prefill:
+      collective_union_us: 119133.387
+      exposed_us: 115259.655
+      exposed_of_collective: 0.96748
+      exposed_of_marker: 0.19822
+    mixed:
+      collective_union_us: 3910447.352
+      exposed_us: 3759434.59
+      exposed_of_collective: 0.96138
+      exposed_of_marker: 0.10136
+    decode:
+      collective_union_us: 4719774.786
+      exposed_us: 4538166.983
+      exposed_of_collective: 0.96152
+      exposed_of_marker: 0.08191
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p4k-d128-c64-n64-latest-combined-reprofile-20260919-13/collective-overlap-rank0-20260920-v2.json
+    boundary: interval_union_upper_bound_proxy_not_dependency_dag
+  plugin_path:
+    current_semantics: flagcx_all_reduce_on_current_compute_stream
+    vllm_custom_allreduce_world_sizes:
+    - 2
+    - 4
+    - 6
+    - 8
+    target_tp: 16
+    implication: vllm_custom_allreduce_is_disabled_for_target_tp16
+  pccl_tp16_sweep:
+    default_us:
+      bytes_25165824: 321.807
+      bytes_24932352: 325.009
+      bytes_8388608: 121.309
+      bytes_4194304: 90.612
+    simple_ll_us:
+      bytes_25165824: 297.204
+      bytes_24932352: 294.471
+      bytes_8388608: 177.712
+      bytes_4194304: 102.724
+    large_message_gain: approximately_8_to_10_percent
+    small_message_regression: approximately_12_to_47_percent
+    tree: rejected_slower_on_all_sizes
+    protocol_lists: rejected_no_size_dependent_selection
+    evidence:
+    - /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/pccl-allreduce-sweep-20260920-02
+    - /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/operator/pccl-allreduce-sweep-20260920-03
+  source_changed: false
+  launch_script_changed: false
+  next_candidates:
+  - pccl_vendor_size_threshold_or_protocol_dispatch_interface
+  - thead_platform_allreduce_plus_residual_norm_fusion_with_new_accuracy_gate
+experiment_20260920_p16k_scenario_entry_and_profile:
+  experiment_id: 20260920-p16k-scenario-entry-and-profile
+  experiment_markdown: models/hy4-preview/ppu/optimize/20260920-p16k-scenario-entry-and-profile.md
+  status: scenario_entry_and_profile_complete
+  objective: establish the current retained stack's P16384/D1024/C64/N128 scenario-entry baseline, decompose Prefill/Decode/Mixed,
+    and select the first P16K optimization from measured evidence
+  classification: framework_diagnostic
+  performance_evaluation:
+    skill: inference-performance-evaluation
+    mode: baseline
+    scenario_ids:
+    - p16384-d1024-c64-n128
+    current_target_scenario_id: p16384-d1024-c64-n128
+    scenario_sequence_index: 3
+    target_scenario_status: optimizing
+    baseline_kind: scenario-entry
+    baseline_parent_candidate: p4k-retained-combination-at-plugin-f7d1aaa-flaggems-vllm-a26a902-flaggems-0e027557-plus-recorded-uncommitted-plugin-and-flaggems-vllm-candidates
+    baseline_status: complete_diagnostic_one_measured_round
+    diagnostic_time_budget_seconds: 7200
+    baseline_recovery_strategy: hybrid
+    milestone_id: p16384-d128-c16-n16-phase-probe
+    parent_target_scenario_ids:
+    - p16384-d1024-c64-n128
+    milestone_workload_delta: output 1024->128, concurrency 64->16, requests 128->16; input remains 16384
+    milestone_success_criteria: valid 16-rank phase trace and a falsifiable hotspot with at least 2 percent projected no-profiler
+      parent-scenario value
+    milestone_stop_condition: trace invalid or target path not exercised or projected end-to-end value below 2 percent
+    promotion_validation: no-profiler targeted A/B/revert on the same milestone, then P16384/D1024/C64/N128 mixed checkpoint
+      before retention
+    phase_analysis:
+      prefill:
+        status: measured
+        evidence_method: periodic-service-metrics-plus-client-proxy-plus-16-rank-trace
+        phase_isolation_method: short-output P16K milestone
+        residual_costs: queue_scheduler_network_and_128_decode_tokens
+      decode:
+        status: measured_with_cached_chunked_prefill_label_caveat
+        evidence_method: parent mixed plus trace kernel-grid attribution
+        phase_isolation_method: small-SQ splitk symbols distinguish true decode from SQ2048 cached-prefill continuation
+        residual_costs: P16K_prefill_and_scheduler
+      mixed:
+        status: measured
+        evidence_method: no-profiler-parent-workload-plus-periodic-service-metrics-plus-16-rank-trace
+        interference_summary: prompt-active windows generation mean 24.557 tok/s versus prompt-zero generation-window mean
+          101.904 tok/s over the combined warmup and measured service log
+      cross_phase_guard_result: pending_candidate_comparison
+    result:
+      successful_requests: 128
+      failed_requests: 0
+      benchmark_duration_s: 1659.5528388069943
+      output_throughput_tps: 78.98031140377788
+      total_token_throughput_tps: 1342.665293864224
+      p99_ttft_ms: 750815.2546687984
+      p99_tpot_ms: 325.01373234470327
+      p99_itl_ms: 1440.3670889278874
+      p99_e2el_ms: 1045609.2573621356
+      run_record_sha256: b5344b580a71ae51965573e87cc65282a4ca6a9a10bfdec124b2ce948c1df46b
+      phase_window_summary_sha256: 67ec803b81690e4a385a5365cd4050dcf54aae430424e02ab047c756273aad6d
+    conclusion_boundary: diagnostic scenario-entry baseline from one measured round; not a formal repeated baseline or an
+      optimization claim
+  workload:
+    scenario_id: p16384-d1024-c64-n128
+    stage: mixed
+    test_scope: targeted
+    load_mode: finite_batch
+    input_tokens: 16384
+    output_tokens: 1024
+    concurrency: 64
+    requests: 128
+    prefix_cache_state: disabled
+  measurement:
+    cold_start_excluded: true
+    primary_metric: output_throughput_tps
+    guard_metrics:
+    - ttft_p99_ms
+    - tpot_p99_ms
+    - itl_p99_ms
+    - failed_requests
+    future_candidate_minimum_improvement: 0.02
+    guard_regression_limit: 0.05
+    warmup_rounds: 1
+    measured_rounds_initial: 1
+    note: initial exact-workload measurement is diagnostic; formal comparison will require the contracted independent repetitions
+  profiling:
+    skill: inference-profiling
+    mode: capture_then_analyze
+    scenario_ids:
+    - p16384-d128-c16-n16-phase-probe
+    phase_coverage:
+    - prefill
+    - decode
+    - mixed
+    result: complete
+    profile_id: p16k-d128-c16-n16-scenario-entry-20260920-02
+    actual_scenario_id: p16384-d128-c16-n16
+    trace_validation: 16_of_16_ranks_gzip_and_json_passed
+    deeply_analyzed_ranks:
+    - 0
+    - 1
+    - 15
+    source_metadata_issue: reused_analyzer_retains_stale_p4k_labels_but_workload_trace_paths_service_log_and_dry_run_prove_p16k
+    phase_marker_caveat: execute_new_0_cached_N_can_include_cached_chunked_prefill_continuations_and_must_not_be_treated_as_pure_decode_without_grid_shape_evidence
+    sampled_device_hotspots:
+      prefill:
+        scaled_mm: 0.19494
+        fused_moe: 0.1897
+        ring_ll_allreduce: 0.15777
+        full_prefix_grouped_sparse_mla: 0.14278
+      mixed:
+        scaled_mm: 0.15563
+        fused_moe: 0.15139
+        generic_sparse_mla: 0.12229
+        ring_ll_allreduce: 0.1151
+        full_prefix_grouped_sparse_mla: 0.08854
+      decode_labeled:
+        generic_sparse_mla: 0.36343
+        indexer_reduce: 0.10169
+        fused_moe: 0.08958
+        scaled_mm: 0.08887
+        bmm: 0.06683
+        ring_ll_allreduce: 0.06223
+    rank0_indexer_exclusive:
+      prefill:
+        body: 0.99898
+        copy_wrapper: 0.00102
+        memcpy_wait: 0.0
+        explicit_sync: 0.0
+      mixed:
+        body: 0.9442
+        copy_wrapper: 0.04427
+        memcpy_wait: 0.01153
+        explicit_sync: 0.0
+      decode_labeled:
+        body: 0.95262
+        copy_wrapper: 0.0468
+        memcpy_wait: 0.00134
+        explicit_sync: 0.0
+    grid_attribution:
+      cached_chunked_prefill_generic:
+        marker: execute_new_0_cached_1
+        grid:
+        - 2048
+        - 1
+        - 1
+        rank0_calls: 6381
+        average_us: 6148.204
+        interpretation: SQ2048_score_selected_cached_prefill_not_single_token_decode
+      true_decode: splitk_stage1_and_stage2_small_sq
+    evidence:
+      result_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p16k-d128-c16-n16-scenario-entry-20260920-02
+      compact_summary_sha256: 62012aa584da36fd5c36d7fb31a63da37feaa541d409574f3232cc8c0224ceeb
+      trace_inventory_sha256: 1621c3ed83e7ff50a0ffb7dcbf54269129431ecc7e9a9d9c9bdd1e6b56568a4a
+      sparse_mla_grid_attribution_sha256: b61c35d741fd34eeea10992c7d9a403199cf2092c1b7b74e483922d28f28ed3b
+  artifacts:
+    remote_case_dir: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e
+    baseline_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260920-p16k-d1k-c64-n128-scenario-entry-01
+    profiling_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/profiling/p16k-d128-c16-n16-scenario-entry-20260920-02
+  decision: proceed_to_cached_prefill_score_selected_sparse_mla_operator_experiment
+experiment_20260920_p16k_dual_partial_prefill:
+  experiment_id: 20260920-p16k-dual-partial-prefill
+  experiment_markdown: models/hy4-preview/ppu/optimize/20260920-p16k-dual-partial-prefill.md
+  status: rejected_unsupported_by_runtime
+  classification: framework
+  hypothesis: two concurrent 2048-token long-prefill chunks within a 4096-token iteration can reduce P16K prompt admission
+    and queue time, while an explicit 2048-token per-prefill cap prevents a single request from monopolizing the expanded
+    budget
+  primary_variable: atomic dual-long-partial-prefill scheduler configuration
+  baseline_configuration:
+    max_num_batched_tokens: 2048
+    max_num_partial_prefills: 1
+    max_long_partial_prefills: 1
+    long_prefill_token_threshold: 0
+  candidate_configuration:
+    max_num_batched_tokens: 4096
+    max_num_partial_prefills: 2
+    max_long_partial_prefills: 2
+    long_prefill_token_threshold: 2048
+  performance_evaluation:
+    skill: inference-performance-evaluation
+    mode: targeted
+    milestone_id: p16384-d128-c16-n16-dual-partial-prefill
+    scenario_ids:
+    - p16384-d128-c16-n16-dual-partial-prefill
+    parent_target_scenario_ids:
+    - p16384-d1024-c64-n128
+    stage: mixed
+    workload_delta: output 1024->128, concurrency 64->16, requests 128->16; input remains 16384
+    baseline_candidate_revert: required_same_plan_one_process_two_measured_rounds_each
+    primary_metric: output_throughput_tps
+    minimum_improvement: 0.02
+    guardrails:
+      p99_ttft_max_regression: 0.05
+      p99_tpot_max_regression: 0.05
+      p99_itl_max_regression: 0.05
+      total_throughput_max_regression: 0.02
+    success_condition: at least 2 percent output-throughput improvement with every guard within limit and zero failures
+    stop_condition: target path not hit or output improvement below 2 percent or any tail-latency guard regresses above 5
+      percent
+    promotion_validation: repeat at P16384/D128/C32/N32, then parent P16384/D1024/C64/N128 checkpoint before retention
+    result:
+      baseline_output_throughput_tps:
+      - 12.979107770206133
+      - 12.970112909421443
+      baseline_relative_spread: 0.000693
+      candidate_service_started: false
+      error: Concurrent Partial Prefill is not supported
+      baseline_run_record_sha256: 3722f01963d86d2714179ab28d6c354668a6cf4ccf638efaf50e456772e32e4d
+  correctness:
+    risk: configuration_only_but_changes_prefill_decode_scheduling_order
+    minimum_regression: smoke_C8_and_graph_capture_replay_for_each_service
+    formal_accuracy_trigger: only_if_candidate_is_retained_for_parent_checkpoint
+    status: not_run
+  rollback: restart with the unchanged user launch script and baseline scheduler defaults
+  decision: reject_without_vllm_source_bypass
+experiment_20260920_p16k_prefill_decode_headroom:
+  experiment_id: 20260920-p16k-prefill-decode-headroom
+  experiment_markdown: models/hy4-preview/ppu/optimize/20260920-p16k-prefill-decode-headroom.md
+  status: rejected_tail_latency_regression
+  classification: framework
+  hypothesis: increase the total scheduler token budget to 4096 while capping the only partial prefill at 2048 tokens, leaving
+    same-iteration budget for decode without enabling unsupported concurrent partial prefill
+  primary_variable: atomic prefill_decode_headroom_configuration
+  baseline_configuration:
+    max_num_batched_tokens: 2048
+    max_num_partial_prefills: 1
+    max_long_partial_prefills: 1
+    long_prefill_token_threshold: 0
+  candidate_configuration:
+    max_num_batched_tokens: 4096
+    max_num_partial_prefills: 1
+    max_long_partial_prefills: 1
+    long_prefill_token_threshold: 2048
+  performance_evaluation:
+    skill: inference-performance-evaluation
+    mode: targeted
+    milestone_id: p16384-d128-c16-n16-prefill-decode-headroom
+    scenario_ids:
+    - p16384-d128-c16-n16-prefill-decode-headroom
+    parent_target_scenario_ids:
+    - p16384-d1024-c64-n128
+    stage: mixed
+    workload_delta: output 1024->128, concurrency 64->16, requests 128->16; input remains 16384
+    baseline_source: 20260920-p16k-dual-partial-prefill baseline-01; exact same code and workload, immediately preceding candidate
+    baseline_output_throughput_tps:
+    - 12.979107770206133
+    - 12.970112909421443
+    baseline_run_record_sha256: 3722f01963d86d2714179ab28d6c354668a6cf4ccf638efaf50e456772e32e4d
+    primary_metric: output_throughput_tps
+    minimum_improvement: 0.02
+    guardrails:
+      p99_ttft_max_regression: 0.05
+      p99_tpot_max_regression: 0.05
+      p99_itl_max_regression: 0.05
+      total_throughput_max_regression: 0.02
+    success_condition: at least 2 percent output-throughput improvement with every guard within limit and zero failures
+    stop_condition: output improvement below 2 percent or any tail-latency guard regresses above 5 percent or startup/capture/replay
+      failure
+    promotion_validation: repeat at P16384/D128/C32/N32, then parent P16384/D1024/C64/N128 checkpoint before retention
+    result:
+      baseline_output_throughput_tps:
+      - 12.979107770206133
+      - 12.970112909421443
+      candidate_output_throughput_tps:
+      - 13.082659127253677
+      - 13.078493914665026
+      revert_output_throughput_tps:
+      - 12.984988967022648
+      - 12.972573628254967
+      candidate_output_throughput_improvement: 0.00817
+      baseline_p99_itl_ms:
+      - 1443.5325462091714
+      - 1444.1731764748693
+      candidate_p99_itl_ms:
+      - 2761.2110425764695
+      - 2760.371785000898
+      candidate_p99_itl_regression: 0.912
+      baseline_revert_output_drift: 0.00032
+      candidate_kv_capacity_tokens: 419897
+      baseline_revert_kv_capacity_tokens: 424824
+      comparison_status: incomplete
+      comparison_issue: reused baseline froze the preceding experiment's comparison contract
+      candidate_run_record_sha256: 55e8311f2ce50e79fc00c9656c3ea4241446c5b6ae48bf01507caccf07695d3f
+      revert_run_record_sha256: b04b369583bb010d303f91cc7e6bcf65d5bcb7243a4df36c67dd0157e3bde745
+      comparison_sha256: e320b975a9bfdc7024f1f777cf281de34f5cc7727e8476d05ce9bbe06f1e7488
+  correctness:
+    risk: configuration_only_but_changes_prefill_decode_scheduling_order
+    minimum_regression: smoke_C8_and_graph_capture_replay_for_candidate_and_revert
+    formal_accuracy_trigger: only_if_candidate_is_retained_for_parent_checkpoint
+    status: graph_capture_and_replay_passed_for_candidate_and_revert
+  rollback: stop candidate and start the 2048/1/1/0 revert service
+  decision: reject_below_primary_threshold_and_p99_itl_guard_failed
+planning_review_20260921_p16k_post_entry_and_scheduler_falsification:
+  skill: inference-optimization-planning
+  review_id: 20260921-p16k-post-entry-and-scheduler-falsification
+  cumulative_reference: p16384-d1024-c64-n128 scenario-entry baseline on current retained P4K combination
+  retained_from_prior_rounds:
+  - plugin_indexer_body_optimizations
+  - flaggems_vllm_w8a8_moe_padding_tiles
+  - flaggems_vllm_full_prefix_sparse_mla_grouping
+  rejected_or_unsupported:
+  - p16k_dual_partial_prefill_unsupported_by_current_vllm
+  - p16k_4096_total_budget_single_partial_prefill_due_only_0.817_percent_throughput_and_91.2_percent_p99_itl_regression
+  hotspot_migration:
+  - P16K cached chunked-prefill continuation dominates the decode-labeled generic sparse MLA bucket
+  - Indexer copy and synchronization remain non-material relative to the device compute body
+  - full-prefix grouped sparse MLA remains valuable for initial chunks but is not the dominant continuation bottleneck
+  ranked_next_directions:
+  - rank: 1
+    classification: operator/replace
+    candidate: native_score_selected_plus_flaggems_vllm_full_prefix_grouped_for_cached_prefill
+    first_experiment: complete-call microbenchmark at SQ512_and_2048_SKV16384_with_score_prefix_and_mixed_patterns
+    stop_condition: score_selected_below_1.08x_or_mixed_below_1.05x_or_full_prefix_below_0.98x_or_numerical_graph_failure
+  - rank: 2
+    classification: operator/improve
+    candidate: P16K_specific_index_locality_only_if_actual_or_SKV16384_sort_inclusive_benchmark_exceeds_1.05x
+    stop_condition: sort_cost_or_reduction_order_drift_consumes_gain
+  - rank: 3
+    classification: framework
+    candidate: communication_organization_after_sparse_mla_hotspot_migration
+    stop_condition: requires_vllm_source_change_or_projected_parent_gain_below_2_percent
+  next_action: 20260921-p16k-cached-prefill-sparse-mla-hybrid
+experiment_20260921_p16k_cached_prefill_sparse_mla_hybrid:
+  experiment_id: 20260921-p16k-cached-prefill-sparse-mla-hybrid
+  experiment_markdown: models/hy4-preview/ppu/optimize/20260921-p16k-cached-prefill-sparse-mla-hybrid.md
+  status: milestone_passed_pending_parent_and_accuracy_gate
+  classification: operator/replace
+  repositories:
+  - vllm-plugin-FL
+  - FlagGems-vllm
+  parent_scenario_id: p16384-d1024-c64-n128
+  milestone_scenario_id: p16384-d128-c16-n16
+  live_shape:
+    sq: 2048
+    hq: 4
+    dqk: 576
+    dv: 512
+    topk: 2048
+    kv_context: up_to_approximately_16384
+  hypothesis: retain FlagGems-vllm grouped full-prefix handling while using the PPU native main kernel only for score-selected
+    cached-prefill rows
+  operator_gate:
+    benchmark_matrix:
+      sq:
+      - 512
+      - 2048
+      skv:
+      - 16384
+      patterns:
+      - score_selected
+      - full_prefix
+      - alternating_prefix_score_groups
+    thresholds:
+      score_selected_sq2048_speedup: 1.08
+      mixed_speedup: 1.05
+      full_prefix_min_speedup: 0.98
+      output_atol_rtol: 0.02
+      cosine_min: 0.9999
+    graph_requirement: capture_and_two_replays
+  service_gate:
+    workload: p16384-d128-c16-n16
+    protocol: no_profiler_baseline_candidate_revert
+    minimum_output_throughput_improvement: 0.02
+    maximum_tail_latency_regression: 0.05
+    promotion: p16384-d1024-c64-n128_checkpoint
+  operator_results:
+    standalone:
+      sq512:
+        score_selected_speedup: 1.121
+        mixed_speedup: 1.4051
+      sq2048:
+        score_selected_speedup: 1.0827
+        mixed_speedup: 1.2149
+      full_prefix_guarded_speedup: approximately_1.00
+      summary_sha256: 926ae849b3384e489ffd30be02ff3f5d1466890c66bb7a57eccbc89c22b7078c
+    integrated:
+      sq2048_score_selected_speedup: 1.078277
+      sq2048_mixed_speedup: 1.207538
+      summary_sha256: c95e282ebfe46afca3d29f43d25d4883df5ccf14273e90904bc54819395ce34c
+    interleaved_confirmation:
+      per_seed_median_speedups:
+      - 1.08438
+      - 1.08878
+      - 1.07474
+      aggregate_median_speedup: 1.0843799
+      maximum_absolute_error: 3.05e-05
+      minimum_cosine: 0.9999995
+      summary_sha256: 156fab2c5dd25d81e4f7899f2b4ede21ebecac5c490c281aabd48f73f4b2c6fe
+    validation:
+      plugin_pytest: 4_of_4
+      flaggems_vllm_pytest: 30_of_30
+      graph_capture_and_two_replays: passed
+      compileall: passed
+      diff_check: passed
+  service_results:
+    result_root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/20260921-p16k-d128-c16-n16-cached-prefill-hybrid-01
+    measured_rounds_per_role: 2
+    request_completeness: 16_of_16_each_round
+    path_hit_logs:
+      baseline: 0
+      candidate: 1
+      revert: 0
+    medians:
+      output_throughput:
+        baseline: 12.9727503
+        candidate: 13.5640463
+        revert: 12.9754519
+        relative_improvement: 0.04557985
+      total_token_throughput:
+        baseline: 1673.4847911
+        candidate: 1749.7619699
+        revert: 1673.8333008
+        relative_improvement: 0.04557985
+      p99_ttft_ms:
+        baseline: 149860.6929
+        candidate: 143095.9103
+        revert: 149846.7025
+        relative_improvement: 0.04514047
+      p99_tpot_ms:
+        baseline: 1109.1516
+        candidate: 1058.3652
+        revert: 1108.9962
+        relative_improvement: 0.04578853
+      p99_itl_ms:
+        baseline: 1444.1032
+        candidate: 1381.1708
+        revert: 1444.2568
+        relative_improvement: 0.0435789
+    baseline_revert_output_drift: 0.00020825
+    comparison_status: passed
+    comparison_sha256: b300e3ae3c5692671ce8bb259d96e6f3f8047e6a9cbca03e2df786f199825f2f
+    metadata_repair: original_evidence_preserved_and_integer_device_ids_losslessly_derived_as_strings
+  source_change:
+    plugin_sparse_mla_sha256: 898dcc340770dae47663fd00ff313bd1fdd71a979fd194b5fa739bdfa420a18f
+    flaggems_vllm_sparse_mla_sha256: 38d1f5e5fa9599b198ab3add1bbf0547fa2cbbe643ad0025ec04cfb0ae01e27c
+    committed: false
+    pushed: false
+  accuracy:
+    minimum_correctness: numerical_and_graph_passed_service_outputs_nonempty
+    formal_gate: pending_for_current_source_identity
+  rollback: set_VLLM_FL_THEAD_CACHED_PREFILL_SPARSE_MLA_HYBRID_0_or_reverse_saved_patches_with_sha_guards
+  decision: retain_milestone_candidate_then_run_current_source_accuracy_gate_and_parent_p16k_checkpoint
+local_record_archive:
+  archived_at: '2026-11-02'
+  manifest: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/migration-manifest.json
+  scope: local verified archival; remote evidence not revalidated
+  files:
+  - original_path: models/Hy4-preview/ppu/baseline/comparison-p4k-scout.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/baseline/comparison-p4k-scout.json
+    sha256: 79c906125dcedcd408a005524636fb1c3d8528a272d6a550eb4e27b5f42225b8
+  - original_path: models/Hy4-preview/ppu/baseline/comparison-targeted-p4k.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/baseline/comparison-targeted-p4k.json
+    sha256: 79c906125dcedcd408a005524636fb1c3d8528a272d6a550eb4e27b5f42225b8
+  - original_path: models/Hy4-preview/ppu/baseline/performance-plan-p4k-scout.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/baseline/performance-plan-p4k-scout.json
+    sha256: 1270321404257bb2b4f88396fa1c92ccf55993e9a87c3d670f7c8e967f49e6d0
+  - original_path: models/Hy4-preview/ppu/baseline/performance-plan-targeted-p4k.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/baseline/performance-plan-targeted-p4k.json
+    sha256: 1dfe98d7ac6508687f4cf52f1f5cb84140a63b55ff85c16e603efba15a2f321c
+  - original_path: models/Hy4-preview/ppu/baseline/workload.yml
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/baseline/workload.yml
+    sha256: 5dc4f4ca2c2801fff049a05211ba1747bebf45506f36caeca1534f455c57106c
+  - original_path: models/Hy4-preview/ppu/optimize/performance-measurements.json
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/models/Hy4-preview/ppu/optimize/performance-measurements.json
+    sha256: 77c55c4dd72c3a24a658b11d97a208bedb26b9dfb91f9895a3c92547d2949905
+supplementary_documents:
+- document: 20260914-indexer-topk-batch.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260914-mbt4096-scout.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-indexer-copy-sync-attribution.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-indexer-metadata-cache.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-mm-out-blacklist.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-post-combination-reprofile.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-sparse-mla-hq4-tile.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-sparse-mla-small-sq-split-k.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260915-sparse-mla-sq2048-bk32.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-fused-moe-4warp.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-gemm2-direct-sum.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-indexer-exact-pointwise.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-indexer-full-range-fast-path.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-indexer-metadata-builder-shim.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-indexer-row-range-topk.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-moe-sum-dispatch.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-router-native-mm.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-scaled-mm-prefill-tiles.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-sparse-index-blockn2048.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-sparse-mla-bk32-range.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-sparse-mla-sq2048-followup.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260916-w8a8-exact-quant.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260917-indexer-prefix-translate.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260918-flaggems-vllm-migration.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260918-thead-fused-moe-vendor-refactor.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-dynamic-mixed-token-budget.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-full-prefix-sparse-mla-grouping.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-indexer-layout-probes.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-indexer-paged-cache-gather.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-indexer-redundant-fill.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-indexer-runtime-reprofile.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-indexer-score-buffer-reuse.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-indexer-topk-translation-fusion.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-max-batched-tokens-sweep.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-silu-up-quant-fusion.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-sparse-mla-sq4096-range.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260919-w8a8-moe-padding-tiles.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-collective-critical-path.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-native-decode-sparse-mla.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-p16k-dual-partial-prefill.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-p16k-prefill-decode-headroom.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-p16k-scenario-entry-and-profile.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-pccl-protocol-sweep.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-scaled-mm-int32-offset.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260920-sparse-mla-structural-probes.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值
+- document: 20260921-p16k-cached-prefill-sparse-mla-hybrid.md
+  scope: 既有说明/评测文档；未猜测实验状态或性能值

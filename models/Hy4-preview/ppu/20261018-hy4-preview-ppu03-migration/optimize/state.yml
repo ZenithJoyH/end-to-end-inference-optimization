@@ -1,0 +1,2559 @@
+schema_version: 4
+identity:
+  case_id: 20261018-hy4-preview-ppu03-migration
+  model: Hy4-preview
+  platform: ppu
+  host: PPU-03
+  baseline_id: plugin08da21cb-fgv46387d7f-fg3ba1d1d9
+  topology: TP16-PPU-ZW810E
+stage: optimize
+current:
+  status: env031_acc006_full198_accuracy_passed
+  candidate: env031-FGV45e14232-original2048
+  next_action: User-requested accuracy complete; retain2048, no new performance/code changes; gate invalidated by
+    identity/config change
+experiments:
+- experiment_id: env-032
+  document: env-032.md
+  status: complete_script_only
+  decision: user_launcher_aligned_to_acc006_no_service_start
+  script_sha256: 30a4f7885eea7a9e5f98830c4e492b840e3030897d0353a4353e772b806b715f
+  script_path: /mnt/nfs/users/jinghao/hy4-preview/start_hyv4-preview.sh
+  validation: bash_n_and_exact_argv_environment_dispatch_source_match_passed
+  classification: launch_script_delivery
+  evidence_root: /workspace/.hy4-preview-migration-20261018-01/launch-script-20261021-01
+- experiment_id: env-001
+  document: env-001.md
+  status: complete
+  decision: retained_source_but_formal_not_accepted
+  scenario_id: hy4-startup-smoke-c8
+  classification: compatibility_migration
+  correctness:
+    capability_id: e2e/accuracy
+    mode: minimal-regression
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: passed_minimal_regression
+    passed_tests: 59
+    failed_tests: 0
+    evidence: /workspace/.hy4-preview-migration-20261018-01/results/final-validation.json
+    generated_requests_passed: 9
+    c8: passed
+    decode_full_capture_sizes: 51
+    post_ready_replays_per_rank: 2
+    rank_count: 16
+    formal_accuracy: failed_in_acc-001
+    formal_failure_issue: compat-005
+  payload_sha256: 2017ac12587e1e4341a294e16dd064560b5c615e78e4cf999432cb1d6227955b
+  deploy_sha256: bd42a344ed2b0eb78ba9d9db412bf452513535a95e6846fc880fed733fc671fb
+  final_patch_sha256: 029f2335b49828182940e72919bfa9c1183f25d5cc97741496e464ae3488bb55
+  final_source_manifest_sha256: db82e2b526c1a04b88548977ea4986b1a50a96ba77952d9cc5d2e9ac83260ec0
+- experiment_id: acc-001
+  document: acc-001.md
+  status: failed
+  decision: not_accepted
+  classification: formal_accuracy_evaluation
+  covered_experiment_ids:
+  - env-001
+  correctness:
+    capability_id: e2e/accuracy
+    mode: formal-gate
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.87
+    expected_samples: 198
+    status: failed
+    score: 0.13636363636363635
+    dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+    service_sha256: 0780ac23bb1e72d57f0e04c9cb591614f5e78db6e2d171aa6cfdff2a9e026fb8
+    score_basis: native27/198 strict;28 actual responses plus170 TIMEOUT connection-failure placeholders after service
+      exit
+    actual_responses: 28
+    timeout_placeholders: 170
+    native_unique_docs: 198
+    native_sample_rows: 396
+    gate_issued: false
+    complete_model_accuracy_established: false
+    evidence: /tmp/hy4-preview-ppu03-accuracy-20261019-01/evidence/compat005-evaluation-incident.json
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261019-01
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-01
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-ppu-03
+    interval_minutes: 30
+    status: paused
+    notification_policy: meaningful progress or terminal only
+    cleanup_evidence: automation_update hy4-ppu-03 returned PAUSED at terminal-failure audit
+  progress:
+    observed_at: '2026-10-19T10:44:10+08:00'
+    unique_cached_responses: 28
+    expected_samples: 198
+    runner_alive: false
+    service_api_alive: false
+    runner_returncode: 1
+    native_run_record_present: false
+    accuracy_gate_present: false
+  failure_evidence:
+    evaluation_incident_sha256: 34fc41bd4f89d3955e4d5f8fab1604455447e1e55f560ecbde0f5691d8875b9d
+    files_manifest_sha256: 34d3468a91d301b84ddeda625673821e0ab1c61ba1aa763d275b2d8444d1869e
+    service_log_sha256: 36ca87e500a43a9f06166c7cb62db70b12336689579fba748786ede33474bfc8
+    backup: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-01/evaluator-failure-backup/hy4-preview-ppu03-accuracy-20261019-01
+    backup_verified_files: 38
+    service_incident: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-01/evidence/compat005-service-incident.json
+  diagnosis:
+    skill: inference-accuracy-diagnosis
+    issue_id: compat-005
+    classification: execution-mode/import-API-compatibility
+    root_cause_confidence: confirmed missing-symbol import boundary; full resolution not tested
+    minimal_reproducer: Fresh process importlib.import_module(vllm_fl.dispatch.backends.vendor.thead.impl.hyv4_indexer)
+      reproduces same ImportError
+    mechanism: HY4 _paged_sequence helper import runs thead.impl.__init__, which eagerly imports attention.py requiring
+      absent installed-vLLM flash_attn_supports_fp8
+    source_drift: false
+    fix_applied: false
+    service_restarted: false
+    evaluation_rerun: false
+    gate_blocking: true
+    model_numerical_regression: unknown
+    required_revalidation: minimal exact import plus cached-paged-sequence/long-context/preemption/C8/graph tests;
+      new full198 formal-gate with same metric and threshold
+- experiment_id: env-002
+  document: env-002.md
+  status: complete
+  decision: retained_pending_formal_accuracy
+  classification: compatibility_fix
+  issue_id: compat-005
+  correctness:
+    mode: minimal-regression
+    status: passed_minimal_regression
+    passed_tests: 85
+    failed_tests: 0
+    evidence: /workspace/.hy4-preview-migration-20261018-01/fix-compat005-20261019-01/results/startup-validation.json
+    top_k_shapes:
+    - 2
+    - 2048
+    graph_replays_per_paged_shape: 2
+    generated_requests_passed: 11
+    c8: passed
+    decode_full_capture_sizes: 51
+    rank_count: 16
+    post_ready_replays_per_rank: 2
+    cached_prefill_service_prompt_tokens: 13249
+    prefix_cache_hit_tokens: 13184
+    formal_accuracy: pending_acc-002
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/fix-compat005-20261019-01
+  final_patch_sha256: 908d65d4d4affa03965029bd982d245d87d6c22a5eb5da0eee46e2f72b15728f
+  final_source_manifest_sha256: 7873f88096c6459e6ba7e5a7c49908f536be56dec458177970dd07aadededc1c
+- experiment_id: acc-002
+  document: acc-002.md
+  status: cancelled_by_user
+  decision: stopped_on_user_request
+  classification: formal_accuracy_evaluation
+  covered_experiment_ids:
+  - env-001
+  - env-002
+  correctness:
+    mode: formal-gate
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.87
+    expected_samples: 198
+    status: incomplete_cancelled
+    score: null
+    dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+    service_sha256: d9d23610c300f25d202c8f31390d09c1522a46163e174ccae8a78daf16104c59
+    gate_issued: false
+    complete_model_accuracy_established: false
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261019-02
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-02
+  started_at: '2026-10-19T11:10:02+08:00'
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-ppu-03
+    interval_minutes: 30
+    status: paused
+    notification_policy: meaningful progress or terminal only
+  progress:
+    observed_at: '2026-10-19T03:39:04.315844+00:00'
+    unique_cached_responses: 30
+    expected_samples: 198
+    runner_alive: false
+    service_health: 200
+    run_uuid: 60ca1892a4f04a9db606e9d6fb93bdf2
+    accuracy_gate_present: false
+    service_instance_unchanged: true
+    prior_import_error_present: false
+    service_traceback_count: 0
+    requests_running: 64
+    preemptions: 0
+  stop_evidence: /tmp/hy4-preview-ppu03-accuracy-20261019-02/user-stopped.json
+  cancelled_backup:
+    path: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-02/evaluator-user-stopped-backup/hy4-preview-ppu03-accuracy-20261019-02
+    verified_files: 37
+    verified_bytes: 1170245
+    manifest_sha256: 55a2895975509f498f07202f62c356b4a2f16473c301f498ba77feafbfa93319
+- experiment_id: env-003
+  document: env-003.md
+  status: complete
+  classification: upstream_plugin_update
+  decision: retained_upstream_as_requested_runtime_unsupported_on_ppu
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/upstream-plugin-20261019-01
+  target_branch: main
+  target_commit: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  target_repository: https://github.com/flagos-ai/vllm-plugin-FL
+  source_clean: true
+  plugin_import: /workspace/vllm-plugin-FL/vllm_fl/__init__.py
+  previous_source: /workspace/.hy4-preview-migration-20261018-01/upstream-plugin-20261019-01/plugin-active-before
+  correctness:
+    mode: minimal-regression
+    status: failed_upstream_platform_coverage
+    import_and_registration: passed
+    passed_tests: 151
+    failed_tests: 10
+    evidence: /workspace/.hy4-preview-migration-20261018-01/upstream-plugin-20261019-01/evidence/validation.json
+    formal_accuracy: not_run_user_cancelled
+    service_startup: not_run_runtime_capability_guard
+  artifact_sha256:
+    install_receipt: b0aedce99ba1af32c30fcd2fffe70457941a542b4f72ea36216f934096f57b1a
+    validation: a342cb1ee56fd92169a2ed3b692fccf3c63584b9c2e8db31dd5453002776d441
+    platform_diagnosis_v2: 4f451b36a54730e5ff839c5b404db7d4b2a323756f36c767722a83aead8daa6f
+    plugin_before_files: 73af8bed99bf2e8a8d0fe639d825792f1d2c44edc86aa39af9f81f720a4f8aea
+- experiment_id: env-004
+  document: env-004.md
+  status: complete
+  decision: superseded_architecture_rejected
+  classification: compatibility_fix
+  issue_id: compat-006
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/official-ppu-20261019-01
+  correctness:
+    mode: minimal-regression
+    status: passed_minimal_regression
+    passed_tests: 135
+    failed_tests: 0
+    evidence: /workspace/.hy4-preview-migration-20261018-01/official-ppu-20261019-01/results/final-validation.json
+    w8a8_integration: /workspace/.hy4-preview-migration-20261018-01/official-ppu-20261019-01/results/w8a8-integration-01.json
+    w8a8_graph_and_fullgraph_shapes: 4
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    generated_requests_passed: 11
+    c8: passed
+    decode_full_capture_sizes: 51
+    rank_count: 16
+    post_ready_replays_per_rank: 2
+    paged_service_prompt_tokens: 13249
+    prefix_cache_hit_tokens: 13184
+    formal_accuracy: pending_acc-003
+  source_manifest: /workspace/.hy4-preview-migration-20261018-01/official-ppu-20261019-01/manifest-final.json
+  patch_sha256: 25d6f6450f3aacec7c3792f52fa6e50531461963be6338ef8d372e2c3a268c27
+  source_manifest_sha256: 713a78fe0b0830ccd26dc353a177a3dbf99738c3d248380aa8f40ada8ea68619
+- experiment_id: acc-003
+  document: acc-003.md
+  status: cancelled_by_user
+  decision: stopped_for_architecture_refactor
+  classification: formal_accuracy_evaluation
+  covered_experiment_ids:
+  - env-004
+  correctness:
+    mode: formal-gate
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.87
+    expected_samples: 198
+    status: incomplete_cancelled
+    score: null
+    dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+    service_sha256: 7120ac264da9ba1c619685604e71dd4d221eaeb2bcd4faf2f920f84c2c2a3db3
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    gate_issued: false
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261019-03
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-03
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-ppu-03
+    status: paused
+    interval_minutes: 30
+    notification_policy: meaningful progress or terminal only
+  started_at: '2026-10-19T14:22:05+08:00'
+  progress:
+    observed_at: '2026-10-19T06:26:18.409400+00:00'
+    unique_cached_responses: 20
+    expected_samples: 198
+    runner_alive: false
+    service_health: 200
+    run_uuid: 179e0ff9de1f427eb0b1010e89164723
+    runner_pid_at_launch: 7279
+    runner_start_ticks: '510676871'
+    accuracy_gate_present: false
+  cancelled_backup:
+    verified_files: 36
+    verified_bytes: 657604
+    manifest_sha256: a7f274c3465a636f2401ca40b177b099ef20031b4484fba77edc8b10891d371d
+    path: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-03/evaluator-user-stopped-backup
+- experiment_id: env-005
+  document: env-005.md
+  status: code_complete_validation_paused_for_user_review
+  decision: source_superseded_service06_stopped_in_env011
+  classification: architecture_refactor
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/architecture-20261019-01
+  correctness:
+    mode: minimal-regression
+    status: unit_and_operator_passed_service_pending
+    passed_tests: 180
+    w8a8_graph_and_fullgraph_shapes: 4
+    formal_accuracy: pending_acc-004
+  source_manifest_sha256: f3bb6c6895981d73cc56381413d9aadbdd9f1fa14b31fedbdbdebb33d0f360b9
+  patch_sha256: 4dfda3a372ac03b55dd376419c86bf43745697e263beb75ceb9f6ae9a30ebff3
+- experiment_id: acc-004
+  document: acc-004.md
+  status: prepared_held_for_user_review
+  decision: not_started_user_review_hold
+  classification: formal_accuracy_evaluation
+  covered_experiment_ids:
+  - env-005
+  correctness:
+    mode: formal-gate
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.87
+    expected_samples: 198
+    status: incomplete_not_started
+    score: null
+    gate_issued: false
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261019-04
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-04
+  prepared_collector_status: stale_env005_identity_must_refreeze_before_future_launch
+- experiment_id: env-006
+  document: env-006.md
+  status: deployed_full_model_validation_pending
+  decision: deployed_in_env008
+  classification: patch_scope_convergence
+  artifact_root: /tmp/hy4-converge-20261019-01
+  correctness:
+    status: not_run_user_review_hold
+    mode: minimal-regression
+    static_checks: passed
+    hardware_regression: not_run
+  patch_sha256: 183bbf1cdda6ace22d0c9ea29ba0aad6d22722cc5fa86983dfd036e867644bb8
+  production_files: 17
+  production_added_lines: 996
+  review: /tmp/hy4-converge-20261019-01/REVIEW.md
+- experiment_id: env-007
+  document: env-007.md
+  status: parser_validated_deployed_full_model_pending
+  classification: parser_compatibility_fix
+  issue_id: compat-007
+  decision: deployed_in_env008
+  correctness:
+    status: passed_parser_unit_and_interface_scope
+    scope: parser_only_no_model_requests
+    passed_tests: 51
+    actual_tokenizer: TokenizersBackend
+    actual_suffix: :opensource
+    source_ast_equivalence: passed
+    model_or_api_requests: 0
+    model_startup: not_run
+    formal_accuracy: not_run_user_review_hold
+    evidence: /workspace/.hy4-preview-migration-20261018-01/parser-fix-20261019-01/results-03.json
+  artifact_root: /tmp/hy4-parser-fix-20261019-01
+  patch_sha256: 78bc835daf67b1d370072f4d51638ddd3c2029c443d7830a4cc4596261b412f6
+  source_ast_equivalence: passed
+  remote_evidence_root: /workspace/.hy4-preview-migration-20261018-01/parser-fix-20261019-01
+- experiment_id: env-008
+  document: env-008.md
+  status: complete_source_deployment
+  decision: deployed_as_requested_service_not_reloaded
+  classification: source_deployment
+  covered_experiment_ids:
+  - env-006
+  - env-007
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/deploy-converged-20261019-01
+  commands_sha256:
+    deploy.py: 3bc7c49f97544bafb9137330d80eed13f240574caa8ef2fd30039a7c3afdb716
+    rollback.py: 0ed6144b4f6ab16ff1f62bf25b4ddd65203f2f4d7d8fc3ce757ffc6bf494033b
+    preflight.py: 5f481020ca6b38284254c6515f9defb890aef3a318f73f3e8c31869ecc924b14
+    stage.py: 83dc2fa778103a2785e52ac9ebb1930a423ccbe7ed7e13104e474bbdc565410a
+    deployment-manifest.json: b12b44882ce28f9778d6c7af41afdb9a188f51061ef63c82ca1263296dd85d83
+  service_restart: false
+  formal_accuracy: not_started_user_review_hold
+  evidence: /workspace/.hy4-preview-migration-20261018-01/deploy-converged-20261019-01/deployment-result.json
+  receipt_sha256: 2185cc0d50e2fd75bfa10b5d5b72c9af0cda3f9028f93a59537fe855b3950793
+  changed_files: 10
+  candidate_files_verified: 623
+  syntax_checks: passed
+  backup: /workspace/.hy4-preview-migration-20261018-01/deploy-converged-20261019-01/plugin-env005-before.tar.gz
+  backup_sha256: 0cef236600d3aa792908cfacf42e4a0bc242d69e75eb06fb152e13aa2da4b8e3
+  gems_unchanged: true
+  runtime_activation: not_verified
+- experiment_id: env-009
+  document: env-009.md
+  status: deployed_cpu_contracts_passed_model_validation_incomplete
+  decision: broad_platform_selection_withdrawn_in_env011
+  classification: portability_refactor
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01
+  correctness:
+    status: incomplete_full_model_pending
+    cpu_mock_interface_tests:
+      passed: 126
+      failed: 0
+      skipped: 0
+      evidence: /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/tests-03.json
+      sha256: a8e81806811740ab254cc52e6f064ad799859db9e483055c004472c6b6c011b0
+    hardware_other_platforms: not_run
+    graph_and_paged_model_validation: not_run_user_review_hold
+    formal_accuracy: not_run_user_review_hold
+  service_restart: false
+  gems_changes: false
+  patch_sha256: 0672c704c64a9dee43d67326c9e83d99401bd09ce176fcc2c8a3d873f307c693
+  delta_patch_sha256: 0483e841f2646c25cd473e6384895f865244b7c92bf35640c150b41be194af4d
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/deployment/deployment-result.json
+  deployment_receipt_sha256: c7d9adfbef00293e2655ca1ae925b3a6c2e7a20f9559bf56a82f06200c33c8af
+  backup: /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/deployment/plugin-env008-before.tar.gz
+  backup_sha256: a0ace7f4f4aeff7051636fd8cef16eefaeab195c7734bec951ec486daa5ce734
+- experiment_id: env-010
+  document: env-010.md
+  status: deployed_unit_export_passed_model_validation_incomplete
+  decision: superseded_by_scoped_env011
+  classification: patch_scope_convergence
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/tighten-20261019-01
+  service_restart: false
+  gems_changes: false
+  correctness:
+    status: incomplete_full_model_pending
+    cpu_mock_interface_tests:
+      passed: 128
+      failed: 0
+      skipped: 0
+      evidence: /workspace/.hy4-preview-migration-20261018-01/tighten-20261019-01/tests-01.json
+      sha256: 424a18fece0754622a7c9c2764b25d984923ab4cbfccb5a18507d8c935d5e78b
+    fake_export: passed_0_and_3_tokens_single_opaque_node
+    repeated_general_registration: passed
+    graph_and_paged_model_validation: not_run_user_review_hold
+    formal_accuracy: not_run_user_review_hold
+  patch_sha256: 2c7f9b5011f87461dd8440fa89b926d45b086d79b6f30b5b93d5883203a94ebe
+  delta_patch_sha256: 67832c3b557b41fd6cbd4dbf4c2a7e41b7afe6342c1c3d2d1724317c5a75f26a
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/tighten-20261019-01/deployment/deployment-result.json
+  deployment_receipt_sha256: 97e1fc736740069a681e644c2364ef3462b8f4e8630016eab3167419ce9723bd
+  backup: /workspace/.hy4-preview-migration-20261018-01/tighten-20261019-01/deployment/plugin-env009-before.tar.gz
+  backup_sha256: 875dba8d4f711d2d137a0a5c7d4f0daa6a45b093372d1cee624b84fb1c0c78d2
+  files_before: 24
+  files_after: 22
+  production_files_before: 17
+  production_files_after: 15
+- experiment_id: env-011
+  document: env-011.md
+  status: complete
+  decision: retained_minimal_pass_formal_accuracy_not_established
+  classification: compatibility_scope_reduction
+  scenario_id: hy4-startup-smoke-c8-paged
+  correctness:
+    mode: minimal-regression
+    capability_id: e2e/accuracy
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: passed_minimal_regression
+    formal_accuracy: not_run_user_hold
+    cpu_mock_parser_tests: 182
+    hardware_tests: 28
+    w8a8_shapes: 4
+    w8a8_graph_replays_per_shape: 2
+    w8a8_fullgraph: true
+    generated_requests: 20
+    smoke_c8: passed
+    decode_capture_sizes: 51
+    rank_count: 16
+    post_ready_replays_per_rank: 2
+    prefix_cache_hit_tokens: 13184.0
+    hardware_suite_cases: 28
+    device_cases_in_suite: 24
+    cpu_cases_in_device_suite: 4
+    service_instance_id: 81981916bd215c2bbcd8988b9c8308faca87f0967189725d2576444443d09122
+    formal_gate_issued: false
+  patch_sha256: 7d5e6d6d5d0a9b74abfbe5fe610f47c9fb1752c863f98292fc24b2119336d10b
+  delta_patch_sha256: efac25804d4907e236479d81ee2b4dc3c7146582c57eb9ad24c43a8b557445d2
+  evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/results/final-validation.json
+  evidence_sha256: 14408e6962ee3abb292eb8faf79f2555e60c7d251976bd97fdc707a50d54a086
+- experiment_id: env-012
+  document: env-012.md
+  status: complete
+  classification: test_change_removal_and_review_export
+  decision: tests_removed_production_unchanged_review_exported
+  evaluation: not_run_user_hold
+  production_change: false
+  restored_test_files: 2
+  removed_added_test_files: 5
+  tests_diff_empty: true
+  production_source_matches_env011: true
+  full_patch_sha256: 0038f4f205c7cfb1c7bc2cc8ccaf4ec4035245151be84f3690c61ae3c1674c6f
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env012
+  remaining_files: 15
+  added_lines: 1327
+  deleted_lines: 14
+  service_actions: []
+  model_requests: 0
+- experiment_id: env-013
+  document: env-013.md
+  status: incomplete
+  classification: compatibility_scope_reduction
+  decision: source_deployed_for_review_pending_model_validation
+  evaluation: not_run_user_hold
+  scenario_id: hy4-startup-smoke-c8-paged
+  full_patch_sha256: 7ac885d463c832f5815098d8745ec5ed0214765f5cc46fbd64810149c50de039
+  delta_patch_sha256: f43e99d836c9fa0fc678b9e64887717a599a5611711fec49e2d669fb8345470d
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env013
+  remaining_files: 13
+  added_lines: 1172
+  deleted_lines: 5
+  tests_diff_empty: true
+  gems_unchanged: true
+  static_checks:
+    syntax: passed
+    strict_patch_apply: passed_two_bases
+    protected_semantic_functions_AST: unchanged
+    reasoning_namespace_and_parser_spec: resolved_without_module_execution
+    tests: unchanged_official
+  full_model_validation: not_run_user_hold
+  service_actions: []
+  model_requests: 0
+  review_archive_sha256: ce0a52e5d2cd6efdfea48b61fe461f8507bc6611ff098f40646a5430dd427da5
+  superseded_by: env-014
+- experiment_id: env-014
+  document: env-014.md
+  status: incomplete
+  classification: remove_scaled_mm_dispatch_use_existing_env_import
+  decision: source_deployed_for_review_pending_model_validation
+  changed_paths_this_round: 3
+  changed_files_vs_official: 11
+  added_lines: 1145
+  deleted_lines: 5
+  full_patch_sha256: 6a74255c65d2553819dd8ea018b815c665260bb2e9127fc3aa7d20f7c549f0be
+  delta_patch_sha256: a32b271186788edee81f9b495d8d707164b33126a96897790c7b09fe232e2580
+  static_checks:
+    syntax: passed
+    strict_patch_apply: passed_two_bases
+    tests: unchanged_official
+    three_paths_only: true
+    int8_scaled_mm_dispatch: fully_removed
+    import_contract: passed_isolated_7_cases_no_hardware
+  import_contract_cases: 7
+  model_requests: 0
+  evaluation_started: false
+  service_actions: []
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env014
+  superseded_by: env-015
+- experiment_id: env-015
+  document: env-015.md
+  status: incomplete
+  classification: direct_FGV_triton_scaled_mm_call
+  decision: source_deployed_for_review_pending_model_validation
+  changed_paths_this_round: 1
+  changed_files_vs_official: 11
+  added_lines: 1139
+  deleted_lines: 6
+  full_patch_sha256: e44e8b8ae4e6a11a99bdb7d57ad8edc13fe30ac869a014f8eb2d4f95ce363843
+  delta_patch_sha256: 6aacba6e75104e0dc5180bd5b2d50aad64995e57e525d8f5f08bfb8346ef4d54
+  static_checks:
+    syntax: passed
+    strict_patch_apply: passed_two_bases
+    tests: unchanged_official
+    one_path_only: true
+    int8_scaled_mm_dispatch: fully_removed
+    import_contract: passed_isolated_7_cases_no_hardware
+  import_contract_cases: 7
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env015
+  service_actions: []
+  model_requests: 0
+  evaluation_started: false
+  superseded_by: env-016
+- experiment_id: env-016
+  document: env-016.md
+  status: incomplete
+  classification: W8A8_wrapper_necessity_controlled_compile_regression
+  decision: retained_narrow_quant_boundary_operator_passed_model_pending
+  accuracy_mode: minimal-regression
+  skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+  operator_scope_only: true
+  changed_paths_this_round: 2
+  changed_files_vs_official: 12
+  added_lines: 1097
+  deleted_lines: 16
+  full_patch_sha256: 4ab695213421fd78a9692e4c2941bab9f210af961ea4763d2e51ac5818a96575
+  delta_patch_sha256: 9479517ec622d1ae1701e924131c55e072ab445080ebb9914135e0bebae3b614
+  operator_validation:
+    wrapped_control:
+      cases: 8
+      nonempty_fullgraphs: 7
+      raw_replays_per_nonempty: 2
+      compiled_replays_per_nonempty: 2
+      status: passed
+    direct_unwrapped:
+      eager: passed
+      raw_replays: 2
+      fullgraph: failed_FGV_quant_libentry_params
+    quant_only:
+      fullgraph: same_failure
+    mm_only:
+      fullgraph: passed
+      raw_replays: 2
+      compiled_replays: 2
+    narrow_quant_boundary:
+      cases: 8
+      nonempty_fullgraphs: 7
+      raw_replays_per_nonempty: 2
+      compiled_replays_per_nonempty: 2
+      status: passed
+    actual_install:
+      cases: 2
+      fullgraph_m1: passed
+      raw_replays: 2
+      compiled_replays: 2
+      empty: passed
+      health_http: 200
+  model_minimal_regression: incomplete_user_service_hold
+  formal_accuracy: not_run_user_hold
+  service_actions: []
+  model_requests: 0
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env016
+- experiment_id: env-017
+  document: env-017.md
+  status: incomplete
+  classification: FGV_provider_import_and_MLA_registration_simplification
+  decision: source_deployed_operator_passed_model_pending
+  source_mutation: true
+  model_requests: 0
+  evaluation_started: false
+  changed_paths_this_round: 3
+  changed_files_vs_official: 12
+  added_lines: 1085
+  deleted_lines: 20
+  full_patch_sha256: f709fe70cbbfe6548a246a0ee1e2124656d34bc2428cb9e0e12a1a478fbb7654
+  delta_patch_sha256: a951c37ff6500d38bc32675b7b8be25c3d989ed7167001cb42d62c0d352ec4fa
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env017
+  accuracy_mode: minimal-regression
+  skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+  operator_scope_only: true
+  operator_validation:
+    status: passed
+    numerical_cases: 4
+    raw_replays_per_case: 2
+    source_and_env_gate: passed
+    static_and_mock_route_checks: 8
+    installed_import_and_availability: passed
+    max_allocator_bytes: 234496
+    max_reserved_bytes: 33554432
+    evidence: /workspace/.hy4-preview-migration-20261018-01/fgv-mla-20261019-01/results/candidate.json
+    evidence_sha256: b2ccf458aa1520659f02028aeac8b7a4eed0958a68a38ee87d4829c0179ccccd
+  model_minimal_regression: incomplete_user_hold
+  formal_accuracy: not_run_user_hold
+  service_actions: []
+  superseded_by: env-018
+- experiment_id: env-018
+  document: env-018.md
+  status: incomplete
+  classification: full_plugin_review_shared_TopK_ABI_reduction
+  decision: shared_ABI_fixed_redundant_TopK_file_removed_model_pending
+  model_requests: 0
+  evaluation_started: false
+  accuracy_mode: minimal-regression
+  operator_scope_only: true
+  source_mutation: true
+  changed_paths_this_round: 5
+  modified_files_this_round: 4
+  removed_new_files_this_round: 1
+  changed_files_vs_official: 11
+  added_lines: 1021
+  deleted_lines: 20
+  net_lines_reduced: 64
+  full_patch_sha256: 90ec637b7ea554042a0e5ba87948a6377794a80677bf1edc90226ecfc240f0f9
+  delta_patch_sha256: a6c522f90c32ad05e436ba0d7c4a1436e17105bc84530efc2c1e5147015b2000
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env018
+  issue_id: review-topk-abi-001
+  operator_validation:
+    status: passed
+    numerical_cases: 4
+    raw_replays_per_case: 2
+    negative_metadata_cases: 5
+    shared_8arg_provider_identity: passed
+    selected_HY4_prefill_impl: default.flagos
+    source_and_environment_gate: passed
+    static_mock_route_checks: 8
+    static_review_assertions: 9
+    installed_import_availability_signature: passed
+    max_allocator_bytes: 28958720
+    max_reserved_bytes: 134217728
+    evidence: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/results/candidate.json
+    evidence_sha256: 46897243fa19a95eb90d56fe0d6e4af8e995be7c86798991c05c649561ad099d
+  model_minimal_regression: incomplete_user_hold
+  formal_accuracy: not_run_user_hold
+  service_actions: []
+- experiment_id: env-019
+  document: env-019.md
+  status: complete
+  classification: read_only_full_review_cross_layer_layout_and_numeric_boundaries
+  decision: review_complete_findings_reported_no_source_change
+  model_requests: 0
+  evaluation_started: false
+  accuracy_mode: minimal-regression
+  operator_scope_only: true
+  source_mutation: false
+  source_candidate: env-018
+  source_patch_sha256: 90ec637b7ea554042a0e5ba87948a6377794a80677bf1edc90226ecfc240f0f9
+  changed_paths_this_round: 0
+  findings:
+  - issue_id: review-layout-002
+    review_id: R1
+    priority: P2
+    classification: accepted_short_context_output_stride_defect
+    status: confirmed_operator_scope
+    current_100K_scenario_triggered: false
+    condition: max_model_len<index_topk and multiple decode rows and requires_padding=False
+    source: vllm_fl/models/hy4/bf16_indexer.py:170-178
+    evidence: /workspace/.hy4-preview-migration-20261018-01/review-20261020-01/results/review.json
+    suggestion: count=topk_tokens; preserve full output width as native caller does
+    proposed_patch: /tmp/hy4-review-20261020-01/proposed-layout-fix.patch
+    proposed_patch_sha256: 5a899fb9017fd57e8f581b2ae03cbca4b1dd4e03cc75b84269262ba3d98cde37
+    applied: false
+  - issue_id: review-precision-003
+    review_id: R2
+    priority: numeric_observation_not_proven_accuracy_failure
+    classification: BF16_prefill_rounding_vs_FP32_decode_accumulation
+    status: confirmed_score_and_TopK_divergence
+    source: vllm_fl/models/hy4/bf16_indexer.py:53-63
+    evidence: /workspace/.hy4-preview-migration-20261018-01/review-20261020-01/results/review.json
+    formal_score_effect: not_measured
+    proposed_precision_change: false
+    acceptance_threshold_changed: false
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env019
+  diagnostic_evidence: /workspace/.hy4-preview-migration-20261018-01/review-20261020-01/results/review.json
+  identity_unchanged: true
+  service_actions: []
+  model_minimal_regression: incomplete_user_hold
+  formal_accuracy: not_run_user_hold
+- experiment_id: env-020
+  document: env-020.md
+  status: complete
+  classification: one_line_short_context_TopK_output_layout_fix
+  issue_id: review-layout-002
+  decision: one_line_layout_fix_deployed_operator_scope_passed_model_pending
+  model_requests: 0
+  evaluation_started: false
+  changed_paths_this_round: 1
+  changed_lines_this_round:
+    added: 1
+    removed: 1
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env020
+  remote_artifact_root: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01
+  full_patch_sha256: 4bb15f7e480eb4baf9234e781cf65a555a2269ce31c1254a76c6bd07692a27f5
+  delta_patch_sha256: 9d2af232f3a056d1147a8cf6ff70ecfd9b64c021ab82364876dda8890b4b643e
+  correctness:
+    capability_id: e2e/accuracy
+    mode: minimal-regression
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: passed_affected_layout_operator_scope
+    candidate_cases: 8
+    graph_cases: 4
+    graph_replays_per_case: 2
+    padding_eager_cases: 4
+    padding_graph: executed_failed_inherited_baseline_and_candidate
+    installed_short_case: passed_numerical_capture_two_replays
+    full_model: incomplete_user_hold
+    formal_accuracy: not_run_user_hold
+    gate_issued: false
+    evidence: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/probe-finished.json
+  service_actions: []
+  gems_unchanged: true
+- experiment_id: env-021
+  document: env-021.md
+  status: complete
+  classification: padding_pack_unpack_graph_compatibility_fix
+  issue_id: review-padding-capture-004
+  decision: padding_graph_fix_deployed_operator_scope_passed_model_pending
+  model_requests: 0
+  evaluation_started: false
+  changed_paths_this_round: 1
+  changed_lines_this_round:
+    added: 9
+    removed: 4
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env021
+  remote_artifact_root: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01
+  full_patch_sha256: e66c0b38c3f70d7135b2cb7bd8a5194455f0ae42e665016ea50c4f7d4ad14310
+  delta_patch_sha256: b29c050adccf4868b77c235cff6e1c511440e03cc1c0acb724f6e3f4af851599
+  correctness:
+    capability_id: e2e/accuracy
+    mode: minimal-regression
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: passed_affected_padding_operator_scope
+    candidate_cases: 9
+    graph_cases: 9
+    graph_replays_per_case: 2
+    packing_oracles: 3
+    zero_row_position_changes: middle_first_last
+    baseline_pack_failure_reproduced: true
+    pack_only_unpacked_failure_reproduced: true
+    installed_padding_case: passed_numerical_capture_two_replays
+    full_model: incomplete_user_hold
+    formal_accuracy: not_run_user_hold
+    gate_issued: false
+    evidence: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/probe-finished.json
+  service_actions: []
+  gems_unchanged: true
+- experiment_id: env-022
+  document: env-022.md
+  status: complete
+  decision: current_combined_candidate_service_minimal_regression_passed_formal_held
+  classification: current_candidate_service_minimal_regression
+  source_changes: false
+  evaluation_started: false
+  remote_artifact_root: /workspace/.hy4-preview-migration-20261018-01/restart-20261020-01
+  source_patch_sha256: e66c0b38c3f70d7135b2cb7bd8a5194455f0ae42e665016ea50c4f7d4ad14310
+  service_actions:
+  - stop_exact_service07
+  - start_service08
+  formal_accuracy: not_run_user_hold
+  retained_change_provenance_ids:
+  - env-013
+  - env-014
+  - env-015
+  - env-016
+  - env-017
+  - env-018
+  - env-020
+  - env-021
+  covered_experiment_ids:
+  - env-021
+  coverage_note: current combined env021/r15 source only; superseded intermediate variants are not individually
+    validated
+  startup_observations:
+  - All16 rank initialization/topology passed; 131 checkpoint shards loaded
+  - Old AOT cache referenced removed fl_w8a8_dynamic_per_token_linear; vLLM auto-recompiles current source; no manual
+    cache deletion or compatibility shell
+  correctness:
+    capability_id: e2e/accuracy
+    mode: minimal-regression
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: passed_minimal_regression
+    covered_candidate_experiment_id: env-021
+    smoke_c8_requests: 9
+    generated_requests: 11
+    decode_capture_sizes: 51
+    rank_count: 16
+    post_ready_replays_per_rank: 2
+    paged_prompt_tokens:
+    - 13249
+    - 13249
+    cached_tokens: 0
+    prefix_hit_metric_delta: 13184.0
+    service_source_identity: verified_all_16_ranks
+    formal_accuracy: not_run_user_hold
+    gate_issued: false
+    evidence: /workspace/.hy4-preview-migration-20261018-01/restart-20261020-01/results/final-validation.json
+    evidence_sha256: ef12867cfbe1836ac43a340021b849de35168796a8fc0408254f782447862a50
+  gems_unchanged: true
+  service_instance_id: 3e147d84c5850ac8481aaad0c67ecba0def8b3de89992527fb4c892b16fadb04
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/service-validation-env022
+- experiment_id: env-023
+  document: env-023.md
+  status: complete
+  classification: offline_BF16_indexer_model_backend_responsibility_refactor
+  decision: offline_candidate_ready_for_user_review_not_deployed
+  installed_source_mutation: false
+  service_actions: []
+  model_requests: 0
+  evaluation_started: false
+  gems_unchanged: true
+  offline_source_mutation: true
+  changed_paths_this_round: 4
+  changed_lines_this_round:
+    added: 193
+    removed: 153
+  changed_files_vs_official: 11
+  full_patch_sha256: dceef28c9e54cc4f26f9f5a3b193aae0f1f90b771c927793a98328681b4e78d3
+  delta_patch_sha256: 7d4be3f60a8e8319f99af1cbc1955b4446f9024e2b29ff41fb8352f481e4e614
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env023
+  validation:
+    syntax_python_files: 451
+    strict_patch_apply: passed_two_bases
+    moved_helpers_AST: equivalent
+    CPU_mock_cases: 9
+    CPU_mock_result: passed
+    hardware: not_run
+    model: not_run_user_review_hold
+    lint: no_new_diagnostics_inherited_model_I001
+    tests: unchanged_official
+  model_minimal_regression: not_run_new_offline_candidate
+  formal_accuracy: not_run_user_hold
+- experiment_id: env-024
+  document: env-024.md
+  status: complete
+  classification: offline_MLA_BF16_provider_route_reduction
+  decision: offline_candidate_ready_for_user_review_not_deployed
+  installed_source_mutation: false
+  service_actions: []
+  model_requests: 0
+  evaluation_started: false
+  gems_unchanged: true
+  offline_source_mutation: true
+  changed_paths_this_round: 1
+  changed_lines_this_round:
+    added: 38
+    removed: 46
+  changed_files_vs_official: 11
+  full_patch_sha256: fc652cb227d43425d20296d1bb37712000bbd8b667f0b44bb65fd7a4e87ab4c7
+  delta_patch_sha256: 969b9df404b5d5c495dcb34d856dbaa7917db9d18d07864eb8f159bebcb9e3dc
+  delta_from_installed_sha256: c10919c228e20fd7499804bfd0690bee6916e1cc502bfe43db72a822d6067d8d
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env024
+  validation:
+    syntax_python_files: 451
+    routing_static_mock_cases: 22
+    strict_patch_apply: passed_three_bases
+    lint: passed
+    math_model_source: byte_identical_env023
+    hardware: not_run
+    model: not_run_user_review_hold
+    tests: unchanged_official
+  formal_accuracy: not_run_user_hold
+- experiment_id: env-025
+  document: env-025.md
+  status: complete
+  classification: install_reviewed_Plugin_boundary_and_route_changes
+  decision: reviewed_changes_installed_source_verified_runtime_not_reloaded
+  service_actions: []
+  model_requests: 0
+  evaluation_started: false
+  gems_unchanged: true
+  installed_source_mutation: true
+  changed_paths_this_round: 4
+  changed_files_vs_official: 11
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-installed-env025
+  remote_artifact_root: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01
+  full_patch_sha256: fc652cb227d43425d20296d1bb37712000bbd8b667f0b44bb65fd7a4e87ab4c7
+  delta_patch_sha256: c10919c228e20fd7499804bfd0690bee6916e1cc502bfe43db72a822d6067d8d
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/deployment-result.json
+  deployment_receipt_sha256: 7c420963d83d017e9d7438b7c6f142d828307b08d81a3349b84d084ee842ec7a
+  validation:
+    checked_regular_files: 614
+    syntax: passed
+    backend_CPU_source_import: passed
+    GPU_initialized: false
+    tests: unchanged_official
+    package_registration: not_run
+    hardware: not_run
+    model: not_run_service_not_restarted
+  formal_accuracy: not_run_user_hold
+- experiment_id: env-026
+  document: env-026.md
+  status: complete
+  classification: read_only_full_installed_Plugin_review
+  decision: review_complete_three_local_cleanup_candidates_no_source_change
+  installed_source_mutation: false
+  service_actions: []
+  model_requests: 0
+  evaluation_started: false
+  gems_unchanged: true
+  source_patch_sha256: fc652cb227d43425d20296d1bb37712000bbd8b667f0b44bb65fd7a4e87ab4c7
+  changed_paths_this_round: 0
+  reviewed_changed_files: 11
+  findings: &id005
+  - issue_id: review-cleanup-005
+    classification: dispatch_check_vs_execution_contract
+    priority: design_cleanup
+    file: vllm_fl/models/hy4/runtime.py
+    line: 192
+    status: resolved_source_and_CPU_contract_scope
+    resolved_by: env-027
+  - issue_id: review-cleanup-006
+    classification: nonpadding_decode_self_copy
+    priority: low
+    file: vllm_fl/dispatch/backends/flaggems/impl/bf16_indexer.py
+    line: 286
+    status: resolved_source_and_CPU_contract_scope
+    resolved_by: env-027
+  - issue_id: review-cleanup-007
+    classification: BF16_outer_Indexer_unused_aliases
+    priority: low
+    file: vllm_fl/models/hy4/attention.py
+    line: 203
+    status: resolved_source_and_CPU_contract_scope
+    resolved_by: env-027
+  - issue_id: review-prefill-008
+    classification: device_metadata_host_conversion_and_rowwise_prefill
+    priority: separate_measurement_and_numeric_reference_required
+    file: vllm_fl/dispatch/backends/flaggems/impl/bf16_indexer.py
+    line: 79
+    status: static_cost_identified_end_to_end_impact_unmeasured
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env026
+  validation_scope: read_only_current_source_static_and_AST_audit
+  hardware: not_run
+  formal_accuracy: not_run_user_hold
+- experiment_id: env-027
+  document: env-027.md
+  status: complete
+  classification: installed_Plugin_local_cleanup
+  decision: three_local_cleanups_installed_CPU_contract_passed_model_pending
+  service_actions: []
+  model_requests: 0
+  evaluation_started: false
+  gems_unchanged: true
+  installed_source_mutation: true
+  changed_paths_this_round: 3
+  changed_lines_this_round:
+    added: 1
+    removed: 6
+  changed_files_vs_official: 11
+  full_patch_sha256: dab9c9eca5dfc26f08e7661d1f7c5900210063007452a20dd2d8e785cb2d2a95
+  delta_patch_sha256: 69fb8f160475b2c9b38aa5419aa1215444121d9a0fc181a1b1fe0f41391570c5
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-cleanup-env027
+  remote_artifact_root: /workspace/.hy4-preview-migration-20261018-01/installed-cleanup-20261020-01
+  validation:
+    checked_regular_files: 614
+    syntax: passed
+    lint: passed_three_changed_files
+    CPU_mock_decode_cases: 6
+    cache_registration_binding_module_structure: passed_CPU_fixture
+    missing_required_runtime_capability_cases: 8
+    GPU_initialized: false
+    hardware: not_run
+    model: not_run_service_not_restarted
+  formal_accuracy: not_run_user_hold
+- experiment_id: env-028
+  document: env-028.md
+  status: complete
+  decision: current_env027_service_minimal_regression_passed_formal_held
+  classification: current_candidate_service_minimal_regression
+  source_experiment_id: env-027
+  source_changes: false
+  evaluation_started: false
+  gems_unchanged: true
+  service_instance_id: e6fd341079ee54be365569b36e31f6bd2df599bd3191d496f1e95b9fbe81db9b
+  artifact: docs/cases/20261018-hy4-preview-ppu03-migration/service-validation-env028
+  correctness:
+    capability_id: e2e/accuracy
+    mode: minimal-regression
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: passed_minimal_regression
+    covered_candidate_experiment_id: env-027
+    generated_requests: 11
+    smoke_c8_requests: 9
+    decode_capture_sizes: 51
+    rank_count: 16
+    post_ready_replays_per_rank: 2
+    paged_prompt_tokens:
+    - 13249
+    - 13249
+    actual_cached_tokens_usage: 0
+    prefix_hit_metric_delta: 13184.0
+    worker_source_identity: verified_all_16_ranks
+    formal_accuracy: not_run_user_hold
+    gate_issued: false
+    evidence: /workspace/.hy4-preview-migration-20261018-01/restart-20261020-02/results/final-validation.json
+    evidence_sha256: 0120df4c47d67c210636ebdc8c99ea01396a6eb2a4debf0e47f1f891d5fbbfed
+- experiment_id: acc-005
+  document: acc-005.md
+  status: cancelled
+  decision: stopped_on_user_request_for_performance_and_graph_mode_review
+  covered_experiment_ids:
+  - env-027
+  - env-028
+  threshold: 0.87
+  expected_samples: 198
+  source_changes: false
+  source_candidate_experiment_id: env-027
+  service_validation_experiment_id: env-028
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261020-01
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-01
+  service_instance_id: e6fd341079ee54be365569b36e31f6bd2df599bd3191d496f1e95b9fbe81db9b
+  progress_monitor:
+    automation_id: hy4-ppu-03
+    kind: heartbeat
+    interval_minutes: 30
+    status: paused
+    notification_policy: meaningful_progress_terminal_failure_or_user_action_only
+  score: null
+  gate_issued: false
+  correctness:
+    capability_id: e2e/accuracy
+    mode: formal-gate
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    status: cancelled_by_user
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    threshold: 0.87
+    expected_samples: 198
+  run_uuid: f762a7717b26498ca657cf72080ab96a
+  completed_unique_responses: 23
+  control_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-01/control-snapshot-01/archive-receipt.json
+  control_archive_sha256: 023ec645b56307a04ba73b11b31789bc36a1883cb2c776d8518264f72af74d25
+  last_observed_at: '2026-10-20T05:37:30.636940+00:00'
+  cancellation_receipt: /tmp/hy4-preview-ppu03-accuracy-20261020-01/user-stopped.json
+  cancellation_receipt_sha256: dbc19c1a3b7ac1060239d88987bdf53f644baf9eb50215fc489fc42fe98837dd
+  gems_unchanged: true
+- experiment_id: env-029
+  document: env-029.md
+  status: failed_minimal_regression
+  decision: not_accepted_preserve_failing_instance_for_diagnosis
+  classification: service_config_minimal_regression
+  source_candidate_experiment_id: env-027
+  source_changes: false
+  gems_unchanged: true
+  evaluation_started: false
+  failed_attempt_root: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-01
+  recovery_attempt_root: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03
+  gpu_memory_utilization: 0.85
+  diagnosis:
+    issue_id: compat-007-piecewise-capture-memory
+    classification: execution_mode_capture_memory_OOM
+    root_cause_confidence: Capture OOM confirmed; 10bucket configuration completed capture, but semantic regression
+      blocks acceptance
+    failing_stage: PIECEWISE capture warmup MLA temporary allocation224MiB after KV allocation
+    last_good: service09 FULL_DECODE_ONLY
+    failed_attempt_root: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-01
+    freeze_sha256: dd76772577708536264e56ed8a617e397af287a1091b6d38623dd6a129744481
+    source_changed: false
+    gems_changed: false
+    performance_may_resume: false
+    budget_mitigation: capture completed only after0.85 budget and10buckets; no endpoint quality pass
+  failed_attempt_roots:
+  - /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-01
+  - /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-02
+  cudagraph_capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  correctness:
+    mode: minimal-regression
+    status: failed
+    fixed_answer_cases_passed: 0
+    fixed_answer_cases_total: 5
+    evaluation_started: false
+    formal_gate_issued: false
+    evidence: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/results/failure-validation.json
+  semantic_diagnosis: &id003
+    issue_id: compat-008-piecewise-semantic-regression
+    classification: execution_mode_regression_suspected
+    gate_blocking: true
+    root_cause_confidence: confirmed missing BF16 indexer splitting boundary by native FX partition, real custom-op
+      capture counterfactual, same-request reproduction and real model revalidation
+    trigger: env029 required smoke/C8 fixed-answer cases failed 5/5; all9 responses semantically unrelated
+    last_known_good: service09/env028 FULL_DECODE_ONLY; source env027 unchanged; historical minimal regression only
+    failing_service_instance_id: 730507c04432b0a86fc48df90cfc53a9de4a720fae18c39bcf28116b0d847450
+    failing_evidence: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/results/service-smoke-12.json
+    minimal_reproducer: 'Two sequential identical c8-01 requests: temperature0 seed0 max_tokens128 no_think; both
+      wrong. Long-prefix1398-token variant returns2.'
+    bisection_result: Association with PIECEWISE short prefill; long prefix differs, so isolated cause not confirmed
+    freeze_sha256: 1a0f208e724ba7bb4e12b8a68754e27cde3c2f2f12571da11d2f616ef38766bb
+    fix_applied: true
+    rollback_applied: false
+    source_changed: false
+    gems_changed: false
+    revalidation: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01/results/final-validation.json
+    performance_may_resume: false
+    remote_artifact_root: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03
+    backup_root: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/failure-evidence-backup
+    backup_manifest_sha256: e8bd5099ebd9cfbf75596bc3984215b4324f884e9510f6a2aec7285cccacd2ff
+    status: resolved_in_env030_minimal_scope
+    fix: one-file instance-local idempotent splitting_ops registration
+    remaining_gaps: Formal198GPQA/performance and non-PPU hardware not run; PIECEWISE max512
+    resolution_experiment_id: env-030
+  service_instance_id: 730507c04432b0a86fc48df90cfc53a9de4a720fae18c39bcf28116b0d847450
+  backup:
+    status: failed_required_minimal_regression
+    service_instance_id: 730507c04432b0a86fc48df90cfc53a9de4a720fae18c39bcf28116b0d847450
+    health: 200
+    graph_coverage:
+      prefill:
+        runtime_mode: PIECEWISE
+        distinct_steps_by_rank:
+          '0':
+          - 130
+          - 262
+          '1':
+          - 130
+          - 262
+          '2':
+          - 130
+          - 262
+          '3':
+          - 130
+          - 262
+          '4':
+          - 130
+          - 262
+          '5':
+          - 130
+          - 262
+          '6':
+          - 130
+          - 262
+          '7':
+          - 130
+          - 262
+          '8':
+          - 130
+          - 262
+          '9':
+          - 130
+          - 262
+          '10':
+          - 130
+          - 262
+          '11':
+          - 130
+          - 262
+          '12':
+          - 130
+          - 262
+          '13':
+          - 130
+          - 262
+          '14':
+          - 130
+          - 262
+          '15':
+          - 130
+          - 262
+        minimum_steps_per_rank: 2
+        two_steps_all_ranks: true
+      mixed:
+        runtime_mode: PIECEWISE
+        distinct_steps_by_rank:
+          '0':
+          - 132
+          '1':
+          - 132
+          '2':
+          - 132
+          '3':
+          - 132
+          '4':
+          - 132
+          '5':
+          - 132
+          '6':
+          - 132
+          '7':
+          - 132
+          '8':
+          - 132
+          '9':
+          - 132
+          '10':
+          - 132
+          '11':
+          - 132
+          '12':
+          - 132
+          '13':
+          - 132
+          '14':
+          - 132
+          '15':
+          - 132
+        minimum_steps_per_rank: 1
+        two_steps_all_ranks: false
+      decode:
+        runtime_mode: FULL
+        distinct_steps_by_rank:
+          '0':
+          - 1
+          - 2
+          '1':
+          - 1
+          - 2
+          '2':
+          - 1
+          - 2
+          '3':
+          - 1
+          - 2
+          '4':
+          - 1
+          - 2
+          '5':
+          - 1
+          - 2
+          '6':
+          - 1
+          - 2
+          '7':
+          - 1
+          - 2
+          '8':
+          - 1
+          - 2
+          '9':
+          - 1
+          - 2
+          '10':
+          - 1
+          - 2
+          '11':
+          - 1
+          - 2
+          '12':
+          - 1
+          - 2
+          '13':
+          - 1
+          - 2
+          '14':
+          - 1
+          - 2
+          '15':
+          - 1
+          - 2
+        minimum_steps_per_rank: 2
+        two_steps_all_ranks: true
+    gems_unchanged: true
+    backup_root: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/failure-evidence-backup
+    backup_manifest_sha256: e8bd5099ebd9cfbf75596bc3984215b4324f884e9510f6a2aec7285cccacd2ff
+    backup_verified_files: 78
+    backup_total_bytes: 2494478
+    failure_manifest_sha256: 4d15964323fd9e89b3467f170c1ebc6d06a1d16af4aaac882fa65379f949bbeb
+    source_unchanged: true
+    evaluation_started: false
+  resolution_experiment_id: env-030
+  resolution_note: Original failure preserved; same-config one-file boundary fix validated in service13. Does not
+    rewrite historical failed status.
+- experiment_id: env-030
+  document: env-030.md
+  status: complete
+  classification: execution_mode_correctness_fix
+  issue_id: compat-008-piecewise-semantic-regression
+  source_parent: env-027
+  source_changed_files_planned:
+  - vllm_fl/models/hy4/bf16_indexer.py
+  gems_unchanged: true
+  evaluation_started: false
+  correctness:
+    mode: minimal-regression
+    status: passed
+    evidence: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01/results/final-validation.json
+    evidence_sha256: dfa2559ef29f90e56575c790598318277d0b28855b02ed30633ce81136a3ee91
+    smoke_c8_requests: 9
+    repeated_original_short_request_passed: 2
+    paged_requests: 2
+    actual_prefix_hit_tokens: 13184.0
+    rank_count: 16
+    phase_replays: &id004
+      prefill:
+        runtime_mode: PIECEWISE
+        rank_count: 16
+        minimum_distinct_steps: 2
+      mixed:
+        runtime_mode: PIECEWISE
+        rank_count: 16
+        minimum_distinct_steps: 2
+      decode:
+        runtime_mode: FULL
+        rank_count: 16
+        minimum_distinct_steps: 2
+    formal_gate_issued: false
+    evaluation_started: false
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01
+  decision: retained_one_file_boundary_fix_minimal_regression_passed_formal_held
+  combined_patch_sha256: 01027922b8f081e680ac8a4ef833788510fc1e14227fa81582ff098d654afa81
+  source_manifest_sha256: 955b6b1391b7965d36cf734bf69db932d9c7419fe4ce66907ed26d24217761ff
+  mechanism_reproducer: passed_native_FX_split_and_real_CUDA_custom_op_capture_replay_with_cache_stub
+  constructor_contract: passed_5_cases
+  source_changed_files:
+  - vllm_fl/models/hy4/bf16_indexer.py
+  tests_changed: false
+  service_instance_id: 543a81617caabb6e2411dcb089f72cac4a99134ba815b5d7eef8d502a8fb3e6e
+  backup:
+    status: archived_verified
+    service_instance_id: 543a81617caabb6e2411dcb089f72cac4a99134ba815b5d7eef8d502a8fb3e6e
+    backup_root: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01/validated-result-backup
+    files: 134
+    total_bytes: 3537998
+    manifest_sha256: 79e99b18e9573988b8017a0da5982b2ddd1e53962db63b130bd75c9b3b7e223e
+    final_validation_sha256: dfa2559ef29f90e56575c790598318277d0b28855b02ed30633ce81136a3ee91
+    source_unchanged: true
+    gems_unchanged: true
+    evaluation_started: false
+  pr_readiness: needs_revision
+  current_combination_formal_accuracy:
+    experiment_id: acc-006
+    status: passed
+    score: 0.9242424242424242
+    threshold: 0.87
+    correct: 183
+    questions: 198
+    service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+    gate: &id001
+      path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/accuracy-gate.json
+      sha256: 41351e42d247c38d18433a6c91f2a1c4d6a022264dc8da3a7a54e42932e82d13
+    scope: current combined env031; no per-point independent A/B
+- experiment_id: env-031
+  status: complete
+  decision: installed_and_runtime_reloaded_minimal_passed_fullGPQA_pending
+  document: env-031.md
+  classification: library_update_and_narrow_backend_import
+  flaggems_vllm_old: 46387d7f96050204c1b932f35680a3ea03896fa6
+  flaggems_vllm_new: 45e142327d06c65feaa0406b16417b609d6c32ff
+  flaggems_unchanged: true
+  operator_tests_passed: 14
+  operator_graph_cases: 4
+  replays_per_case: 2
+  full_model_validation: minimal_passed_fullGPQA_notrun
+  evidence: /workspace/.hy4-preview-migration-20261018-01/fgv-update-20261020-01/final-verification.json
+  evidence_sha256: 47b56c4d9ac25248cd98f116416d689c1fa8002148fdc8591554f8545163dcd3
+  runtime_service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+  runtime_evidence: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/results/final-verification.json
+  runtime_evidence_sha256: b527267761cec83388fd03efa4d0424b96b36a59f4b2ec11e26fcb433ad2c0e6
+  current_combination_formal_accuracy:
+    experiment_id: acc-006
+    status: passed
+    score: 0.9242424242424242
+    threshold: 0.87
+    correct: 183
+    questions: 198
+    service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+    gate: *id001
+    scope: current combined env031; no per-point independent A/B
+- experiment_id: acc-006
+  document: acc-006.md
+  classification: formal_accuracy_evaluation
+  status: complete
+  decision: passed_frozen87pct_threshold_current_env031
+  covered_experiment_ids:
+  - env-030
+  - env-031
+  correctness:
+    capability_id: e2e/accuracy
+    mode: formal-gate
+    threshold: 0.87
+    expected_samples: 198
+    num_concurrent: 64
+    status: passed
+    score: 0.9242424242424242
+    skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+    service_sha256: 00565e2b0839e62766f3de6463ccc93f84dd3b0e0638e588629e481acee315de
+    correct: 183
+    unique_questions: 198
+    native_sample_rows: 396
+    gate_sha256: 41351e42d247c38d18433a6c91f2a1c4d6a022264dc8da3a7a54e42932e82d13
+    gate_path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/accuracy-gate.json
+    service_identity_unchanged: true
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261020-02
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02
+  source_changes: false
+  run_uuid: 08d58f880b21437d88c173c635f5f978
+  started:
+    status: running
+    pid: 9521
+    start_ticks: '521925011'
+    time: 1792503406.4761062
+    script_sha256: 85131985d8c2e822cd4971ed20629e651c366b156935f97e81f4f8c5d7c92a56
+  progress_monitor: &id002
+    automation_id: hy4-ppu-03
+    status: paused
+    interval_minutes: 30
+    cleanup_evidence: automation_update returned PAUSED after terminal gate and complete SHA backup
+  progress:
+    observed_at: '2026-10-21T06:12:56.632671+00:00'
+    unique_cached_responses: 198
+    expected_samples: 198
+    runner_alive: false
+    service_health_http: 200
+    finished_returncode: 0
+  control_archive:
+    status: passed
+    root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02/control-snapshot-01
+    verified_files: 39
+    archive_sha256: 9e99cc1822bbc79cfd19f995d7d328709099465ba176e360f50564afb1f59b23
+    manifest_sha256: 59d80d3b129c1fe5c3cab4af8f127c72c44179e58b63af5034717e9d2ebbab2f
+  terminal_receipt:
+    experiment_id: acc-006
+    status: passed
+    mode: formal-gate
+    covered_experiment_ids:
+    - env-030
+    - env-031
+    task: gpqa_diamond_generative_cot
+    metric: exact_match,strict-match
+    correct: 183
+    expected_samples: 198
+    unique_questions: 198
+    native_sample_rows: 396
+    score: 0.9242424242424242
+    threshold: 0.87
+    num_concurrent: 64
+    run_uuid: 08d58f880b21437d88c173c635f5f978
+    started_at: '2026-10-20T21:36:46.476106+08:00'
+    finished_at: '2026-10-21T13:48:50.093221+08:00'
+    duration_s: 58323.61711478233
+    service_identity_unchanged: true
+    source_identity_unchanged: true
+    service_manifest_sha256: 00565e2b0839e62766f3de6463ccc93f84dd3b0e0638e588629e481acee315de
+    gate: *id001
+    run_record: &id006
+      path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/runs/hy4-preview-env031-full-20261020/08d58f880b21437d88c173c635f5f978/run-record.json
+      sha256: ac6a0f8849c1845204def0308d60889bc378e8542b15d0789c839aece6b9f5b4
+    native_artifacts:
+      contract:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/contract.json
+        sha256: 9ab9584c2e897ee04e1c7df0e370753125bca3775c2aebc1399be216895cd002
+      service:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/service-before.json
+        sha256: 00565e2b0839e62766f3de6463ccc93f84dd3b0e0638e588629e481acee315de
+      runner:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/test/Accuracy_test/llmrun.py
+        sha256: 82cf6e8304cb6f9eb8ca48fe4055f6bbb2054a7b6a90d56de3d6b7a08e90c61e
+      evaluation_inspect:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/evaluator-inspect.json
+        sha256: 057f5802cd8caafd6e597cb21178727cf9852498b06cce584b9d5d5846af9b03
+      task_provenance:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/task-provenance-1.json
+        sha256: ad2ad9467eb2f07a1648b4f73cce04b7940ecd44bc1354da19c29da11310a2bc
+      config:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/runs/hy4-preview-env031-full-20261020/08d58f880b21437d88c173c635f5f978/effective_config.json
+        sha256: 08ce6a75f8f46bc8897324bb8d13946b00341433977fa4f43deecbe4e546bf51
+      results:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/runs/hy4-preview-env031-full-20261020/08d58f880b21437d88c173c635f5f978/gpqa_diamond_generative_cot/hy4/results_2026-10-21T05-48-40.383167.json
+        sha256: 6d8f74ca57f4ecf666001bb7d5b5123d867fc59d05d99438e988a2a2e2dab903
+      samples:
+        path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/runs/hy4-preview-env031-full-20261020/08d58f880b21437d88c173c635f5f978/gpqa_diamond_generative_cot/hy4/samples_gpqa_diamond_generative_cot_2026-10-21T05-48-40.383167.jsonl
+        sha256: a2c49e5978e5934af13a1dd6004ae838514155f4dfe42cad64b22524fdc11062
+    validation: &id007
+      path: /tmp/hy4-preview-ppu03-accuracy-20261020-02/validation.json
+      sha256: null
+    backup: &id008
+      status: passed
+      source: /tmp/hy4-preview-ppu03-accuracy-20261020-02
+      backup: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02/evaluator-result-backup/hy4-preview-ppu03-accuracy-20261020-02
+      verified_files: 42
+      manifest_sha256: 2472992f3eeb59419b38f5dee591a64f09d68f67ec592481dbb9d9fcc5370c47
+      verified_bytes: 28141872
+    monitor: *id002
+    minimal_regression: passed_current_same_service_instance
+    model_restarted: false
+    evaluation_restarted: false
+    source_changed: false
+    scope: Bound current installed env031 combination passes the frozen GPQA198 strict-match threshold; not isolated
+      per-repo A/B, statistical equality or all-platform proof
+    performance: No new performance measurement;8192 rejected and2048 retained;full four-scenario performance acceptance
+      not_run
+metrics: []
+scope: compatibility_migration_startup_and_formal_accuracy
+environment:
+  container: hy4-preview
+  source_backup: /workspace/.hy4-preview-update-20261018-01/originals
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01
+  plugin_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  flaggems_vllm_head: 45e142327d06c65feaa0406b16417b609d6c32ff
+  flaggems_head: 3ba1d1d99010de56d12088992f8b0da3444d90ca
+  model_path: /mnt/cpfs/models/Hy4-preview-W8A8-linear-moe
+  config_sha256: 894bbe4e1dea2ac68993891795d3397f71bd2e4c92aae89ba443c10ebca462c2
+  source_start_script: /mnt/nfs/users/jinghao/hy4-preview/start_hyv4-preview.sh
+  devices:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  endpoint: http://127.0.0.1:8010
+  graph_mode: FULL_AND_PIECEWISE
+  plugin_repository: https://github.com/flagos-ai/vllm-plugin-FL
+  plugin_branch: main
+  vllm_checkout_head: ee0da84ab9e04ac7610e28580af62c365e898389
+  vllm_actual_version: 0.24.0+empty
+  vllm_actual_origin: /usr/local/lib/python3.12/site-packages/vllm/__init__.py
+  checkout_is_runtime_source: false
+  plugin_patch_sha256: 2973cdb3f0d197b3153e50252cf7003bff7bfa79fe961ae5972f792c4843d677
+  historical_graph_mode_before_env029: FULL_DECODE_ONLY
+  flaggems_vllm_repository: https://github.com/flagos-ai/FlagGems-vllm
+  flaggems_vllm_branch: hy4-fgv-official-20261020-01
+  flaggems_vllm_runtime_loaded_head: 45e142327d06c65feaa0406b16417b609d6c32ff
+  environment_scope: 'env031 current originalservice: full198 GPQA C64 strict92.4242% passed; final four-scenario
+    performance not_run'
+performance:
+  status: not_applicable
+  reason: User requested HY4 migration and startup validation, not performance optimization
+issues:
+- issue_id: compat-001
+  classification: execution-mode
+  root_cause_status: confirmed
+  trigger: minimal-regression
+  evidence: Both public sparse MLA providers select TLE; compiler rejects tle.gpu.copy.tensor_descriptor and tle.warp_specialize
+  single_variable_fix: FLAGGEMS_FLASHMLA_SPARSE_TLE=0
+  gems_source_changes: false
+  fix_status: existing_TLE_toggle_resolves_exact_reproducer
+  revalidation: 40 passed; both providers capture and replay twice
+- issue_id: compat-002
+  classification: identity/configuration_extension_missing
+  root_cause_status: confirmed
+  evidence: All TP16 workers fail in MLAAttention constructor selecting FLASH_ATTN prefill because dependencies
+    absent
+  fix: Restore Plugin CUSTOM MLA prefill backend at HY4 model construction boundary
+  revalidation: TP16 model initialized, 51 FULL decode captures and 9 generated requests passed
+- issue_id: compat-003
+  classification: quantization_api_and_compile_boundary
+  root_cause_status: confirmed
+  evidence: service-02 loads all shards, then FlagGems scaled_mm rejects INT8; direct FGV quant wrapper graph-breaks
+    Dynamo
+  fix: Use FGV triton_scaled_mm when env1; restore original HY4 opaque custom-op
+  revalidation: 59 tests, four actual Plugin W8A8 eager/graph/fullgraph shapes and TP16 service generation passed
+  gems_source_changes: false
+- issue_id: compat-004
+  classification: measurement-invalid/client-template-contract
+  root_cause_status: confirmed
+  evidence: 'First smoke rejected HTTP400: model template requires no_think/high, not none; no inference executed'
+  fix: Omit top-level reasoning_effort; chat_template_kwargs.reasoning_effort=no_think
+  revalidation: Same 9 prompts and sampling/token/C8 contract passed; original 400 evidence retained
+- issue_id: compat-005
+  classification: execution-mode/import-API-compatibility
+  root_cause_status: confirmed_import_failure
+  trigger: formal-gate acc-001
+  first_error_Asia_Shanghai: '2026-10-19 10:10:33'
+  evidence: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261019-01/evidence/compat005-service-incident.json
+  root_cause: thead.impl package eager attention import requires unavailable vLLM flash_attn_supports_fp8 when HY4
+    calls _paged_sequence
+  reproduced: true
+  all_four_component_sources_unchanged: true
+  fix_status: passed_hardware_and_service_cached_prefill_regression
+  gate_blocking: true
+  next_step: Full198 acc-002 under unchanged contract
+  hardware_paged_cache: passed_85_tests
+  service_paged_cache: passed_two_13249_token_requests
+- issue_id: compat-006
+  classification: inherited-upstream-platform-coverage
+  trigger: env-003 minimal-regression
+  candidate: official-main-8b2033e4
+  root_cause_status: confirmed_real_ppu_minimal_reproducer
+  root_cause: Official HY4 validate_hy4_runtime rejects current PlatformFL/theAd because current_platform.is_cuda()
+    is false; native CUDA providers unavailable
+  numerical_regression: not_established
+  source_changes: false
+  gate_blocking: true
+  next_step: Complete service05 validation and new full198 acc003
+  evidence: /workspace/.hy4-preview-migration-20261018-01/upstream-plugin-20261019-01/evidence/platform-diagnosis-v2.json
+  reproductions: 2
+  platform:
+    vendor_name: thead
+    device_type: cuda
+    is_cuda: false
+  fix_or_rollback: Platform-scoped PPU BF16 runtime applied in env004; two Gems fixed
+  required_revalidation: PPU-specific adaptation followed by new startup/graph/C8 and separately authorized formal
+    evaluation
+  provider_availability:
+    per_token_group_quant_fp8.default.flagos: false
+    concat_mla_q.default.flagos: false
+  resolution_status: minimal_hardware_tests_passed_service_formal_pending
+- issue_id: compat-007
+  classification: parser_semantic_difference
+  root_cause_status: confirmed_source_and_pure_python_counterexample
+  evidence: /workspace/.hy4-preview-migration-20261018-01/parser-fix-20261019-01/results-03.json
+  description: HYV3 shim hardcodes token suffix and inherits generic reasoning-token count; prompt-injected start
+    undercounts vs upstream HYV4
+  formal_accuracy_effect: not_established
+  source_fix_applied: true
+  model_evaluation_started: false
+  source_fix_location: installed_plugin_env010_unchanged_parser
+  resolution_status: parser_scope_passed_source_deployed_full_model_pending
+- issue_id: compat-008
+  classification: unit_test_fixture_evidence_invalid
+  trigger: env009_CPU_contract_tests
+  root_cause_status: confirmed_fixture_import_capture_and_platform_mock_contract
+  description: Four new INT8 mock tests replaced an already-captured getter; four inherited native-CUDA policy tests
+    omitted is_cuda mock, with related incomplete vendor_name/device_type mocks exposed on policy reload
+  baseline_reproduction: /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/baseline-repro-01.json
+  baseline_failed_cases: 4
+  failed_evidence:
+  - /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/tests-01.json
+  - /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/tests-02.json
+  production_unchanged_during_fixture_repairs: true
+  fix: Correct only mock provider mutable state and explicit native CUDA platform fields
+  resolution_status: passed_same_126_CPU_contract_tests
+  evidence: /workspace/.hy4-preview-migration-20261018-01/generic-20261019-01/tests-03.json
+  model_accuracy_effect: not_established_no_model_requests
+  formal_gate_issued: false
+  gate_blocking: false
+  full_model_validation_still_pending: true
+  diagnosis_skill: skills/inference-accuracy-diagnosis/SKILL.md
+- issue_id: compat-009
+  classification: execution-mode/Dynamo_FGV_quant_libentry
+  trigger: env016_direct_compile_regression
+  root_cause_status: confirmed_operator_scope
+  last_known_good: env015 whole W8A8 boundary verified in current hardware control
+  failing_candidate: private direct candidate; installed env015 unchanged during diagnosis
+  minimal_reproducer: M1/K128/N64 BF16 seed781 no bias fullgraph inductor with default.flagos quant
+  supporting_evidence:
+  - wrapped 8 cases pass
+  - direct and quant-only independently fail libentry.params slice
+  - mm-only fullgraph passes
+  - quant-boundary 8 cases pass and installed m1/empty pass
+  numerical_regression: false
+  formal_score_effect: not_measured
+  fix: remove whole linear wrapper; isolate FGV quant only in existing backend
+  resolution_status: resolved_operator_compile_scope_model_pending
+  evidence: /workspace/.hy4-preview-migration-20261018-01/wrapper-check-20261019-01
+  failure_manifest: /workspace/.hy4-preview-migration-20261018-01/wrapper-check-20261019-01/failure-sha256.json
+  gate_issued: false
+  remaining_gaps: TP16 startup/C8/paged and full198 remain held
+- *id003
+service:
+  status: running_env031_full198_accuracy_passed
+  container: hy4-preview
+  endpoint: http://127.0.0.1:8010
+  launch_receipt: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/source-recovery/service-start-12.json
+  log: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/source-recovery/logs/service-13.log
+  startup_script: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/commands/launch_v2.sh
+  config: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01/dispatch-hy4-13.yaml
+  config_sha256: e016b76d935b5792a182ee46ede3595edcfb0e155ed077176fe2a4806c610bf0
+  api_pid_at_launch: 882835
+  start_ticks_at_launch: '521677507'
+  service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+  disk_source: env031_installed
+  runtime_new_code_activation: verified_originalcontainer_all16ranks_env031
+  final_evidence: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/results/final-verification.json
+  final_evidence_sha256: b527267761cec83388fd03efa4d0424b96b36a59f4b2ec11e26fcb433ad2c0e6
+  formal_accuracy: acc006_passed_183of198_strict
+  formal_performance: not_run
+  historical_model_validation_experiment_id: env-022
+  existing_health_http: 200
+  current_model_validation_experiment_id: env-031
+  historical_validation_source_experiment_id: env-030
+  disk_source_experiment_id: env-031
+  gpu_memory_utilization: 0.85
+  cudagraph_mode: FULL_AND_PIECEWISE
+  cudagraph_capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  gpu_kv_capacity_tokens: 347280
+  current_accuracy_gate: *id001
+  formal_accuracy_service_manifest: /tmp/hy4-preview-ppu03-accuracy-20261020-02/service-after.json
+pr_readiness: needs_revision
+architecture_review:
+  status: all_12_previous_files_reviewed_shared_ABI_fixed_TopK_adapter_removed
+  document: env-018.md
+  official_base: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  total_changed_files_vs_official: 11
+  production_files_vs_official: 11
+  test_files_vs_official: 0
+  production_paths_changed_this_round: 5
+  gems_implementations_remain_DEFAULT_backend: true
+  other_platform_hardware: not_run
+  formal_accuracy_accepts_architecture: false
+  full_review: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env018/README.md
+  full_patch: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/full.patch
+  removed:
+  - attention/mla_prefill.py capability override
+  - reasoning/__init__.py docstring file
+  - decode candidate resort and native ATen redispatch
+  - prefill 128-row specialization and host metadata cache
+  - multi-request key concatenation
+  - FlagGems fallback for fixed FGV MLA exports
+  - next_n>1 and explicit prefill selection support
+  - duplicated PPU MLA allowlist
+  - duplicated prefill backend selection
+  - FG TopK/cache calls where FGV public operators exist
+  - whole top_k_per_row.py adapter module
+  - HY4-only four-argument ABI on shared TopK keys
+  retained_padding_reason: native requires_padding may include graph padded 0/1 rows even for next_n=1
+  bf16_indexer_necessity: compatibility_choice_for_existing_PPU_provider_not_proven_unique_or_minimal
+  quantization_scope:
+    weight_format: W8A8 compressed-tensors channel-weight token-dynamic-input
+    sampled_attention_projection_weights: I8
+    sampled_excluded_indexer_projection_weights: BF16
+    new_indexer_path: BF16 Q/K/cache replacing official post-projection FP8 indexing
+    full_accuracy_equivalence: not_established
+  scaled_mm_dispatch: removed
+  scaled_mm_provider_selection: direct FGV triton_scaled_mm; original quant CachedOp
+  whole_W8A8_customop: false
+  quant_only_boundary: true
+  missing_FGV_op_kept_in_FG: bf16_paged_mqa_logits
+  FGV_provider_environment_gate: VLLM_FL_USE_FLAGGEMS_VLLM
+  mla_ops_lines_before: 146
+  mla_ops_lines_after: 144
+  TopK_shared_ABI: FGV_original_8_arguments
+  TopK_adapter_file: false
+untested:
+- performance
+- other models/platforms
+- env0 with current new Gems
+- Complete valid full-response GPQA accuracy;acc-001 interrupted by service ImportError
+previous_service_04:
+  launch_receipt: /workspace/.hy4-preview-migration-20261018-01/service-start-04.json
+  log: /workspace/.hy4-preview-migration-20261018-01/logs/service-04.log
+  api_pid_at_launch: 496091
+  status: ready
+  config: /workspace/.hy4-preview-migration-20261018-01/dispatch-hy4-04.yaml
+  config_sha256: 6019344a4e53f1c93e15233e935007029749ace9965d34211a448eaa72955be4
+  required_env:
+    VLLM_FL_USE_FLAGGEMS_VLLM: '1'
+    FLAGGEMS_FLASHMLA_SPARSE_TLE: '0'
+    VLLM_FL_FLAGOS_BLACKLIST: explicit original HY4 list; see launch_v3.sh
+  formal_accuracy: acc-002_cancelled_no_gate
+  formal_performance: not_run
+  startup_script: /workspace/.hy4-preview-migration-20261018-01/commands/launch_v4.sh
+  final_evidence: /workspace/.hy4-preview-migration-20261018-01/fix-compat005-20261019-01/results/startup-validation.json
+  chat_template_kwargs:
+    reasoning_effort: no_think
+  original_api_engine_workers_alive: true
+  service_instance_id: ec4e21797d64f596470ea49a0c7bdbf7cdeb6112ed6d7b1d11e5242a03871150
+review_hold:
+  source: latest direct user instruction
+  reason: Direct installed cleanup completed; hold service restart and formal evaluation
+  formal_launch_authorized_now: false
+  automation_status: paused
+  deployment_authorized_now: true
+  service_validation_authorized_now: false
+offline_candidate:
+  experiment_id: env-024
+  review_snapshot_only: true
+  path: /tmp/hy4-mla-routing-20261020-01/candidate
+  installed: false
+  base_experiment_id: env-023
+  installed_base_experiment_id: env-021
+  review: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env024/README.md
+  full_diff: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env024/full-diff.md
+  delta_diff: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env024/from-env023-diff.md
+  delta_from_installed_diff: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env024/from-env021-diff.md
+  patch_sha256: fc652cb227d43425d20296d1bb37712000bbd8b667f0b44bb65fd7a4e87ab4c7
+  delta_patch_sha256: 969b9df404b5d5c495dcb34d856dbaa7917db9d18d07864eb8f159bebcb9e3dc
+  installed_source_matches_candidate: false
+  hardware_validation: not_run
+  status: historical_env024_snapshot_superseded_by_env027
+  deployed_by: env-025
+  was_installed: true
+installed_candidate:
+  experiment_id: env-031
+  production_source_experiment_id: env-031
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: 2973cdb3f0d197b3153e50252cf7003bff7bfa79fe961ae5972f792c4843d677
+  source_inventory:
+    path: /workspace/.hy4-preview-migration-20261018-01/fgv-update-20261020-01/source-after.json
+    sha256: 812ffe96f227f088407fe73f364dc4b4a1b47bb46c602bce040e5da887a38fd3
+    scope: three repository file-SHA dictionaries; Plugin under plugin key
+  checked_files: 614
+  changed_files_vs_official: 11
+  changed_files_this_round:
+  - vllm_fl/dispatch/backends/flaggems/impl/bf16_indexer.py
+  - vllm_fl/dispatch/backends/flaggems/impl/mla_ops.py
+  gems_source_and_versions_unchanged: false
+  flaggems_unchanged: true
+  flaggems_vllm_head: 45e142327d06c65feaa0406b16417b609d6c32ff
+  flaggems_vllm_branch: hy4-fgv-official-20261020-01
+  tests_changed: false
+  runtime_activation: verified_originalhy4_env031_all16ranks
+  full_model_validation: minimal_regression_passed_fullGPQA_notrun
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/fgv-update-20261020-01/update-receipt.json
+  backup: /workspace/.hy4-preview-migration-20261018-01/fgv-update-20261020-01/plugin-before.tar.gz
+  flaggems_vllm_backup: /workspace/.hy4-preview-migration-20261018-01/fgv-update-20261020-01/fgv-before.tar.gz
+  rollback_scope: switch FGV to retained gems-opt@46387d7f; restore only two Plugin files using after SHA guards
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/fgv-update-env031
+  formal_accuracy: not_run
+  pr_readiness: needs_revision
+  pr_limitations: operator scope passed on PPU; new combination not loaded in model workers; other platform hardware
+    not tested
+  model_validation_case: 20261020-hy4-preview-ppu03-batched8192
+  model_validation_evidence: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/results/final-verification.json
+  runtime_service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+scope_evidence_incident:
+  issue_id: env011-smoke-evidence-01
+  classification: measurement-invalid
+  boundary: smoke harness output filenames
+  root_cause_confidence: confirmed
+  minimal_reproducer: old CASES has 9 requests but 8 unique IDs; corrected CASES has 9 unique IDs with byte-equivalent
+    prompt/expectation payloads
+  model_source_change: false
+  formal_score_affected: false
+  promotion_blocking_until_revalidated: false
+  failing_evidence:
+  - logs/smoke-c8.log
+  - results/service-smoke-07.json
+  - results/service-smoke-contract-02.json
+  - commands/service_check_v7.py
+  fix: service_check_v8.py; separate r02 artifacts including complete request/response rows
+  required_revalidation: same smoke/C8 contract, service07 unchanged; no GPQA
+  status: resolved_same_contract_same_service
+  revalidation_evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/results/service-smoke-07-r02.json
+  revalidation_evidence_sha256: c28ef28fd70a54fc607d6bc8c8f2bc85f59c3f43b57a881d0715077c7558410c
+  diagnosis_bundle_sha256: 796f57d730fa08a05afa0417af3107087e8513d3de2c989d6a14b80ee8aece2e
+previous_env012_installed_candidate:
+  experiment_id: env-012
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: 0038f4f205c7cfb1c7bc2cc8ccaf4ec4035245151be84f3690c61ae3c1674c6f
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/deployment/deployment-result.json
+  deployment_receipt_sha256: 22118747e9583161871515276ae7613731fda8c3139835514cddc2f6fa2df65d
+  source_matches_tested_candidate: true
+  syntax_checks: passed
+  checked_files: 617
+  runtime_activation: production unchanged from verified env011
+  full_model_validation: passed_minimal_regression
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/deployment/plugin-env010-before.tar.gz
+  backup_sha256: ac88f7b5d2bf0adea9ed4b2be7152cc895df7d970e37b38cb59316fd2b3d1055
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/deployment/commands/rollback.py
+  rollback_requires_exact_service_stop_and_restart: true
+  cpu_contract_tests:
+    passed: 182
+    failed: 0
+    skipped: 0
+    evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/tests-01.json
+    evidence_sha256: 2df33e612d5ed0fe4679cbb0bba799f87765d01330e91c6c48bc0c3deee95c17
+  hardware_suite:
+    tests: 28
+    actual_device_cases: 24
+    cpu_cases: 4
+    failed: 0
+    skipped: 0
+    evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/results/hardware-tests.json
+  w8a8_integration:
+    shapes: 4
+    graph_replays_per_shape: 2
+    fullgraph: true
+    evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/results/w8a8-integration-01.json
+  production_source_experiment_id: env-011
+  patch_format: standard Git diff including untracked additions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env012
+  test_changes_removed: true
+  changed_files_vs_official: 15
+  checked_files_note: includes unchanged ignored setuptools-scm _version.py
+  cleanup_receipt: /workspace/.hy4-preview-migration-20261018-01/review-test-cleanup-20261019-01/cleanup-result.json
+  new_tests_run: false
+startup_validation:
+  status: passed_minimal_regression
+  experiment_id: env-030
+  source_experiment_id: env-030
+  cudagraph_mode: FULL_AND_PIECEWISE
+  capture_sizes:
+    FULL: 10
+    PIECEWISE: 10
+  rank_count: 16
+  phase_replays: *id004
+  smoke_c8_requests: 9
+  original_short_request_repeated_passed: 2
+  paged_prefix_hit_tokens: 13184.0
+  evidence: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01/results/final-validation.json
+  evidence_sha256: dfa2559ef29f90e56575c790598318277d0b28855b02ed30633ce81136a3ee91
+  formal_gate_issued: false
+  evaluation_started: false
+  gems_unchanged: true
+  source_before_after_unchanged: true
+  large_batches_above512: NONE; batched budget2048 preserved
+previous_env012_architecture_review:
+  status: scoped_PPU_behavior_and_required_metadata_reuse_verified
+  document: env-012.md
+  evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/evidence/scope-audit.json
+  evidence_sha256: 04f646f6708618ff592c28e73b7215e6485b9ec614cf5d449160c8f1c67c68e9
+  official_base: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  total_changed_files_vs_official: 15
+  production_files_vs_official: 15
+  production_files_changed_this_round: 4
+  tests_changed_this_round: 3
+  non_ppu_linear_class_AST_matches_official: true
+  new_BF16_selection: current_PPU_only
+  gems_implementations_remain_DEFAULT_backend: true
+  removed_redundant_metadata_builder: true
+  removed_split_modules:
+  - vllm_fl/quantization/w8a8/graph.py
+  - vllm_fl/models/hy4/bf16_runtime.py
+  numerical_and_parser_changed: false
+  other_platform_hardware: not_run
+  formal_accuracy_accepts_architecture: false
+  reference_pr:
+    url: https://github.com/flagos-ai/vllm-plugin-FL/pull/611
+    head: 4de8376680304c8f16c9c7209f7fc8d37aaaf554
+    copied_changes: false
+  test_files_vs_official: 0
+  full_review: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env012/README.md
+  full_patch: /Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261102-record-reconciliation-01/files/docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env012/full.patch
+  necessity_not_proven:
+  - attention/mla_prefill.py default automatic plan path
+  - reasoning/__init__.py docstring
+  - decode candidate reordering independent necessity
+  production_changed_in_env012: false
+checkpoint_weight_dtype_audit:
+  scope: all 131 checkpoint shard headers including MTP tensors; on-disk dtype only
+  inspected_shards: 131
+  tensor_entries: 122290
+  config_sha256: 894bbe4e1dea2ac68993891795d3397f71bd2e4c92aae89ba443c10ebca462c2
+  weight_index_sha256: 14694cc4639eb2f8c9996d4674ad24927b690b0f8441f3f30d31912988bbb9c1
+  groups:
+    attention.kv_b_proj:
+      count: 79
+      dtypes:
+        I8: 79
+    attention.o_proj:
+      count: 79
+      dtypes:
+        I8: 79
+    attention.other_projections:
+      count: 237
+      dtypes:
+        I8: 237
+    indexer.k_norm:
+      count: 22
+      dtypes:
+        BF16: 22
+    indexer.weights_proj:
+      count: 22
+      dtypes:
+        BF16: 22
+    indexer.wk:
+      count: 22
+      dtypes:
+        BF16: 22
+    indexer.wq_b:
+      count: 22
+      dtypes:
+        BF16: 22
+    mlp.projections:
+      count: 60141
+      dtypes:
+        I8: 60141
+  weight_tensor_data_read: false
+  model_requests: 0
+  source_changes: false
+previous_env016_installed_candidate:
+  experiment_id: env-016
+  production_source_experiment_id: env-016
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: 4ab695213421fd78a9692e4c2941bab9f210af961ea4763d2e51ac5818a96575
+  delta_patch_sha256: 9479517ec622d1ae1701e924131c55e072ab445080ebb9914135e0bebae3b614
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/wrapper-check-20261019-01/deployment-result.json
+  deployment_receipt_sha256: 2bbf9cb2d927fa24b7c856bdb5506b1f1709c7108ef9ca9eb5f6d2c5ea757166
+  source_matches_tested_candidate: true
+  source_matches_static_review_candidate: true
+  syntax_checks: passed
+  checked_files: 615
+  checked_files_note: includes unchanged ignored generated _version.py
+  runtime_activation: verified_fresh_operator_process_existing_model_service_not_restarted
+  full_model_validation: not_run_user_hold
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/wrapper-check-20261019-01/plugin-env015-before.tar.gz
+  backup_sha256: 98bbc21876c162856e3ccb78cba91c13d5f5bb33c105cd5769c994a5ff8c7b91
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/wrapper-check-20261019-01/commands/rollback.py
+  rollback_scope: two env016 source files only; no service actions
+  patch_format: standard Git diff including untracked additions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env016
+  test_changes_removed: true
+  changed_files_vs_official: 12
+  new_tests_run: false
+  validation_scope: W8A8 operator only
+  review_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/wrapper-check-20261019-01/review-archive-receipt.json
+  review_archive_sha256: 6cc1960b29cd4a770bd3d74d679fc520483e9c6f164f418fa99145efe4f04633
+previous_env017_installed_candidate:
+  experiment_id: env-017
+  production_source_experiment_id: env-017
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: f709fe70cbbfe6548a246a0ee1e2124656d34bc2428cb9e0e12a1a478fbb7654
+  delta_patch_sha256: a951c37ff6500d38bc32675b7b8be25c3d989ed7167001cb42d62c0d352ec4fa
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/fgv-mla-20261019-01/deployment-result.json
+  deployment_receipt_sha256: 5283cd095af3b72f2ef2a352ff50aff8efdf98ab5174f8c0864a6a98aacddd17
+  source_matches_tested_candidate: true
+  source_matches_static_review_candidate: true
+  syntax_checks: passed
+  checked_files: 615
+  checked_files_note: includes unchanged ignored generated _version.py
+  runtime_activation: verified_fresh_import_existing_model_service_not_restarted
+  full_model_validation: not_run_user_hold
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/fgv-mla-20261019-01/plugin-env016-before.tar.gz
+  backup_sha256: 9193da267e2e74d1d7ba1e0612abe926c6953c894cf1befbaa0d38eeb7016348
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/fgv-mla-20261019-01/commands/rollback.py
+  rollback_scope: three env017 files only; no service actions
+  patch_format: standard Git diff including untracked additions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env017
+  test_changes_removed: true
+  changed_files_vs_official: 12
+  new_tests_run: false
+  external_operator_harness_run: true
+  validation_scope: FGV TopK/cache operator numerical/raw graph plus provider import/routing
+  installed_import_receipt: /workspace/.hy4-preview-migration-20261018-01/fgv-mla-20261019-01/installed-import-result.json
+  installed_import_receipt_sha256: cb23c65a0e8c08f537ca7d523f43c18d4a5f34c9b2122a79d03801fbd955916d
+  review_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/fgv-mla-20261019-01/review-archive-receipt.json
+  review_archive_sha256: f6501d1fb32e92f8e8ac985f0b0feacdb6c9f20950679612026df0fa15f8ee32
+source_review_issue:
+  issue_id: review-topk-abi-001
+  trigger: review_of_shared_TopK_ABI
+  classification: shared_Python_call_signature_regression
+  failing_source: env017_current_PPU_provider
+  last_known_compatible_interface: official_FGV_8arg_TopK
+  reproducer: bind exact old function signatures with 8 positional args; deterministic TypeError for both
+  root_cause_confidence: confirmed_Python_ABI_scope
+  model_score_effect: not_measured
+  resolution: delete wrapper module; shared keys return FGV; adapt HY4 call sites only
+  resolution_status: resolved_signature_and_target_operator_scope
+  evidence: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/baseline-abi-failure.json
+  gate_issued: false
+  remaining_gaps: new full-model service and formal198 held
+latest_review:
+  experiment_id: env-026
+  source_experiment_id: env-024
+  installed_by: env-025
+  source_patch_sha256: fc652cb227d43425d20296d1bb37712000bbd8b667f0b44bb65fd7a4e87ab4c7
+  report: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env026/README.md
+  findings: *id005
+  source_changed: false
+  archive_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/review-env026/archive-receipt.json
+  archive_sha256: a15f7be90a1cb1a2146232c05639c20b201562067b659524636ff19a841c6091
+pr_readiness_reason: Current env027 service startup/graph/paged passed in env028; formal198/87% held, R2 numerical
+  observation unresolved; other platforms untested
+previous_env018_installed_candidate:
+  experiment_id: env-018
+  production_source_experiment_id: env-018
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: 90ec637b7ea554042a0e5ba87948a6377794a80677bf1edc90226ecfc240f0f9
+  delta_patch_sha256: a6c522f90c32ad05e436ba0d7c4a1436e17105bc84530efc2c1e5147015b2000
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/deployment-result.json
+  deployment_receipt_sha256: 049e6d4c1527a96e57f20bc500a94d3bb081c19aa77224b0c1bbc0c962a08934
+  source_matches_tested_candidate: true
+  source_matches_static_review_candidate: true
+  syntax_checks: passed
+  checked_files: 614
+  checked_files_note: includes unchanged ignored generated _version.py
+  runtime_activation: verified_fresh_import_existing_model_service_not_restarted
+  full_model_validation: not_run_user_hold
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/plugin-env017-before.tar.gz
+  backup_sha256: 8c3445b3c77a6a234de5457581cc38be5f58a8ad818a125e509bf491e132e80b
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/commands/rollback.py
+  rollback_scope: five paths restoring env017 including deleted adapter; no service actions
+  patch_format: standard Git diff including untracked additions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env018
+  test_changes_removed: true
+  changed_files_vs_official: 11
+  new_tests_run: false
+  external_operator_harness_run: true
+  validation_scope: shared TopK ABI plus actual HY4 prefill and BF16 decode composition numerical/raw graph
+  installed_import_receipt: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/installed-import-result.json
+  installed_import_receipt_sha256: 60497a100b1f6f8ecf4ee63079a1f76688f2b1e80e97e76bcff0ccee2b3577ef
+  review_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/review-20261019-01/review-archive-receipt.json
+  review_archive_sha256: 5d659cce23f7f35a757a31b3893159b4df7409674a29059d823358c2100cfed4
+latest_layout_fix:
+  experiment_id: env-020
+  issue_id: review-layout-002
+  status: resolved_source_and_affected_operator_scope
+  full_model: not_run_user_hold
+  report: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env020/README.md
+  evidence: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/probe-finished.json
+inherited_padding_capture_issue:
+  issue_id: review-padding-capture-004
+  classification: inherited_execution_mode_limit
+  condition: requires_padding=True with GPU decode_lens under raw graph capture
+  root_cause_confidence: confirmed_two_sync_sites_operator_scope
+  boundary: vLLM pack max.item and unpack sum.item GPU scalar reads
+  baseline_evidence: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/results/baseline.json
+  candidate_evidence: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/results/candidate-v2.json
+  fix_applied: true
+  status: resolved_source_and_affected_operator_scope
+  model_scope: not_revalidated
+  gate_issued: false
+  resolution_experiment_id: env-021
+  resolution: FGV existing pack max_length=1 and unpack total_tokens from metadata; no GPU scalar read
+  pack_only_evidence: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/results/pack_only.json
+  resolution_evidence: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/results/candidate.json
+previous_env020_installed_candidate:
+  experiment_id: env-020
+  production_source_experiment_id: env-020
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: 4bb15f7e480eb4baf9234e781cf65a555a2269ce31c1254a76c6bd07692a27f5
+  delta_patch_sha256: 9d2af232f3a056d1147a8cf6ff70ecfd9b64c021ab82364876dda8890b4b643e
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/deployment-result.json
+  deployment_receipt_sha256: 623c577686070a0cc799c1aa368de6e399d41bc0218bcffbc720d71ba5b668e2
+  source_matches_tested_candidate: true
+  source_matches_static_review_candidate: true
+  syntax_checks: passed
+  checked_files: 614
+  checked_files_note: includes unchanged ignored generated _version.py
+  runtime_activation: verified_fresh_operator_process_existing_model_service_not_restarted
+  full_model_validation: not_run_user_hold
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/plugin-env018-before.tar.gz
+  backup_sha256: ce416eea980da736c65de1f740cd6417f33a2509dc3ef06d7aa1ce25c142a13d
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/commands/rollback.py
+  rollback_scope: single bf16_indexer.py restoring env018; no service actions
+  patch_format: standard Git diff including untracked additions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env020
+  test_changes_removed: true
+  changed_files_vs_official: 11
+  new_tests_run: false
+  external_operator_harness_run: true
+  validation_scope: short_context_row_layout_4_graph_and_4_padding_eager_cases_plus_installed_short_graph
+  installed_operator_receipt: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/installed-finished.json
+  review_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/layout-fix-20261020-01/review-archive-receipt.json
+  review_archive_sha256: 86ce65edc8deb27e03bacadb1cb114e314a0c7403425ceb030284efa31a8894f
+latest_padding_fix:
+  experiment_id: env-021
+  issue_id: review-padding-capture-004
+  status: resolved_source_and_affected_operator_scope
+  report: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env021/README.md
+  evidence: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/probe-finished.json
+previous_service07:
+  status: prior_env011_process_alive_new_source_not_activated
+  container: hy4-preview
+  endpoint: http://127.0.0.1:8010
+  launch_receipt: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/service-start-07.json
+  log: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/logs/service-07.log
+  startup_script: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/commands/launch_v7.sh
+  config: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/dispatch-hy4-07.yaml
+  config_sha256: e016b76d935b5792a182ee46ede3595edcfb0e155ed077176fe2a4806c610bf0
+  api_pid_at_launch: 621636
+  start_ticks_at_launch: '511522713'
+  service_instance_id: 81981916bd215c2bbcd8988b9c8308faca87f0967189725d2576444443d09122
+  disk_source: env021_essential_r15
+  runtime_new_code_activation: not_verified_no_service_restart
+  final_evidence: /workspace/.hy4-preview-migration-20261018-01/scope-20261019-01/results/final-validation.json
+  final_evidence_sha256: 14408e6962ee3abb292eb8faf79f2555e60c7d251976bd97fdc707a50d54a086
+  formal_accuracy: acc004_not_started_user_hold
+  formal_performance: not_run
+  historical_model_validation_experiment_id: env-011
+  existing_health_http: 200
+latest_service_validation:
+  experiment_id: env-028
+  source_candidate_experiment_id: env-027
+  source_patch_sha256: dab9c9eca5dfc26f08e7661d1f7c5900210063007452a20dd2d8e785cb2d2a95
+  service_instance_id: e6fd341079ee54be365569b36e31f6bd2df599bd3191d496f1e95b9fbe81db9b
+  status: passed_minimal_regression
+  report: docs/cases/20261018-hy4-preview-ppu03-migration/service-validation-env028/README.md
+  evidence: /workspace/.hy4-preview-migration-20261018-01/restart-20261020-02/results/final-validation.json
+  evidence_sha256: 0120df4c47d67c210636ebdc8c99ea01396a6eb2a4debf0e47f1f891d5fbbfed
+  archive_receipt: /workspace/.hy4-preview-migration-20261018-01/restart-20261020-02/validation-archive-receipt.json
+  archive_sha256: db3896726013b336efd2dd81c4f50d75226b89bbdd363931020284de2ae128ae
+  archive_status: archived_verified
+source_edit_target: PPU-03/hy4-preview:/workspace/vllm-plugin-FL; local snapshots are reference only
+previous_env021_installed_candidate:
+  experiment_id: env-021
+  production_source_experiment_id: env-021
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: e66c0b38c3f70d7135b2cb7bd8a5194455f0ae42e665016ea50c4f7d4ad14310
+  delta_patch_sha256: b29c050adccf4868b77c235cff6e1c511440e03cc1c0acb724f6e3f4af851599
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/deployment-result.json
+  deployment_receipt_sha256: 891edf7ab7bc6df4d834e782a99b479baa4db2c70be508a2fb823db03320ca96
+  source_matches_tested_candidate: true
+  source_matches_static_review_candidate: true
+  syntax_checks: passed
+  checked_files: 614
+  checked_files_note: includes unchanged ignored generated _version.py
+  runtime_activation: verified_current_service08_all_16_workers
+  full_model_validation: passed_minimal_regression_env022
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/plugin-env020-before.tar.gz
+  backup_sha256: 1db8217faec7645a3bc08aaeda986e509468ea59bb45e72f23eaf35261b72ba8
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/commands/rollback.py
+  rollback_scope: single bf16_indexer.py restoring env020; no service actions
+  patch_format: standard Git diff including untracked additions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-review-env021
+  test_changes_removed: true
+  changed_files_vs_official: 11
+  new_tests_run: false
+  external_operator_harness_run: true
+  validation_scope: padding_and_nonpadding_9_full_opaque_graph_cases_plus_3_packing_oracles_and_installed_padding_graph
+  installed_operator_receipt: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/installed-finished.json
+  review_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/padding-fix-20261020-01/review-archive-receipt.json
+  review_archive_sha256: b418ebcbd52d694b97806b46c862205706b1fa232e4d12a767fda0b8defdd745
+  full_model_validation_experiment_id: env-022
+  runtime_service_instance_id: 3e147d84c5850ac8481aaad0c67ecba0def8b3de89992527fb4c892b16fadb04
+previous_env022_startup_validation:
+  status: passed_minimal_regression
+  experiment_id: env-022
+  source_candidate: env-021
+  graph_capture: passed_51_FULL_decode_sizes
+  two_replays: passed_all_16_ranks_post_ready
+  paged_cache: passed_two_long_shared_prefix_requests_actual_hit
+  smoke_c8: passed_9_unique_requests
+  evidence: /workspace/.hy4-preview-migration-20261018-01/restart-20261020-01/results/final-validation.json
+  prior_env011_evidence_valid_for_current_source: false
+previous_env025_installed_candidate:
+  experiment_id: env-025
+  production_source_experiment_id: env-024
+  retained_source_experiments:
+  - env-023
+  - env-024
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: fc652cb227d43425d20296d1bb37712000bbd8b667f0b44bb65fd7a4e87ab4c7
+  delta_patch_sha256: c10919c228e20fd7499804bfd0690bee6916e1cc502bfe43db72a822d6067d8d
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/deployment-result.json
+  deployment_receipt_sha256: 7c420963d83d017e9d7438b7c6f142d828307b08d81a3349b84d084ee842ec7a
+  source_matches_static_review_candidate: true
+  syntax_checks: passed
+  checked_files: 614
+  checked_files_note: includes unchanged ignored _version.py
+  runtime_activation: not_verified_service_not_restarted_after_env025
+  full_model_validation: not_run_for_current_installed_source
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/plugin-env021-before.tar.gz
+  backup_sha256: 6ea4731a20d683c3691ac280ad2952181aa9385a99833b1809b6d8bd4b1ff5ca
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/commands/rollback.py
+  rollback_scope: four files restoring env021; no service actions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-installed-env025
+  test_changes_removed: true
+  changed_files_vs_official: 11
+  installed_import_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/installed-check.json
+  installed_import_receipt_sha256: 124eae47c0ad6d9aebc1b26cc542fff13bc3b7706ef16d8c63c5ad003a6150d2
+  validation_scope: full_source_manifest_and_bounded_CPU_backend_source_import
+  summary_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-update-20261020-01/summary-archive-receipt.json
+  summary_archive_sha256: 8e3ccb131f7894c1bdef29ae1b630f6329cba6bc7a6325cf136afd1db9a03af5
+formal_accuracy: &id010
+  status: passed
+  experiment_id: acc-006
+  mode: formal-gate
+  task: gpqa_diamond_generative_cot
+  metric: exact_match,strict-match
+  score: 0.9242424242424242
+  threshold: 0.87
+  expected_samples: 198
+  num_concurrent: 64
+  gate_issued: true
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261020-02
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02
+  monitor_id: hy4-ppu-03
+  monitor_status: paused
+  current_candidate_experiment_id: env-031
+  covered_experiment_ids:
+  - env-030
+  - env-031
+  current_service_manifest: /tmp/hy4-preview-ppu03-accuracy-20261020-02/service-before.json
+  service_manifest_sha256: 00565e2b0839e62766f3de6463ccc93f84dd3b0e0638e588629e481acee315de
+  run_uuid: 08d58f880b21437d88c173c635f5f978
+  completed_unique_responses: 198
+  last_observed_at: '2026-10-21T06:12:56.632671+00:00'
+  last_runner_alive: false
+  service_health_http: 200
+  started_at: '2026-10-20T21:36:46.476106+08:00'
+  control_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02/control-snapshot-01/archive-receipt.json
+  control_archive_sha256: 9e99cc1822bbc79cfd19f995d7d328709099465ba176e360f50564afb1f59b23
+  last_progress_metrics:
+    num_requests_running: 0.0
+    num_requests_waiting: 0.0
+    generation_tokens_total: 2994353.0
+    prompt_tokens_total: 72982.0
+    num_preemptions_total: 799.0
+  last_service_traceback_count: 0
+  correct: 183
+  unique_questions: 198
+  native_sample_rows: 396
+  gate: *id001
+  run_record: *id006
+  validation: *id007
+  finished_at: '2026-10-21T13:48:50.093221+08:00'
+  duration_s: 58323.61711478233
+  monitor_cleanup_evidence: automation_update returned PAUSED after terminal gate and complete SHA backup
+  service_identity_unchanged: true
+  source_identity_unchanged: true
+  backup: *id008
+  backup_receipt: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02/evidence/result-backup-verification.json
+  scope: Bound current installed env031 combination passes the frozen GPQA198 strict-match threshold; not isolated
+    per-repo A/B, statistical equality or all-platform proof
+  terminal_control_archive:
+    status: passed
+    root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-02/control-terminal-01
+    verified_files: 90
+    archive_sha256: f20e4130afd97d7ae797f3fe96c74e3ff07212df5c2f014ac9084d2e8e871385
+    manifest_sha256: c30629449d4bb4f24c2215c2657357db9fefa57c29cdcd651331a4e0c25db307
+graph_mode_review:
+  current_mode: FULL_DECODE_ONLY
+  selection_origin: explicit launch argument inherited from original container script and preserved across restarts
+  plugin_forced_ppu_downgrade_evidence: false
+  mixed_or_prefill_graph_mode: NONE
+  full_and_piecewise_semantics: FULL decode plus PIECEWISE prefill/mixed
+  full_and_piecewise_current_HY4_tested: false
+  configuration_changed: false
+  source_changed: false
+  observed_preemptions: 9
+  performance_root_cause: not_established_without_phase_measurement
+previous_installed_env027:
+  experiment_id: env-027
+  production_source_experiment_id: env-027
+  path: /workspace/vllm-plugin-FL
+  base_head: 8b2033e417a535a828a1d7594d36bd33e36e3b57
+  combined_patch_sha256: dab9c9eca5dfc26f08e7661d1f7c5900210063007452a20dd2d8e785cb2d2a95
+  delta_patch_sha256: 69fb8f160475b2c9b38aa5419aa1215444121d9a0fc181a1b1fe0f41391570c5
+  deployment_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-cleanup-20261020-01/deployment-result.json
+  deployment_receipt_sha256: 03b5ac81b19ecc4af19f69df47b939c637cf631369480d2bceb06abb1b1adafe
+  source_matches_requested_edits: true
+  syntax_checks: passed
+  checked_files: 614
+  runtime_activation: verified_current_service09_all_16_workers
+  full_model_validation: passed_minimal_regression_env028
+  gems_source_and_versions_unchanged: true
+  backup: /workspace/.hy4-preview-migration-20261018-01/installed-cleanup-20261020-01/plugin-env025-before.tar.gz
+  backup_sha256: 3a07136a6ea24807ef362f167fa5666a75d094857dcb7eb5f755dc440b54ebf9
+  rollback_command: docker exec hy4-preview python -B /workspace/.hy4-preview-migration-20261018-01/installed-cleanup-20261020-01/commands/rollback.py
+  rollback_scope: three files restoring env025; no service actions
+  local_review_artifact: docs/cases/20261018-hy4-preview-ppu03-migration/plugin-cleanup-env027
+  test_changes_removed: true
+  changed_files_vs_official: 11
+  installed_check_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-cleanup-20261020-01/installed-check.json
+  installed_check_receipt_sha256: 879d1510a6f728b35b7f0a0a3464df3db5e881ea4f3cdeb9cc32d013d7583b16
+  summary_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/installed-cleanup-20261020-01/summary-archive-receipt.json
+  summary_archive_sha256: 661da4d7c7ff9e724c9c732836ffd0fc104656584c16c980c0a5b2398ebcd674
+  full_model_validation_experiment_id: env-028
+  runtime_service_instance_id: e6fd341079ee54be365569b36e31f6bd2df599bd3191d496f1e95b9fbe81db9b
+previous_service12_failed_env029:
+  status: alive_health200_but_required_minimal_regression_failed
+  container: hy4-preview
+  endpoint: http://127.0.0.1:8010
+  launch_receipt: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/service-start-12.json
+  log: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/logs/service-12.log
+  startup_script: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/commands/launch.sh
+  config: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/dispatch-hy4-12.yaml
+  config_sha256: e016b76d935b5792a182ee46ede3595edcfb0e155ed077176fe2a4806c610bf0
+  api_pid_at_launch: 855275
+  start_ticks_at_launch: '519345538'
+  service_instance_id: 730507c04432b0a86fc48df90cfc53a9de4a720fae18c39bcf28116b0d847450
+  disk_source: env027_installed
+  runtime_new_code_activation: env027_loaded_but_env029_mode_semantic_validation_failed
+  final_evidence: /workspace/.hy4-preview-migration-20261018-01/full-piecewise-20261020-03/results/failure-validation.json
+  final_evidence_sha256: 4d15964323fd9e89b3467f170c1ebc6d06a1d16af4aaac882fa65379f949bbeb
+  formal_accuracy: acc005_cancelled_by_user
+  formal_performance: not_run
+  historical_model_validation_experiment_id: env-022
+  existing_health_http: 200
+  current_model_validation_experiment_id: null
+  historical_validation_source_experiment_id: env-021
+  disk_source_experiment_id: env-027
+  gpu_memory_utilization: 0.85
+  cudagraph_mode: FULL_AND_PIECEWISE
+  cudagraph_capture_sizes:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  gpu_kv_capacity_tokens: 347344
+env030_final_audit:
+  status: passed_final_audit
+  health: 200
+  idle: true
+  source_unchanged: true
+  gems_unchanged: true
+  records_archived_files: 42
+  records_payload_sha256: 9b9a3239bd72eb3a4e4dce372bb7ccbd14225c0eb8815e590bb0c635cf6dae09
+  receipt: /workspace/.hy4-preview-migration-20261018-01/piecewise-fix-20261020-01/evidence/records-archive-receipt-v2.json
+  receipt_sha256: b3a9d3a8901d85eee1dfbeda74d18f2949f5b452b943eefda22e0fce7366ed3f
+  evaluation_started: false
+latest_runtime_handoff:
+  case_id: 20261020-hy4-preview-ppu03-batched8192
+  experiment_id: fw-002
+  baseline_source: env031 FGv45e/FG3ba
+  production_source_changes_this_performance_point: false
+  gems_changes_this_performance_point: false
+  restored_service: &id009
+    status: passed
+    container: hy4-preview
+    endpoint: http://127.0.0.1:8010
+    service_instance_id: f1d5138652d2365ae3c1c4409458dfe818bb98b9e790eb0314cff5f913633648
+    manifest:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/source-recovery/service-before.json
+      sha256: 50eadcc6a5bce1412911b4821447e3eb17accfeb3f9f9e169b47b77d0a357d2f
+    max_num_batched_tokens: 2048
+    prefix_cache_enabled: true
+    actual_prefix_hit_tokens: 2624.0
+    smoke_passed: 9
+    graph: FULL_AND_PIECEWISE; PrefillPIECEWISE/MixedPIECEWISE/DecodeFULL16rank each>=2distinctsteps
+    observers_detached: 16
+    source_revision: env031 FGV45e14232/FG3ba1d1d9
+    production_sources_unchanged_vs_trial_baseline: true
+    final_verification:
+      path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02/results/final-verification.json
+      sha256: b527267761cec83388fd03efa4d0424b96b36a59f4b2ec11e26fcb433ad2c0e6
+    not_formal_accuracy_or_performance_gate: true
+  performance: 8192rejected;no fullaccuracy
+env031_update:
+  record: optimize/env-031.md
+  flaggems_vllm_head: 45e142327d06c65feaa0406b16417b609d6c32ff
+  fg_unchanged: true
+  operator_scope: 14 upstream cases; H32/H64 clean false/true each 2 dynamic replay
+  runtime_restarted: true
+  new_combination_model_validation: minimal_passed_on_original16PPUs
+  formal_accuracy_gate: issued_checked_acc006
+  evidence: /workspace/.hy4-preview-migration-20261018-01/fgv-update-20261020-01/final-verification.json
+  evidence_sha256: 47b56c4d9ac25248cd98f116416d689c1fa8002148fdc8591554f8545163dcd3
+  full_accuracy: passed_acc006_183of198_strict
+  source_recovery: *id009
+  formal_accuracy_experiment_id: acc-006
+fw002_runtime_handoff:
+  case_id: 20261020-hy4-preview-ppu03-batched8192
+  experiment_id: fw-002
+  source_service_status: restored_original2048_prefixenabled_env031
+  optimization_container: hy4-preview-perf-20261020-02
+  endpoint: http://127.0.0.1:8011
+  baseline_service_instance_id: 0c7e1846c379a49b230a413a88cb56840448412a09fb95f378b17bb7d286d393
+  source_versions: env031 FGV45e14232; FG3ba1d1d9 unchanged
+  minimal_regression: passed_on_clone_9smoke_C8_16rank3groups2replay_paged
+  performance: 8192rejected_no_netthroughputgain_TTFTguardfailure
+  evidence_root: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-02
+  restore_plan: original8010/2048/prefix enabled on installedenv031; validate before final handoff
+  restored_service: *id009
+active_formal_accuracy: *id010
+previous_formal_accuracy_acc005:
+  status: cancelled_by_user
+  experiment_id: acc-005
+  mode: formal-gate
+  task: gpqa_diamond_generative_cot
+  metric: exact_match,strict-match
+  score: null
+  threshold: 0.87
+  expected_samples: 198
+  gate_issued: false
+  evaluator_root: /tmp/hy4-preview-ppu03-accuracy-20261020-01
+  model_evidence_root: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-01
+  monitor_id: hy4-ppu-03
+  monitor_status: paused
+  current_candidate_experiment_id: env-027
+  service_validation_experiment_id: env-028
+  current_service_manifest: /tmp/hy4-preview-ppu03-accuracy-20261020-01/service-before.json
+  run_uuid: f762a7717b26498ca657cf72080ab96a
+  completed_unique_responses: 23
+  service_health_http: 200
+  control_archive_receipt: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-01/control-snapshot-01/archive-receipt.json
+  control_archive_sha256: 023ec645b56307a04ba73b11b31789bc36a1883cb2c776d8518264f72af74d25
+  last_observed_at: '2026-10-20T05:37:30.636940+00:00'
+  last_runner_alive: false
+  last_progress_metrics:
+    num_requests_running: 0.0
+    num_requests_waiting: 0.0
+    generation_tokens_total: 491667.0
+    prompt_tokens_total: 55369.0
+    num_preemptions_total: 9.0
+  last_service_traceback_count: 0
+  cancellation_receipt: /tmp/hy4-preview-ppu03-accuracy-20261020-01/user-stopped.json
+  cancellation_receipt_sha256: dbc19c1a3b7ac1060239d88987bdf53f644baf9eb50215fc489fc42fe98837dd
+  backup:
+    status: passed
+    source: /tmp/hy4-preview-ppu03-accuracy-20261020-01
+    backup: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-01/evaluator-cancelled-backup/hy4-preview-ppu03-accuracy-20261020-01
+    verified_files: 37
+    manifest_sha256: 28b9122fb9c86677b7d76af5ec4cc960b83adbcfa4335882324fc00f683ac881
+    verified_bytes: 932612
+  backup_receipt: /workspace/.hy4-preview-migration-20261018-01/accuracy-20261020-01/evidence/cancellation-backup-verification.json
+  backup_receipt_sha256: c5df702ea4708d273e680524641d590aa422247d4975921082ff127c945f1092

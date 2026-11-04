@@ -1,0 +1,489 @@
+schema_version: 4
+identity:
+  case_id: 20261015-hy4-preview-ppu13-clone
+  model: hy4-preview
+  platform: ppu
+  host: PPU-13
+  baseline_id: hy4-opt-20260914-snapshot
+  topology: TP16:device0-device15
+stage: optimize
+current:
+  status: kept
+  candidate: hy4-preview@PPU-13:20261016-ppu13-slim
+  next_action: accuracy-retest-completed-await-user-next-step-no-auto-performance-run
+experiments:
+  - experiment_id: acc-003
+    document: acc-003.md
+    scenario_id: gpqa-diamond-full-c64
+    status: passed
+    direction: accuracy-validation
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-003-slim-gpqa-c64-20261016
+  - experiment_id: acc-004
+    document: acc-004.md
+    scenario_id: musr-team-allocation-full-c64
+    status: completed
+    direction: accuracy-validation
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-004-slim-musr-c64-20261016
+  - experiment_id: env-002
+    document: env-002.md
+    scenario_id: image-slimming
+    status: retained
+    direction: framework/environment-packaging
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/images/slim-001-20261016
+  - experiment_id: env-001
+    document: env-001.md
+    scenario_id: environment-clone
+    status: retained
+    direction: framework
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/manifests/mount-comparison.json
+  - experiment_id: acc-001
+    document: acc-001.md
+    scenario_id: gpqa-diamond-full-c64
+    status: passed
+    direction: accuracy-validation
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-001-gpqa-c64-20261015
+  - experiment_id: acc-002
+    document: acc-002.md
+    scenario_id: musr-team-allocation-full-c64
+    status: completed
+    direction: accuracy-validation
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-002-musr-team-allocation-c64-20261016
+historical_dataset_accuracy_evaluation_acc002:
+  experiment_id: acc-002
+  task: musr_team_allocation
+  status: completed
+  completed_at: '2026-10-16T16:14:17.837354+08:00'
+  unique_samples: 250
+  matched_samples: 171
+  service_identity_unchanged: true
+  sample_doc_hashes_match: true
+  results: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-002-musr-team-allocation-c64-20261016/runs/hy4/results_2026-10-16T08-14-08.820279.json
+  results_sha256: dd2ca2dd870dee7b99f87685db9780a23a5f1f429012e538040b18d2b8aac51d
+  samples: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-002-musr-team-allocation-c64-20261016/runs/hy4/samples_musr_team_allocation_2026-10-16T08-14-08.820279.jsonl
+  samples_sha256: 861b204b04d4f950eb212c369ad5e7e91e96b29cb6f556f5b809c6a8e29cb9fb
+  completion_receipt: finished.json
+  completion_receipt_sha256: 875e15ef8bd81ad357dca2d06868be18f54ead5a9287e37bdc0af7711855b43f
+  scope: user-requested-dataset-evaluation-not-GPQA-gate
+  started_at: '2026-10-16T14:56:51.060034+08:00'
+  root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-002-musr-team-allocation-c64-20261016
+  service_instance_id: 0fb5d8aa7fb2a1bad3f115455ee09cef4439b710eadaffda9386ff229fd07ffb:2542610:484868976:e0f88877-608c-4443-a22d-2d773ff175f1
+  prefix_caching: true
+  provenance_sha256: 3efe0ea50b77b700f7ba1246d78d179f6217d689f3016fb6b164f6e04f8a3c77
+  dataset_revision: 7c365b439a222150f317764d4f16ae6c96d7d94a
+  raw_dataset_sha256: 49c205f7f4e121b322c99bd68dbc90d4d897f54826984b4ae197d3a987b30adc
+  expected_samples: 250
+  concurrency: 64
+  metric: exact_match,custom-extract
+  threshold: null
+  score: 0.684
+  stderr: 0.02946265759857869
+  generation: {temperature: 0.9, top_p: 1, top_k: -1, max_gen_toks: 80000}
+  seed: 42
+  formal_gpqa_gate: not_applicable
+  error_diagnosis:
+    issue_id: acc-002-diag-001
+    trigger: user-request-low-MuSR-score-investigation
+    skill: inference-accuracy-diagnosis
+    classification: evaluation-prompt-filter-format-mismatch
+    gate_blocking: false
+    root_cause_confidence: confirmed-for-format-extraction-only
+    reproduction: offline-all-250-native-filter-replay-and-single-variable-optional-parenthesis
+    official_correct: 171
+    official_wrong: 79
+    strict_invalid: 45
+    extraction_false_negative: 40
+    selected_answer_differs_from_gold: 39
+    format_and_selection_both_wrong: 5
+    diagnostic_correct: 211
+    diagnostic_score: 0.844
+    diagnostic_rule: 'ANSWER: \(?(\d+)'
+    prompt_filter_consistency: failed
+    dataset_index_choice_alignment: all-250-consistent-with-bundled-original
+    final_choice_text_number_checked: 117
+    final_choice_text_number_mismatches: 0
+    max_completion_tokens: 27738
+    official_score_unchanged: true
+    service_changes: none
+    rerun: not-performed
+    fix_status: recommendation-only-no-task-or-filter-change
+    remaining_gap: no-same-MuSR-baseline-or-repeat-sampling-to-attribute-content-errors-to-optimization
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-002-musr-team-allocation-c64-20261016/acc-002-diag-001.json
+    script: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/commands/acc-002-diag-001.py
+    script_sha256: 1789236ad96f2b4703bc6f423d44a71494fcc001ff4935efea37a976a1b532f0
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-ppu-13-musr-c64
+    interval_minutes: 30
+    status: paused
+    cleanup_evidence: automation_update-confirmed-PAUSED-after-completion
+  latest_progress:
+    observed_at: '2026-10-16T16:18:20.866051+08:00'
+    expected_samples: 250
+    completed_response_cache_entries: 250
+    evidence_method: readonly-sqlite-response-cache-row-count-and-native-progress
+    in_flight_requests: 0
+    api_errors_observed: 0
+    abort_finished_requests: 0
+    length_finished_requests: 0
+    generation_tokens_observed: 1903427
+    final_score_available: true
+    cached_requests_at_start: 0
+    requests_to_generate: 250
+    native_concurrency: 64
+    state: completed-verified-native-results
+historical_accuracy_evaluation_acc001:
+  skill: inference-accuracy-evaluation
+  mode: formal-gate
+  binding_scope: historical-evaluated-instance-only
+  current_restarted_service_binding: invalidated-not-rebound
+  status: passed
+  concurrency: 64
+  expected_samples: 198
+  metric: exact_match,strict-match
+  threshold: 0.87
+  score: 0.898989898989899
+  matched_samples: 178
+  completed_samples: 198
+  native_completed_at: '2026-10-16T00:50:12.727424+08:00'
+  finalized_at: '2026-10-16T01:03:47.667186+08:00'
+  sample_filter_rows: 396
+  flexible_extract_score: 0.42424242424242425
+  gate: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-001-gpqa-c64-20261015/accuracy-gate.json
+  gate_sha256: 1e1f198507f26b1f3c8b66dd5bb9097bef5a9d09c5bc458e3f070540064e30c5
+  run_record: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-001-gpqa-c64-20261015/runs/hy4-ppu13-full-gpqa-c64-20261015/f5e86095690a4886a79687bd7ddaac7e/run-record.json
+  run_record_sha256: ea64576e07f34aebc1e2b3cb1e6caf2de4998ebd898254d75825426d499dcf10
+  results_sha256: 243f66c3b45dc69e1c84d78da6abcbe65cfead24b126b12bbc3cce6472d5683f
+  samples_sha256: 94d609e8b7b035f1629bc87b521293aa4c728b1d98c2ced8eae623c2854d1779
+  completion_receipt: finished-recovered.json
+  current_service_identity_unchanged: true
+  gate_issue_check: passed
+  output_health:
+    empty_outputs: 0
+    garbled_outputs: 0
+    sample_timeout_markers: 1
+    sample_explicit_truncations: 0
+    server_finish_length: 1
+    server_finish_error: 0
+    server_finish_abort: 0
+    affects_accuracy_verdict: false
+  covered_experiment_ids: [env-001]
+  started_at: '2026-10-15T21:32:35.847973+08:00'
+  root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-001-gpqa-c64-20261015
+  service_instance_id: 0fb5d8aa7fb2a1bad3f115455ee09cef4439b710eadaffda9386ff229fd07ffb:944:478537167:e0f88877-608c-4443-a22d-2d773ff175f1
+  prefix_caching: true
+  dataset_revision: content-sha256:167548b01bcfd7d38d0eb80bb01bd1e6dded4d3aa14b41a4bdba0beb5423dadc
+  skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-ppu-13-gpqa-c64
+    interval_minutes: 30
+    status: paused
+    cleanup_evidence: automation_update-confirmed-PAUSED-after-completion
+  latest_progress:
+    observed_at: '2026-10-16T01:03:47+08:00'
+    completed_response_cache_entries: 198
+    expected_samples: 198
+    evidence_method: readonly-sqlite-unique-response-cache-rows
+    api_errors_observed: 0
+    length_finished_requests: 1
+    in_flight_requests: 0
+    final_score_available: true
+  runtime_observation:
+    status: recovered-without-service-restart
+    observed_at: '2026-10-15T23:32:00+08:00'
+    finding: health-restored-api-epoll-wait-workers-running
+    evidence: live-host-proc-stack-api-nfs_file_write-nfs_page_group_lock_head
+    previous_health_timeout_seconds: 20
+    previous_ppu_utilization_percent: 0
+    evaluator_alive: false
+    service_restarted: false
+    action: completed-no-service-restart
+metrics:
+  - scenario_id: gpqa-diamond-full-c64
+    role: acc-001-historical-service
+    metric: exact_match,strict-match
+    value: 0.898989898989899
+    unit: ratio
+    scope: full-accuracy-198-unique-samples
+  - scenario_id: gpqa-diamond-full-c64
+    role: acc-003-slim-current-service
+    metric: exact_match,strict-match
+    value: 0.9191919191919192
+    unit: ratio
+    scope: full-accuracy-198-unique-samples
+  - scenario_id: musr-team-allocation-full-c64
+    role: acc-004-slim-current-service
+    metric: exact_match,custom-extract
+    value: 0.66
+    unit: ratio
+    scope: full-accuracy-250-unique-samples-native-score
+  - scenario_id: musr-team-allocation-full-c64
+    role: acc-004-slim-format-diagnostic-only
+    metric: exact_match,optional-left-parenthesis
+    value: 0.84
+    unit: ratio
+    scope: same-250-outputs-diagnostic-not-native-score-or-gate
+storage_audit:
+  date: '2026-10-15'
+  host: PPU-13
+  container: hy4-opt-20260914
+  archive:
+    path: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/images/hy4-preview-optimized-20261015-ppu13-clone.tar.zst
+    status: deleted-at-user-request
+    deleted_bytes: 60470188154
+    recoverable_by: re-export-retained-docker-image
+  image_size_bytes: 526426689754
+  visible_file_scan:
+    excludes: [/mnt, /dev, /proc, /sys]
+    symlinks_followed: false
+    hardlinks_deduplicated: false
+    vllm_compile_cache_logical_bytes: 344233480270
+    vllm_compile_cache_files: 7751719
+    tmp_logical_bytes: 135772727188
+    tmp_tix_logical_bytes: 64309136363
+    tmp_tix_files: 1602688
+    largest_profile_directory_logical_bytes: 59911654295
+    usr_logical_bytes: 30295283983
+  container_content_cleanup: completed-selective-20261016-see-storage_cleanup_20261016
+storage_cleanup_20261016:
+  id: cleanup-001
+  host: PPU-13
+  container: hy4-opt-20260914
+  status: completed
+  finished_unix: 1792141038.350124
+  deleted_files: 82132
+  deleted_logical_bytes: 2051051751
+  deleted_allocated_bytes: 2274344960
+  filesystem_available_delta_bytes: 2291449856
+  skipped_files: 0
+  all_manifest_files_absent: true
+  service_identity_unchanged: true
+  health_after: 200
+  MuSR_native_artifacts_unchanged: true
+  image_size_unchanged: 526426689754
+  finished_receipt_sha256: a7542efc41ba37502c4436c0f40eff18c3549509729496cffffcc9d0c43ad98c
+  authorization: user-request-clean-large-unused-container-files
+  scope: stale-top-level-tmp-compiler-LLVM-IR-in-container-writable-layer-only
+  cutoff_unix: 1792132879.76
+  cutoff_basis: current-service-start
+  planned_files: 82132
+  planned_logical_bytes: 2051051751
+  planned_allocated_bytes: 2274344960
+  recent_tix_retained: 16802
+  manifest_sha256: 35d879cab286c06a327d8c9d71625f0e294079d20daa91710fa8d9b34c947bd7
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/storage/cleanup-001-20261016
+  commands: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/commands/cleanup-001-control.py
+  control_sha256: 0bbb71dd07f55828953ed871afcef035c4c5175ad71bfd3b71683f6c3354c3c3
+  worker_sha256: f124010d7a55f39fa262f1eb5055e373772b8c48b98dcfaac034828145ba669c
+  retained: [model-and-tokenizer, source-and-SDK, current-vLLM-AOT-and-Triton-caches, all-lower-image-layer-files, all-profiling-traces, formal-accuracy-and-performance-evidence, current-service-generated-files]
+  recovery: compiler-temporary-IR-regenerable-final-binaries-retained
+image_slimming:
+  experiment_id: env-002
+  status: packaging-verified
+  source_container: hy4-opt-20260914
+  source_image: sha256:1e3ae11d2d73f7142bf58cf4d83b23bbd2d12ba0b560c68882213675868af26b
+  source_image_bytes: 526426689754
+  target_tag: hy4-preview-optimized:20261016-ppu13-slim
+  target_image: sha256:1552f30d4387c266c8605e6277f9bcb17f4f0b89e0a9e49f74d3ffdd72a00cae
+  target_size_bytes: 34229842694
+  reduction_ratio: 0.9349769999123797
+  layers: 1
+  architecture: amd64
+  os: linux
+  finished_unix: 1792143087.470999
+  package_source_and_tuning_identity: passed
+  image_configuration_identity: passed
+  mount_parity: passed
+  image_lineage: verified-effective-source-content-and-dependencies
+  verification_receipt: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/images/slim-001-20261016/verified.json
+  verification_receipt_sha256: f485e335ace2e9c728955f29ab2cffc66db1c5251c5535150233b23776d054fa
+  temporary_verification_containers: both-stopped-and-removed
+  source_service_preserved: true
+  registry_push: not-requested-not-performed
+  model_validation: GPQA-passed-91.92-percent-MuSR-completed-native66-percent-diagnostic84-percent
+  retained_rollback: source-image-and-container
+  control_sha256: e53cec4a22831ea204f5159ffcffbf88ec4cc812340069b00cb9a5f65aadb081
+  probe_sha256: a4f99fbab09447ca8d119926a0874b24a3665882e1d117e798245c6be31ed1e5
+  source_live_masked_imports: {torch: passed, triton: passed, vllm: failed-CUDA-platform-extension-still-device-visible, cuda_context_initialized: false}
+  matched_isolation_imports: {torch: passed, triton: passed, vllm: passed, cuda_context_initialized: false}
+  original_and_slim_same_isolation_control: passed
+  source_worktree_changes: retained-without-reset
+  verification_script_sha256: 564fb53a3442830ff7eca94174d85c82abd8b935dcfb95c7760b97291f1d057b
+  mount_verifier_sha256: 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+  launcher_sha256: 06437ca658d26d200554649d45ee84b8dbd87626d647b68dc6bbd505efdc8439
+  isolation_control_sha256: aaf93bfec9ca0090253fb1cbcca1b2ea962274e169f2598a54f5902c220e75af
+  finalize_sha256: a58305bbd6a68ce4d64afafbb42b999941a7189e206e464d812dcb5037f7dd8c
+slim_accuracy_retest:
+  status: completed
+  authorization: user-started-slim-image-service-request-both-datasets-C64
+  host: PPU-13
+  container: hy4-preview
+  image: sha256:1552f30d4387c266c8605e6277f9bcb17f4f0b89e0a9e49f74d3ffdd72a00cae
+  endpoint: http://127.0.0.1:8010/v1/chat/completions
+  order: [acc-003, acc-004]
+  concurrency_per_dataset: 64
+  overlapping_evaluations: false
+  fresh_response_caches: true
+  seed: 42
+  generation: {temperature: 0.9, top_p: 1, top_k: -1, max_gen_toks: 80000}
+  GPQA: {mode: formal-gate, status: passed, expected_samples: 198, metric: 'exact_match,strict-match', threshold: 0.87, reasoning_effort: high}
+  MuSR: {mode: native-dataset-evaluation, status: completed, expected_samples: 250, metric: 'exact_match,custom-extract', threshold: null, reasoning_effort: null}
+  MuSR_diagnostic_rule: 'ANSWER: \(?(\d+)'
+  MuSR_official_task_unchanged: true
+  failure_policy: preserve-evidence-stop-queue-no-service-change-no-rerun
+  skill_bundle_sha256: 6e94a080dd3b64544c535e1fd4bda506f55516374d14d0f8ca6aa148bba2c7b2
+  service_instance_id: 5e33965ccb5cea2eea706ff7408e49a9f8ab8881884c2a1009e7e615e0dc5cf4:171:487169924:e0f88877-608c-4443-a22d-2d773ff175f1
+  preflight: both-passed-task-provenance-stable
+  started_at: '2026-10-16T13:50:42.623081+00:00'
+  GPQA_response_cache: /tmp/hy4-acc003-slim-gpqa-c64-20261016/hy4-ppu13-slim-gpqa-c64-20261016/82b0bb90834b4d0aad6329cb1d2051a4/gpqa_diamond_generative_cot/responses.sqlite_rank0.db
+  MuSR_response_cache: /tmp/hy4-acc004-slim-musr-c64-20261016/responses.sqlite
+  MuSR_provenance_sha256: 3efe0ea50b77b700f7ba1246d78d179f6217d689f3016fb6b164f6e04f8a3c77
+  control_script: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/commands/acc-003-004-control.py
+  control_sha256: aad5601813520f48a1dd9771ea4964f0bec0aedc2e7b63cf6f0f89484fe670ac
+  launcher_sha256: 361d99b1fd966e58279086b940c155d0a8c7c435fa7ad1cf17e1d1a82c97d0aa
+  evaluator_core_matches_current_local: true
+  native_runner_sha256: 82cf6e8304cb6f9eb8ca48fe4055f6bbb2054a7b6a90d56de3d6b7a08e90c61e
+  latest_progress:
+    observed_at: '2026-10-16T18:51:05+00:00'
+    evidence_method: readonly-sqlite-unique-response-cache-rows-and-server-finish-count
+    GPQA_completed_unique_responses: 198
+    GPQA_expected_samples: 198
+    GPQA_native_requests_remaining_at_start: 198
+    MuSR_started: true
+    MuSR_started_at: '2026-10-16T17:06:37.123510+00:00'
+    MuSR_completed_unique_responses: 250
+    MuSR_expected_samples: 250
+    no_overlapping_evaluations_verified: true
+    service_running_requests: 0
+    service_waiting_requests: 0
+    service_finish_stop: 447
+    service_finish_length: 1
+    service_finish_error: 0
+    service_finish_abort: 0
+    GPQA_score_available: true
+    MuSR_score_available: true
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-gpqa-musr-c64
+    interval_minutes: 30
+    status: paused
+    notify: meaningful-progress-completion-failure-or-user-action-only
+    cleanup_evidence: automation_update-confirmed-PAUSED-after-both-native-results-reverified
+  completed_at: '2026-10-16T18:27:45.589783+00:00'
+  queue_completion_receipt: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-003-slim-gpqa-c64-20261016/queue-finished.json
+  queue_completion_sha256: 22ac5a5eb41a7fd2643fe90bc725a6a0238a31b166df8ef18b923c66f255068b
+accuracy_evaluation:
+  experiment_id: acc-003
+  skill: inference-accuracy-evaluation
+  mode: formal-gate
+  covered_experiment_ids: [env-002]
+  binding_scope: current-slim-image-service-instance
+  status: passed
+  concurrency: 64
+  expected_samples: 198
+  completed_samples: 198
+  matched_samples: 182
+  sample_filter_rows: 396
+  metric: exact_match,strict-match
+  threshold: 0.87
+  score: 0.9191919191919192
+  stderr: 0.019417681889724536
+  flexible_extract_score: 0.4595959595959596
+  native_completed_at: '2026-10-16T17:06:21.344861+00:00'
+  completed_at: '2026-10-16T17:06:28.955755+00:00'
+  verified_at: '2026-10-16T17:21:54.194637+00:00'
+  root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-003-slim-gpqa-c64-20261016
+  service_instance_id: 5e33965ccb5cea2eea706ff7408e49a9f8ab8881884c2a1009e7e615e0dc5cf4:171:487169924:e0f88877-608c-4443-a22d-2d773ff175f1
+  gate: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-003-slim-gpqa-c64-20261016/accuracy-gate.json
+  gate_sha256: 8bedddcf6594ace5334483bb1df2d13a241083387054f01c6b4bc25b5d4ab87e
+  run_record: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-003-slim-gpqa-c64-20261016/runs/hy4-ppu13-slim-gpqa-c64-20261016/82b0bb90834b4d0aad6329cb1d2051a4/run-record.json
+  run_record_sha256: 9d1465c90529d5d273dfe87bffa48a44f87b31c9e15e87fe2c1b05b4f4788955
+  results_sha256: f245000d91a75d3868ab41810617c0ed90377cdcb16ad624cc131b0e98db19cd
+  samples_sha256: e0030b82023921a9ea9672dcb3ea8fc03f10f43c40c4100f68480b9650db5c1b
+  completion_receipt: finished.json
+  completion_receipt_sha256: b919de1e6a1a20dd42bf9e7f85cf7b15589a8600a535d59c25b0111b17a98fce
+  gate_issue_check: passed-and-reverified
+  before_after_and_live_identity_match: true
+  prefix_caching: true
+  package_sha256:
+    vllm: 683127c58e3e9c3484e635b1f591a4280edb1957fc886423db247229e31b4523
+    vllm_fl: 48d0112653cb19afccdf49a92fc72ebe4bd5c0b3be98ae4c917367f705506010
+    flag_gems: 79c021caad2a7090ac63a1772e5dd24982b7258c9bf25de97ccf0c335deab8fd
+    flaggems_vllm: 12274d981430c08550d654c725124c452bcf8b5eead374e2bc60fd1384bb1a42
+  output_health:
+    empty_outputs: 0
+    garbled_outputs: 0
+    sample_timeout_markers: 1
+    sample_explicit_truncations: 0
+    server_finish_length: 1
+    server_finish_error: 0
+    server_finish_abort: 0
+    affects_accuracy_verdict: false
+  progress_monitor: shared-hy4-gpqa-musr-c64-paused-after-both-completed
+  performance_conclusion: not-measured-prefix-cache-enabled-accuracy-only
+dataset_accuracy_evaluation:
+  experiment_id: acc-004
+  task: musr_team_allocation
+  scope: user-requested-native-dataset-evaluation-not-GPQA-gate
+  status: completed
+  concurrency: 64
+  expected_samples: 250
+  unique_samples: 250
+  matched_samples: 165
+  metric: exact_match,custom-extract
+  score: 0.66
+  stderr: 0.030020073605457914
+  threshold: null
+  started_at: '2026-10-16T17:06:37.123510+00:00'
+  completed_at: '2026-10-16T18:27:45.585026+00:00'
+  verified_at: '2026-10-16T18:52:08.468913+00:00'
+  generation: {temperature: 0.9, top_p: 1, top_k: -1, max_gen_toks: 80000}
+  reasoning_effort: not-added
+  seed: 42
+  root: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-004-slim-musr-c64-20261016
+  service_instance_id: 5e33965ccb5cea2eea706ff7408e49a9f8ab8881884c2a1009e7e615e0dc5cf4:171:487169924:e0f88877-608c-4443-a22d-2d773ff175f1
+  results: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-004-slim-musr-c64-20261016/runs/hy4/results_2026-10-16T18-27-36.509062.json
+  results_sha256: 86d1883dedbc08ff1ef63f3e0c16fa5b3e8c1b4f5e690fe117a195d14817d027
+  samples: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-004-slim-musr-c64-20261016/runs/hy4/samples_musr_team_allocation_2026-10-16T18-27-36.509062.jsonl
+  samples_sha256: 74954a88445ee1adceb8843a406ce791a35f9142b15a632ee521581f2f2d9223
+  completion_receipt: finished.json
+  completion_receipt_sha256: 6305fbf5b9b136db7897880099d260ccb1b46648c6a00846b60fcfd7a6a03c09
+  provenance_sha256: 3efe0ea50b77b700f7ba1246d78d179f6217d689f3016fb6b164f6e04f8a3c77
+  dataset_revision: 7c365b439a222150f317764d4f16ae6c96d7d94a
+  sample_doc_hashes_match: true
+  task_data_identity_match: true
+  before_after_and_live_identity_match: true
+  prefix_caching: true
+  formal_gpqa_gate_issued: false
+  output_health:
+    empty_outputs: 0
+    garbled_outputs: 0
+    timeout_markers: 0
+    explicit_length: 0
+    server_finish_length_during_MuSR: 0
+    server_finish_error: 0
+    server_finish_abort: 0
+    max_completion_tokens: 26082
+  format_diagnostic:
+    metric: exact_match,optional-left-parenthesis
+    diagnostic_only: true
+    native_score_preserved: true
+    rule: 'ANSWER: \(?(\d+)'
+    selection: first-match-as-native-regex-filter
+    correct: 210
+    score: 0.84
+    strict_invalid: 49
+    extraction_false_negative: 45
+    native_correct_diagnostic_wrong: 0
+    ambiguous_marker_samples: 0
+    wrong_or_unresolved: 40
+    wrong_selected_answer: 39
+    unresolved_by_minimal_rule: 1
+    evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20261015-hy4-preview-ppu13-clone/results/accuracy/acc-004-slim-musr-c64-20261016/format-diagnostic.json
+    sha256: 8d195ce4cd8cf1e14505fa98512c6b6b90370918141883fd1c12bb0754301093
+  progress_monitor:
+    kind: heartbeat
+    automation_id: hy4-gpqa-musr-c64
+    interval_minutes: 30
+    status: paused
+    cleanup_evidence: automation_update-confirmed-PAUSED-after-completion

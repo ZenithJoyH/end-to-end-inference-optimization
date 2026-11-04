@@ -1,0 +1,173 @@
+schema_version: 3
+policy_version: '0.29'
+policy_date: '2026-09-11'
+acceptance_scope: diagnostic
+accuracy_status: baseline_sanity_passed
+performance_status: p4k_scout_complete
+experiment_id: 20260914-hy4-preview-ppu-baseline
+objective: establish a reproducible no-profiler baseline in an isolated optimization container
+status: p4k_scout_baseline_complete
+target:
+  model: Hy4-preview
+  model_path: /mnt/cpfs/models/Hy4-preview-W8A8-linear-moe/
+  platform: ppu
+  host: PPU-07
+  remote_work_root: /mnt/nfs/users/jinghao/hy4-preview/optimize
+  remote_case_dir: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e
+  source_container_name: hy4
+  optimization_container_name: hy4-opt-20260914
+  source_image_ref: harbor.baai.ac.cn/flagos-inner-models-release/ppu-pp001-gems0.0.0-tree0.6.1-cxnone-plugin0.3.0-vllm0.24.0-cp312-pt210-hggc130-x64-1.3.2-d7f5a2:lingjunbase
+  source_image_id: sha256:f222f9a173b320d799ada39791979828f6abc5218063616b7efdf05873c52c1f
+  optimization_image_id: sha256:ea47a837c46571801b826af06a374e12a5c4daa443c9a64065cea6758d9d939b
+  image_lineage: verified
+  source_mount_manifest: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/manifests/source-container.inspect.json
+  optimization_mount_manifest: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/manifests/optimization-container.inspect.json
+  mount_diff: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/manifests/mount-comparison.json
+  mount_parity: passed
+  runtime_parity: passed
+  container_gate_completed_at: '2026-09-14T10:41:14+08:00'
+runtime:
+  engine: vllm
+  engine_revision: ee0da84ab9e04ac7610e28580af62c365e898389
+  plugin_revision: 2fa5f1816fe0e9a08fd66f515c5de28e9c8199e2
+  flaggems_revision: bca444b8569294e7d4e4deff7ddfec7f05682033
+  mode: graph
+  dtype: bfloat16
+  quantization: compressed-tensors W8A8 linear/MoE
+  tensor_parallel: 16
+  total_devices: 16
+  launch_args:
+  - --no-enable-prefix-caching
+performance_evaluation:
+  skill: inference-performance-evaluation
+  mode: baseline
+  scenario_ids:
+  - p4096-d32-c8-n8-scout
+  - p4096-d256-c64-n64-targeted
+  result: complete
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  stopped_attempt: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-01
+  measured_medians:
+    duration_s: 773.1727508245967
+    output_throughput: 0.3311032363012472
+    total_token_throughput: 42.7123174828609
+    p99_ttft_ms: 764650.0544080033
+    p99_tpot_ms: 21425.45135600537
+    p99_itl_ms: 48217.88727579638
+    p99_e2el_ms: 773149.2996059451
+  max_relative_spread: 0.005907442354920845
+  conclusion_boundary: P4K scout only; no C64 or longer-context baseline claim
+notes: The inherited source-container run is diagnostic only. The Plugin working tree contains an existing thead.yaml modification,
+  and the service log reports an incomplete T-Head native extension bundle with vendor implementations disabled. The first
+  empty optimization container was rejected because Docker set StdinOnce=true; its attempt1 evidence is retained. The recreated
+  container passes image-lineage, mount and runtime-parity gates. The exact source vLLM service was stopped gracefully; the
+  source container remains running and unchanged.
+correctness_evaluation:
+  skill: inference-accuracy-evaluation
+  mode: baseline-sanity
+  service_instance_id: 848575b2b0a8-pid2511-start207034450
+  result: passed
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/baseline-sanity-chat/result.json
+  evidence_sha256: fff1baeb1b75fbbdebd098ca3fd8ee2e2342cccd6fa8f02d280d582e456b9a06
+  monitor_id: hy4-p4k-baseline-sanity-monitor
+  monitor_cadence: 30 minutes
+  monitor_status: PAUSED
+  limitations: service correctness guard only; not a formal model-accuracy gate
+metrics:
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: duration_s
+  value: 773.1727508245967
+  unit: s
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/duration_s
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: output_throughput
+  value: 0.3311032363012472
+  unit: token/s
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/output_throughput
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: total_token_throughput
+  value: 42.7123174828609
+  unit: token/s
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/total_token_throughput
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: p99_ttft_ms
+  value: 764650.0544080033
+  unit: ms
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/p99_ttft_ms
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: p99_tpot_ms
+  value: 21425.45135600537
+  unit: ms
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/p99_tpot_ms
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: p99_itl_ms
+  value: 48217.88727579638
+  unit: ms
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/p99_itl_ms
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+- scenario_id: p4096-d32-c8-n8-scout
+  role: baseline
+  metric: p99_e2el_ms
+  value: 773149.2996059451
+  unit: ms
+  scope: P4K scout only；非 C64 正式目标；原文 conclusion_boundary 限定
+  source_pointer: /performance_evaluation/measured_medians/p99_e2el_ms
+  evidence: /mnt/nfs/users/jinghao/hy4-preview/optimize/20260914-hy4-preview-ppu-e2e/results/performance/baseline-2048-p4k-scout-02
+  statistic: median
+  phase: mixed
+baseline_record_review:
+  reviewed_at: '2026-11-02'
+  classification: structured-measurements
+  original_status: p4k_scout_baseline_complete
+  formal_target_coverage:
+  - scenario_id: p1024-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p4096-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p16384-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  - scenario_id: p32768-d1024-c64-n128
+    status: incomplete
+    metric_indices: []
+    scope: measurement-summary-only; original role/scope retained; no new formal validation
+    reason: 本阶段没有可归属到此正式场景的汇总数值；不推断从未运行。
+  metrics_source: state.yml structured fields only; Markdown is not a numeric source
+  remote_revalidated: false

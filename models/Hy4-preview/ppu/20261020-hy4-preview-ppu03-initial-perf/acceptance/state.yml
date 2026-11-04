@@ -1,0 +1,107 @@
+schema_version: 4
+identity:
+  case_id: 20261020-hy4-preview-ppu03-initial-perf
+  model: Hy4-preview
+  platform: ppu
+  host: PPU-03
+  baseline_id: env030-01027922-TP16
+  topology: TP16-PPU-ZW810E
+stage: acceptance
+current:
+  status: incomplete_no_optimization_retained
+  candidate: original env0302048/prefix enabled, source8010 ready
+  next_action: No formal acceptance; new explicit cycle needed for profiling or formal4scenario/accuracy
+    work
+experiments: []
+metrics: []
+policy_version: SOP0.40
+acceptance_scope: performance_only diagnostic, not formal
+accuracy_status: not_run
+performance_status: 'incomplete: negative initial probe, no full4scenario/revert performance
+  acceptance'
+source_handoff:
+  project: current workspace migration case
+  case_id: 20261018-hy4-preview-ppu03-migration
+  experiment_id: env-030
+  patch_sha256: 01027922b8f081e680ac8a4ef833788510fc1e14227fa81582ff098d654afa81
+  source_manifest_sha256: 955b6b1391b7965d36cf734bf69db932d9c7419fe4ce66907ed26d24217761ff
+  runtime_reverified: true
+authorization:
+  user_request: 先跑一个初步的性能看看吧，先简单优化下推理性能
+  diagnostic_exception: true
+  scope: one P1K reduced baseline and at most one evidence-based single-variable candidate
+    plus revert; no GPQA or formal acceptance
+  gems_must_remain_unchanged: true
+environment:
+  host: PPU-03
+  source_container: hy4-preview
+  optimization_container: hy4-preview-perf-20261020-01
+  artifact_root: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01
+  image_lineage: pending
+  mount_parity: pending
+  source:
+    plugin_patch: 01027922b8f081e680ac8a4ef833788510fc1e14227fa81582ff098d654afa81
+    regular_files: 614
+    source_manifest_sha256: 955b6b1391b7965d36cf734bf69db932d9c7419fe4ce66907ed26d24217761ff
+    gems:
+      FlagGems-vllm:
+        head: 46387d7f96050204c1b932f35680a3ea03896fa6
+        tracked_files_sha256: e822aba62d64c4c3af105297d1e06326180ac570fd8c2ffd52809b5786b020c6
+        branch: gems-opt
+        status: clean
+      FlagGems:
+        head: 3ba1d1d99010de56d12088992f8b0da3444d90ca
+        tracked_files_sha256: 68791c7afe30201cf167daf88f8bddf05fc191afc6d0daf28414b22cb67027a5
+        branch: gems-opt
+        status: clean
+    model_config_sha256: 894bbe4e1dea2ac68993891795d3397f71bd2e4c92aae89ba443c10ebca462c2
+    model_index_sha256: 14694cc4639eb2f8c9996d4674ad24927b690b0f8441f3f30d31912988bbb9c1
+    tokenizer_config_sha256: 15267c495102b0ce259408a0b3a9dc11a6de74dd7dd8ef5b9757f64252a9b2df
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+formal_scenarios:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+accuracy_threshold: 0.87
+retained_optimizations: []
+limitations:
+- Three reducedC8/N8 scenarios, not original4formal workloads
+- BaselineDecode measured spread70.75%; slowround preserved
+- Revert performance not_run after predefined stop condition; runtime rollback verified
+  separately
+- No current completeGPQA gate; no87%score claim
+restored_service:
+  status: passed
+  container: hy4-preview
+  endpoint: http://127.0.0.1:8010
+  service_instance_id: e6562463824a7aebecb1d655b8efdcfe1d2c27321329cff33a0a1f4b36304805
+  manifest:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/source-recovery/service-before.json
+    sha256: 17bbca17c4bb84e69b06d55503f7a0077160b87e4bc139ff1901872588703480
+  max_num_batched_tokens: 2048
+  prefix_cache_enabled: true
+  actual_prefix_hit_tokens: 2624.0
+  smoke_passed: 9
+  graph: FULL_AND_PIECEWISE; Prefill PIECEWISE/Mixed PIECEWISE/Decode FULL,16rank
+    each>=2distinctsteps
+  observers_detached: 16
+  production_sources_and_gems_unchanged: true
+  final_verification:
+    path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/results/final-verification.json
+    sha256: 8946c53967a269b870b236648ecda153921344018b7c26e69c072ec85c7ad823
+  not_a_performance_or_accuracy_gate: true
+evidence_archive:
+  status: verified_non_destructive_mirror
+  canonical_root_in_both_containers: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01
+  files_verified: 523
+  manifest_sha256: b68a640938ac85228969d22dd1662066f4a445d69ddf7e883d1a25d9cac8e1e1
+  receipt_path: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/evidence-mirror-receipt.json
+  absolute_original_paths_preserved: true
+  source_recovery_evidence: /workspace/.hy4-preview-migration-20261018-01/perf-20261020-01/source-recovery
+  source_recovery_note: Fresh runtime/graph/prefix proof is separately frozen in JSON
+    and final-verification; live service log may continue growing
