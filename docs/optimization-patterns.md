@@ -68,6 +68,8 @@
 
 以下模式有清晰机制，但目前只在有限平台或 shape 上出现，默认仍需目标环境复测：
 
+另将用户于 2026-11-02 指定的“利用平台编译器特性做算子特化”纳入候选方向；它尚无本项目实测结论，不标记为 `observation/reproduced/transferred`。执行规则见 [SOP C4](performance-optimization-sop.md#c4-利用平台编译器特性做算子特化)，平台支持必须按实验所用 revision 重新核实。
+
 | 模式 | 证据 | 适用边界 |
 |---|---|---|
 | 用 graph-opaque custom op 固定关键小 shape 路径 | `observation` | 编译器会内联/折叠 Python dispatch，且 custom op 的 fake/meta、fallback 和图捕获均完整 |
@@ -77,6 +79,7 @@
 | GEMM epilogue 融合反量化/激活 | `observation` | 中间读写和 launch 占比足够高，并保留原 BF16/量化舍入边界 |
 | 以真实 stride 传递 view，避免按 cache 容量物化连续副本 | `observation` | 下游实现支持该 layout，最内维连续且非兼容情况有明确 fallback |
 | 按最大中间张量字节预算推导 Prefill chunk | `observation` | 中间张量是已证实的内存/调度瓶颈，预算包含并发与 graph 所需余量 |
+| 利用目标平台 FlagTree/Triton 特性定向优化热点算子 | 用户指定候选，待测 | 具体 TLE 原语、布局或流水线能力已在目标版本核实，收益机制与生产 shape 匹配，guard/fallback 完整 |
 
 ## 案例驱动的首个实验卡
 
@@ -92,6 +95,7 @@
 | 固定小 M GEMM 被通用大 M backend 捕获 | 证明生产 shape、调用频次和 graph 内实际 backend | 对单一 shape 比较已有小 M backend；无兼容实现时再试窄特化 | 只在 microbenchmark 命中，或完整调用无净收益 |
 | 采样/排序输入来自有限表示域 | 证明可达值域、tie 和累计语义 | 对边界值与大量 ties 做精确 reference A/B，再测算法替换 | 任一 tie、阈值或概率累计结果不一致 |
 | 增大 split/tile/warp/stage 的局部 kernel 时间继续下降 | 量化新增 merge、寄存器、shared memory 与服务阶段成本 | 只改变一个参数并扫描到第一个守护指标拐点 | 完整服务指标变差，即使主 kernel 继续变快 |
+| 热点存在规则子块读取、布局转换、数据交换或访存等待 | 核对真实 shape、阶段与目标编译器逐原语支持，确认当前实现尚有可消除成本 | 固定环境，只引入一个已支持特性，例如以静态 `extract_tile` 替换子块 gather；对照优化过的普通 Triton 实现并检查 IR/实际命中 | 特性不可用、目标转换未发生、完整调用无净收益，或数值/graph/fallback 失败；Mixed 无收益则不保留为端到端候选 |
 
 ## 已知反例与止损条件
 
@@ -101,3 +105,4 @@
 - dense/grouped GEMM 替换：大 M 纯 GEMM 的优势可能被 gather/scatter、padding 和调度开销吃掉。
 - 融合：若被融合部分在 decode 只有数微秒，开发和正确性成本可能高于收益。
 - 复用 decode top-k 到 prefill：可能因大行数和 tie 语义导致更慢或不等价。
+- 仅把普通 Triton 改写成 TLE：可能生成等价代码，也可能增加共享内存、寄存器压力或同步；支持某一 TLE 层级不代表所有原语可用，通用异步加载示例也不证明沐曦已支持或更快。

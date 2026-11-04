@@ -421,6 +421,8 @@ notes: ""
 
 不可用指标保持 `null`，不得用 `0` 伪装已测量。
 
+利用平台 FlagTree/Triton 特性进行算子特化时，复用上述 schema，不新增实验类别或测量模式。按 [SOP C4](performance-optimization-sop.md#c4-利用平台编译器特性做算子特化)，在 `change.hypothesis` 和 `primary_variable` 中明确单个特性与预期减少的成本；由 `engineering_review.design_record` 指向同一优化点 Markdown，记录目标编译器/SDK 身份、具体原语与能力证据、适用阶段和 shape、guard/fallback、普通 Triton 对照、IR/运行命中及正确性/graph/完整调用/端到端结果。保留未支持、未测、等价代码和负优化结论，不能用 API 替换或局部加速直接推定端到端收益。
+
 `engineering_review` 的规范字段用于新建或更新的 Plugin 或算子实验记录。顶层 `standard`、
 `standard_sha256`、`applicable_clauses`、`clause_checks`、`recommendation_deviations` 保留为 Plugin
 字段；纯算子实验将前两项设为 `null`，后三项为空，并填写 `operator_standard`。纯 Plugin 实验将
