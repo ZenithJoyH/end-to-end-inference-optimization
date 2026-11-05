@@ -4,6 +4,8 @@
 
 本文件汇总跨案例可复用的诊断模式。案例中的性能数字仍归属原测试环境；这里抽取的是决策方法、适用边界和反例，不把历史结果当作当前项目的复测结论。
 
+沐曦 C550 / C588 任务按当前场景的症状选择首个对照实验，参见[沐曦平台优化经验](metax-optimization-experience.md)。
+
 证据来源：
 
 - [DeepSeek-V4-Flash W8A8 INT8](cases/20260903-imported-deepseek-v4-flash-w8a8/README.md)
