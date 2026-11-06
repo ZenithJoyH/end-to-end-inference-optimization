@@ -60,3 +60,7 @@
 - `operator/improve`：QSA compress+norm+MRoPE+store 融合、HC 三个专用 kernel、QSA K/V 双写融合。
 - `operator/replace`：QSA paged-dot；需保护 top-k 排序与最终 sparse-attention 数值。
 - `operator/improve`：PPU small-M FusedMoE 配置、QSA group-size=3 tile、packed GDN decode tile；先由 profiling 决定优先级。
+
+## 2026-11-06 本地过程材料归档
+
+本案例的本地过程文件已按原相对路径无损归档；正文中的历史命令和远端执行路径保留原意。查阅或恢复请使用[逐文件路径与 SHA 清单](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261106-project-review-fixes-artifacts-001/migration-manifest.json)及[完整原文件备份](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261106-project-review-fixes-artifacts-001/before.zip)。本地副本位于 `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261106-project-review-fixes-artifacts-001/files/`，按清单中的 `original_relative_path` 查找；不应直接重跑历史启动或修复脚本。本次未连接远端、未执行模型测试，也未改变既有实验结论。归档仅在当前工作区可用，恢复时先校验 SHA 并复制到新目录，不覆盖后续修改。

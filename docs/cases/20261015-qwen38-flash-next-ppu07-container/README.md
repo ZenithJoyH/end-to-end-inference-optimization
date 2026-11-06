@@ -148,3 +148,7 @@
 原共享脚本 SHA-256 `c039af5b8782ba45ec67bc243ce8f45f849122a526310de460a71d1a4b7341b7` 已备份到本案例远端 `shared-start-update-20261015-01/start-model.sh.ppu01-backup`。新共享脚本 SHA-256 `183add493a8aeb5bffdebaf4c2af3e2f5deaff530cbbd5df60372f0f77afafd9`，与 PPU-07 容器内脚本一致。执行命令为本地 `commands/update-shared-start-model.yml`，远端副本及候选在 `shared-start-update-20261015-01/commands/`。已通过原文件 SHA 冲突检查、Ansible `--check --diff`、备份后原子替换、容器内 bash 语法检查及新/旧 SHA 校验，实际 playbook `failed=0`。
 
 本次仅更新脚本，没有执行模型启动命令、停止或重启服务，也未重新评测精度。
+
+## 2026-11-06 本地过程材料归档
+
+本案例的本地过程文件已按原相对路径无损归档；正文中的历史命令和远端执行路径保留原意。查阅或恢复请使用[逐文件路径与 SHA 清单](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261106-project-review-fixes-artifacts-001/migration-manifest.json)及[完整原文件备份](/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261106-project-review-fixes-artifacts-001/before.zip)。本地副本位于 `/Users/baai/Documents/ChatGPT/端到端推理优化/.cache/model-record-archives/20261106-project-review-fixes-artifacts-001/files/`，按清单中的 `original_relative_path` 查找；不应直接重跑历史启动或修复脚本。本次未连接远端、未执行模型测试，也未改变既有实验结论。归档仅在当前工作区可用，恢复时先校验 SHA 并复制到新目录，不覆盖后续修改。
