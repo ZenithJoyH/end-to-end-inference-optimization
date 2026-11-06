@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -19,6 +20,31 @@ def load(name, path):
 
 
 class ControlTest(unittest.TestCase):
+    def test_shell_check_rejects_syntax_error_in_each_script(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            scripts = root / 'scripts'
+            scripts.mkdir()
+            shutil.copyfile(ROOT / 'scripts/syntax-check', scripts / 'syntax-check')
+            names = ('accelerator-check', 'ansible', 'bootstrap-control-node',
+                     'connectivity-check', 'health-check', 'inventory', 'playbook',
+                     'validate-local')
+            for name in names:
+                path = scripts / name
+                path.write_text('#!/usr/bin/env bash\nexit 0\n')
+                path.chmod(0o755)
+            command = ['bash', str(scripts / 'syntax-check')]
+            self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
+            for name in names:
+                with self.subTest(script=name):
+                    path = scripts / name
+                    original = path.read_text()
+                    path.write_text(original + 'if then\n')
+                    result = subprocess.run(command, capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertNotIn('checks passed', result.stdout)
+                    path.write_text(original)
+
     def test_aliases_only(self):
         guard = load('target_guard', 'scripts/check-targets.py')
         inventory = {'_meta': {'hostvars': {'host-a': {}, 'host-b': {}}}, 'managed': {'hosts': ['host-a', 'host-b']}}
