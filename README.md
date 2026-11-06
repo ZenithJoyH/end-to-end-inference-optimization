@@ -256,7 +256,8 @@ skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库
 
 仅修改文档时，至少执行 `git diff --check` 并核验本地链接。原始评测资产 SHA 由 [test/IMPORT_MANIFEST.md](test/IMPORT_MANIFEST.md) 管理，维护版改动记录在 [evaluation/IMPORT_MANIFEST.md](evaluation/IMPORT_MANIFEST.md)。本地检查通过证明工具层验证完成，不替代目标环境的模型精度、性能或跨平台回归。
 
-已确认的问题、官方参考资料如何进入流程，以及尚未自动化的环节见 [2026-09-06 项目复审](docs/project-review.md)。该报告用于维护导航，不替代执行规范。
+最近的工具门禁、取消处理与记录维护修复见 [2026-11-06 项目复审修复](docs/project-review-fixes-20261106.md)。
+早期问题及方法来源见 [2026-09-06 项目复审](docs/project-review.md)。这些报告用于维护导航，不替代执行规范。
 
 ## 人工参与优化
 
