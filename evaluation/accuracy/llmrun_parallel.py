@@ -6,8 +6,6 @@ import json
 import os
 import re
 import shutil
-import signal
-import subprocess
 import threading
 import time
 import urllib.error
@@ -16,6 +14,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
+from process_control import Cancellation, run_streaming as _run_streaming
 
 
 _LOG_LOCK = threading.Lock()
@@ -186,10 +186,12 @@ def probe_service(model_name: str, base_url: str, timeout: int = 10) -> Tuple[bo
         return False, f"{type(exc).__name__}: {exc}"
 
 
-def wait_for_services(cfg: Dict, selected: List[Tuple[str, str]]) -> None:
+def wait_for_services(cfg: Dict, selected: List[Tuple[str, str]], cancellation=None) -> None:
     started = time.monotonic()
     attempt = 0
     while True:
+        if cancellation is not None:
+            cancellation.check()
         attempt += 1
         failures = []
         for model_name, url in selected:
@@ -209,7 +211,10 @@ def wait_for_services(cfg: Dict, selected: List[Tuple[str, str]]) -> None:
         if wait_timeout:
             interval = min(interval, max(1, wait_timeout - elapsed))
         log("WAIT", f"Services not ready (probe {attempt}); retry in {interval}s: {'; '.join(failures)}")
-        time.sleep(interval)
+        if cancellation is None:
+            time.sleep(interval)
+        else:
+            cancellation.sleep(interval)
 
 
 def sample_stats(samples_file: Path) -> Dict[str, int]:
@@ -322,34 +327,13 @@ def run_streaming(
     command: List[str],
     log_file: Path,
     sidecar_command: Optional[List[str]] = None,
+    *, cancellation=None,
 ) -> int:
-    with log_file.open("a", encoding="utf-8") as handle:
-        handle.write(f"[{datetime.now().isoformat(timespec='seconds')}] command={' '.join(command)}\n")
-        handle.flush()
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                   text=True, bufsize=1, start_new_session=True)
-        sidecar = None
-        if sidecar_command:
-            sidecar = subprocess.Popen(sidecar_command + ["--pid", str(process.pid)])
-        try:
-            assert process.stdout is not None
-            for line in process.stdout:
-                handle.write(line)
-                handle.flush()
-                with _LOG_LOCK:
-                    print(line, end="", flush=True)
-            return_code = process.wait()
-        except KeyboardInterrupt:
-            os.killpg(process.pid, signal.SIGINT)
-            return_code = process.wait()
-        finally:
-            if sidecar is not None:
-                try:
-                    sidecar.wait(timeout=15)
-                except subprocess.TimeoutExpired:
-                    sidecar.terminate()
-                    sidecar.wait(timeout=5)
-        return return_code
+    def print_line(line):
+        with _LOG_LOCK:
+            print(line, end="", flush=True)
+    return _run_streaming(command, log_file, sidecar_command,
+                          cancellation=cancellation, print_line=print_line)
 
 
 def newest_samples(task: str, directory: Path) -> Optional[Path]:
@@ -369,7 +353,9 @@ def validate_shard(cfg: Dict, shard_idx: int, directory: Path) -> bool:
     return stats["samples"] > 0
 
 
-def run_shard(cfg: Dict, shard_idx: int, model_name: str, url: str) -> bool:
+def run_shard(cfg: Dict, shard_idx: int, model_name: str, url: str, *, cancellation=None) -> bool:
+    cancellation = cancellation or Cancellation()
+    cancellation.check()
     base = output_base(cfg)
     base.mkdir(parents=True, exist_ok=True)
     shard_output = base / f"shard-{shard_idx}"
@@ -402,14 +388,19 @@ def run_shard(cfg: Dict, shard_idx: int, model_name: str, url: str) -> bool:
             ]
     attempts = cfg["eval_max_retries"] + 1
     for attempt in range(1, attempts + 1):
+        cancellation.check()
         monitor = ProgressMonitor(shard_output, cfg["task"], cfg["progress_interval"], cfg["limit"], label)
         monitor.start()
-        return_code = run_streaming(
-            command,
-            base / f"lm_eval_shard-{shard_idx}.log",
-            score_command,
-        )
-        monitor.stop()
+        try:
+            return_code = run_streaming(
+                command,
+                base / f"lm_eval_shard-{shard_idx}.log",
+                score_command,
+                cancellation=cancellation,
+            )
+        finally:
+            monitor.stop()
+        cancellation.check()
         if return_code == 0 and validate_shard(cfg, shard_idx, shard_output):
             log("INFO", f"[{label}] completed on attempt {attempt}/{attempts}")
             return True
@@ -420,12 +411,40 @@ def run_shard(cfg: Dict, shard_idx: int, model_name: str, url: str) -> bool:
         healthy, detail = probe_service(model_name, url)
         log("WARN", f"[{label}] retry preflight: healthy={healthy}, detail={detail}")
         if not healthy and cfg.get("wait_for_service", False):
-            wait_for_services(cfg, [(model_name, url)])
+            wait_for_services(cfg, [(model_name, url)], cancellation)
         elif not healthy:
             return False
         log("WARN", f"[{label}] retrying in {cfg['retry_delay']}s; local cache preserves successes")
-        time.sleep(cfg["retry_delay"])
+        cancellation.sleep(cfg["retry_delay"])
     return False
+
+
+def run_shards(cfg, selected):
+    """Cancel live workers before executor shutdown waits for their completion."""
+    failed = []
+    cancellation = Cancellation()
+    with ThreadPoolExecutor(max_workers=len(selected)) as executor:
+        futures = {}
+        try:
+            for service_index, shard_idx in enumerate(cfg["shards"]):
+                model_name, url = selected[service_index]
+                future = executor.submit(run_shard, cfg, shard_idx, model_name, url,
+                                         cancellation=cancellation)
+                futures[future] = shard_idx
+            for future in as_completed(futures):
+                shard_idx = futures[future]
+                try:
+                    if not future.result():
+                        failed.append(shard_idx)
+                except Exception as exc:
+                    log("ERROR", f"[shard-{shard_idx}] unexpected error: {exc}")
+                    failed.append(shard_idx)
+        except BaseException:
+            cancellation.cancel()
+            for future in futures:
+                future.cancel()
+            raise
+    return failed
 
 
 def merge_results(cfg: Dict) -> bool:
@@ -496,20 +515,7 @@ def main() -> None:
     started = time.time()
     if not cfg.get("merge_only", False):
         wait_for_services(cfg, selected)
-        failed: List[int] = []
-        with ThreadPoolExecutor(max_workers=len(selected)) as executor:
-            futures = {}
-            for service_index, shard_idx in enumerate(cfg["shards"]):
-                model_name, url = selected[service_index]
-                futures[executor.submit(run_shard, cfg, shard_idx, model_name, url)] = shard_idx
-            for future in as_completed(futures):
-                shard_idx = futures[future]
-                try:
-                    if not future.result():
-                        failed.append(shard_idx)
-                except Exception as exc:
-                    log("ERROR", f"[shard-{shard_idx}] unexpected error: {exc}")
-                    failed.append(shard_idx)
+        failed = run_shards(cfg, selected)
         if failed:
             fail(f"Failed shards: {sorted(failed)}")
 

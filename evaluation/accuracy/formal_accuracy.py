@@ -17,6 +17,7 @@ from acceptance import (
     validate_service, verify_run_record, write_new,
 )
 from sample_validation import task_filters, validate_sample_file
+from process_control import run_streaming
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "test/Accuracy_test/llmrun.py"
@@ -294,6 +295,9 @@ def run(args):
     # Pin the interpreter/seed and strengthen provenance/acceptance checks.
     runner.build_command = build_command
     runner.validate_samples = validate_samples
+    # The imported runner treats Ctrl+C as a retryable exit code. Replace only
+    # process orchestration so cancellation propagates without publishing a run.
+    runner.run_streaming = run_streaming
     succeeded = runner.run_task(cfg, task_name, run_dir)
     if collect_provenance(cfg) != provenance:
         raise ValueError("evaluator/task/dataset changed during evaluation")

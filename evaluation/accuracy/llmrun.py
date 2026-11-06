@@ -6,8 +6,6 @@ import json
 import os
 import re
 import shutil
-import signal
-import subprocess
 import sys
 import time
 import urllib.error
@@ -17,6 +15,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from sample_validation import validate_sample_file
+from process_control import run_streaming as _run_streaming
 
 
 def log(level: str, message: str) -> None:
@@ -284,38 +283,7 @@ def run_streaming(
     sidecar_command: Optional[List[str]] = None,
 ) -> int:
     log("INFO", "Command: " + " ".join(command))
-    with log_file.open("a", encoding="utf-8") as handle:
-        handle.write(f"[{datetime.now().isoformat(timespec='seconds')}] command={' '.join(command)}\n")
-        handle.flush()
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            start_new_session=True,
-        )
-        sidecar = None
-        if sidecar_command:
-            sidecar = subprocess.Popen(sidecar_command + ["--pid", str(process.pid)])
-        try:
-            assert process.stdout is not None
-            for line in process.stdout:
-                handle.write(line)
-                handle.flush()
-                print(line, end="", flush=True)
-            return_code = process.wait()
-        except KeyboardInterrupt:
-            os.killpg(process.pid, signal.SIGINT)
-            return_code = process.wait()
-        finally:
-            if sidecar is not None:
-                try:
-                    sidecar.wait(timeout=15)
-                except subprocess.TimeoutExpired:
-                    sidecar.terminate()
-                    sidecar.wait(timeout=5)
-        return return_code
+    return _run_streaming(command, log_file, sidecar_command)
 
 
 def newest_result(task_dir: Path) -> Optional[Path]:
