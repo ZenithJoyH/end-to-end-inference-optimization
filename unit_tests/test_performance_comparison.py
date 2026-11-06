@@ -98,6 +98,40 @@ class ComparisonTest(unittest.TestCase):
     def decision(self, paths=None):
         return compare.compare(self.contract_path, paths if paths is not None else self.paths)
 
+    def rewrite_output_evidence(self, output_tokens, *, ignore_eos):
+        """Keep commands/counts/hashes coherent while changing actual output work."""
+        for path in self.paths:
+            record = compare.read_json(path)
+            plan = compare.read_json(record['artifacts']['plan']['path'])
+            plan['generation']['ignore_eos'] = ignore_eos
+            record['artifacts']['plan'] = self.save(Path(record['artifacts']['plan']['path']), plan)
+            client = compare.read_json(record['artifacts']['client']['path'])
+            if not ignore_eos:
+                client['required_flags'].remove('--ignore-eos')
+            record['artifacts']['client'] = self.save(Path(record['artifacts']['client']['path']), client)
+            for row in record['rounds']:
+                case = next(case for case in plan['cases'] if case['id'] == row['case_id'])
+                raw = compare.read_json(row['raw_result']['path'])
+                count, prompt = case['requests'], case['input_tokens']
+                raw.update(output_lens=[output_tokens] * count, total_output_tokens=output_tokens * count,
+                           output_throughput=output_tokens * count / raw['duration'],
+                           total_token_throughput=(prompt + output_tokens) * count / raw['duration'])
+                row['raw_result'] = self.save(Path(row['raw_result']['path']), raw)
+                validation = compare.read_json(row['validation']['path'])
+                stdout = (f"Successful requests: {count}\nBenchmark duration (s): {raw['duration']:.2f}\n"
+                          f"Total input tokens: {prompt * count}\nTotal generated tokens: {output_tokens * count}\n")
+                validation.update(command=performance_plan.build_round_command(
+                    plan, case, row['seed'], Path(row['raw_result']['path'])),
+                    stdout_metrics=vllm_perf.extract_metrics(stdout),
+                    output=self.save(Path(validation['output']['path']), dict(stdout=stdout, stderr='')))
+                row['validation'] = self.save(Path(row['validation']['path']), validation)
+            self.save(path, record)
+
+    def test_business_comparison_keeps_natural_eos_output_support(self):
+        self.rewrite_output_evidence(3, ignore_eos=False)
+        report = self.decision()
+        self.assertEqual(report['status'], 'passed', report)
+
     def mutate_artifact(self, run_index, key, update):
         path = self.paths[run_index]
         record = compare.read_json(path)

@@ -135,5 +135,26 @@ class FinalAcceptanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'shortened'):
             native.check_project_plan(plan, self.f.contract['project_scope'])
 
+    def assert_shortened_output_is_rejected(self, *, ignore_eos):
+        self.f.rewrite_output_evidence(16, ignore_eos=ignore_eos)
+        self.manifest['run_records'] = [native.artifact(path) for path in self.f.paths]
+        for phases in self.manifest['phase_evidence'].values():
+            for evidence in phases.values():
+                evidence['run_record'] = native.artifact(self.f.paths[2])
+        comparison = self.f.decision()
+        result = self.result()
+        self.assertEqual(comparison['status'], 'incomplete', comparison)
+        self.assertEqual(result['status'], 'incomplete', result)
+        self.assertFalse(result.get('final_acceptance', False))
+        return result
+
+    def test_natural_eos_cannot_shorten_four_fixed_final_scenarios(self):
+        result = self.assert_shortened_output_is_rejected(ignore_eos=False)
+        self.assertIn('ignore_eos=true', ' '.join(result['issues']))
+
+    def test_fixed_output_requires_actual_tokens_even_with_ignore_eos_enabled(self):
+        result = self.assert_shortened_output_is_rejected(ignore_eos=True)
+        self.assertIn('native result failed revalidation', ' '.join(result['issues']))
+
 
 if __name__ == '__main__': unittest.main()

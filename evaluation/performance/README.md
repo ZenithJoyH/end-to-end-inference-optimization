@@ -29,7 +29,9 @@ vllm serve <model> <其余冻结参数> \
 
 只有用户明确要求评估 prefix cache 时，才允许在单独契约中改变该状态，并把缓存准备、前缀复用比例和命中证据列为受控变量。不得把开启缓存的结果与默认关闭缓存的结果归因为其他代码或算子优化。历史产物维持原记录，不按本门禁改写。
 
-执行计划在 dry-run/发送请求前检查默认关闭和配置一致性；比较器再次核验。
+执行计划在 dry-run/发送请求前检查完整服务身份、`image_lineage=verified`、`mount_parity=passed`、
+设备/镜像/cache 事实及默认关闭配置，baseline/candidate/revert 和 diagnostic 均适用；比较器再次核验。
+manifest 列出的 `runtime_evidence_files` 在请求前、逐轮和结束时核对 SHA，缺失、变更或隔离门禁未通过时停止。
 缓存实验需在冻结 comparison 中新增 `cache_experiment: {authorization, reuse_ratio, hit_evidence}`，
 记录用户指令出处、0–1 前缀复用比例、命中证据路径，并在 `variable_paths` 显式声明实际变化的缓存状态、
 准备方式和启动配置字段。缺失声明、启用状态与观测矛盾，均不产生有效比较。
@@ -56,7 +58,7 @@ service路径与测量快照SHA，不把可变缓存绑定用于绕过预热或�
 
 可以从场景目录分别生成 targeted、checkpoint 和 formal 计划：targeted 承载 milestone 和低成本哨兵，checkpoint 包含当前改动影响的场景，中间 formal 只包含当前一个正式目标场景，最终 formal 才包含固定四场景及额外业务场景。各计划使用稳定且可追溯的 case ID，保存配置和 SHA；任何缩减 workload 都建立自身同配置 baseline，不能复用其他计划汇总值。中间 formal 结果留在 `optimize/`，最终组合结果进入 `acceptance/`。
 
-每次运行都提供当前 [service manifest](../accuracy/service-manifest.example.json)。自动比较额外核对其中的 `performance_context`：平台、设备身份、驱动/runtime、镜像与缓存准备。字段来自运行时取证，不靠把 unknown 改成字符串补造事实；scope 为诊断时执行器允许不完整身份，但比较器会将不足证据判为 incomplete。
+每次运行都提供当前 [service manifest](../accuracy/service-manifest.example.json)。执行器与自动比较均核对其中的 `performance_context`：平台、设备身份、驱动/runtime、镜像与缓存准备。字段来自运行时取证，不靠把 unknown 改成字符串补造事实；诊断 scope 同样不能绕过身份或隔离门禁。工具核验记录及其文件一致性，当前远端运行事实仍由执行者取证。
 
 先生成可审阅命令，不需要安装 vLLM，也不发送推理请求：
 
@@ -117,7 +119,7 @@ python3 evaluation/performance/compare_performance.py \
 - 优化循环可以为不同场景使用独立计划。targeted/checkpoint/full 是实验契约中的结论层级，当前执行器通过实际计划中的 case 集合体现，不会自行判断遗漏场景；最终验收必须由执行者提供预冻结 full 计划并核对场景完整性。
 - `warmup_rounds` 是固定预算。可选 `warmup_stability` 检查末尾窗口的 `(max-min)/median`；预算内未通过就停止。默认固定轮数不证明稳态，也不自动建立业务缓存冷热条件。
 - 默认结论面向稳态：冷启动、服务首请求、首批次和预热轮不进入正式聚合，也不应主导优化方向。比较器会保留并检查所有正式测量轮的波动；不得在看到结果后删除较慢的首个测量轮。若首个测量轮仍显示过渡态，应将运行判为 `incomplete`，在新契约中增加预热或收紧稳态准入，并用同一规则重跑全部比较角色。只有显式的独立冷启动契约才能把这些启动成本作为主目标。
-- `required_metrics` 明确本任务不可缺失的原生指标；支持 P50/P95/P99 等已列出的指标。单 token 输出不能要求 TPOT/ITL。`ignore_eos=false` 按每请求实际输出核对，不强行套固定输出总数。
+- `required_metrics` 明确本任务不可缺失的原生指标；支持 P50/P95/P99 等已列出的指标。单 token 输出不能要求 TPOT/ITL。普通业务场景可用 `ignore_eos=false` 按每请求实际输出核对；固定四场景的保留 ID 要求 `ignore_eos=true`，实际每请求输出必须为 1024 token，执行、比较和最终验收都校验。自然 EOS 业务测量使用独立计划与场景 ID，不替代固定四场景。
 - 非空 `measurement.slo` 原样传入原生 `--goodput`，采用同一请求同时满足全部 SLO 的结果，再核对 goodput 与时长/请求数。不会从 chunk ITL 猜测 TPOT/E2EL；口径依赖所记录的原生客户端版本。[vLLM 原生计算](https://github.com/vllm-project/vllm/blob/v0.24.0/vllm/benchmarks/serve.py)
 - 当前仅支持 random 长度受控 workload 与 `/v1/completions`。持续 closed-loop、业务 trace 重放、客户端待发队列计时、自动跨进程服务编排、cache 清理、资源监控与长稳尚不由此入口实现。open-loop 的并发上限可能降低实际发出速率；工具不会把有限扫描的 passed 宣称为持续容量达标。
 

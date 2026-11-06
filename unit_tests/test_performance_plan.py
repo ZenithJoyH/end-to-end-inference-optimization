@@ -106,6 +106,17 @@ class PlanValidationTest(unittest.TestCase):
         raw["cases"][0]["stage"] = "decode"
         self.assertEqual(PLAN.normalize_plan(raw)["cases"][0]["stage"], "decode")
 
+    def test_fixed_target_ids_require_fixed_output_while_business_cases_keep_natural_eos(self):
+        raw = config()
+        raw['generation'] = {'ignore_eos': False}
+        self.assertFalse(PLAN.normalize_plan(raw)['generation']['ignore_eos'])
+        for name, (prompt, output, concurrency, requests) in PLAN.REQUIRED_SCENARIOS.items():
+            with self.subTest(case=name):
+                raw['cases'] = [dict(id=name, input_tokens=prompt, output_tokens=output,
+                                     concurrency=concurrency, requests=requests, load_mode='finite_batch')]
+                with self.assertRaisesRegex(ValueError, 'ignore_eos=true'):
+                    PLAN.normalize_plan(raw)
+
     def test_overflowed_warmup_median_cannot_establish_stability(self):
         check = PLAN._warmup_check([1e308, 1e308], {"metric": "p99_ttft_ms", "window": 2, "max_relative_spread": 0.05})
         self.assertEqual(check["status"], "failed")
@@ -145,10 +156,19 @@ class PlanExecutionTest(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.plan_path, self.service_path = self.root / "plan.json", self.root / "service.json"
         self.plan_path.write_text(json.dumps(config()))
-        self.service_path.write_text(json.dumps({"model_name": "example", "tokenizer_path": "example-tokenizer",
-                                                "launch_config": {"enable_prefix_caching": False},
-                                                "performance_context": {"prefix_cache_state": "disabled"},
-                                                "service_instance_id": "observed-process", "base_url": "http://127.0.0.1:8000/v1/chat/completions"}))
+        service = dict(host='host-a', optimization_container_name='isolated', mode='graph',
+                       model_name='example', tokenizer_path='example-tokenizer',
+                       service_instance_id='observed-process', base_url='http://127.0.0.1:8000/v1/chat/completions',
+                       image_lineage='verified', mount_parity='passed',
+                       flaggems_vllm_installed=False, flaggems_vllm_sha256=None,
+                       launch_config={'enable_prefix_caching': False},
+                       performance_context=dict(platform='synthetic', device_model='fixture', device_ids=['device-0'],
+                                                driver_version='fixture', device_runtime_version='fixture',
+                                                image_id='sha256:' + 'c' * 64, prefix_cache_state='disabled',
+                                                cache_preparation='synthetic fixture'))
+        service.update({key: 'a' * 64 for key in ('model_sha256', 'tokenizer_sha256', 'engine_sha256',
+                                                 'plugin_sha256', 'flaggems_sha256', 'runtime_evidence_sha256')})
+        self.service_path.write_text(json.dumps(service))
         self.args = SimpleNamespace(config=str(self.plan_path), service_manifest=str(self.service_path),
                                     role="baseline", run_id="baseline-1", output_dir=str(self.root / "results"),
                                     scope="diagnostic", accuracy_gate=None, comparison_contract=None, dry_run=False)
@@ -203,6 +223,62 @@ class PlanExecutionTest(unittest.TestCase):
                 PLAN.execute_plan(self.args)
             run.assert_not_called()
         self.assertFalse(Path(self.args.output_dir).exists())
+
+    def test_all_roles_reject_incomplete_identity_and_isolation_before_requests(self):
+        original = PLAN.read_json(self.service_path)
+        for role in ('baseline', 'candidate', 'revert'):
+            for key, value in (('image_lineage', 'unverified'), ('mount_parity', 'failed'),
+                               ('model_sha256', ''), ('flaggems_vllm_installed', None),
+                               ('performance_context', {})):
+                with self.subTest(role=role, field=key):
+                    self.args.role = role
+                    self.service_path.write_text(json.dumps({**original, key: value}))
+                    with patch.object(PLAN.subprocess, 'run') as run, patch.object(PLAN, 'inspect_client') as inspect:
+                        with self.assertRaises(ValueError):
+                            PLAN.execute_plan(self.args)
+                        run.assert_not_called()
+                        inspect.assert_not_called()
+                    self.assertFalse(Path(self.args.output_dir).exists())
+
+    def test_fixed_target_natural_eos_is_rejected_before_requests(self):
+        raw = config()
+        name, (prompt, output, concurrency, requests) = next(iter(PLAN.REQUIRED_SCENARIOS.items()))
+        raw['cases'] = [dict(id=name, input_tokens=prompt, output_tokens=output,
+                             concurrency=concurrency, requests=requests, load_mode='finite_batch')]
+        raw['generation'] = {'ignore_eos': False}
+        self.plan_path.write_text(json.dumps(raw))
+        with patch.object(PLAN.subprocess, 'run') as run, patch.object(PLAN, 'inspect_client') as inspect:
+            with self.assertRaisesRegex(ValueError, 'ignore_eos=true'):
+                PLAN.execute_plan(self.args)
+            run.assert_not_called()
+            inspect.assert_not_called()
+        self.assertFalse(Path(self.args.output_dir).exists())
+
+    def test_runtime_evidence_is_checked_before_and_during_measurement(self):
+        proof = self.root / 'runtime-evidence.json'
+        proof.write_text('{"instance": "observed-process"}')
+        service = PLAN.read_json(self.service_path)
+        ref = PLAN.artifact(proof)
+        service.update(runtime_evidence_sha256=ref['sha256'], runtime_evidence_files={ref['path']: ref['sha256']})
+        self.service_path.write_text(json.dumps(service))
+        original = proof.read_text()
+        proof.write_text('{}')
+        with patch.object(PLAN.subprocess, 'run') as run, patch.object(PLAN, 'inspect_client') as inspect:
+            with self.assertRaisesRegex(ValueError, 'artifact missing, relocated or changed'):
+                PLAN.execute_plan(self.args)
+            run.assert_not_called()
+            inspect.assert_not_called()
+        self.assertFalse(Path(self.args.output_dir).exists())
+        proof.write_text(original)
+
+        def drift(command, **kwargs):
+            result = self.benchmark(command, **kwargs)
+            proof.write_text('{}')
+            return result
+
+        _, record, count = self.execute(drift)
+        self.assertEqual((record['status'], count), ('failed', 1))
+        self.assertFalse(record['inputs_verified_after'])
 
     def test_complete_run_records_all_rounds_and_sha_bound_evidence(self):
         contract = self.root / "contract.json"

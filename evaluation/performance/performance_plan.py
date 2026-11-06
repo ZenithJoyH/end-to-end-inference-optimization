@@ -22,6 +22,7 @@ def _native():
 
 NATIVE = _native()
 ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}\Z")
+REQUIRED_SCENARIOS = {f"p{p}-d1024-c64-n128": (p, 1024, 64, 128) for p in (1024, 4096, 16384, 32768)}
 
 
 def _pairs(items):
@@ -66,6 +67,18 @@ def _text(value, label):
 def _identifier(value, label):
     if not isinstance(value, str) or not ID_PATTERN.fullmatch(value):
         raise ValueError(f"{label} must be a safe 1-128 character identifier")
+
+
+def validate_project_case(case, generation):
+    """Reserved target IDs describe actual fixed work, not a generation cap."""
+    if case["id"] not in REQUIRED_SCENARIOS:
+        return
+    shape = tuple(case[key] for key in ("input_tokens", "output_tokens", "concurrency", "requests"))
+    if (shape != REQUIRED_SCENARIOS[case["id"]] or case["load_mode"] != "finite_batch"
+            or case.get("stage") != "mixed"):
+        raise ValueError("an original target scenario was renamed, shortened or is not mixed")
+    if generation.get("ignore_eos") is not True:
+        raise ValueError("fixed project scenarios require ignore_eos=true and 1024 actual output tokens per request")
 
 
 def normalize_plan(data):
@@ -165,6 +178,7 @@ def normalize_plan(data):
         last_seed = round_seed(generation["seed"], case, measurement["warmup_rounds"] + measurement["measured_rounds"])
         if last_seed >= 2**32:
             raise ValueError("derived round seed exceeds the client's uint32 seed range")
+        validate_project_case(case, generation)
         cases.append(case)
     return {"schema_version": 1, "target": target, "generation": generation,
             "measurement": measurement, "cases": cases}
@@ -412,7 +426,8 @@ def execute_plan(args):
     _number(probe_timeout_s, "client probe timeout")
     source_refs = {"plan": artifact(args.config), "service": artifact(args.service_manifest)}
     plan = load_plan(args.config)
-    _check_service(read_json(args.service_manifest), plan["target"])
+    service = read_json(args.service_manifest)
+    _check_service(service, plan["target"])
     scope = args.scope
     if args.accuracy_gate:
         if args.role != "candidate" or scope == "performance_only":
@@ -422,9 +437,18 @@ def execute_plan(args):
         scope = "formal_candidate"
     if args.comparison_contract:
         source_refs["comparison_contract"] = artifact(args.comparison_contract)
-    from compare_performance import validate_cache_policy, validate_contract
+    from compare_performance import checked, check_project_plan, identity_digest, service_identity, validate_contract
     comparison = validate_contract(read_json(args.comparison_contract)) if args.comparison_contract else None
-    validate_cache_policy(read_json(args.service_manifest), comparison)
+    identity = service_identity(service, comparison)
+    runtime_refs = [{"path": path, "sha256": digest}
+                    for path, digest in service.get("runtime_evidence_files", {}).items()]
+    for ref in runtime_refs:
+        checked(ref)
+    if comparison and "project_scope" in comparison:
+        project_scope = comparison["project_scope"]
+        check_project_plan(plan, project_scope)
+        if args.role in ("baseline", "revert") and identity_digest(identity) != project_scope["baseline_identity_sha256"]:
+            raise ValueError("baseline/revert differ from the pre-frozen baseline identity")
     _check_refs(source_refs.values())
 
     directory = Path(args.output_dir).resolve() / args.run_id
@@ -445,7 +469,7 @@ def execute_plan(args):
               "artifacts": {}, "input_artifacts": source_refs, "rounds": [], "errors": [],
               "warmup_check": {}, "inputs_verified_before": True, "inputs_verified_after": False}
     record_path = directory / "run-record.json"
-    all_refs = [*source_refs.values()]
+    all_refs = [*source_refs.values(), *runtime_refs]
     try:
         record["artifacts"]["plan"] = _write_new(directory / "effective-plan.json", plan)
         for name, ref in source_refs.items():
@@ -465,7 +489,7 @@ def execute_plan(args):
         record["errors"].extend(client_errors)
         if client_errors:
             raise ValueError("client capability preflight failed; no requests were sent")
-        all_refs = [*source_refs.values(), *record["artifacts"].values()]
+        all_refs = [*source_refs.values(), *runtime_refs, *record["artifacts"].values()]
         if client.get("executable_sha256"):
             all_refs.append({"path": client["executable"], "sha256": client["executable_sha256"]})
         if client.get("runtime"):

@@ -36,7 +36,7 @@ VARIABLE_ROOTS = {
 # Keep the field in stable identity so each role and baseline/revert still match.
 CONTAINER_NAME_VARIABLE_PATH = "/optimization_container_name"
 CACHE_VARIABLE_PATHS = {"/performance_context/prefix_cache_state", "/performance_context/cache_preparation"}
-REQUIRED_SCENARIOS = {f"p{p}-d1024-c64-n128": (p, 1024, 64, 128) for p in (1024, 4096, 16384, 32768)}
+REQUIRED_SCENARIOS = performance_plan.REQUIRED_SCENARIOS
 
 
 def read_json(path):
@@ -190,10 +190,7 @@ def check_project_plan(plan, scope):
     for case in plan["cases"]:
         if case.get("stage") != "mixed":
             raise ValueError("formal target scenarios must be mixed")
-        if case["id"] in REQUIRED_SCENARIOS:
-            shape = tuple(case[k] for k in ("input_tokens", "output_tokens", "concurrency", "requests"))
-            if shape != REQUIRED_SCENARIOS[case["id"]] or case["load_mode"] != "finite_batch":
-                raise ValueError("an original target scenario was renamed or shortened")
+        performance_plan.validate_project_case(case, plan["generation"])
 
 
 def validate_metric(spec):
