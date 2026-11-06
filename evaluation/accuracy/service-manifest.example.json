@@ -14,9 +14,9 @@
   "flaggems_vllm_sha256": null,
   "runtime_evidence_sha256": "",
   "launch_config": {
-    "enable_prefix_caching": false,
+    "enable_prefix_caching": true,
     "launch_args": [
-      "--no-enable-prefix-caching"
+      "--enable-prefix-caching"
     ]
   },
   "image_lineage": "unverified",
@@ -29,7 +29,7 @@
     "driver_version": "",
     "device_runtime_version": "",
     "image_id": "",
-    "prefix_cache_state": "disabled",
-    "cache_preparation": "Verified from the current process arguments and runtime evidence."
+    "prefix_cache_state": "cold",
+    "cache_preparation": "Example only: replace with observed enabled-cache state and actual preparation, backed by current runtime evidence."
   }
 }

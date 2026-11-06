@@ -25,6 +25,8 @@ vllm serve <model> <其余冻结参数> \
 
 该参数关闭 prefix caching；性能服务不要求增加 `--no-enable-log-requests`。执行前用目标版本 CLI 帮助确认 prefix cache 参数受支持，执行后保存完整进程参数及服务日志或等价 runtime 证据。service manifest 应填写 `launch_config.enable_prefix_caching=false`、`performance_context.prefix_cache_state=disabled`，并在 `cache_preparation` 说明验证方式；缺少实际状态证据时，比较保持 incomplete。
 
+精度评测必须开启 prefix cache，不能沿用性能关闭配置。正式性能候选须先按 [performance-bind](../accuracy/README.md#精度开启缓存与性能关闭缓存) 将开启缓存下的有效精度结果绑定到当前关闭缓存的性能实例，并保留两份真实配置与切换回归证据。
+
 只有用户明确要求评估 prefix cache 时，才允许在单独契约中改变该状态，并把缓存准备、前缀复用比例和命中证据列为受控变量。不得把开启缓存的结果与默认关闭缓存的结果归因为其他代码或算子优化。历史产物维持原记录，不按本门禁改写。
 
 执行计划在 dry-run/发送请求前检查默认关闭和配置一致性；比较器再次核验。

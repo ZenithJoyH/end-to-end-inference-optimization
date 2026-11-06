@@ -63,12 +63,22 @@ class FinalAcceptanceTests(unittest.TestCase):
                 accuracy.setUp()
                 self.addCleanup(accuracy.doCleanups)
                 accuracy.service = native.read_json(record['artifacts']['service']['path'])
+                performance_instance = accuracy.service['service_instance_id']
+                accuracy.service['launch_config'].update(enable_prefix_caching=True,
+                                                          launch_args=['--enable-prefix-caching'])
+                accuracy.service['performance_context']['prefix_cache_state'] = 'cold'
+                accuracy.service['service_instance_id'] = 'evaluated-boot'
                 accuracy.save('service', accuracy.service)
                 accuracy_record = native.read_json(accuracy.record)
                 accuracy_record['artifacts']['service'] = accuracy.refs['service']
                 f.save(accuracy.record, accuracy_record)
-                accuracy_fixture.gate.issue_gate(accuracy.record, accuracy.output)
-                record['artifacts']['accuracy_gate'] = native.artifact(accuracy.output)
+                current, evidence, bound = accuracy.make_performance_binding(performance_instance)
+                accuracy_fixture.gate.performance_bind_gate(accuracy.output, current, evidence, bound)
+                snapshot = Path(record['artifacts']['service']['path'])
+                snapshot.write_bytes(current.read_bytes())
+                record['artifacts']['service'] = native.artifact(snapshot)
+                record['input_artifacts'] = dict(service=native.artifact(current))
+                record['artifacts']['accuracy_gate'] = native.artifact(bound)
                 record['scope'] = 'formal_candidate'
             f.save(path, record)
         candidate_ref = native.artifact(f.paths[2])

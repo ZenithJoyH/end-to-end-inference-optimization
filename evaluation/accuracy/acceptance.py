@@ -159,6 +159,48 @@ def validate_service(service, *, formal=True):
                          else "service endpoint must be /v1/completions or /v1/chat/completions")
 
 
+def validate_accuracy_prefix_cache(service):
+    """Require an enabled, observed cache for newly executed accuracy runs."""
+    launch = service.get("launch_config", {})
+    context = service.get("performance_context", {})
+    args = launch.get("launch_args")
+    if (launch.get("enable_prefix_caching") is not True
+            or not isinstance(args, list)
+            or any(not isinstance(arg, str) for arg in args)
+            or args.count("--enable-prefix-caching") != 1
+            or any(arg.startswith("--no-enable-prefix-caching")
+                   or arg.startswith("--enable-prefix-caching=") for arg in args)
+            or context.get("prefix_cache_state") not in ("cold", "warm", "mixed")
+            or not isinstance(context.get("cache_preparation"), str)
+            or not context["cache_preparation"].strip()):
+        raise ValueError("accuracy evaluation requires enabled prefix cache, explicit launch flag and runtime state")
+
+
+def performance_binding_identity(service):
+    """Normalize only the declared APC policy fields for accuracy-to-perf binding."""
+    identity = stable_service_identity(service)
+    launch = dict(identity["launch_config"])
+    args = launch.get("launch_args")
+    enabled = launch.get("enable_prefix_caching")
+    flag = "--enable-prefix-caching" if enabled is True else "--no-enable-prefix-caching"
+    if (type(enabled) is not bool or not isinstance(args, list)
+            or any(not isinstance(arg, str) for arg in args)
+            or args.count(flag) != 1
+            or any(arg.startswith(("--enable-prefix-caching", "--no-enable-prefix-caching"))
+                   and arg != flag for arg in args)):
+        raise ValueError("prefix cache transition requires one consistent explicit launch flag")
+    launch.pop("enable_prefix_caching")
+    launch["launch_args"] = [arg for arg in args if arg != flag]
+    context = dict(identity["performance_context"])
+    expected = ("cold", "warm", "mixed") if enabled else ("disabled",)
+    if context.get("prefix_cache_state") not in expected:
+        raise ValueError("prefix cache transition runtime state contradicts launch configuration")
+    require_text(context, ("cache_preparation",))
+    context.pop("prefix_cache_state")
+    context.pop("cache_preparation")
+    return dict(identity, launch_config=launch, performance_context=context)
+
+
 def validate_contract(contract):
     if contract.get("schema_version") != 3 or contract.get("task") != bound_task(contract):
         raise ValueError("contract must be schema 3 with collected task provenance, full GPQA Diamond")
@@ -364,6 +406,8 @@ def verify_run_record(record):
     service = read_json(paths["service"])
     contract = read_json(paths["contract"])
     validate_service(service)
+    if record.get("accuracy_prefix_cache_required") is True:
+        validate_accuracy_prefix_cache(service)
     validate_contract(contract)
     cfg = read_json(paths["config"])
     validate_config(cfg, service)
@@ -384,7 +428,9 @@ def verify_run_record(record):
 
 def issue_gate(record_path, output, health_path=None):
     record, service, score = verify_run(record_path)
+    validate_accuracy_prefix_cache(service)
     gate = {"schema_version": 3, "passed": True, "score": score,
+            "accuracy_prefix_cache_required": True,
             "threshold": read_json(checked_artifact(record["artifacts"]["contract"]))["threshold"],
             "criterion": "score_greater_than_or_equal_to_threshold",
             "service_sha256": record["artifacts"]["service"]["sha256"],
@@ -424,7 +470,7 @@ def stable_service_identity(service):
         "service_instance_id", "runtime_evidence_sha256", "api_pid", "runtime_evidence_files")}
 
 
-def verify_rebind(source_gate_path, service_path, evidence_path):
+def verify_rebind(source_gate_path, service_path, evidence_path, *, prefix_cache_transition=False):
     source = read_json(source_gate_path)
     if source.get("schema_version") != 3:
         raise ValueError("rebind must reference an original evaluated gate, not another rebind")
@@ -433,7 +479,14 @@ def verify_rebind(source_gate_path, service_path, evidence_path):
     check_gate(source_gate_path, old_path)
     old, current = read_json(old_path), read_json(service_path)
     identity = stable_service_identity(current)
-    if identity != stable_service_identity(old):
+    if prefix_cache_transition:
+        validate_accuracy_prefix_cache(old)
+        if current["launch_config"].get("enable_prefix_caching") is not False:
+            raise ValueError("performance binding requires prefix cache disabled")
+        same_identity = performance_binding_identity(current) == performance_binding_identity(old)
+    else:
+        same_identity = identity == stable_service_identity(old)
+    if not same_identity:
         raise ValueError("rebind changes source/configuration/environment; a new formal evaluation is required")
     if current["service_instance_id"] == old["service_instance_id"]:
         raise ValueError("rebind requires a fresh service instance")
@@ -456,6 +509,14 @@ def verify_rebind(source_gate_path, service_path, evidence_path):
             or regression.get("status") != "passed"):
         raise ValueError("rebind requires passed minimal regression for the new instance")
     checked_artifact(regression["evidence"])
+    if prefix_cache_transition:
+        comparison = read_json(checked_artifact(evidence["prefix_cache_regression"]))
+        if (comparison.get("status") != "passed"
+                or comparison.get("source_service_sha256") != sha256(old_path)
+                or comparison.get("current_service_sha256") != sha256(service_path)):
+            raise ValueError("prefix cache regression must bind both services and pass")
+        for key in ("contract", "source_result", "current_result"):
+            checked_artifact(comparison[key])
     return source
 
 
@@ -469,6 +530,19 @@ def rebind_gate(source_gate_path, service_path, evidence_path, output):
               "service_sha256": refs[1]["sha256"], "score": source["score"],
               "threshold": source["threshold"], "criterion": source["criterion"],
               "evaluation_reused": True}
+    write_new(output, result)
+    return result
+
+
+def performance_bind_gate(source_gate_path, service_path, evidence_path, output):
+    refs = [artifact(path) for path in (source_gate_path, service_path, evidence_path)]
+    source = verify_rebind(source_gate_path, service_path, evidence_path, prefix_cache_transition=True)
+    for ref in refs:
+        checked_artifact(ref)
+    result = dict(schema_version=7, kind="accuracy_gate_performance_binding", passed=True,
+                  source_gate=refs[0], rebind_evidence=refs[2], service_sha256=refs[1]["sha256"],
+                  score=source["score"], threshold=source["threshold"], criterion=source["criterion"],
+                  evaluation_reused=True)
     write_new(output, result)
     return result
 
@@ -631,6 +705,16 @@ def cache_rebind_gate(source_gate_path, service_path, evidence_path, output):
 
 def check_gate(gate_path, service_path, model=None, host=None, port=None, tokenizer=None):
     gate = read_json(gate_path)
+    if gate.get("schema_version") == 7:
+        if (gate.get("kind") != "accuracy_gate_performance_binding" or gate.get("passed") is not True
+                or gate.get("evaluation_reused") is not True or gate.get("service_sha256") != sha256(service_path)):
+            raise ValueError("invalid performance binding or changed current service")
+        source = verify_rebind(checked_artifact(gate["source_gate"]), service_path,
+                               checked_artifact(gate["rebind_evidence"]), prefix_cache_transition=True)
+        if any(gate.get(k) != source[k] for k in ("score", "threshold", "criterion")):
+            raise ValueError("performance binding changed the evaluated verdict")
+        check_target(read_json(service_path), model, host, port, tokenizer)
+        return gate
     if gate.get('schema_version') == 6:
         if (gate.get('kind') != 'accuracy_gate_cache_restart' or gate.get('passed') is not True
                 or gate.get('evaluation_reused') is not True or gate.get('service_sha256') != sha256(service_path)):
@@ -668,6 +752,8 @@ def check_gate(gate_path, service_path, model=None, host=None, port=None, tokeni
         raise ValueError("current service manifest differs from the evaluated service")
     record_path = checked_artifact(gate["run_record"])
     record, service, score = verify_run(record_path)
+    if gate.get("accuracy_prefix_cache_required") is True:
+        validate_accuracy_prefix_cache(service)
     contract = read_json(checked_artifact(record["artifacts"]["contract"]))
     if (record["artifacts"]["service"]["sha256"] != gate["service_sha256"]
             or score != gate.get("score") or contract["threshold"] != gate.get("threshold")
@@ -715,10 +801,15 @@ def main():
     restart_cache = commands.add_parser('cache-rebind', help='explicit audited restart plus normal tuning-cache writes')
     for name in ('source-gate', 'service-manifest', 'evidence', 'output'):
         restart_cache.add_argument('--'+name, required=True, type=Path)
+    performance = commands.add_parser("performance-bind", help="bind enabled-cache accuracy to disabled-cache performance")
+    for name in ("source-gate", "service-manifest", "evidence", "output"):
+        performance.add_argument("--" + name, required=True, type=Path)
     args = parser.parse_args()
     try:
         if args.command == "issue":
             issue_gate(args.run_record, args.output, args.health_observation)
+        elif args.command == "performance-bind":
+            performance_bind_gate(args.source_gate, args.service_manifest, args.evidence, args.output)
         elif args.command == "rebind":
             rebind_gate(args.source_gate, args.service_manifest, args.evidence, args.output)
         elif args.command == 'cache-update':

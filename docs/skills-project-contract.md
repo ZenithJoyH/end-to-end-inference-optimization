@@ -48,6 +48,11 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
 - 当前正式 task 是镜像中已核实注册的 `gpqa_diamond_generative_cot`，完整集合 198 个唯一
   问题；graph 和正式并发等执行方法来自本地精度方法。超时、空输出、截断、重复或格式异常
   只记录为诊断观察，不阻止得分与 gate 的生成。
+- 精度服务必须显式使用 `--enable-prefix-caching`，删除相反开关，并以当前进程/runtime 取证；
+  manifest 记录 `enable_prefix_caching=true`、完整启动参数、实际 `cold/warm/mixed` 状态及缓存准备。
+  正式预检、执行及 gate 签发会拒绝缺失、关闭或矛盾状态；不能用性能服务的关闭配置执行精度评测。
+- 精度开启→性能关闭时，通过 [performance-bind](../evaluation/accuracy/README.md#精度开启缓存与性能关闭缓存)
+  核验两份真实配置、同候选身份和切换回归，签发绑定当前性能实例的 schema7 回执；不修改原分数或旧 manifest。
 - gate 签发：使用
   `python3 evaluation/accuracy/acceptance.py issue --run-record <run-record.json> --output <accuracy-gate.json>`。
   输出健康信息可用 `--health-observation` 附加为诊断证据，但不改变阈值结论。

@@ -21,7 +21,7 @@
 正式契约只冻结 `metric` 和数值型 `threshold`。候选分数大于或等于阈值即通过，等于阈值不视为失败；不能在看到候选分数后改变指标或阈值。
 配置中的 `allow_timeouts` 仅为兼容原 runner 保留，取值 `true` 或 `false` 都不影响正式 gate；本项目示例使用 `true` 以避免原始执行层提前拦截超时样本。
 
-每次正式启动采用独立 UUID 缓存；同一运行内重试保留原 runner 行为，不跨候选复用响应。输出健康信息可保留为诊断观察，但不参与精度 gate 判定。
+服务端精度评测必须开启 prefix cache，具体配置与切换流程见下节。评测器响应缓存与服务端 KV prefix cache 是两类缓存：每次正式启动采用独立 UUID 响应缓存；同一运行内重试保留原 runner 行为，不跨候选复用响应。输出健康信息可保留为诊断观察，但不参与精度 gate 判定。
 
 ### 用户明确选择已有 GPQA 参考请求协议
 
@@ -49,6 +49,62 @@ provenance 覆盖为 `{}` 时接受这两种等价表示；缺键、错误类型
 若完整原生运行仅因此被旧封装拒绝，可在保存旧工具/失败回执和新工具 SHA、完成回归后，
 用 `formal_accuracy.py --finalize-run <原UUID目录>` 复验同一完整结果，再原生 issue/check。
 该路径不查询模型，不改写原始样本、结果、协议或阈值；其他证据缺陷仍阻止签发。
+
+## 精度开启缓存与性能关闭缓存
+
+精度评测服务必须显式设置 `--enable-prefix-caching`，移除 `--no-enable-prefix-caching`。
+先确认目标 CLI 支持，再核验实际进程参数和 runtime 状态；不能只依赖默认值或预期启动脚本。
+服务 manifest 必须记录 `launch_config.enable_prefix_caching=true`、包含显式开关的 `launch_args`，
+以及 `performance_context.prefix_cache_state=cold/warm/mixed` 和非空 `cache_preparation`。
+开启但尚无命中的 cold 状态符合要求，不增加命中率门槛。示例不是运行证据，必须替换为实测值。
+纯算子测试没有服务缓存；只读 `gate-check` 不发精度请求。
+
+`formal_accuracy.py` 在预检及实际请求前强制检查；新 run-record 与原始 gate 带
+`accuracy_prefix_cache_required=true`，后续复验继续检查。`acceptance.py issue` 不允许对关闭
+缓存的旧记录新签发 gate。历史记录保留原貌，可按原协议审计，不按新规则追认开启状态。
+精度结论仍只比较 `score >= threshold`；配置检查用于确保评测按规定执行。
+
+默认性能测量仍显式使用 `--no-enable-prefix-caching`。开启状态的精度 gate 不能直接用于关闭
+状态的性能实例，也不能用严格 `rebind` 绕过配置差异。使用专用绑定：
+
+```bash
+python3 evaluation/accuracy/acceptance.py performance-bind \
+  --source-gate /external/original-accuracy-gate.json \
+  --service-manifest /external/performance-service.json \
+  --evidence /external/prefix-cache-transition.json \
+  --output /external/performance-bound-gate.json
+```
+
+该流程直接引用完整证据仍有效的原始 schema3 gate，原精度服务须开启缓存，新性能实例须关闭。
+相较下节严格重启绑定，仅额外允许四处差异：`launch_config.enable_prefix_caching`、
+`launch_args` 中对应开关、`performance_context.prefix_cache_state`、`cache_preparation`。
+其他启动参数、代码、权重、tokenizer、Host/容器/endpoint、设备、runtime、调参DB指纹必须相同。
+保留两份真实 manifest；禁止改写旧证据或伪造相同实例。它不授权重启其他或共享服务。
+
+证据采用下节 schema1 重启回执及全部核验要求：两份服务引用、当前 runtime、graph capture、
+至少两次 replay、绑定当前实例的最小运行回归。另增加 `prefix_cache_regression` 的 `{path, sha256}`
+引用，指向缓存切换对照回执：
+
+```json
+{
+  "status": "passed",
+  "source_service_sha256": "<开启缓存的精度服务 manifest SHA>",
+  "current_service_sha256": "<关闭缓存的性能服务 manifest SHA>",
+  "contract": {"path": "/external/cache-switch-contract.json", "sha256": "<SHA>"},
+  "source_result": {"path": "/external/cache-on-result.json", "sha256": "<SHA>"},
+  "current_result": {"path": "/external/cache-off-result.json", "sha256": "<SHA>"}
+}
+```
+
+切换前冻结固定请求/token、生成参数、seed、数值容差及判定方法，覆盖重复前缀命中和相关边界；
+在两份服务上实际执行并保存原生结果。随机生成不得简单要求文本逐字相等，应使用冻结的可比
+数值/语义回归方法。工具检查回执和 SHA 关联，执行者负责真实采集与按契约判定，不能手填成功
+替代对照。切换后的关闭缓存运行回归用于确认性能执行路径，不冒充新的正式精度评测。
+证据缺失保持 `incomplete`；回归失败进入定位、修复或回退，不关闭精度缓存重新跑 GPQA 来绕行。
+
+输出为 schema7、`evaluation_reused=true`，保留原分数和阈值，绑定当前性能实例。
+性能比较和最终验收会递归复验源 gate、两份 manifest 及转换证据。每个独立性能进程都直接从
+原始 gate 创建新绑定，不支持链式绑定，也不同时放宽调参DB或其他配置漂移。
 
 ## 服务身份与重启复用
 
@@ -82,7 +138,7 @@ python3 evaluation/accuracy/acceptance.py rebind \
 最小回归回执包含 `status: passed`、当前 `service_sha256` 和指向原始回归结果的 `evidence` 引用。
 工具核验文件及关联，不替代远程实际取证，不能从期望配置伪造观察值。
 新 gate 标记 `evaluation_reused: true`，保留原分数和阈值，并绑定当前服务；这不是新跑出的精度分数。
-任一代码、配置或环境变化、证据缺失、回归失败都不能复用，必须诊断或重新完整评测。
+严格 `rebind` 不接受任何代码、配置或环境变化；证据缺失、回归失败必须诊断或重新完整评测。精度开启→性能关闭只能按上节专用流程处理。
 
 正式案例中的整数参数必须写为 JSON 整数，不能使用浮点数、字符串或布尔值；包装器在原 runner 的类型转换前检查，避免 `limit: 0.9` 被转换成完整评测的 `0`。并发、超时必须为正数，重试次数与等待时间不得为负数。
 

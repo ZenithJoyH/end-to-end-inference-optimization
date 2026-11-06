@@ -161,7 +161,8 @@ class ReferenceProtocolTest(unittest.TestCase):
                         dataset_revision=provenance["dataset_revision"], task_provenance=provenance_ref)
         service = dict(host="synthetic-host", optimization_container_name="synthetic-container", service_instance_id="instance",
                        model_name=cfg["model_name"], base_url=cfg["base_url"], tokenizer_path="/synthetic/tokenizer", mode="graph",
-                       image_lineage="verified", mount_parity="passed", launch_config={"enable_prefix_caching": False},
+                       image_lineage="verified", mount_parity="passed", launch_config={"enable_prefix_caching": True, "launch_args": ["--enable-prefix-caching"]},
+                       performance_context={"prefix_cache_state": "cold", "cache_preparation": "fixture"},
                        flaggems_vllm_installed=True,
                        **{key: "a" * 64 for key in ("model_sha256", "tokenizer_sha256", "engine_sha256", "plugin_sha256",
                                                    "flaggems_sha256", "flaggems_vllm_sha256", "runtime_evidence_sha256")})

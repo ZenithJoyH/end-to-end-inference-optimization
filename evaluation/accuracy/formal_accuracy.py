@@ -13,7 +13,7 @@ from pathlib import Path
 from acceptance import (
     TASK, RUNNER_SHA256, artifact, bound_task, checked_artifact, content_sha256, inspect_evaluator,
     model_args_text, read_json, sha256,
-    validate_config, validate_config_integers, validate_contract, validate_provenance,
+    validate_accuracy_prefix_cache, validate_config, validate_config_integers, validate_contract, validate_provenance,
     validate_service, verify_run_record, write_new,
 )
 from sample_validation import task_filters, validate_sample_file
@@ -211,7 +211,7 @@ def finalize_existing_run(run_dir):
         raise ValueError("ambiguous output pair; cannot finalize the existing run")
     frozen.update(results=artifact(results[0]), samples=artifact(samples[0]))
     record = {"schema_version": 2, "status": "evaluated",
-              "process_succeeded": True, "artifacts": frozen}
+              "process_succeeded": True, "accuracy_prefix_cache_required": True, "artifacts": frozen}
     verify_run_record(record)
     record_path = run_dir / "run-record.json"
     write_new(record_path, record)
@@ -238,6 +238,7 @@ def run(args):
     service = read_json(args.service_manifest)
     contract = read_json(args.contract)
     validate_service(service)
+    validate_accuracy_prefix_cache(service)
     validate_contract(contract)
     validate_config(cfg, service)
     task_name = bound_task(cfg)
@@ -308,7 +309,7 @@ def run(args):
     frozen.update(results=artifact(results[0]), samples=artifact(samples[0]))
     record_path = run_dir / "run-record.json"
     record = {"schema_version": 2, "status": "evaluated",
-              "process_succeeded": True, "artifacts": frozen}
+              "process_succeeded": True, "accuracy_prefix_cache_required": True, "artifacts": frozen}
     verify_run_record(record)
     write_new(record_path, record)
     print(f"Frozen score met or exceeded the threshold: {record_path}")

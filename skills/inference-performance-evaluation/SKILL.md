@@ -85,6 +85,13 @@ For every new vLLM baseline, candidate, and revert performance service:
 3. Prove the running service uses that state from process/runtime evidence.
 4. Record `launch_config.enable_prefix_caching=false` and `performance_context.prefix_cache_state=disabled` in the service manifest.
 
+Accuracy evaluation must enable prefix cache. Before formal candidate measurement with it disabled,
+use the accuracy tool's [performance-bind procedure](../../evaluation/accuracy/README.md#精度开启缓存与性能关闭缓存)
+to bind the ON-cache evaluated score to the exact OFF-cache performance instance. Preserve both
+manifests, verify all other stable identity fields, and collect graph and cache-switch regression
+evidence. A plain restart rebind cannot authorize a cache-policy change. For each independent
+performance instance, bind directly to the original evaluated gate; never chain receipts.
+
 If prefix caching is the explicit optimization variable, require a separate contract, new baseline, cache preparation, reuse ratio, and hit evidence. Otherwise a missing or enabled state makes the comparison `incomplete`.
 
 ## Execute and validate
@@ -111,7 +118,7 @@ In `formal` mode:
 2. Verify that each target in scope has separate Prefill, Decode, and Mixed evidence plus cross-phase guards. Trace-level phase timing is not mandatory when low-overhead evidence is sufficient; unresolved attribution must remain explicit rather than being silently merged.
 3. Select scope from the lifecycle: `intermediate-single-target` runs only `current_target_scenario_id`; `final-all-targets` runs the complete pre-frozen acceptance set. Use the same candidate graph configuration.
 4. Collect comparable independent baseline, candidate, and revert runs with the contracted warmup and repetitions.
-   Independent processes remain distinct service instances. For an unchanged candidate restart, accuracy `gate-check` may issue an explicit verified `rebind` receipt; it must not reuse an old instance binding or invent a new evaluated score.
+   Independent processes remain distinct service instances. For an unchanged cache policy, accuracy `gate-check` may issue an explicit verified `rebind` receipt; for the default ON-to-OFF transition, use `performance-bind` directly from the evaluated gate; it must not reuse an old instance binding or invent a new evaluated score.
 5. Use `compare_performance.py` with the comparison contract that was already bound during measurement.
 6. Limit the conclusion to the contracted model, platform, Host/topology, service configuration, and scenario set. Long-term capacity requires a separate sustained-load contract when the current client does not implement it.
 

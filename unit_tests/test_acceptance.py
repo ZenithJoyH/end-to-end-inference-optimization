@@ -74,11 +74,11 @@ class GateTest(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.service = dict(host='host-a', optimization_container_name='isolated', service_instance_id='boot-1',
                             model_name='model-a', base_url='http://127.0.0.1:8000/v1/chat/completions',
-                            tokenizer_path='/tokenizer', mode='graph', launch_config={'tp': 4}, image_lineage='verified', mount_parity='passed')
+                            tokenizer_path='/tokenizer', mode='graph', launch_config={'tp': 4, 'enable_prefix_caching': True, 'launch_args': ['--enable-prefix-caching']}, image_lineage='verified', mount_parity='passed')
         self.service.update({key: 'a' * 64 for key in ('model_sha256', 'tokenizer_sha256', 'engine_sha256', 'plugin_sha256', 'flaggems_sha256', 'runtime_evidence_sha256')})
         self.service.update(flaggems_vllm_installed=False, flaggems_vllm_sha256=None)
         self.service['performance_context'] = dict(platform='fixture', device_model='fixture',
-            driver_version='fixture', device_runtime_version='fixture', image_id='fixture-image', device_ids=['0'])
+            driver_version='fixture', device_runtime_version='fixture', image_id='fixture-image', device_ids=['0'], prefix_cache_state='cold', cache_preparation='Synthetic fixture observation')
         self.contract = dict(schema_version=3, task=gate.TASK, metric='score', threshold=0.5,
                              expected_samples=198, expected_doc_ids=list(range(198)))
         self.cfg = dict(tasks=[gate.TASK], limit=0, expected_samples=198, allow_timeouts=True,
@@ -166,10 +166,10 @@ class GateTest(unittest.TestCase):
         self.assertIn('health_observation', issued)
         gate.check_gate(diagnostic_gate, self.root / 'service.json')
 
-    def make_rebind(self):
+    def make_rebind(self, instance_id='boot-2'):
         gate.issue_gate(self.record, self.output)
-        current = dict(self.service, service_instance_id='boot-2')
-        runtime = dict(service_instance_id='boot-2', graph_capture_completed=True, graph_replays=2,
+        current = dict(self.service, service_instance_id=instance_id)
+        runtime = dict(service_instance_id=instance_id, graph_capture_completed=True, graph_replays=2,
                        stable_identity_sha256=gate.content_sha256(gate.stable_service_identity(current)))
         runtime_path = self.root / 'restart-runtime.json'
         runtime_path.write_text(json.dumps(runtime))
@@ -184,6 +184,36 @@ class GateTest(unittest.TestCase):
         evidence_path = self.root / 'rebind-evidence.json'
         evidence_path.write_text(json.dumps(evidence))
         return current_path, evidence_path, self.root / 'rebound-gate.json'
+
+    def make_performance_binding(self, instance_id='boot-2'):
+        current, evidence, output = self.make_rebind(instance_id)
+        service = gate.read_json(current)
+        service["launch_config"]["enable_prefix_caching"] = False
+        service["launch_config"]["launch_args"] = [
+            "--no-enable-prefix-caching" if arg == "--enable-prefix-caching" else arg
+            for arg in service["launch_config"]["launch_args"]]
+        service["performance_context"]["prefix_cache_state"] = "disabled"
+        runtime_path = self.root / "restart-runtime.json"
+        runtime = gate.read_json(runtime_path)
+        runtime["stable_identity_sha256"] = gate.content_sha256(gate.stable_service_identity(service))
+        runtime_path.write_text(json.dumps(runtime))
+        service["runtime_evidence_sha256"] = gate.sha256(runtime_path)
+        current.write_text(json.dumps(service))
+        regression_path = self.root / "restart-regression.json"
+        regression_path.write_text(json.dumps(dict(status="passed", service_sha256=gate.sha256(current),
+                                                   evidence=gate.artifact(runtime_path))))
+        comparison_path = self.root / "prefix-cache-comparison.json"
+        comparison_path.write_text(json.dumps(dict(status="passed",
+            source_service_sha256=self.refs["service"]["sha256"],
+            current_service_sha256=gate.sha256(current),
+            contract=self.refs["contract"], source_result=self.refs["results"],
+            current_result=gate.artifact(runtime_path))))
+        binding = gate.read_json(evidence)
+        binding.update(current_service=gate.artifact(current), runtime_evidence=gate.artifact(runtime_path),
+                       minimal_regression=gate.artifact(regression_path),
+                       prefix_cache_regression=gate.artifact(comparison_path))
+        evidence.write_text(json.dumps(binding))
+        return current, evidence, output
 
     def test_rebind_is_explicit_and_rechecks_original_evidence(self):
         current, evidence, output = self.make_rebind()

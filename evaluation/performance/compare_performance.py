@@ -319,7 +319,7 @@ def check_run(path, contract_ref, contract):
         from acceptance import check_gate
         gate_path = verified(refs["accuracy_gate"])
         gate_service = verified(refs["service"])
-        if read_json(gate_path).get("schema_version") in (4, 5, 6):
+        if read_json(gate_path).get("schema_version") in (4, 5, 6, 7):
             # Rebind evidence binds the original manifest's path and SHA.
             # The executor snapshots it; verify both before using that path.
             inputs = record.get("input_artifacts")

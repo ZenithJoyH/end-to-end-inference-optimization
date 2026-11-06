@@ -57,7 +57,8 @@ class ComparisonTest(unittest.TestCase):
         plan = performance_plan.load_plan(folder / "plan.json")
         service = dict(host="host-a", optimization_container_name="isolated", service_instance_id=f"{role}-boot-{index}",
                        model_name="model-a", base_url="http://127.0.0.1:8000/v1/chat/completions", tokenizer_path="/tokenizer",
-                       mode="graph", launch_config={"tp": 1, "enable_prefix_caching": False},
+                       mode="graph", launch_config={"tp": 1, "enable_prefix_caching": False,
+                                                     "launch_args": ["--no-enable-prefix-caching"]},
                        flaggems_vllm_installed=False, flaggems_vllm_sha256=None,
                        image_lineage="verified", mount_parity="passed")
         service.update({key: "a" * 64 for key in ("model_sha256", "tokenizer_sha256", "engine_sha256", "plugin_sha256",
@@ -342,14 +343,17 @@ class ComparisonTest(unittest.TestCase):
         path = self.paths[2]
         record = compare.read_json(path)
         fixture.service = compare.read_json(record["artifacts"]["service"]["path"])
+        fixture.service["launch_config"]["enable_prefix_caching"] = True
+        fixture.service["launch_config"]["launch_args"] = ["--enable-prefix-caching"]
+        fixture.service["performance_context"]["prefix_cache_state"] = "cold"
         fixture.service["service_instance_id"] = "evaluated-boot"
         fixture.service["runtime_evidence_sha256"] = "a" * 64
         fixture.save("service", fixture.service)
         evaluated = compare.read_json(fixture.record)
         evaluated["artifacts"]["service"] = fixture.refs["service"]
         self.save(fixture.record, evaluated)
-        original, evidence, rebound = fixture.make_rebind()
-        gate.rebind_gate(fixture.output, original, evidence, rebound)
+        original, evidence, rebound = fixture.make_performance_binding()
+        gate.performance_bind_gate(fixture.output, original, evidence, rebound)
         gate.check_gate(rebound, original)
         snapshot = Path(record["artifacts"]["service"]["path"])
         snapshot.write_bytes(original.read_bytes())
@@ -447,7 +451,7 @@ class ComparisonTest(unittest.TestCase):
         self.assertIn("reused", " ".join(self.decision()["issues"]))
 
     def test_cache_experiment_may_declare_specific_companion_state(self):
-        self.contract["variable_paths"] += ["/launch_config/enable_prefix_caching", "/performance_context/prefix_cache_state", "/performance_context/cache_preparation"]
+        self.contract["variable_paths"] += ["/launch_config/launch_args", "/launch_config/enable_prefix_caching", "/performance_context/prefix_cache_state", "/performance_context/cache_preparation"]
         self.contract["cache_experiment"] = {"authorization": "fixture user approval", "reuse_ratio": 0.5, "hit_evidence": "fixture runtime evidence"}
         self.save(self.contract_path, self.contract)
         for path in self.paths:
@@ -455,7 +459,7 @@ class ComparisonTest(unittest.TestCase):
             record["artifacts"]["comparison_contract"] = compare.artifact(self.contract_path)
             self.save(path, record)
         for i in (2, 3):
-            self.mutate_artifact(i, "service", lambda x: x["launch_config"].update(enable_prefix_caching=True))
+            self.mutate_artifact(i, "service", lambda x: x["launch_config"].update(enable_prefix_caching=True, launch_args=["--enable-prefix-caching"]))
             self.mutate_artifact(i, "service", lambda x: x["performance_context"].update(prefix_cache_state="warm", cache_preparation="controlled warm prefix"))
         report = self.decision()
         self.assertEqual(report["status"], "passed", report)

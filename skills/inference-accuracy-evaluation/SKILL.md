@@ -54,6 +54,23 @@ identity and evidence, record the handoff, and await explicit resume. Human-prod
 validated by the same tools; do not rerun them just because a person launched the evaluator. Changed service
 identity/configuration still requires the corresponding rebind or new evaluation, never rewritten old hashes.
 
+## Mandatory prefix cache policy
+
+For model accuracy evaluation (`baseline-sanity`, service-level `minimal-regression`, and
+`formal-gate`), explicitly start the graph service with `--enable-prefix-caching`.
+Remove the conflicting `--no-enable-prefix-caching`; do not rely on a version-dependent default.
+Verify the installed CLI and actual process/runtime state. Record
+`launch_config.enable_prefix_caching=true`, the effective `launch_args`, and observed
+`performance_context.prefix_cache_state` (`cold`, `warm`, or `mixed`) with `cache_preparation`.
+Missing, disabled, contradictory, or unobserved state is `incomplete`: correct the service
+configuration before evaluating. An enabled empty cache is valid; no minimum hit rate is required.
+This server-side KV cache is distinct from the evaluator's isolated response cache.
+Pure operator numerical tests have no model service cache; `gate-check` sends no evaluation traffic.
+
+Performance measurement retains its disabled-cache policy. Its post-switch runtime regression
+validates that performance instance; it does not produce a new formal accuracy score.
+Use the explicit `performance-bind` procedure below instead of editing the evaluated manifest.
+
 ## Baseline and minimal regression
 
 1. Identify the changed semantic surface and a trustworthy reference or prior path.
@@ -66,7 +83,7 @@ identity/configuration still requires the corresponding rebind or new evaluation
 
 Use the prescribed target-machine flow; do not substitute an auxiliary runner:
 
-1. Confirm container lineage and mount parity have passed, and capture the current candidate service manifest. When formal accuracy and performance share the service, retain `--no-enable-prefix-caching` and prove prefix caching is disabled.
+1. Confirm container lineage and mount parity have passed, and capture the current candidate service manifest. Require `--enable-prefix-caching` and prove prefix caching is enabled, following the mandatory policy above.
 2. In a container based on `harbor.baai.ac.cn/flageval/flageval-llmeval:v1`, use `evaluation/accuracy/formal_accuracy.py` around the SHA-verified original `test/Accuracy_test/llmrun.py`.
 3. Capture task and dataset provenance, freeze the metric/threshold and sample contract, then run `--preflight-only` against the current service.
 4. Run full `gpqa_diamond_generative_cot` with `limit=0` and `expected_samples=198`. Do not replace the default single-service runner with the parallel runner unless the user explicitly requested a shard or multi-service design.
@@ -82,6 +99,15 @@ When the formal score is below threshold or score evidence is invalid, invoke `$
 Before formal performance, run `evaluation/accuracy/acceptance.py check` with a freshly captured service manifest. Reuse the gate only when it still binds the exact frozen source, configuration, artifacts, and service identity.
 
 A service restart invalidates the direct binding, but need not repeat GPQA when everything except the instance ID and runtime evidence is identical. In `gate-check` mode use the explicit `acceptance.py rebind` workflow in [the accuracy tools](../../evaluation/accuracy/README.md): freshly observe identity, graph capture/two replays and passed minimal regression, then issue a new binding to the original evaluated gate. Never relabel this as a new measured score. Missing evidence, changed source/configuration, weights/tokenizer, device/environment, endpoint or launch settings require `formal-gate`; never edit the old manifest to make it match.
+
+For the required accuracy-ON → performance-OFF transition, use
+`acceptance.py performance-bind` as documented in [the accuracy tools](../../evaluation/accuracy/README.md#精度开启缓存与性能关闭缓存).
+It references the original evaluated schema3 gate directly and binds an independently observed
+performance instance using narrowly allowed cache-field differences, graph/two-replay evidence,
+current runtime regression and a paired cache-switch regression. All other stable identity fields
+must match. Preserve both manifests and the original score; never claim a new OFF-cache GPQA score.
+Each subsequent performance instance needs its own binding to the original gate, never a chain.
+Missing or failed transition evidence blocks formal performance; diagnose/fix it before proceeding.
 
 An inherited upstream score below threshold is an `inherited-accuracy-blocker`, not proof of a regression introduced here. Stop stacking new performance optimizations and invoke diagnosis to verify provenance and localize/fix the inherited issue. A minimal regression does not clear it. Only an explicit user instruction with recorded scope permits diagnostic performance exploration while blocked; it never authorizes a formal gate or acceptance claim.
 
