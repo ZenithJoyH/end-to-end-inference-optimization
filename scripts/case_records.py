@@ -88,7 +88,7 @@ def init_case(directory, identity):
         f'- [{s}]({s}/README.md)' for s in STAGES) + '\n')
 
 
-def summary(path):
+def summary(path, *, full=False):
     state = load(path)
     if state['schema_version'] == 4:
         identity, current = state['identity'], state['current']
@@ -100,8 +100,90 @@ def summary(path):
         warnings = ['legacy record: verify the selected case before changing or resuming it']
         if state.get('active_case_id') not in (None, state.get('case_id')):
             warnings.append(f"case_id={state.get('case_id')} differs from active_case_id={state['active_case_id']}")
+    details = {'state': str(Path(path).resolve()), 'pointer': '/current' if state['schema_version'] == 4 else ''}
+    omitted = []
+    if not full:
+        fields = ('status', 'candidate', 'current_candidate', 'next_action', 'scenario_id',
+                  'current_target_scenario_id', 'phase', 'latest_planning', 'blocking_reason')
+        omitted = [key for key in current if key not in fields]
+        compact = {}
+        for key, value in current.items():
+            if key not in fields:
+                continue
+            pointer = details['pointer'] + '/' + key.replace('~', '~0').replace('/', '~1')
+            if isinstance(value, (dict, list)):
+                compact[key] = {'state_pointer': pointer, 'entries': len(value),
+                                'type': 'mapping' if isinstance(value, dict) else 'list'}
+            elif isinstance(value, str) and len(value) > 1200:
+                compact[key] = {'preview': value[:1200], 'truncated': True, 'state_pointer': pointer}
+            else:
+                compact[key] = value
+        current = compact
     return {'identity': identity, 'stage': state.get('stage'), 'current': current,
-            'experiment_count': len(state.get('experiments', [])), 'warnings': warnings}
+            'experiment_count': len(state.get('experiments', [])), 'warnings': warnings,
+            'details': {**details, 'omitted_current_fields': omitted}}
+
+
+def pointer_parts(pointer):
+    if not isinstance(pointer, str) or (pointer and not pointer.startswith('/')):
+        raise ValueError('pointer must be an absolute JSON Pointer, or empty for the whole record')
+    if re.search(r'~(?![01])', pointer):
+        raise ValueError('invalid JSON Pointer escape')
+    return [part.replace('~1', '/').replace('~0', '~') for part in pointer[1:].split('/')] if pointer else []
+
+
+def read_detail(path, pointer):
+    """Read one state field, following checksum-bound archived detail references."""
+    value = load(path)
+    archives = {}
+    resolving = set()
+
+    def expand(item):
+        if isinstance(item, dict) and '$external_record' in item:
+            ref = item['$external_record']
+            if (not isinstance(ref, dict) or any(not isinstance(ref.get(k), str)
+                    for k in ('path', 'sha256', 'pointer'))):
+                raise ValueError('invalid external record reference')
+            archive = Path(ref['path'])
+            if not archive.is_absolute() or not archive.is_file():
+                raise ValueError('external record requires an existing absolute path')
+            key = (str(archive.resolve()), ref.get('sha256'), ref.get('pointer'))
+            if key in resolving:
+                raise ValueError('cyclic external record reference')
+            if key[:2] not in archives:
+                data = archive.read_bytes()
+                if hashlib.sha256(data).hexdigest() != ref.get('sha256'):
+                    raise ValueError(f'external record checksum mismatch: {archive}')
+                archives[key[:2]] = yaml.load(data, Loader=UniqueLoader)
+            resolving.add(key)
+            try:
+                resolved = expand(descend(archives[key[:2]], pointer_parts(ref['pointer'])))
+                for name, preview in item.items():
+                    if name == '$external_record':
+                        continue
+                    if (not isinstance(resolved, dict) or name not in resolved
+                            or type(preview) is not type(resolved[name]) or preview != resolved[name]):
+                        raise ValueError(
+                            f'immutable archived summary differs: {ref["pointer"]}/{name}; '
+                            'restore the complete field or create a new receipt before editing')
+                return resolved
+            finally:
+                resolving.remove(key)
+        return item
+
+    def descend(item, parts):
+        for part in parts:
+            item = expand(item)
+            if isinstance(item, list) and re.fullmatch(r'0|[1-9][0-9]*', part):
+                try: item = item[int(part)]
+                except IndexError as exc: raise ValueError(f'pointer list index missing: {part}') from exc
+            elif isinstance(item, dict) and part in item:
+                item = item[part]
+            else:
+                raise ValueError(f'pointer field missing: {part}')
+        return item
+
+    return expand(descend(value, pointer_parts(pointer)))
 
 
 def cell(value):
@@ -116,11 +198,10 @@ def render(state_path, output):
     state = load(state_path)
     if state['schema_version'] != 4:
         raise ValueError('legacy records are summary-only; migrate explicitly before rendering')
-    view = summary(state_path)
-    lines = [START, '', f"- 案例：{cell(view['identity']['case_id'])}",
-             f"- 当前状态：{cell(view['current'].get('status'))}",
-             f"- 当前候选：{cell(view['current'].get('candidate'))}",
-             f"- 下一步：{cell(view['current'].get('next_action'))}", '',
+    lines = [START, '', f"- 案例：{cell(state['identity']['case_id'])}",
+             f"- 当前状态：{cell(state['current'].get('status'))}",
+             f"- 当前候选：{cell(state['current'].get('candidate'))}",
+             f"- 下一步：{cell(state['current'].get('next_action'))}", '',
              '| 实验 | 状态/决定 | 场景 | 文档 |', '|---|---|---|---|']
     for row in state['experiments']:
         name = row.get('document')
@@ -208,6 +289,10 @@ def main():
         sub = commands.add_parser(operation)
         sub.add_argument('--state', required=True, type=Path)
         if operation == 'render': sub.add_argument('--output', required=True, type=Path)
+        else: sub.add_argument('--full', action='store_true', help='include the complete current mapping')
+    detail = commands.add_parser('detail', help='read an exact field, verifying archived detail hashes')
+    detail.add_argument('--state', required=True, type=Path)
+    detail.add_argument('--pointer', required=True, help='JSON Pointer such as /experiments/0/result')
     export = commands.add_parser('export')
     export.add_argument('--root', required=True, type=Path)
     export.add_argument('--output', required=True, type=Path)
@@ -219,7 +304,8 @@ def main():
         if args.operation == 'init':
             init_case(args.root, {k: getattr(args, k) for k in IDENTITY_FIELDS})
             result = {'created': str(args.root)}
-        elif args.operation == 'summary': result = summary(args.state)
+        elif args.operation == 'summary': result = summary(args.state, full=args.full)
+        elif args.operation == 'detail': result = read_detail(args.state, args.pointer)
         elif args.operation == 'render':
             render(args.state, args.output)
             result = {'updated': str(args.output)}
