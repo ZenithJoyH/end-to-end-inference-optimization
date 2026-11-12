@@ -1,0 +1,3144 @@
+schema_version: 4
+identity:
+  case_id: 20261105-bge-m3-mx59-base-1k
+  model: BGE-M3
+  platform: metax
+  host: mx-59
+  baseline_id: current-adapted-source-20261105
+  topology: TP1:GPU3
+stage: optimize
+current:
+  status: linear-test-ci-fix-pushed-external-network-blocker
+  candidate:
+    vllm-plugin-FL: dafb78f8e8f3f5d4c0c2822a82aa370a8632f53b391d20e79716c64b394aae08
+    FlagGems: cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c
+    FlagGems-vllm: 34ebbd6c6b976f7ce2ce779b86c13f4c2e09752d670ca81158ef57dc648d4f2e
+  next_action: Maintainer restore CPU runner GitHub connectivity and rerun required rule CI; no further
+    source changes justified; batch-budget-004 remains stopped.
+  source_service_loaded_code: No BGE-M3 model service at task entry or exit; editable files updated without
+    service restart.
+  latest_review: fg-review-fix-006.md
+  latest_delivery: linear-ci-008.md
+experiments:
+- experiment_id: image-001
+  document: image-001.md
+  scenario_id: embedding-p1024-c64-n256
+  status: incomplete
+  direction: image-state comparison
+  hypothesis: 1K difference may be caused by writable-layer source changes versus original release image
+  primary_variable: release image state versus current BGE-M3 snapshot
+  scope: diagnostic
+  performance_skill_mode: targeted
+  formal_status: unsupported embedding endpoint in maintained generative runner
+  decision: Do not switch to release as a performance improvement; observed slower but stable causal comparison
+    not established
+  result_path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/COMPARISON.json
+- experiment_id: plugin-slim-002
+  document: plugin-slim-002.md
+  scenario_id: embedding-p1024-c64-n256
+  status: retained
+  direction: framework maintenance
+  scope: Plugin-only source consolidation; preserve FP16/FP32 native/joint output semantics
+  original_patch_sha256: 146758d9791c8e6ceb7bb51695925215ca4d50ba2563c7dfaa4f99d2e935db42
+  candidate_container: bge-m3-1k-current-20261105-x4jxof0i
+  source_container: BGE-M3
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002
+  required_checks:
+  - scoped routing and availability
+  - execution-error no retry and I/O hooks
+  - all joint output masks
+  - literal PAD and packed positions
+  - generic worker pooling contracts
+  - FP16/FP32 controlled native/joint numeric equivalence
+  - actual default metax policy
+  - applicable pre-commit
+  decision: retained source consolidation; fresh candidate processes validated; original live process
+    preserved
+  candidate_patch_sha256: 1f68a24bff51c88028f5b2764cca0b60a3e560089cd6f4eae63229b5826412bf
+  candidate_full_diff:
+    files: 30
+    insertions: 1539
+    deletions: 3
+  unit_tests:
+    passed: 363
+    scope: all BGE model tests, full dispatch unit suite, generic Worker output contract
+    seconds: 22.06
+  pre_commit:
+    passed: true
+    files: 31
+    modified_files: []
+  private_source_proof: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/PRIVATE_SOURCE_PROOF.json
+  source_patch_sha256: 1f68a24bff51c88028f5b2764cca0b60a3e560089cd6f4eae63229b5826412bf
+  source_service_restarted: false
+  live_source_service_code: pre-slim loaded modules; new repository version loads on next process start
+  functional:
+    passed: true
+    numeric_values: 127060
+    max_abs_error: 0.0
+    profiles:
+    - fp16
+    - fp32
+    http_concurrency: 8
+    joint_masks:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    atol: 1.0e-05
+    rtol: 0.0001
+  final_audit:
+    status: source_published_and_candidate_validated
+    patch_sha256: 1f68a24bff51c88028f5b2764cca0b60a3e560089cd6f4eae63229b5826412bf
+    diff_files: 30
+    insertions_before: 2089
+    insertions_after: 1539
+    net_removed: 550
+    runtime_insertions_before: 480
+    runtime_insertions_after: 431
+    insertions_by_category:
+      other: 204
+      tests: 904
+      runtime: 431
+    unit_tests:
+      tests: 363
+      failures: 0
+      errors: 0
+      skipped: 0
+    precommit: passed, no changes
+    functional:
+      passed: true
+      numeric_values: 127060
+      max_abs_error: 0.0
+      atol: 1.0e-05
+      rtol: 0.0001
+      profiles:
+      - fp16
+      - fp32
+      joint_masks:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+    source_and_tested_candidate_identical: true
+    FG_FGV_vllm_installation_unchanged: true
+    source_service_health: 200
+    source_service_restarted: false
+    source_service_loaded_code: pre-slim process; new source loads on next process start
+    gpu3_released: true
+    rollback_path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/commands/rollback.py
+    source_backup: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/source-001
+    candidate_backup: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/candidate-001
+    formal_accuracy: not_run
+    performance: not_run; prior A/B/A results belong to pre-slim source
+    pr_readiness: experimental; companion public dependency revisions still pending
+  final_report: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/FINAL_REPORT.json
+  delivery: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/delivery.tar.gz
+  delivery_sha256: 2c2de7f5991da797fb63a00c4365a55b7abb2da62722b5e88a8da64505e51232
+  sha_manifest: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/plugin-slim-002/SHA256SUMS.json
+- experiment_id: interface-fix-003
+  document: interface-fix-003.md
+  scenario_id: embedding-p1024-c64-n256
+  status: retained
+  direction: framework and operator API maintenance
+  scope: Plugin wrapper consolidation, FG Linear shape precheck, FGV vLLM0.24 signature alignment; unchanged
+    numerical kernels
+  source_container: BGE-M3
+  candidate_container: bge-m3-1k-current-20261105-x4jxof0i
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/interface-fix-003-20261106
+  decision: applied to actual installed BGE-M3 source; all targeted tests and paired functional regression
+    passed
+  engineering_review:
+    operator_standard:
+      status: validated_with_scope_limits
+      scope: existing public APIs; no new operators or numerical kernels
+      reference: docs/operator-development-standard.md
+      unsupported: FA4-specific non-None options rejected before execution; existing FP32 support remains
+        MetaX-only
+      public_attention_signature_parameters: 34
+      numerical_kernel_ast_unchanged: true
+      nv_hardware: not_run; static signature and mock ABI only
+      performance: not_run; API maintenance
+      latest_full_diff_review:
+        date: '2026-11-09'
+        status: needs_revision
+        scope: complete installed FlagGems-vllm diff against HEAD; read-only review
+        patch_sha256: 148c4b6c3ce46b55fe595b05524501fb20000849a5d79d7c52c23a2cdb1145ff
+        findings:
+        - id: FGV-R1
+          priority: P2
+          clauses:
+          - C1
+          - D1
+          - E2
+          issue: FP32 feature/metadata rejection occurs after last-dimension copy kernels for strided
+            inputs
+        - id: FGV-R2
+          priority: P2
+          clauses:
+          - F3
+          - E2
+          issue: unconditional signature helper depends on undeclared vLLM install, file layout and mutable
+            installed signature
+        - id: FGV-R3
+          priority: P2
+          clauses:
+          - E6
+          issue: shared FP32 input helper resets global RNG without restoring state
+        additional_gaps:
+          E3: two configuration-policy tests lack operator marker
+          F1_F2: benchmark does not isolate new launch-policy benefit versus previous direct profile;
+            threshold and broad resource profiles require evidence
+          E6: new FP32 numerical cases lack NaN/Inf inputs
+        evidence_kind: static; actual extracted signature helper reproduced missing-dependency error locally
+        hardware_tests: not_run in this review; historical same-patch test evidence remains separate
+        source_changes: false
+        services_restarted: false
+        resolution:
+          status: resolved_by_fgv_review_fix_005
+          document: fgv-review-fix-005.md
+          patch_sha256: 34ebbd6c6b976f7ce2ce779b86c13f4c2e09752d670ca81158ef57dc648d4f2e
+      flag_gems_full_diff_review:
+        date: '2026-11-09'
+        status: needs_revision
+        scope: complete installed FlagGems diff; read-only review
+        head: 4897cc306cd83390c95b83b50df28f7edb1684c5
+        patch_sha256: 4fac55ee15de2195dd42c3e331d55bf84cec7ff0ded2f22d7cb8de795418fb16
+        files: 3
+        insertions: 236
+        deletions: 1
+        findings:
+        - id: FG-R1
+          priority: P2
+          clauses:
+          - F1
+          - F2
+          - F3
+          issue: missing reviewable default-tuner versus expanded-tuner benchmark evidence for four N/K
+            pairs, M boundary and fallback; existing benchmark only compares native torch versus current
+            FG
+        - id: FG-R2
+          priority: P2
+          clauses:
+          - C1
+          - E2
+          issue: unconditional Parameter normalization has broader scope than covered frozen FP32 cases;
+            gradient-mode, eligible-1D and input-layout selection branches untested
+        - id: FG-R3
+          priority: P2
+          clauses:
+          - C4
+          - E2
+          - E6
+          issue: new tuned path lacks zero/cancellation and NaN/Inf numerical boundary cases; existing
+            common tests include empty M but were not in historical targeted36 suite
+        positive_checks:
+          A1_A3: real ATen linear; existing kernel reused; no new operator or API
+          B1_B2_B5: same public signature and aten::linear registration
+          D3_D6: separate deep-copied config list; vendor YAML; cache namespace includes config hash
+          E1_E7: explicit flag_gems.linear with independent CPU FP64 oracle; separate ATen dispatch test
+          E4: real capture and two fresh-input/sentinel replays present
+          F5: GEMS_METAX LINEAR debug preserved
+        current_checks:
+          git_diff_check: passed
+          ast_parse: passed
+          hardware_tests: not_run
+          precommit: not_run this review; historical same-patch pass retained
+        unnecessary_changes: no confirmed unrelated changes; Parameter conversion scope requires evidence
+          before removing or narrowing
+        pr_readiness: needs_revision
+        resolution:
+          status: resolved_by_fg_review_fix_006
+          document: fg-review-fix-006.md
+          patch_sha256: cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c
+  payload_sha256: 8ee78d3943611e3e56d390476a1a2f5c8d2b23f50a578522fb7c8bc7244370f1
+  final_patches:
+    vllm-plugin-FL: dafb78f8e8f3f5d4c0c2822a82aa370a8632f53b391d20e79716c64b394aae08
+    FlagGems: 4fac55ee15de2195dd42c3e331d55bf84cec7ff0ded2f22d7cb8de795418fb16
+    FlagGems-vllm: 148c4b6c3ce46b55fe595b05524501fb20000849a5d79d7c52c23a2cdb1145ff
+  tests:
+    fgv:
+      tests: 155
+      failures: 0
+      errors: 0
+      skipped: 0
+    fgv-optimized:
+      tests: 82
+      failures: 0
+      errors: 0
+      skipped: 0
+    fg:
+      tests: 36
+      failures: 0
+      errors: 0
+      skipped: 0
+    plugin:
+      tests: 364
+      failures: 0
+      errors: 0
+      skipped: 0
+  total_tests: 637
+  functional:
+    passed: true
+    numeric_values: 127060
+    max_abs_error: 0.0
+    atol: 1.0e-05
+    rtol: 0.0001
+    profiles:
+    - fp16
+    - fp32
+    joint_masks:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+  precommit: passed all three repositories
+  source_service_restarted: false
+  gpu3_released: true
+  final_report: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/interface-fix-003-20261106/FINAL_REPORT.json
+  rollback: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/interface-fix-003-20261106/commands/rollback-v2.py
+  backup: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/interface-fix-003-20261106/source-001
+  pr_readiness: historical payload; FG review resolved by fg-review-fix-006; cross-repository public pins
+    remain separate
+- experiment_id: batch-budget-004
+  document: batch-budget-004.md
+  scenario_id: embedding-p1024-c64-n256
+  status: incomplete
+  direction: framework batching configuration
+  primary_variable: 'max_num_batched_tokens: 32768 -> 65536'
+  scope: targeted diagnostic embedding comparison; original FP16/eager parameters
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a
+  performance_skill_mode: targeted
+  decision: Stopped at user request; preserve completed A/B diagnostic results; exclude cancelled revert
+    group; retain default32768.
+  contract_sha256: 825cca99a894ce2a2060f9fc61198c81b84ca9604e910faa9712833298b53ed9
+  accuracy_diagnosis:
+    issue_id: batch-budget-004-numeric-001
+    skill: inference-accuracy-diagnosis
+    trigger: minimal-regression failure before candidate benchmark
+    classification: repeatable batch-dependent numeric difference at64x1024; exact kernel mechanism unconfirmed
+    gate_blocking: true
+    max_abs: 0.0010302955000000003
+    min_cosine: 0.9999398247036381
+    frozen_max_abs: 0.001
+    frozen_min_cosine: 0.99999
+    performance_may_continue: diagnostic-only by explicit user authorization
+    status: reproduced_and_localized
+    candidate_repetitions: 2
+    candidate_same_shape_outputs_identical: true
+    revert_batch64_max_abs: 0.0
+    formal_accuracy: not_run
+  numeric_gate_exception:
+    authorization: 继续仅诊断吞吐，保留数值失败标记
+    scope: remaining B65536 and A2 32768 finite-batch measurements only; no production/default launcher
+      change
+    formal_acceptance_allowed: false
+    evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a/diagnostic-continuation
+    current_status: ended_by_user_stop
+  baseline_observation:
+    mean_total_token_throughput: 114394.06653735103
+    unit: token/s
+    rounds:
+    - 120301.84663085127
+    - 107176.75131422239
+    - 103715.01331741818
+    - 118314.21041254804
+    - 122462.51101171527
+    measurement_stability_passed: false
+  active_recheck:
+    status: stopped_by_user
+    evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a/steady-recheck
+    controller_sha256: daaee2789b6cb15a4626754588071b3901c6b89ef687cd4fc631235c2e1e9c95
+    order:
+    - A-32768
+    - B-65536
+    - A2-32768
+    warmup_min_rounds: 5
+    warmup_max_rounds: 12
+    warmup_window: 3
+    warmup_span_limit: 0.15
+    measured_rounds: 5
+    only_additional_full_attempt: true
+    prior_performance_reused: false
+  termination:
+    reason: user_requested_stop
+    instruction: 不用做回退组的实验了，停止吧
+    revert_status: cancelled_by_user
+    resume_allowed: false
+  performance_result:
+    status: incomplete_user_cancelled_revert
+    scope: two-arm diagnostic only; numerical gate failed; no complete A/B/A validation
+    completed_phases:
+    - phase: A-32768
+      max_num_batched_tokens: 32768
+      steady_admission: true
+      stable_measurement: true
+      warmup_admission_span: 0.0969399487326449
+      warmup_rounds: 5
+      status: measured_stable
+      mean:
+        tokens_per_sec: 119242.2078124537
+        requests_per_sec: 116.44746856684931
+        duration_s: 2.19875987265259
+        mean_e2el_ms: 509.79673744150205
+        p50_e2el_ms: 488.7775362469256
+        p95_e2el_ms: 749.106444651261
+        p99_e2el_ms: 818.1971219368279
+      median:
+        tokens_per_sec: 119716.26376371045
+        requests_per_sec: 116.91041383174849
+        duration_s: 2.1897108359262347
+        mean_e2el_ms: 507.973941781529
+        p50_e2el_ms: 487.37442353740335
+        p95_e2el_ms: 740.4044040013105
+        p99_e2el_ms: 821.9959320034832
+      total_tokens: 1310720
+      duration_s_sum: 10.993799363262951
+      weighted_total_tok_s: 119223.56927668901
+      span: 0.03698152860587978
+      round_tok_s:
+      - 119807.3714345218
+      - 116471.22056755761
+      - 119317.67229595431
+      - 120898.51100052432
+      - 119716.26376371045
+      csv_paths:
+      - /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a/steady-recheck/results/A-32768/measurement/benchmark/bge-m3_1024in_1out_c64_n256_20261106_144704.csv
+    - phase: B-65536
+      max_num_batched_tokens: 65536
+      steady_admission: true
+      stable_measurement: true
+      warmup_admission_span: 0.08142946105417223
+      warmup_rounds: 5
+      status: measured_stable
+      mean:
+        tokens_per_sec: 119764.46639301354
+        requests_per_sec: 116.95748671192729
+        duration_s: 2.189258241467178
+        mean_e2el_ms: 506.86474760223064
+        p50_e2el_ms: 495.81995867192745
+        p95_e2el_ms: 723.9017779007554
+        p99_e2el_ms: 818.1240261159833
+      median:
+        tokens_per_sec: 119995.44593666072
+        requests_per_sec: 117.18305267252023
+        duration_s: 2.184616240672767
+        mean_e2el_ms: 504.8312160579371
+        p50_e2el_ms: 493.2536827400327
+        p95_e2el_ms: 732.7566121239215
+        p99_e2el_ms: 829.8414715100057
+      total_tokens: 1310720
+      duration_s_sum: 10.94629120733589
+      weighted_total_tok_s: 119741.01320469103
+      span: 0.04232142026568392
+      round_tok_s:
+      - 119995.44593666072
+      - 116801.41162903226
+      - 121879.78932648583
+      - 119621.2509716865
+      - 120524.43410120244
+      csv_paths:
+      - /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a/steady-recheck/results/B-65536/measurement/benchmark/bge-m3_1024in_1out_c64_n256_20261106_145423.csv
+    cancelled_phase: A2-32768
+    observed_B_vs_A_percent: 0.4379813072408645
+    numeric_gate_passed: false
+    full_ABA_complete: false
+    raw_controller_status: incomplete_error
+    raw_status_explanation: SIGINT requested by user during revert measurement; not a new runtime failure
+    result_path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a/steady-recheck/FINAL_REPORT.json
+    result_sha256: 9acaf13bea927850b23dd11d9552464bf38b8eca8723a0f34c97167392550631
+    sha_manifest: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261106-bge-m3-mx59-mbt-004-c7d90a/steady-recheck/SHA256SUMS.json
+    sha_manifest_sha256: abff26575b09a047edab6551f72c5815b8a731b532798a8b65651f3f8fbef466
+  final_state:
+    source_service_unchanged: true
+    source_max_num_batched_tokens: 32768
+    default_script_max_num_batched_tokens: 32768
+    isolated_container_retained_idle: bge-m3-mbt-20261106-c7d90a
+    gpu3_released: true
+    three_repositories_unchanged: true
+  source_script_modified: false
+  source_service_restarted: false
+  formal_performance: not_accepted; diagnostic only
+- experiment_id: fgv-review-fix-005
+  document: fgv-review-fix-005.md
+  scenario_id: embedding-p1024-c64-n256
+  status: retained
+  direction: operator API validation and test maintenance
+  primary_variable: pre-copy FP32 validation; fixed ABI contract; isolated test RNG; unchanged numerical
+    kernels/configuration
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fgv-review-fix-005
+  source_container: BGE-M3
+  candidate_container: bge-m3-mbt-20261106-c7d90a
+  accuracy_skill_mode: minimal-regression
+  decision: applied to actual editable BGE-M3 installation after isolated regression; numerical kernels/configuration
+    unchanged
+  commands:
+    prepare.py: 55b39db7e7020a370384b2aa591b07920c378f066cd61d6404f0cb6d3791806b
+    deploy.py: a99d13bf9a9279e87f69c28a9c995705b4f7e50828a1f11f962db8559e2f1db5
+    manifest.json: c6d266fd86ede6727cedc72bceb33da398508345e6c987179f50520486ecab57
+    fingerprint.py: 493d13a3a6eb4126b74e881024e148a53265f06344fa31a2a86b79afbaa549df
+  tests:
+    fgv:
+      tests: 166
+      failures: 0
+      errors: 0
+      skipped: 0
+    fgv_optimized:
+      tests: 44
+      failures: 0
+      errors: 0
+      skipped: 0
+    plugin:
+      tests: 364
+      failures: 0
+      errors: 0
+      skipped: 0
+  candidate_patch_sha256: 34ebbd6c6b976f7ce2ce779b86c13f4c2e09752d670ca81158ef57dc648d4f2e
+  engineering_review:
+    operator_standard:
+      reference: docs/operator-development-standard.md
+      status: validated_with_scope_limits
+      A1_A3: existing MetaX attention kernel reused; metadata validation only; no new public operator
+      B1_B2: same exported API and registration
+      C1_D1: pre-copy rejection for strided unsupported/invalid inputs; five new no-preparation cases
+        passed
+      E1: existing independent FP64 oracle retained
+      E2: 166 selected FGV tests passed; tolerances unchanged
+      E3: all new policy tests carry operator marker; actual MetaX launch logging test retained
+      E4: actual operator capture and two replays with new Q and NaN output/LSE sentinels passed
+      E6: local Generator/RNG isolation and V NaN/+Inf/-Inf cases passed; Q/K nonfinite semantics not
+        newly claimed
+      F1_F2: 3 rounds x16 shapes native benchmark completed; all rounds and observed regressions disclosed;
+        resource guards identical
+      F3_F4: four changed files; fixed vLLM0.24 34-parameter fixture; complete diff pre-commit passed
+      F6: existing first-statement vendor hit logging preserved
+      nv_hardware: not_run; same mocked ABI routes only
+      source_changes: four files; no numerical kernel or heuristic change
+      formal_accuracy: not_run; minimal-regression maintenance only
+      model_regression: 127060 paired values, max_abs0.0; FP16/FP32/native/C8/joint masks0..7
+  final_patch_sha256: 34ebbd6c6b976f7ce2ce779b86c13f4c2e09752d670ca81158ef57dc648d4f2e
+  final_state:
+    source_installation: /workspace/bge-m3/tune-src/FlagGems-vllm
+    source_candidate_equal: true
+    source_service_unchanged: true
+    source_service_present: false
+    other_two_repositories_unchanged: true
+    gpu7_released: true
+    kernel_and_heuristic_unchanged: true
+  validation:
+    passed: true
+    manifest_sha256: 1cc8264b84a1ea859e58a98295cabf1a4282449ddcd441f268b9926de6fc13a4
+    patch_sha256: 34ebbd6c6b976f7ce2ce779b86c13f4c2e09752d670ca81158ef57dc648d4f2e
+    tests:
+      fgv:
+        tests: 166
+        failures: 0
+        errors: 0
+        skipped: 0
+      fgv-optimized:
+        tests: 44
+        failures: 0
+        errors: 0
+        skipped: 0
+      plugin:
+        tests: 364
+        failures: 0
+        errors: 0
+        skipped: 0
+      policy-bench-1:
+        tests: 1
+        failures: 0
+        errors: 0
+        skipped: 0
+      policy-bench-2:
+        tests: 1
+        failures: 0
+        errors: 0
+        skipped: 0
+      policy-bench-3:
+        tests: 1
+        failures: 0
+        errors: 0
+        skipped: 0
+    functional:
+      passed: true
+      numeric_values: 127060
+      max_abs_error: 0.0
+      atol: 1.0e-05
+      rtol: 0.0001
+      profiles:
+      - fp16
+      - fp32
+      joint_masks:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+    kernel_ast_unchanged: true
+    precommit:
+      precommit: true
+      files:
+      - benchmark/test_flash_attn_varlen_func.py
+      - benchmark/test_flash_attn_varlen_opt_init_func.py
+      - src/flaggems_vllm/ops/attention.py
+      - src/flaggems_vllm/ops/flash_api.py
+      - src/flaggems_vllm/runtime/backend/_metax/heuristics_config_utils.py
+      - src/flaggems_vllm/runtime/backend/_metax/ops/flash_attention/direct.py
+      - src/flaggems_vllm/runtime/backend/_metax/ops/flash_attention/launcher.py
+      - tests/test_flash_attn_varlen_func.py
+      kernel_and_config_unchanged: true
+      ast_parse: true
+      frozen_contract_parameters: 34
+    formal_accuracy: not_run
+    formal_performance: not_run
+  benchmark:
+    scope: operator launch-policy comparison only; unchanged IEEE arithmetic/resource guards; no end-to-end
+      claim
+    rounds: 3
+    all_rounds_retained: true
+    shapes: 16
+    summary:
+    - shape:
+      - 127
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.028338518309561113
+      - 0.028317874949761675
+      - 0.028330429682824607
+      current_profile_ms:
+      - 0.028350987453234527
+      - 0.028364592585070382
+      - 0.028302211859561728
+      default_median_ms: 0.028330429682824607
+      current_median_ms: 0.028350987453234527
+      speedup: 0.9992748834429901
+      latency_change_percent: 0.07256427325696979
+    - shape:
+      - 127
+      - 16
+      - 64
+      default_profile_ms:
+      - 0.028983180177506625
+      - 0.029092307274158187
+      - 0.029031491988997564
+      current_profile_ms:
+      - 0.028987596377891164
+      - 0.029116400082906085
+      - 0.02902013299299434
+      default_median_ms: 0.029031491988997564
+      current_median_ms: 0.02902013299299434
+      speedup: 1.0003914177790283
+      latency_change_percent: -0.039126463109540044
+    - shape:
+      - 128
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.028365350538684476
+      - 0.028348673082637495
+      - 0.028306695567819225
+      current_profile_ms:
+      - 0.020991562167712932
+      - 0.02098889882422033
+      - 0.020956658264123733
+      default_median_ms: 0.028348673082637495
+      current_median_ms: 0.02098889882422033
+      speedup: 1.3506508045064416
+      latency_change_percent: -25.96161815744651
+    - shape:
+      - 128
+      - 16
+      - 64
+      default_profile_ms:
+      - 0.029001232835113026
+      - 0.02905958975098919
+      - 0.029012292718331105
+      current_profile_ms:
+      - 0.021161957350684223
+      - 0.021172313808654405
+      - 0.02115515476101441
+      default_median_ms: 0.029012292718331105
+      current_median_ms: 0.021161957350684223
+      speedup: 1.3709645207933971
+      latency_change_percent: -27.058652150875105
+    - shape:
+      - 129
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.03132758572449745
+      - 0.031353305309949384
+      - 0.03130777889629869
+      current_profile_ms:
+      - 0.02503415894886804
+      - 0.024973297988799666
+      - 0.02501002007830358
+      default_median_ms: 0.03132758572449745
+      current_median_ms: 0.02501002007830358
+      speedup: 1.2526013824224962
+      latency_change_percent: -20.166142714450164
+    - shape:
+      - 129
+      - 16
+      - 64
+      default_profile_ms:
+      - 0.03221794428737519
+      - 0.03215567205773025
+      - 0.03222237943068083
+      current_profile_ms:
+      - 0.025325720487776898
+      - 0.025327153619056006
+      - 0.025320650998461643
+      default_median_ms: 0.03221794428737519
+      current_median_ms: 0.025325720487776898
+      speedup: 1.2721432467409852
+      latency_change_percent: -21.392500210819023
+    - shape:
+      - 1024
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.20171058283442944
+      - 0.2017146662661904
+      - 0.201699465315863
+      current_profile_ms:
+      - 0.13837262502157066
+      - 0.13842765560543996
+      - 0.1383193791391555
+      default_median_ms: 0.20171058283442944
+      current_median_ms: 0.13837262502157066
+      speedup: 1.4577347419909477
+      latency_change_percent: -31.40041386170036
+    - shape:
+      - 1024
+      - 16
+      - 64
+      default_profile_ms:
+      - 0.5905436489877385
+      - 0.5905889028526214
+      - 0.590831768116562
+      current_profile_ms:
+      - 0.3251226012771194
+      - 0.32513613595263924
+      - 0.32495078393968485
+      default_median_ms: 0.5905889028526214
+      current_median_ms: 0.3251226012771194
+      speedup: 1.8165113730411837
+      latency_change_percent: -44.949422566740616
+    - shape:
+      - 1025
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.20477358079114497
+      - 0.20475113536133888
+      - 0.2047739965575082
+      current_profile_ms:
+      - 0.2047571868392894
+      - 0.20474752352382597
+      - 0.20474133687767224
+      default_median_ms: 0.20477358079114497
+      current_median_ms: 0.20474752352382597
+      speedup: 1.0001272653601398
+      latency_change_percent: -0.012724916572892653
+    - shape:
+      - 1025
+      - 16
+      - 64
+      default_profile_ms:
+      - 0.598260298007872
+      - 0.5981639071208675
+      - 0.5983498060232237
+      current_profile_ms:
+      - 0.4207451695981233
+      - 0.42076964213930323
+      - 0.42067298144425336
+      default_median_ms: 0.598260298007872
+      current_median_ms: 0.4207451695981233
+      speedup: 1.421906515478961
+      latency_change_percent: -29.671888474105778
+    - shape:
+      - 4096
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.5422707356197733
+      - 0.5417966735496949
+      - 0.5467462054753707
+      current_profile_ms:
+      - 0.541677916790806
+      - 0.5418693175059202
+      - 0.5463372569973186
+      default_median_ms: 0.5422707356197733
+      current_median_ms: 0.5418693175059202
+      speedup: 1.000740802442369
+      latency_change_percent: -0.07402540603530516
+    - shape:
+      - 4096
+      - 16
+      - 64
+      default_profile_ms:
+      - 5.803169699276195
+      - 5.803403293385225
+      - 5.804182613597197
+      current_profile_ms:
+      - 4.603802880575491
+      - 4.603582515272983
+      - 4.604094571845476
+      default_median_ms: 5.803403293385225
+      current_median_ms: 4.603802880575491
+      speedup: 1.2605672840318871
+      latency_change_percent: -20.670636730985947
+    - shape:
+      - 8192
+      - 1
+      - 64
+      default_profile_ms:
+      - 2.324838436351103
+      - 2.3239785587086397
+      - 2.3249228084788602
+      current_profile_ms:
+      - 1.860558491832805
+      - 1.8603387508752212
+      - 1.8605464719376474
+      default_median_ms: 2.324838436351103
+      current_median_ms: 1.8605464719376474
+      speedup: 1.2495460185576142
+      latency_change_percent: -19.970934631577
+    - shape:
+      - 8192
+      - 16
+      - 64
+      default_profile_ms:
+      - 23.152031898498535
+      - 23.150815963745117
+      - 23.148736000061035
+      current_profile_ms:
+      - 18.221962738037107
+      - 18.222259521484375
+      - 18.220621490478514
+      default_median_ms: 23.150815963745117
+      current_median_ms: 18.221962738037107
+      speedup: 1.2704896995217405
+      latency_change_percent: -21.290192248198704
+    - shape:
+      - 257
+      - 16
+      - 128
+      default_profile_ms:
+      - 0.08434157321050427
+      - 0.08446274429071146
+      - 0.08429341555828959
+      current_profile_ms:
+      - 0.08441820359109684
+      - 0.08445493502716314
+      - 0.08432534136770034
+      default_median_ms: 0.08434157321050427
+      current_median_ms: 0.08441820359109684
+      speedup: 0.9990922528870225
+      latency_change_percent: 0.09085718664663123
+    - shape:
+      - 257
+      - 16
+      - 256
+      default_profile_ms:
+      - 1.2820124964560233
+      - 1.2817089031269022
+      - 1.2813730611429586
+      current_profile_ms:
+      - 1.2811982185609878
+      - 1.2813356572931462
+      - 1.2813897070946632
+      default_median_ms: 1.2817089031269022
+      current_median_ms: 1.2813356572931462
+      speedup: 1.000291294347138
+      latency_change_percent: -0.029120951945127427
+    observed_regressions:
+    - shape:
+      - 127
+      - 1
+      - 64
+      default_profile_ms:
+      - 0.028338518309561113
+      - 0.028317874949761675
+      - 0.028330429682824607
+      current_profile_ms:
+      - 0.028350987453234527
+      - 0.028364592585070382
+      - 0.028302211859561728
+      default_median_ms: 0.028330429682824607
+      current_median_ms: 0.028350987453234527
+      speedup: 0.9992748834429901
+      latency_change_percent: 0.07256427325696979
+    - shape:
+      - 257
+      - 16
+      - 128
+      default_profile_ms:
+      - 0.08434157321050427
+      - 0.08446274429071146
+      - 0.08429341555828959
+      current_profile_ms:
+      - 0.08441820359109684
+      - 0.08445493502716314
+      - 0.08432534136770034
+      default_median_ms: 0.08434157321050427
+      current_median_ms: 0.08441820359109684
+      speedup: 0.9990922528870225
+      latency_change_percent: 0.09085718664663123
+  final_report: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fgv-review-fix-005/FINAL_REPORT.json
+  final_report_sha256: 5043609db769ab8ceb48e252e96f50877abf178a01a2eab0c54408c021e2143b
+  sha_manifest: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fgv-review-fix-005/SHA256SUMS.json
+  sha_manifest_sha256: fafb265a911e76f8d738f0421098fe1a06dbd248aabdff3dc29bd5185c7b739f
+  rollback: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fgv-review-fix-005/commands/rollback.py
+  backup: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fgv-review-fix-005/before/source
+  pr_readiness: ready_for_review
+  pr_scope: FlagGems-vllm only; MetaX tested; other vendor routing mock only; no formal model accuracy
+    or e2e performance claim
+  validation_topology: TP1:GPU7; maintenance-only same-device paired regression; no comparison against
+    historical GPU3 throughput
+- experiment_id: fg-review-fix-006
+  document: fg-review-fix-006.md
+  scenario_id: embedding-p1024-c64-n256
+  status: retained
+  direction: operator validation and benchmark maintenance
+  primary_variable: test and benchmark coverage only; production Linear/kernel/configuration unchanged
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006
+  source_container: BGE-M3
+  candidate_container: bge-m3-mbt-20261106-c7d90a
+  validation_topology: TP1:GPU7; same-device operator comparison only
+  accuracy_skill_mode: minimal-regression
+  decision: validation gaps resolved; tests/benchmark applied to actual editable installation; no production
+    changes
+  commands:
+    prepare.py: c4d8389489a5d4d5c2bad4ff7f02ba22d4e254ad52bcec550965f9eee90c9fb9
+    deploy.py: c8b7e3de4b931ea044caa2d02387c1f2c8eef7177b18711aaab0badd99756d45
+    rollback.py: 54c4afe51fc471557c943a5a1640c7994c5f11a28c4500477870c50c3d14288e
+    validate.sh: 761f922f9cb4842076aa87820bcdc9928e4d4d9b8d49d34c346abc225e565058
+    integration.py: 1a1dc814948ef94eaf73dcd339d156e076c715c9e4c91ea7de505d348aeb22f8
+    manifest.json: d8ffb3bc87f682ca0f48cea3c76bfc77c01a79122a6bd6b248851377057d3939
+  tests:
+    fg:
+      tests: 174
+      failures: 0
+      errors: 0
+      skipped: 0
+    fg_optimized:
+      tests: 17
+      failures: 0
+      errors: 0
+      skipped: 0
+    real_vllm_parameter:
+      cases: 12
+      passed: true
+  engineering_review:
+    operator_standard:
+      status: validated_with_scope_limits
+      reference: docs/operator-development-standard.md
+      C1_E2: ordinary/subclass Parameters, all three dtypes, strided and out-of-region weights, branch
+        guards passed; real BasevLLMParameter12 cases passed
+      C4_E6: zero input/weight, cancellation, non-contiguous bias, input/weight/bias NaN/+Inf/-Inf with
+        independent FP64 reference passed
+      E1_E3_E7: explicit public entry; independent reference; existing actual ATen/tuner path kept
+      E4: existing real capture and two updated-input/sentinel replays passed
+      F1_F2: three rounds x56 shapes passed;112 actual launch configurations and56 first-call records
+        per round; all regressions retained; no e2e claim
+      F3_F4: only tests and benchmark changed; full diff pre-commit passed; production bytes unchanged
+      runtime_unchanged: true
+      not_run: new model evaluation unnecessary for pure test/benchmark changes; no formal gate or other-vendor
+        hardware claim
+  final_patch_sha256: cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c
+  final_state:
+    source_candidate_equal: true
+    source_service_unchanged: true
+    source_service_present: false
+    production_and_other_files_unchanged: true
+    other_two_repositories_unchanged: true
+    gpu7_released: true
+  validation:
+    passed: true
+    manifest_sha256: d8ffb3bc87f682ca0f48cea3c76bfc77c01a79122a6bd6b248851377057d3939
+    patch_sha256: cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c
+    tests:
+      fg:
+        tests: 174
+        failures: 0
+        errors: 0
+        skipped: 0
+      fg-optimized:
+        tests: 17
+        failures: 0
+        errors: 0
+        skipped: 0
+      policy-1:
+        tests: 1
+        failures: 0
+        errors: 0
+        skipped: 0
+      policy-2:
+        tests: 1
+        failures: 0
+        errors: 0
+        skipped: 0
+      policy-3:
+        tests: 1
+        failures: 0
+        errors: 0
+        skipped: 0
+    vllm_parameter_cases: 12
+    production_unchanged: true
+    benchmark_shapes: 56
+    benchmark_rounds: 3
+    formal_accuracy: not_run; pure operator validation maintenance
+    formal_performance: not_run
+  benchmark:
+    scope: operator pools only; not a model e2e or maintenance speedup claim
+    rounds: 3
+    all_rounds_retained: true
+    shapes: 56
+    summary:
+    - shape:
+      - 1
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.022896892678290363
+      - 0.0228325566595153
+      - 0.022944461240908466
+      expanded_ms:
+      - 0.02079731095173516
+      - 0.020795171132344685
+      - 0.020896646711561412
+      default_median_ms: 0.022896892678290363
+      expanded_median_ms: 0.02079731095173516
+      speedup: 1.1009544806743408
+      latency_change_percent: -9.169723403324149
+    - shape:
+      - 1
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.022981580399788953
+      - 0.023045072161394533
+      - 0.023072430435000558
+      expanded_ms:
+      - 0.021059658964993122
+      - 0.02120699475158998
+      - 0.021239392338772936
+      default_median_ms: 0.023045072161394533
+      expanded_median_ms: 0.02120699475158998
+      speedup: 1.0866731675720693
+      latency_change_percent: -7.976010649616139
+    - shape:
+      - 31
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.022766629871654148
+      - 0.022959968723440374
+      - 0.022946812345990143
+      expanded_ms:
+      - 0.021479131558258237
+      - 0.021646210368830594
+      - 0.02176277319590251
+      default_median_ms: 0.022946812345990143
+      expanded_median_ms: 0.021646210368830594
+      speedup: 1.060084511561079
+      latency_change_percent: -5.667898257715187
+    - shape:
+      - 31
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.023154529090335364
+      - 0.023217156998016547
+      - 0.02330620331576221
+      expanded_ms:
+      - 0.021495814173414635
+      - 0.021545362661434017
+      - 0.021604832021840145
+      default_median_ms: 0.023217156998016547
+      expanded_median_ms: 0.021545362661434017
+      speedup: 1.077594160880616
+      latency_change_percent: -7.200684979325212
+    - shape:
+      - 32
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.02307089596819476
+      - 0.022883454062996196
+      - 0.022942481167585266
+      expanded_ms:
+      - 0.02145923816370821
+      - 0.02142791139423019
+      - 0.021509013351538528
+      default_median_ms: 0.022942481167585266
+      expanded_median_ms: 0.02145923816370821
+      speedup: 1.0691190895297258
+      latency_change_percent: -6.465050545503715
+    - shape:
+      - 32
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.023159403570551643
+      - 0.02332230323525793
+      - 0.02337059528133941
+      expanded_ms:
+      - 0.02141117312458607
+      - 0.021626608418079486
+      - 0.021541280211665403
+      default_median_ms: 0.02332230323525793
+      expanded_median_ms: 0.021541280211665403
+      speedup: 1.082679534646601
+      latency_change_percent: -7.636565761223924
+    - shape:
+      - 33
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.02263982452615334
+      - 0.022639763892396567
+      - 0.022663234121538214
+      expanded_ms:
+      - 0.020639181286003498
+      - 0.020742127019116003
+      - 0.020781139082312085
+      default_median_ms: 0.02263982452615334
+      expanded_median_ms: 0.020742127019116003
+      speedup: 1.0914900147554016
+      latency_change_percent: -8.382121093054995
+    - shape:
+      - 33
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.022827783866181013
+      - 0.022760534649061775
+      - 0.022817361454212544
+      expanded_ms:
+      - 0.020804331376220835
+      - 0.020842425747250974
+      - 0.02088783019597541
+      default_median_ms: 0.022817361454212544
+      expanded_median_ms: 0.020842425747250974
+      speedup: 1.0947555592094196
+      latency_change_percent: -8.655407904742452
+    - shape:
+      - 128
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.036189839042681755
+      - 0.03597489577548713
+      - 0.03598392140043038
+      expanded_ms:
+      - 0.034310160295131245
+      - 0.03404230354270535
+      - 0.034013540422382346
+      default_median_ms: 0.03598392140043038
+      expanded_median_ms: 0.03404230354270535
+      speedup: 1.0570354428362732
+      latency_change_percent: -5.39579284903009
+    - shape:
+      - 128
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.03619773693136841
+      - 0.03602959526210002
+      - 0.03601718332223187
+      expanded_ms:
+      - 0.03446992571397741
+      - 0.03390544385741619
+      - 0.03390511596115635
+      default_median_ms: 0.03602959526210002
+      expanded_median_ms: 0.03390544385741619
+      speedup: 1.0626492728901178
+      latency_change_percent: -5.895573872622029
+    - shape:
+      - 1024
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.22547990522588518
+      - 0.22581476541795495
+      - 0.22547448903006295
+      expanded_ms:
+      - 0.22414401796379224
+      - 0.2246029483570772
+      - 0.22384206052392408
+      default_median_ms: 0.22547990522588518
+      expanded_median_ms: 0.22414401796379224
+      speedup: 1.0059599505453174
+      latency_change_percent: -0.5924639984013824
+    - shape:
+      - 1024
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.22795039272764653
+      - 0.22797658771811846
+      - 0.22753318015318114
+      expanded_ms:
+      - 0.22407301602788934
+      - 0.22522435261135795
+      - 0.22433898317576295
+      default_median_ms: 0.22795039272764653
+      expanded_median_ms: 0.22433898317576295
+      speedup: 1.0160980026777342
+      latency_change_percent: -1.5842962623005663
+    - shape:
+      - 1025
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.23449035719329236
+      - 0.23454881301654384
+      - 0.23448972141041474
+      expanded_ms:
+      - 0.2344774677805657
+      - 0.2345333569155538
+      - 0.23449944224176678
+      default_median_ms: 0.23449035719329236
+      expanded_median_ms: 0.23449944224176678
+      speedup: 0.9999612576968732
+      latency_change_percent: 0.0038743804151142314
+    - shape:
+      - 1025
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.2358843250908095
+      - 0.2357419457766089
+      - 0.23575571421030406
+      expanded_ms:
+      - 0.23588247971128032
+      - 0.23575732557676338
+      - 0.2357898172610451
+      default_median_ms: 0.23575571421030406
+      expanded_median_ms: 0.2357898172610451
+      speedup: 0.9998553667366251
+      latency_change_percent: 0.014465418518172513
+    - shape:
+      - 1
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.021430702611448225
+      - 0.021427981662620846
+      - 0.021430057648689514
+      expanded_ms:
+      - 0.019259711779252186
+      - 0.019397982993347954
+      - 0.019392546671074574
+      default_median_ms: 0.021430057648689514
+      expanded_median_ms: 0.019392546671074574
+      speedup: 1.1050667048621334
+      latency_change_percent: -9.507725135492285
+    - shape:
+      - 1
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.02158848041466488
+      - 0.021533396860186974
+      - 0.02155867932236482
+      expanded_ms:
+      - 0.019494560256787013
+      - 0.019462936391752325
+      - 0.019467897298701582
+      default_median_ms: 0.02155867932236482
+      expanded_median_ms: 0.019467897298701582
+      speedup: 1.107396396826209
+      latency_change_percent: -9.698098813939293
+    - shape:
+      - 31
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.021597325066661878
+      - 0.021594938153768888
+      - 0.021614834406464348
+      expanded_ms:
+      - 0.01949621343728128
+      - 0.019494337056102495
+      - 0.019499277741552183
+      default_median_ms: 0.021597325066661878
+      expanded_median_ms: 0.01949621343728128
+      speedup: 1.1077702414440533
+      latency_change_percent: -9.72857343627208
+    - shape:
+      - 31
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.02181139356796604
+      - 0.021731457523472393
+      - 0.02176808195765382
+      expanded_ms:
+      - 0.019529063033819644
+      - 0.019395691844133228
+      - 0.019441099887135216
+      default_median_ms: 0.02176808195765382
+      expanded_median_ms: 0.019441099887135216
+      speedup: 1.1196939516811206
+      latency_change_percent: -10.689881060928375
+    - shape:
+      - 32
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.021751038464403846
+      - 0.021602432470063906
+      - 0.021592457258103978
+      expanded_ms:
+      - 0.019463196330935007
+      - 0.019529249637303424
+      - 0.019509662228934486
+      default_median_ms: 0.021602432470063906
+      expanded_median_ms: 0.019509662228934486
+      speedup: 1.107268399451102
+      latency_change_percent: -9.68766014674286
+    - shape:
+      - 32
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.02177831543859413
+      - 0.02177194523094502
+      - 0.02182920380789796
+      expanded_ms:
+      - 0.01949441998249668
+      - 0.01940158753633194
+      - 0.019410305699858063
+      default_median_ms: 0.02177831543859413
+      expanded_median_ms: 0.019410305699858063
+      speedup: 1.1219975499279944
+      latency_change_percent: -10.87324566224085
+    - shape:
+      - 33
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.021618682327513152
+      - 0.02160707454091495
+      - 0.021600261851084955
+      expanded_ms:
+      - 0.019498586952314247
+      - 0.019494785418923258
+      - 0.019494187811477756
+      default_median_ms: 0.02160707454091495
+      expanded_median_ms: 0.019494785418923258
+      speedup: 1.1083514938277457
+      latency_change_percent: -9.775914448723178
+    - shape:
+      - 33
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.02177474137156936
+      - 0.02174791362832222
+      - 0.02176162810321578
+      expanded_ms:
+      - 0.019491639969020855
+      - 0.019491526255513883
+      - 0.019415927124023437
+      default_median_ms: 0.02176162810321578
+      expanded_median_ms: 0.019491526255513883
+      speedup: 1.1164660898250447
+      latency_change_percent: -10.431672836861129
+    - shape:
+      - 128
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.021871372762098024
+      - 0.021688706120921684
+      - 0.02168040728328204
+      expanded_ms:
+      - 0.01958280705517123
+      - 0.019680691821108886
+      - 0.019682999929523524
+      default_median_ms: 0.021688706120921684
+      expanded_median_ms: 0.019680691821108886
+      speedup: 1.1020296602408592
+      latency_change_percent: -9.258340671026922
+    - shape:
+      - 128
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.02184665798336549
+      - 0.0219149784125046
+      - 0.021906038232751793
+      expanded_ms:
+      - 0.01961757555040707
+      - 0.01953134397981028
+      - 0.019556977322124695
+      default_median_ms: 0.021906038232751793
+      expanded_median_ms: 0.019556977322124695
+      speedup: 1.1201137001866652
+      latency_change_percent: -10.723348903477259
+    - shape:
+      - 1024
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.0842489582218536
+      - 0.08410218514052015
+      - 0.08413241786396303
+      expanded_ms:
+      - 0.07838522379830379
+      - 0.07854192798594029
+      - 0.07853610586922766
+      default_median_ms: 0.08413241786396303
+      expanded_median_ms: 0.07853610586922766
+      speedup: 1.0712578238097763
+      latency_change_percent: -6.65179028110694
+    - shape:
+      - 1024
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.08422991630713289
+      - 0.08405045523495487
+      - 0.08424235035214368
+      expanded_ms:
+      - 0.07853866519784569
+      - 0.07846599212357414
+      - 0.07849160851148942
+      default_median_ms: 0.08422991630713289
+      expanded_median_ms: 0.07849160851148942
+      speedup: 1.0731072773824415
+      latency_change_percent: -6.8126718477547925
+    - shape:
+      - 1025
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.09156004819846791
+      - 0.09183018491409503
+      - 0.09163611894772376
+      expanded_ms:
+      - 0.0915680650829426
+      - 0.0918277814311366
+      - 0.09164129966460954
+      default_median_ms: 0.09163611894772376
+      expanded_median_ms: 0.09164129966460954
+      speedup: 0.9999434674442119
+      latency_change_percent: 0.0056535751898678654
+    - shape:
+      - 1025
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.09190379115035098
+      - 0.09222215317957683
+      - 0.09208271331489667
+      expanded_ms:
+      - 0.09191053682662184
+      - 0.09223926406657673
+      - 0.09208565528946694
+      default_median_ms: 0.09208271331489667
+      expanded_median_ms: 0.09208565528946694
+      speedup: 0.9999680517604939
+      latency_change_percent: 0.0031949260228758547
+    - shape:
+      - 1
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.023079071152076292
+      - 0.02336130735282188
+      - 0.023076038623937725
+      expanded_ms:
+      - 0.020927832324431975
+      - 0.021156677880637284
+      - 0.0209990649535506
+      default_median_ms: 0.023079071152076292
+      expanded_median_ms: 0.0209990649535506
+      speedup: 1.099052324621435
+      latency_change_percent: -9.012521278780172
+    - shape:
+      - 1
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.0233915407597805
+      - 0.023393934643318095
+      - 0.02325760016694737
+      expanded_ms:
+      - 0.021481754176080912
+      - 0.021454454659621452
+      - 0.02125135142141612
+      default_median_ms: 0.0233915407597805
+      expanded_median_ms: 0.021454454659621452
+      speedup: 1.0902882935451517
+      latency_change_percent: -8.281139408694626
+    - shape:
+      - 31
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.023460978256591263
+      - 0.023398120131268595
+      - 0.02338332885937344
+      expanded_ms:
+      - 0.022229964445060202
+      - 0.02217400704371523
+      - 0.022340148489593304
+      default_median_ms: 0.023398120131268595
+      expanded_median_ms: 0.022229964445060202
+      speedup: 1.0525486979115692
+      latency_change_percent: -4.992519397519047
+    - shape:
+      - 31
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.023580480416615805
+      - 0.023543784941717338
+      - 0.023399581064597268
+      expanded_ms:
+      - 0.02259123576100812
+      - 0.0227467123530965
+      - 0.022081960609032253
+      default_median_ms: 0.023543784941717338
+      expanded_median_ms: 0.02259123576100812
+      speedup: 1.0421645451708
+      latency_change_percent: -4.04586256231636
+    - shape:
+      - 32
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.02374093895998713
+      - 0.023352458978154855
+      - 0.02334390092946316
+      expanded_ms:
+      - 0.022253843670104655
+      - 0.02203668349772229
+      - 0.022208846355139422
+      default_median_ms: 0.023352458978154855
+      expanded_median_ms: 0.022208846355139422
+      speedup: 1.0514935627329776
+      latency_change_percent: -4.897182879478468
+    - shape:
+      - 32
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.023552412371481618
+      - 0.023628022935655385
+      - 0.023441507328101702
+      expanded_ms:
+      - 0.022240745418793367
+      - 0.02262587402129341
+      - 0.02195474288167725
+      default_median_ms: 0.023552412371481618
+      expanded_median_ms: 0.022240745418793367
+      speedup: 1.0589758539108989
+      latency_change_percent: -5.569140570400677
+    - shape:
+      - 33
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.036761369440722814
+      - 0.0370176494693573
+      - 0.03613144832566166
+      expanded_ms:
+      - 0.03495567256409214
+      - 0.03517763214735592
+      - 0.034308923385279355
+      default_median_ms: 0.036761369440722814
+      expanded_median_ms: 0.03495567256409214
+      speedup: 1.051656762527452
+      latency_change_percent: -4.911941269060538
+    - shape:
+      - 33
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.03657599901541685
+      - 0.036884330481303435
+      - 0.03633983941795929
+      expanded_ms:
+      - 0.034816287608628864
+      - 0.03520480622636511
+      - 0.03472410327326642
+      default_median_ms: 0.03657599901541685
+      expanded_median_ms: 0.034816287608628864
+      speedup: 1.0505427639663645
+      latency_change_percent: -4.811109618759202
+    - shape:
+      - 128
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.05302740327009918
+      - 0.05297382848119886
+      - 0.052945414628132736
+      expanded_ms:
+      - 0.049083539901241174
+      - 0.04932790375166704
+      - 0.049356350157236537
+      default_median_ms: 0.05297382848119886
+      expanded_median_ms: 0.04932790375166704
+      speedup: 1.0739120143415501
+      latency_change_percent: -6.882501858112455
+    - shape:
+      - 128
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.05278099125546959
+      - 0.05285356169561381
+      - 0.05283842022123211
+      expanded_ms:
+      - 0.04915365570957221
+      - 0.04908503626499339
+      - 0.04912253434564412
+      default_median_ms: 0.05283842022123211
+      expanded_median_ms: 0.04912253434564412
+      speedup: 1.0756452395033542
+      latency_change_percent: -7.032545371397825
+    - shape:
+      - 1024
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.29144786886656704
+      - 0.2913249089167669
+      - 0.2912360982197087
+      expanded_ms:
+      - 0.27910014641267433
+      - 0.27924946532852346
+      - 0.2792556254805083
+      default_median_ms: 0.2913249089167669
+      expanded_median_ms: 0.27924946532852346
+      speedup: 1.0432424949284584
+      latency_change_percent: -4.145008963752373
+    - shape:
+      - 1024
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.2928852011089676
+      - 0.2926807577486821
+      - 0.29252990815982177
+      expanded_ms:
+      - 0.2789131142307648
+      - 0.2798811695855192
+      - 0.2799542324148494
+      default_median_ms: 0.2926807577486821
+      expanded_median_ms: 0.2798811695855192
+      speedup: 1.0457322233650732
+      latency_change_percent: -4.373225032495509
+    - shape:
+      - 1025
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.3193545552205337
+      - 0.31923909521802996
+      - 0.31924316757603693
+      expanded_ms:
+      - 0.3193273018914988
+      - 0.3192279561360677
+      - 0.31926717370506225
+      default_median_ms: 0.31924316757603693
+      expanded_median_ms: 0.31926717370506225
+      speedup: 0.9999248086524314
+      latency_change_percent: 0.0075197001732529856
+    - shape:
+      - 1025
+      - 4096
+      - 1024
+      - true
+      default_ms:
+      - 0.32084266662597655
+      - 0.3209590238683364
+      - 0.3208533990578573
+      expanded_ms:
+      - 0.32082851189227146
+      - 0.32100062793623063
+      - 0.32085213050271033
+      default_median_ms: 0.3208533990578573
+      expanded_median_ms: 0.32085213050271033
+      speedup: 1.0000039537064784
+      latency_change_percent: -0.0003953690846714153
+    - shape:
+      - 1
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.07715346296587894
+      - 0.07711313669010655
+      - 0.07706861458376109
+      expanded_ms:
+      - 0.06962704358465559
+      - 0.06976319994245256
+      - 0.06973294574180838
+      default_median_ms: 0.07711313669010655
+      expanded_median_ms: 0.06973294574180838
+      speedup: 1.105835066478102
+      latency_change_percent: -9.570601411218483
+    - shape:
+      - 1
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.07704370862335498
+      - 0.07697571189082197
+      - 0.0770306927673314
+      expanded_ms:
+      - 0.06982227807403893
+      - 0.06977848830046476
+      - 0.06978964435337848
+      default_median_ms: 0.0770306927673314
+      expanded_median_ms: 0.06978964435337848
+      speedup: 1.103755341942825
+      latency_change_percent: -9.400211985402063
+    - shape:
+      - 31
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.07716123472969487
+      - 0.07721894665768272
+      - 0.07717339743131374
+      expanded_ms:
+      - 0.06972313165070113
+      - 0.06978172357073141
+      - 0.06974548531176528
+      default_median_ms: 0.07717339743131374
+      expanded_median_ms: 0.06974548531176528
+      speedup: 1.1065002571327074
+      latency_change_percent: -9.624964517286527
+    - shape:
+      - 31
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.07786209347440318
+      - 0.0778043735941284
+      - 0.07777850280118115
+      expanded_ms:
+      - 0.06928319201305863
+      - 0.06919440993343491
+      - 0.06924981119819086
+      default_median_ms: 0.0778043735941284
+      expanded_median_ms: 0.06924981119819086
+      speedup: 1.1235319237399022
+      latency_change_percent: -10.99496339442686
+    - shape:
+      - 32
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.07742975983701593
+      - 0.07716367091061915
+      - 0.07714225443618558
+      expanded_ms:
+      - 0.06967445060468377
+      - 0.06989039865696314
+      - 0.06987701560420569
+      default_median_ms: 0.07716367091061915
+      expanded_median_ms: 0.06987701560420569
+      speedup: 1.104278284403075
+      latency_change_percent: -9.443116456776412
+    - shape:
+      - 32
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.0777682589850246
+      - 0.07775431045037104
+      - 0.07778893293014152
+      expanded_ms:
+      - 0.06911785165160818
+      - 0.0690797226960288
+      - 0.069115014014306
+      default_median_ms: 0.0777682589850246
+      expanded_median_ms: 0.069115014014306
+      speedup: 1.125200654215703
+      latency_change_percent: -11.126962444131482
+    - shape:
+      - 33
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.07722331823678963
+      - 0.07724724393902403
+      - 0.07717264987326958
+      expanded_ms:
+      - 0.06992726667727389
+      - 0.06995978138663553
+      - 0.06985221490079757
+      default_median_ms: 0.07722331823678963
+      expanded_median_ms: 0.06992726667727389
+      speedup: 1.1043377198366446
+      latency_change_percent: -9.447990226402702
+    - shape:
+      - 33
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.07780360839736294
+      - 0.07762905743331591
+      - 0.07762384912415188
+      expanded_ms:
+      - 0.06938580912624212
+      - 0.06936711436146861
+      - 0.06928869108938367
+      default_median_ms: 0.07762905743331591
+      expanded_median_ms: 0.06936711436146861
+      speedup: 1.1191046095530905
+      latency_change_percent: -10.6428486252643
+    - shape:
+      - 128
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.07792633110797818
+      - 0.077309424162917
+      - 0.07729729455024659
+      expanded_ms:
+      - 0.07054260504821588
+      - 0.07034633205613486
+      - 0.07015411553120317
+      default_median_ms: 0.077309424162917
+      expanded_median_ms: 0.07034633205613486
+      speedup: 1.0989830159335918
+      latency_change_percent: -9.006783043822143
+    - shape:
+      - 128
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.07801493861991873
+      - 0.07792958228922939
+      - 0.07792110044088324
+      expanded_ms:
+      - 0.0700100363051561
+      - 0.06982164539451577
+      - 0.06951130568379103
+      default_median_ms: 0.07792958228922939
+      expanded_median_ms: 0.06982164539451577
+      speedup: 1.1161235437649895
+      latency_change_percent: -10.404183695764802
+    - shape:
+      - 1024
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.31111901826030575
+      - 0.31437090807254736
+      - 0.31464303406451943
+      expanded_ms:
+      - 0.291361475770222
+      - 0.2912569134051983
+      - 0.2911741624184705
+      default_median_ms: 0.31437090807254736
+      expanded_median_ms: 0.2912569134051983
+      speedup: 1.07935947132418
+      latency_change_percent: -7.35245980904029
+    - shape:
+      - 1024
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.3118781193046813
+      - 0.3097830556956889
+      - 0.3116623271595348
+      expanded_ms:
+      - 0.2908443305328602
+      - 0.2904596738288739
+      - 0.2908922889814948
+      default_median_ms: 0.3116623271595348
+      expanded_median_ms: 0.2908443305328602
+      speedup: 1.0715777976092353
+      latency_change_percent: -6.679664114815587
+    - shape:
+      - 1025
+      - 1024
+      - 4096
+      - false
+      default_ms:
+      - 0.3434543575860758
+      - 0.3436213785079383
+      - 0.34546877794248626
+      expanded_ms:
+      - 0.3434480572423191
+      - 0.3436113656933766
+      - 0.34551483154296875
+      default_median_ms: 0.3436213785079383
+      expanded_median_ms: 0.3436113656933766
+      speedup: 1.000029139939948
+      latency_change_percent: -0.0029139090836460824
+    - shape:
+      - 1025
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.34367038952003437
+      - 0.34532381556794634
+      - 0.3435465313785865
+      expanded_ms:
+      - 0.3436818635311717
+      - 0.34531840096532773
+      - 0.3435572423968875
+      default_median_ms: 0.34367038952003437
+      expanded_median_ms: 0.3436818635311717
+      speedup: 0.9999666144409849
+      latency_change_percent: 0.00333866736477173
+    observed_regressions:
+    - shape:
+      - 1025
+      - 3072
+      - 1024
+      - false
+      default_ms:
+      - 0.23449035719329236
+      - 0.23454881301654384
+      - 0.23448972141041474
+      expanded_ms:
+      - 0.2344774677805657
+      - 0.2345333569155538
+      - 0.23449944224176678
+      default_median_ms: 0.23449035719329236
+      expanded_median_ms: 0.23449944224176678
+      speedup: 0.9999612576968732
+      latency_change_percent: 0.0038743804151142314
+    - shape:
+      - 1025
+      - 3072
+      - 1024
+      - true
+      default_ms:
+      - 0.2358843250908095
+      - 0.2357419457766089
+      - 0.23575571421030406
+      expanded_ms:
+      - 0.23588247971128032
+      - 0.23575732557676338
+      - 0.2357898172610451
+      default_median_ms: 0.23575571421030406
+      expanded_median_ms: 0.2357898172610451
+      speedup: 0.9998553667366251
+      latency_change_percent: 0.014465418518172513
+    - shape:
+      - 1025
+      - 1024
+      - 1024
+      - false
+      default_ms:
+      - 0.09156004819846791
+      - 0.09183018491409503
+      - 0.09163611894772376
+      expanded_ms:
+      - 0.0915680650829426
+      - 0.0918277814311366
+      - 0.09164129966460954
+      default_median_ms: 0.09163611894772376
+      expanded_median_ms: 0.09164129966460954
+      speedup: 0.9999434674442119
+      latency_change_percent: 0.0056535751898678654
+    - shape:
+      - 1025
+      - 1024
+      - 1024
+      - true
+      default_ms:
+      - 0.09190379115035098
+      - 0.09222215317957683
+      - 0.09208271331489667
+      expanded_ms:
+      - 0.09191053682662184
+      - 0.09223926406657673
+      - 0.09208565528946694
+      default_median_ms: 0.09208271331489667
+      expanded_median_ms: 0.09208565528946694
+      speedup: 0.9999680517604939
+      latency_change_percent: 0.0031949260228758547
+    - shape:
+      - 1025
+      - 4096
+      - 1024
+      - false
+      default_ms:
+      - 0.3193545552205337
+      - 0.31923909521802996
+      - 0.31924316757603693
+      expanded_ms:
+      - 0.3193273018914988
+      - 0.3192279561360677
+      - 0.31926717370506225
+      default_median_ms: 0.31924316757603693
+      expanded_median_ms: 0.31926717370506225
+      speedup: 0.9999248086524314
+      latency_change_percent: 0.0075197001732529856
+    - shape:
+      - 1025
+      - 1024
+      - 4096
+      - true
+      default_ms:
+      - 0.34367038952003437
+      - 0.34532381556794634
+      - 0.3435465313785865
+      expanded_ms:
+      - 0.3436818635311717
+      - 0.34531840096532773
+      - 0.3435572423968875
+      default_median_ms: 0.34367038952003437
+      expanded_median_ms: 0.3436818635311717
+      speedup: 0.9999666144409849
+      latency_change_percent: 0.00333866736477173
+    trace_paths:
+    - /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/results/policy-1.json.trace.json
+    - /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/results/policy-2.json.trace.json
+    - /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/results/policy-3.json.trace.json
+  environment:
+    host: mx-59
+    platform: metax
+    device: MetaX C550
+    physical_gpu: 7
+    visible_gpu: 0
+    driver: 3.8.1
+    maca: 3.7.1.5
+    versions:
+      vllm: 0.24.0+empty
+      torch: 2.10.0+metax3.8.1.0
+      transformers: 5.15.1
+      flag-gems: 0.0+g4897cc306
+      flaggems-vllm: 0.3.0.dev1
+      vllm-plugin-fl: 0.0.0+gef7339f1.review20261104
+      triton: 3.6.0+metax3.8.1.0
+      flash-attn: 2.6.3+metax3.8.1.0torch2.10
+    recorded_date: '2026-11-09'
+    timing_scope: FP32 operator graph replay; other cards have unrelated workloads; no end-to-end or globally
+      idle host claim
+  final_report: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/FINAL_REPORT.json
+  final_report_sha256: 303bf988e794f8363c6936ec79dee538c8fb9f2dbda268eed71490706ff0b1f0
+  sha_manifest: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/SHA256SUMS.json
+  sha_manifest_sha256: 88dc654cc491a1e19fa2c843e945b972187f98db407acad20e073bd29ff61cc1
+  rollback: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/commands/rollback.py
+  backup: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-fg-review-fix-006/before/source
+  pr_readiness: ready_for_review
+- experiment_id: operator-pr-007
+  document: operator-pr-007.md
+  scenario_id: operator-delivery
+  status: submitted
+  direction: operator PR submission
+  scope: Linear and flash_attn_varlen_func; no installed-source changes
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-operator-pr-007
+  decision: Two operator-scoped PRs open for review; no merge; installed sources unchanged
+  commands:
+    prepare:
+      path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-operator-pr-007/commands/prepare.py
+      sha256: a69a6ee7d808389d0f20ab08c161ea2315ccd9c67fcddac1515e9f0de5d0b73c
+    validate:
+      path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-operator-pr-007/commands/validate.sh
+      sha256: 83c27ddd7559a4ba9654f8f3d93e9c2600ff3a03f6132302baa4d062fb8b7e23
+  pull_requests:
+  - key: fg
+    repository: flagos-ai/FlagGems
+    pr: 8591
+    url: https://github.com/flagos-ai/FlagGems/pull/8591
+    branch: codex/metax-linear-fp32-20261109-cb47fb2
+    base: 319707ebbbd8427a6131a62e281f94dc81884878
+    head: 8c10ff9bfd714f68d3ce861ae3b73dfd514d4298
+    tree: 0a9f40654cc6ecb642ba6b2a92adedb5283fad3b
+    files:
+    - path: benchmark/test_linear.py
+      sha: b6e3226ff1d8daa0a7637558790f55a37cafa1d9
+      additions: 157
+      deletions: 0
+    - path: src/flag_gems/runtime/backend/_metax/ops/linear.py
+      sha: 83bee3fe3b1ba776eb952c0b2c493296de4569e3
+      additions: 57
+      deletions: 1
+    - path: src/flag_gems/runtime/backend/_metax/tune_configs.yaml
+      sha: cdd2761227acdcfde37223023ed39143b859a4ba
+      additions: 10
+      deletions: 0
+    - path: tests/test_metax_linear.py
+      sha: d449eb217589791f1925b8685209de594a0d03c4
+      additions: 331
+      deletions: 0
+    published_blobs_verified: true
+    checks:
+    - name: backend-tests (metax-maca3810) / test-iluvatar
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153898
+    - name: backend-tests (metax-maca3810) / test-hygon
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153794
+    - name: backend-tests (metax-maca3810) / test-thead
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153700
+    - name: backend-tests (metax-maca3810) / test-kunlunxin
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153616
+    - name: backend-tests (metax-maca3810) / test
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153486
+    - name: backend-tests (metax-maca3810) / test-enflame
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153179
+    - name: alpha-ops
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153077
+    - name: backend-tests (metax-maca3810) / test-mthreads
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153037
+    - name: examples
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153005
+    - name: build-doc
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014152868
+    - name: cpp-op
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014152495
+    - name: backend-tests (metax-maca3810) / test-metax
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014151828
+    - name: python-op
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014151440
+    - name: preprocess
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129013690777
+    - name: rule-check-required
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772081/job/129013690138
+    - name: code-style
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572771880/job/129013689791
+    - name: triage
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572771045/job/129013688601
+  - key: fgv
+    repository: flagos-ai/FlagGems-vllm
+    pr: 1124
+    url: https://github.com/flagos-ai/FlagGems-vllm/pull/1124
+    branch: codex/metax-varlen-fp32-20261109-34ebbd6
+    base: bc46e67a6a2c97182fa4132605a661fe40cc792a
+    head: 646c835b774e729387b1d646b11c849d0be0e10b
+    tree: a3bd7faedd6bd49f137d223a42cde81ab6565925
+    files:
+    - path: benchmark/test_flash_attn_varlen_func.py
+      sha: 269c8ad0973ceeebfce8b63aa9be5eb76a258e08
+      additions: 99
+      deletions: 0
+    - path: benchmark/test_flash_attn_varlen_opt_init_func.py
+      sha: a709358136b24efabbdcd69d74d705cd48aa2729
+      additions: 1
+      deletions: 1
+    - path: src/flaggems_vllm/ops/attention.py
+      sha: ad34837bfffb0ab809243d8cacedc64ea3aea9d6
+      additions: 58
+      deletions: 8
+    - path: src/flaggems_vllm/ops/flash_api.py
+      sha: 1eaad9704a517646a46eab59df5e7d2d839d3193
+      additions: 110
+      deletions: 4
+    - path: src/flaggems_vllm/runtime/backend/_metax/heuristics_config_utils.py
+      sha: 4ded00f6e0e12699908f319d2b9947515e3235f0
+      additions: 29
+      deletions: 0
+    - path: src/flaggems_vllm/runtime/backend/_metax/ops/flash_attention/direct.py
+      sha: 6f3592e7210dbca855ac39adceb675effcb0014e
+      additions: 39
+      deletions: 4
+    - path: src/flaggems_vllm/runtime/backend/_metax/ops/flash_attention/launcher.py
+      sha: ea19b8e38cd18ca15e18f6ec52868364cf7706a5
+      additions: 17
+      deletions: 0
+    - path: tests/test_flash_attn_varlen_func.py
+      sha: 4cca0d7b239f425bb9ee14d07eb0d8559439228d
+      additions: 690
+      deletions: 0
+    published_blobs_verified: true
+    checks:
+    - name: nvidia tests and benchmarks
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014302436
+    - name: metax-maca3720 tests and benchmarks / test
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301793
+    - name: metax-maca3810 tests and benchmarks / test
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301735
+    - name: iluvatar container smoke test
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301510
+    - name: mthreads container smoke test
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301374
+    - name: metax container smoke test
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301326
+    - name: hygon container smoke test
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301317
+    - name: ascend container smoke test
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301304
+    - name: select ci targets
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014241592
+    - name: code style
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129013717076
+    - name: rule-check
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780050/job/129013716640
+  publications_verified: true
+  source_container_changed: false
+  full_model_acceptance_claimed: false
+  target_device_regression:
+    fg:
+      tests: 174
+      failures: 0
+      errors: 0
+      skipped: 0
+      seconds: 579.22
+    fgv:
+      tests: 166
+      failures: 0
+      errors: 0
+      skipped: 0
+      seconds: 45.559
+  accuracy_skill_mode: minimal-regression
+  validation_scope: Pure operator rebase regression; no model service or formal gate
+  candidate_files:
+    fg: proposed_files_verified
+    fgv: proposed_files_verified
+  source_installations:
+    FlagGems:
+      patch_sha256: cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c
+      unchanged: true
+    FlagGems-vllm:
+      patch_sha256: 34ebbd6c6b976f7ce2ce779b86c13f4c2e09752d670ca81158ef57dc648d4f2e
+      unchanged: true
+  gpu7_released: true
+  build: Both pure-Python wheels passed; no runtime installs
+  github_final:
+  - key: fgv
+    url: https://github.com/flagos-ai/FlagGems-vllm/pull/1124
+    number: 1124
+    state: open
+    draft: false
+    merged: false
+    mergeable: true
+    mergeable_state: unstable
+    head: 646c835b774e729387b1d646b11c849d0be0e10b
+    base: bc46e67a6a2c97182fa4132605a661fe40cc792a
+    commits: 1
+    changed_files: 8
+    checks:
+    - name: nvidia tests and benchmarks
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014302436
+    - name: metax-maca3720 tests and benchmarks / test
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301793
+    - name: metax-maca3810 tests and benchmarks / test
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301735
+    - name: iluvatar container smoke test
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301510
+    - name: mthreads container smoke test
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301374
+    - name: metax container smoke test
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301326
+    - name: hygon container smoke test
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301317
+    - name: ascend container smoke test
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014301304
+    - name: select ci targets
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129014241592
+    - name: code style
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780448/job/129013717076
+    - name: rule-check
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems-vllm/actions/runs/42572780050/job/129013716640
+  - key: fg
+    url: https://github.com/flagos-ai/FlagGems/pull/8591
+    number: 8591
+    state: open
+    draft: false
+    merged: false
+    mergeable: true
+    mergeable_state: blocked
+    head: 8c10ff9bfd714f68d3ce861ae3b73dfd514d4298
+    base: 73563404ec7a9d9e9d12e2cf8af490cbf986d916
+    commits: 1
+    changed_files: 4
+    checks:
+    - name: code-style
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42573461941/job/129015849924
+    - name: backend-tests (metax-maca3810) / test-iluvatar
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153898
+    - name: backend-tests (metax-maca3810) / test-hygon
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153794
+    - name: backend-tests (metax-maca3810) / test-thead
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153700
+    - name: backend-tests (metax-maca3810) / test-kunlunxin
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153616
+    - name: backend-tests (metax-maca3810) / test
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153486
+    - name: backend-tests (metax-maca3810) / test-enflame
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153179
+    - name: alpha-ops
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153077
+    - name: backend-tests (metax-maca3810) / test-mthreads
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153037
+    - name: examples
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014153005
+    - name: build-doc
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014152868
+    - name: cpp-op
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014152495
+    - name: backend-tests (metax-maca3810) / test-metax
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014151828
+    - name: python-op
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129014151440
+    - name: preprocess
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772072/job/129013690777
+    - name: rule-check-required
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572772081/job/129013690138
+    - name: code-style
+      status: completed
+      conclusion: cancelled
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572771880/job/129013689791
+    - name: triage
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42572771045/job/129013688601
+  summary_sha256: 2a1c45b91517f9e7b095baae00ea7eca0ea8afb306d29f832a401da4059d93c2
+  delivery_sha256: a30faa8871000f326772cac3a0d9c04e3b6d6810377d22d437b5a6f5859fca42
+  sha_manifest: 4043531af089780faf17edc889bd8d491c8cda174c4ccb3fc85e9e322a8bea3c
+  engineering_review:
+    operator_standard:
+      status: submitted_for_upstream_review
+      scope: Existing ATen linear and existing vLLM flash_attn_varlen_func; metadata/exports unchanged
+      B1_B2_B5: Public routing and ABI tests plus metadata/export/marker/ATen-name CI checks passed
+      F1_F2: Prior three-round operator-policy comparisons, all shapes and observed regressions disclosed
+        with exact baseline context
+      F3: Fresh rebased hardware tests FG174/FGV166 and both wheel builds passed; full model and other-vendor
+        hardware outside local claim
+      F4: Applicable changed-file hooks passed for FG; full-repository hooks passed for FGV; FG all-files
+        clang-format architecture limitation disclosed; upstream CI pending
+- experiment_id: linear-ci-008
+  document: linear-ci-008.md
+  scenario_id: operator-delivery
+  status: test-fix-pushed-external-ci-blocked
+  scope: FlagGems PR8591 test-only CI repair
+  decision: Keep test-only repair; upstream required CI remains blocked during network checkout; maintainer
+    intervention required
+  evidence_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-linear-ci-008
+  commands:
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-linear-ci-008/commands/validate.py
+    sha256: f7682f0b6b5a78018835fae6b038d9ea21fc4768c8f4755acd8c5ff9c2998765
+  accuracy_skill_mode: minimal-regression
+  source_container_changed: false
+  publication:
+    pr: https://github.com/flagos-ai/FlagGems/pull/8591
+    head: 58d97aff1eea33f23117acc73ed50e4341c7b9a5
+    parent: 8c10ff9bfd714f68d3ce861ae3b73dfd514d4298
+    tree: 4fc1352bc28a3c9fa3fb1eb5dfdaa5d7988e3503
+    file: tests/test_metax_linear.py
+    candidate_sha256: f141e572966647a95a2d33ef60f79c0aff39deebfdc193ee9a3b1b900739a0bf
+  target_device:
+    exit_code: 0
+    candidate_sha256: f141e572966647a95a2d33ef60f79c0aff39deebfdc193ee9a3b1b900739a0bf
+    mount_parity: passed
+    scope: PR test-only fix; no production source changes; two operator regression tests; no new performance
+      experiment
+    tests: 2
+    failures: 0
+    errors: 0
+    skipped: 0
+  rule_checks:
+    passed: 7
+    operators:
+    - linear
+    - metax_linear
+    included_missing_check: check_kernelgen_tests.py
+  production_source_changed: false
+  required_ci: &id001
+    run_id: 42579927408
+    job_id: 129035981999
+    conclusion: failure
+    stage: checkout
+    rules_executed: false
+    url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927408/job/129035981999
+  final_ci_snapshot:
+    pr: https://github.com/flagos-ai/FlagGems/pull/8591
+    head: 58d97aff1eea33f23117acc73ed50e4341c7b9a5
+    commits: 2
+    changed_files: 4
+    mergeable: false
+    required_ci: *id001
+    root_cause: Runner GitHub connection/transfer failures repeated across five attempts; actual rule
+      checks never ran
+    retry_permission: GitHub connector Actions rerun returned 403; substantive test-only follow-up triggered
+      new CI
+    log_excerpt:
+    - 2026-11-09T07:40:36.7383568Z === round 1 ===
+    - '2026-11-09T07:42:39.6876764Z   http: FAIL (transfer) 122943ms'
+    - 2026-11-09T07:42:39.6879528Z === round 2 ===
+    - '2026-11-09T07:44:53.3989804Z   http: FAIL (connect) 133701ms'
+    - 2026-11-09T07:44:53.3992218Z === round 3 ===
+    - '2026-11-09T07:47:08.5650216Z   http: FAIL (connect) 135156ms'
+    - 2026-11-09T07:47:08.5651995Z === round 4 ===
+    - '2026-11-09T07:52:21.4629876Z   http: FAIL (transfer) 312888ms'
+    - 2026-11-09T07:52:21.4631530Z === round 5 ===
+    - '2026-11-09T07:54:44.9599672Z   http: FAIL (transfer) 143479ms'
+    - '2026-11-09T07:54:44.9767754Z ##[error]robust-checkout: all links failed after 5 rounds'
+    - '2026-11-09T07:54:44.9791001Z ##[error]Process completed with exit code 1.'
+    checks:
+    - name: unittest-required
+      status: queued
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129043701550
+    - name: backend-tests (metax-maca3810) / test
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036209385
+    - name: backend-tests (metax-maca3810) / test-thead
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036209272
+    - name: backend-tests (metax-maca3810) / test-enflame
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036209109
+    - name: backend-tests (metax-maca3810) / test-iluvatar
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036209019
+    - name: backend-tests (metax-maca3810) / test-hygon
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208948
+    - name: backend-tests (metax-maca3810) / test-kunlunxin
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208725
+    - name: backend-tests (metax-maca3810) / test-mthreads
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208564
+    - name: build-doc
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208552
+    - name: cpp-op
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208482
+    - name: examples
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208426
+    - name: alpha-ops
+      status: completed
+      conclusion: skipped
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036208305
+    - name: backend-tests (metax-maca3810) / test-metax
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036207198
+    - name: python-op
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129036206918
+    - name: code-style
+      status: in_progress
+      conclusion: null
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579990419/job/129036183272
+    - name: preprocess
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927390/job/129035982212
+    - name: rule-check-required
+      status: completed
+      conclusion: failure
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927408/job/129035981999
+    - name: code-style
+      status: completed
+      conclusion: cancelled
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579927267/job/129035981826
+    - name: triage
+      status: completed
+      conclusion: success
+      url: https://github.com/flagos-ai/FlagGems/actions/runs/42579924613/job/129035974074
+  archive:
+    summary_sha256: 1d5805f968684d578b880527fac9c405c54039225ea53a1e4ca5328a562a61b8
+    manifest_sha256: f67bb0402569103259228b2d2d0e3d390a346c0e32b4d9006c49a6f68fe06c14
+    gpu7_process_present: false
+    installed_patch_sha256: cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c
+  source_installations_unchanged: true
+  final_ci_archive:
+    ci_snapshot_sha256: 0f85120dae2e44726f34f82323066868a7aa0def35672c2a01039a35114e68b0
+    manifest_sha256: 7727c0ed433421365e13b74ff1aef34328ed78a3be7c10cb416da7b9ba8a2404
+  mergeability_observation:
+    github_api: mergeable=false, mergeable_state=dirty
+    local_git_merge_tree: passed, exit0; tree f9c372803a11aad3ee6ac0699a72bf2b311cf512
+    base: 73563404ec7a9d9e9d12e2cf8af490cbf986d916
+    head: 58d97aff1eea33f23117acc73ed50e4341c7b9a5
+    decision: No textual conflict reproduced; preserve branch and report GitHub status separately
+  code_style_ci:
+    job_id: 129036183272
+    run_id: 42579990419
+    status: failure
+    stage: checkout
+    formatter_executed: false
+    root_cause: curl28 low transfer rate/connect timeouts; all links failed after 5 rounds
+    url: https://github.com/flagos-ai/FlagGems/actions/runs/42579990419/job/129036183272
+    head: 58d97aff1eea33f23117acc73ed50e4341c7b9a5
+metrics:
+- scenario_id: embedding-p1024-c64-n256
+  role: A-current
+  metric: input_token_throughput
+  value: 45228.87656959786
+  unit: token/s
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A-current
+  metric: request_throughput
+  value: 44.16882477499791
+  unit: request/s
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A-current
+  metric: mean_e2el
+  value: 1121.5401278677746
+  unit: ms
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A-current
+  metric: round_mean_p99_e2el
+  value: 4238.286671857348
+  unit: ms
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: B-release
+  metric: input_token_throughput
+  value: 26678.938068130425
+  unit: token/s
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: B-release
+  metric: request_throughput
+  value: 26.053650457158618
+  unit: request/s
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: B-release
+  metric: mean_e2el
+  value: 1737.0677833405352
+  unit: ms
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: B-release
+  metric: round_mean_p99_e2el
+  value: 5719.100159360096
+  unit: ms
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A2-current
+  metric: input_token_throughput
+  value: 76719.80976182171
+  unit: token/s
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A2-current
+  metric: request_throughput
+  value: 74.92168922052902
+  unit: request/s
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A2-current
+  metric: mean_e2el
+  value: 950.7143995215301
+  unit: ms
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- scenario_id: embedding-p1024-c64-n256
+  role: A2-current
+  metric: round_mean_p99_e2el
+  value: 2587.6251520356163
+  unit: ms
+  scope: diagnostic-incomplete-steady-state
+  experiment_id: image-001
+  code_binding: pre-slim image comparison, not plugin-slim-002
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:A-32768
+  metric: total_token_throughput
+  value: 119242.2078124537
+  unit: token/s
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:A-32768
+  metric: request_throughput
+  value: 116.44746856684931
+  unit: request/s
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:A-32768
+  metric: mean_e2el
+  value: 509.79673744150205
+  unit: ms
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:A-32768
+  metric: round_mean_p99_e2el
+  value: 818.1971219368279
+  unit: ms
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:B-65536
+  metric: total_token_throughput
+  value: 119764.46639301354
+  unit: token/s
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:B-65536
+  metric: request_throughput
+  value: 116.95748671192729
+  unit: request/s
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:B-65536
+  metric: mean_e2el
+  value: 506.86474760223064
+  unit: ms
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+- experiment_id: batch-budget-004
+  scenario_id: embedding-p1024-c64-n256
+  role: batch-budget-004:B-65536
+  metric: round_mean_p99_e2el
+  value: 818.1240261159833
+  unit: ms
+  scope: diagnostic-only; numeric-gate-failed; revert-cancelled-by-user
+environment:
+  host: mx-59
+  source_container: BGE-M3
+  base_image: harbor.baai.ac.cn/flagos-inner-models-release/bge-m3-metax:fp16-dense-vllm0.24.0-ef7339f1-r1-20261104
+  base_image_id: sha256:1785f7a848059ca51932b938b4fdd75565603c456fe1d7bb1251348c42c22472
+  remote_work_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3
+  remote_case_dir: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i
+  image_lineage: verified
+  mount_parity: passed
+  original_service_preserved: true
+  user_authorized_stop:
+    service: MiniCPM-V-4.7-1B
+    port: 8031
+    gpu: 3
+    result: released
+    container_stopped: false
+    evidence: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/authorized-stop.after.json
+  containers:
+    current:
+      container: bge-m3-1k-current-20261105-x4jxof0i
+      image: sha256:632f985eee774f5cf25d716d23e84d837e718002033c9a264709b3491d0d74d8
+      image_lineage: verified
+      mount_parity: passed
+      source_fingerprint:
+        vllm-plugin-FL: b470eb312454fbdffbd176f823bebeae7511dc43f1afd24d9efd35a1bcb8fb4f
+        FlagGems: 022236e8b2a673e8b7e0d9d577336c20ed9bbed37d52e90120a8c6eaa2d0e5ea
+        FlagGems-vllm: 87b7f4268c0147f49e142eeef0a9576fcc503d8ed9364bda75d01a94df0adcbc
+      imports:
+        vllm: /flagos/lib/python3.12/site-packages/vllm/__init__.py
+        vllm_fl: /workspace/bge-m3/tune-src/vllm-plugin-FL/vllm_fl/__init__.py
+        flag_gems: /workspace/bge-m3/tune-src/FlagGems/src/flag_gems/__init__.py
+        flaggems_vllm: /workspace/bge-m3/tune-src/FlagGems-vllm/src/flaggems_vllm/__init__.py
+    base:
+      container: bge-m3-1k-base-20261105-x4jxof0i
+      image: sha256:1785f7a848059ca51932b938b4fdd75565603c456fe1d7bb1251348c42c22472
+      image_lineage: verified
+      mount_parity: passed
+      source_fingerprint:
+        vllm-plugin-FL: 9ff1d347d849d39acb9f51f3ea67895ce8173fe489f38a6b3a45d29049b0844c
+        FlagGems: a629f8014aad419e5ef122d491b780c10fdf680623bcacdbd6b49d78a90c203a
+        FlagGems-vllm: b10601f08e901ce90ceb6c23cc46eeaedf571d8c295a99695595a259eb1e77eb
+      imports:
+        vllm: /flagos/lib/python3.12/site-packages/vllm/__init__.py
+        vllm_fl: /workspace/bge-m3/tune-src/vllm-plugin-FL/vllm_fl/__init__.py
+        flag_gems: /workspace/bge-m3/tune-src/FlagGems/src/flag_gems/__init__.py
+        flaggems_vllm: /workspace/bge-m3/tune-src/FlagGems-vllm/src/flaggems_vllm/__init__.py
+  commit_event_audit: commit only; no pause/unpause; source health200
+  final_audit:
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/FINAL_AUDIT.json
+    status: passed
+    source_unchanged: true
+    benchmark_script_unchanged: true
+    historical_artifacts_unchanged: true
+    source_service_health: 200
+    gpu3_released: true
+    new_containers_retained_idle: true
+measurement_contract:
+  mode: targeted
+  scenario_id: embedding-p1024-c64-n256
+  gpu: 3
+  port: 18340
+  order:
+  - A-current
+  - B-release
+  - A2-current
+  rounds: 5
+  warmup_rounds: 3
+  measured_rounds:
+  - 4
+  - 5
+  steady_span_limit: 0.15
+  revert_drift_limit: 0.15
+  scope: diagnostic
+  runner: user-authorized native embedding wrapper (maintained generative runner unsupported)
+  formal_accuracy: not_run
+  decode: not_applicable encoder
+policy_version: SOP0.44 / experiment-schema3 / model-record-schema4
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+external_evidence:
+  case: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i
+  comparison: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/COMPARISON.json
+  comparison_sha256: faa01afc2bcd21069a411830dddd717be5698bf68fbecff285269bcba6a93eb9
+  sha256_manifest: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/SHA256SUMS.json
+  measurement_contract: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/measurement-contract.json
+  prepared: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/PREPARED.json
+  commit_audit: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/commit-runtime-audit.json
+phase_analysis:
+  prefill:
+    status: client-end-to-end-measured
+    description: encoder workload includes input processing, encoder execution, pooling, queue, network
+      and JSON; no pure-device timing
+  decode:
+    status: not_applicable
+    reason: embedding encoder has no autoregressive decode
+  mixed:
+    status: not_applicable_for_prefill_decode_mixture
+    api_e2e: measured finite-batch concurrent embedding requests
+measurements:
+- phase: A-current
+  role: current
+  rounds:
+  - round: 1
+    tokens_per_sec: 77899.4417571683
+    requests_per_sec: 76.07367359098467
+    duration_s: 3.365158903412521
+    mean_e2el_ms: 798.6305480189912
+    p50_e2el_ms: 544.4170110858977
+    p95_e2el_ms: 1781.174758914858
+    p99_e2el_ms: 1782.5090213213116
+    completed: 256
+    sha256: 7c1254bbe0695e10f3f243a1dc1ba2b88c52227a81de6304de1787f4fd10f64a
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A-current/benchmark/native/1024in_1out_c64_n256_20261105_080734/round_01.json
+  - round: 2
+    tokens_per_sec: 91550.64208455966
+    requests_per_sec: 89.40492391070279
+    duration_s: 2.8633769685402513
+    mean_e2el_ms: 597.4926778253575
+    p50_e2el_ms: 509.90897277370095
+    p95_e2el_ms: 976.6253128182143
+    p99_e2el_ms: 979.1322105098516
+    completed: 256
+    sha256: f405d894a3a1bdb90382794581f293fe820522e9ed9d9d9bde1c9286fe83f54e
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A-current/benchmark/native/1024in_1out_c64_n256_20261105_080734/round_02.json
+  - round: 3
+    tokens_per_sec: 97944.63738569754
+    requests_per_sec: 95.64905994697025
+    duration_s: 2.6764507684856653
+    mean_e2el_ms: 623.021328519826
+    p50_e2el_ms: 490.7505875453353
+    p95_e2el_ms: 1246.4692883659154
+    p99_e2el_ms: 1247.681390400976
+    completed: 256
+    sha256: 1efa1c1a3b4e742dd5febaa67a53051740f0ac2bd90a2dcc9b5d95fc0b1d33cc
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A-current/benchmark/native/1024in_1out_c64_n256_20261105_080734/round_03.json
+  - round: 4
+    tokens_per_sec: 42568.26561305387
+    requests_per_sec: 41.57057188774792
+    duration_s: 6.1582025066018105
+    mean_e2el_ms: 1499.737211066531
+    p50_e2el_ms: 493.7147884629667
+    p95_e2el_ms: 4686.517006251961
+    p99_e2el_ms: 4687.1844788547605
+    completed: 256
+    sha256: ac54995444e621829fca9b9d446883be6adcbafd6c5ade2685d5c8481c8da550
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A-current/benchmark/native/1024in_1out_c64_n256_20261105_080734/round_04.json
+  - round: 5
+    tokens_per_sec: 47889.48752614185
+    requests_per_sec: 46.7670776622479
+    duration_s: 5.473936213180423
+    mean_e2el_ms: 743.3430446690181
+    p50_e2el_ms: 491.1196418106556
+    p95_e2el_ms: 3677.2093940526247
+    p99_e2el_ms: 3789.388864859936
+    completed: 256
+    sha256: c9620aa5b40ef094efccf22873ace0be3ac9d3ec31161af97b83ed7737e1d0d8
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A-current/benchmark/native/1024in_1out_c64_n256_20261105_080734/round_05.json
+  measured_mean:
+    tokens_per_sec: 45228.87656959786
+    requests_per_sec: 44.16882477499791
+    duration_s: 5.816069359891117
+    mean_e2el_ms: 1121.5401278677746
+    p50_e2el_ms: 492.41721513681114
+    p95_e2el_ms: 4181.863200152293
+    p99_e2el_ms: 4238.286671857348
+  warmup_span: 0.21895199391408673
+  measured_span: 0.11765098575684774
+  steady_admission: false
+  stable_measurement: true
+  sanity:
+    max_abs: 0.0
+    min_cosine: 1.0
+- phase: B-release
+  role: base
+  rounds:
+  - round: 1
+    tokens_per_sec: 12121.882196857543
+    requests_per_sec: 11.837775582868694
+    duration_s: 21.625684505328536
+    mean_e2el_ms: 4682.614805675257
+    p50_e2el_ms: 4719.818654470146
+    p95_e2el_ms: 12836.590522201732
+    p99_e2el_ms: 12837.458749255165
+    completed: 256
+    sha256: 2f9d306b4a469f287c68a4c1ed0c6c21f6017379df925ffafd8295bd40710bd2
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/B-release/benchmark/native/1024in_1out_c64_n256_20261105_081429/round_01.json
+  - round: 2
+    tokens_per_sec: 19865.232361835853
+    requests_per_sec: 19.399640978355325
+    duration_s: 13.196120499633253
+    mean_e2el_ms: 2449.6440603652445
+    p50_e2el_ms: 3836.178890429437
+    p95_e2el_ms: 4223.162855254486
+    p99_e2el_ms: 4398.480066796765
+    completed: 256
+    sha256: a824b663f549786aa67bb0528f6f314a00f2fc85938ca3bfb4a44f134e0b144a
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/B-release/benchmark/native/1024in_1out_c64_n256_20261105_081429/round_02.json
+  - round: 3
+    tokens_per_sec: 19684.181559903835
+    requests_per_sec: 19.22283355459359
+    duration_s: 13.317495533265173
+    mean_e2el_ms: 2750.223961593292
+    p50_e2el_ms: 3398.882845416665
+    p95_e2el_ms: 4689.68590721488
+    p99_e2el_ms: 4714.3249712418765
+    completed: 256
+    sha256: 071f12c14ec0bf7587e5f5d5843abee35331071224161a6ae462bc536c4b82ac
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/B-release/benchmark/native/1024in_1out_c64_n256_20261105_081429/round_03.json
+  - round: 4
+    tokens_per_sec: 31502.49655900247
+    requests_per_sec: 30.76415679590085
+    duration_s: 8.32137222867459
+    mean_e2el_ms: 1462.901795435755
+    p50_e2el_ms: 494.04756957665086
+    p95_e2el_ms: 3829.364361707121
+    p99_e2el_ms: 3831.881149020046
+    completed: 256
+    sha256: bb7b1f26ba67c1790304452623880249e7438ea18cca78d01b3541b26942c010
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/B-release/benchmark/native/1024in_1out_c64_n256_20261105_081429/round_04.json
+  - round: 5
+    tokens_per_sec: 21855.37957725838
+    requests_per_sec: 21.343144118416387
+    duration_s: 11.994483970105648
+    mean_e2el_ms: 2011.2337712453154
+    p50_e2el_ms: 518.7817569822073
+    p95_e2el_ms: 7340.543193742633
+    p99_e2el_ms: 7606.319169700146
+    completed: 256
+    sha256: 00ef432e8d40d5d6ad5eda4e3d1ad2e6f98e61a7161baa2901389cac1ab48743
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/B-release/benchmark/native/1024in_1out_c64_n256_20261105_081429/round_05.json
+  measured_mean:
+    tokens_per_sec: 26678.938068130425
+    requests_per_sec: 26.053650457158618
+    duration_s: 10.15792809939012
+    mean_e2el_ms: 1737.0677833405352
+    p50_e2el_ms: 506.4146632794291
+    p95_e2el_ms: 5584.953777724877
+    p99_e2el_ms: 5719.100159360096
+  warmup_span: 0.39337933057635033
+  measured_span: 0.36160048638773007
+  steady_admission: false
+  stable_measurement: false
+  sanity:
+    max_abs: 0.0002946599999999744
+    min_cosine: 0.9999989976737161
+- phase: A2-current
+  role: current
+  rounds:
+  - round: 1
+    tokens_per_sec: 79344.32079032846
+    requests_per_sec: 77.48468827180514
+    duration_s: 3.3038785560056567
+    mean_e2el_ms: 791.3944486208493
+    p50_e2el_ms: 531.9215883500874
+    p95_e2el_ms: 1771.9129724428058
+    p99_e2el_ms: 1772.9141727089882
+    completed: 256
+    sha256: 42595fde4568d4f54675b3bca2833984b947c04ad3f41530abe0b16d39641eb0
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A2-current/benchmark/native/1024in_1out_c64_n256_20261105_081931/round_01.json
+  - round: 2
+    tokens_per_sec: 45062.52489935338
+    requests_per_sec: 44.00637197202479
+    duration_s: 5.817339365370572
+    mean_e2el_ms: 1343.1094223597029
+    p50_e2el_ms: 498.36922297254205
+    p95_e2el_ms: 3927.0596464630216
+    p99_e2el_ms: 3928.0427303165197
+    completed: 256
+    sha256: c1048a2acd57413341b7238eaf2e584f8d3cc8fe6850e4c7eefc968bf5e1bd81
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A2-current/benchmark/native/1024in_1out_c64_n256_20261105_081931/round_02.json
+  - round: 3
+    tokens_per_sec: 106486.17530177563
+    requests_per_sec: 103.99040556814026
+    duration_s: 2.4617655696347356
+    mean_e2el_ms: 574.5600111913518
+    p50_e2el_ms: 494.61453314870596
+    p95_e2el_ms: 973.3434955123812
+    p99_e2el_ms: 974.1967008914798
+    completed: 256
+    sha256: b375b223078aa44e4780427540f3b4a869d46d4f1f87024d1fc2be95cd98e32a
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A2-current/benchmark/native/1024in_1out_c64_n256_20261105_081931/round_03.json
+  - round: 4
+    tokens_per_sec: 48079.38212154017
+    requests_per_sec: 46.95252160306657
+    duration_s: 5.452316324226558
+    mean_e2el_ms: 1318.0482735951955
+    p50_e2el_ms: 492.93577997013927
+    p95_e2el_ms: 3874.493173090741
+    p99_e2el_ms: 4112.898020865396
+    completed: 256
+    sha256: ec814b2850fa65c544f03634d73619e5aae2ed7ab7d0b918eac70a4a6450a141
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A2-current/benchmark/native/1024in_1out_c64_n256_20261105_081931/round_04.json
+  - round: 5
+    tokens_per_sec: 105360.23740210326
+    requests_per_sec: 102.89085683799146
+    duration_s: 2.488073361106217
+    mean_e2el_ms: 583.3805254478648
+    p50_e2el_ms: 479.3585939332843
+    p95_e2el_ms: 1060.7315467204899
+    p99_e2el_ms: 1062.352283205837
+    completed: 256
+    sha256: 79221ff64c72bff96f1cf2fdeb1dc9ad3d06f99285592cac12db7b705e78be0a
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/A2-current/benchmark/native/1024in_1out_c64_n256_20261105_081931/round_05.json
+  measured_mean:
+    tokens_per_sec: 76719.80976182171
+    requests_per_sec: 74.92168922052902
+    duration_s: 3.9701948426663876
+    mean_e2el_ms: 950.7143995215301
+    p50_e2el_ms: 486.1471869517118
+    p95_e2el_ms: 2467.6123599056154
+    p99_e2el_ms: 2587.6251520356163
+  warmup_span: 0.7741404777380031
+  measured_span: 0.7466240526194308
+  steady_admission: false
+  stable_measurement: false
+  sanity:
+    max_abs: 0.0
+    min_cosine: 0.9999999999999998
+comparison:
+  status: incomplete_steady_state
+  A_A2_drift: 0.6962572493651449
+  current_round_mean: 60974.34316570978
+  release_round_mean: 26678.938068130425
+  observed_release_vs_current_percent: -56.24563269894494
+  percent_is_not_validated_speedup: true
+  all_benchmark_requests_succeeded: true
+  benchmark_rounds: 15
+  requests_per_round: 256
+  benchmark_requests: 3840
+  measured_requests: 1536
+  numeric_smoke_max_abs: 0.0002946599999999744
+  numeric_smoke_min_cosine: 0.9999989976737161
+historical_performance_code_binding:
+  experiment_id: image-001
+  current_code_patch_sha256: 146758d9791c8e6ceb7bb51695925215ca4d50ba2563c7dfaa4f99d2e935db42
+  applies_to_plugin_slim_002: false

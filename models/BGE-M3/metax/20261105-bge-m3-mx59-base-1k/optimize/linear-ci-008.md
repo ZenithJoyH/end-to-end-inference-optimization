@@ -1,0 +1,31 @@
+# linear-ci-008：PR8591 CI 修复
+
+用户指出CI失败。本轮只跟进FlagGems #8591，不变更FlagGems-vllm或已安装源码，不恢复MBT实验。
+
+原head `8c10ff9bfd714f68d3ce861ae3b73dfd514d4298` 的 rule-check-required job129013690138 / run42572772081在checkout阶段5轮网络连接/传输失败，必需规则均未执行。格式、Python和MetaX测试已通过。GitHub连接重跑上游job返回403 Resource not accessible by integration；本地gh凭证亦无效，不尝试提取或替换凭证。
+
+按真实base73563404ec7a9d9e9d12e2cf8af490cbf986d916/head增量复现，发现此前漏跑的check_kernelgen_tests会拒绝新注册路径测试中的use_gems调用。依仓库tests/test_fused_dropout.py现有模式改用公开only_enable和显式Library，finally销毁并恢复registrar；数值oracle改独立CPU FP64，并证明退出后原生调用不再命中特化selector。保持生产函数、候选、容差与模型启动不变。全部7项规则本地通过，formatter通过。
+
+验证命令先冻结：/public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261109-bge-m3-linear-ci-008/commands/validate.py SHA f7682f0b6b5a78018835fae6b038d9ea21fc4768c8f4755acd8c5ff9c2998765。复用007隔离私有完整源码，核验原测试文件SHA后只替换测试；GPU7独占预检、mount parity、2项注册/graph capture+两次replay目标回归，300秒预算；复用已有内容寻址编译缓存，SQLite复制到008独立DB，不测冷启动/性能。
+
+第一次准备已保存备份并部署私有测试文件，但SQLite的copy2在复制共享文件系统xattr时报EIO，测试未启动。继续入口仅确认候选逐字一致，使用copyfile将数据库内容复制至新tuning-validation.sqlite，不复制xattr、不覆写原文件。commands/resume.py SHA 93b02219fe8aaedaca973b32bbe39daf87880f8b879380a25975fa62a9e0a9f7，执行前保存。
+
+修复已推送提交 `58d97aff1eea33f23117acc73ed50e4341c7b9a5`，父提交8c10ff9bfd714f68d3ce861ae3b73dfd514d4298，新增提交仅tests/test_metax_linear.py。目标2项测试零fail/error/skip，全部7项真实增量规则（derive为linear/metax_linear）和formatter通过。新rule-check-required run42579927408/job129035981999已排队，PR说明已注明原checkout失败与此次独立复现修复，不把旧174测试冒称最新测试文件完整重测。
+
+归档入口commands/archive.py SHA 3aeaf2f6bd7e170f22709c4694c414f925d2bafefc04335d57c1e90f17b98586，执行前保存；核验BGE-M3原安装patch未变及GPU7释放，不归档无关进程/完整环境。
+
+## 最终结果与外部阻塞
+
+新提交58d97aff1eea33f23117acc73ed50e4341c7b9a5的公开test blob SHA 7d9423a6fe044ed665f4a8fe7924e7bba828bb6a与硬件验证文件一致，新增commit仅1文件+14/-4，PR总体仍4文件、2提交且文本无冲突。七项本地规则全部通过，2项硬件测试（含真实graph两次replay）在1.17s内通过，无fail/error/skip。源BGE-M3完整patch SHA仍cb47fb279da85372c09298b49f66b8a77dc083456c07a1d660fdd062e0809f8c，GPU7已释放。
+
+已持续跟进新rule run42579927408/job129035981999直至完成。2026-11-09 07:40:36–07:54:44 UTC五轮分别出现transfer/connect/connect/transfer/transfer失败，robust-checkout报all links failed after 5 rounds；规则步骤再次全部skipped，没有执行到任何规则失败。新head的Python-op和MetaX后端CI已通过，style/聚合仍运行或排队。当前没有CI全绿结论；保持external-network-blocker，需要上游维护者恢复CPU runner GitHub网络并重跑。未为重试继续追加空提交、修改规则/超时或绕开必需检查。
+
+SUMMARY.json SHA `1d5805f968684d578b880527fac9c405c54039225ea53a1e4ca5328a562a61b8`；当前证据清单SHA `f67bb0402569103259228b2d2d0e3d390a346c0e32b4d9006c49a6f68fe06c14`，最终CI快照另存并更新后续清单。MBT保持用户停止状态。
+
+最终状态补充：GitHub API此时返回mergeable=false/state=dirty，与本地同一base/head的git merge-tree --write-tree成功（tree f9c372803a11aad3ee6ac0699a72bf2b311cf512）不一致；未复现文本冲突，不据不一致状态改动生产代码或额外追加重试提交。前段“文本无冲突”特指本地验证，不代表GitHub合并状态已通过。CI快照归档脚本commands/record-ci.py SHA f3f6cc1f9cfc3b5384fe5ffaeb06f32d3f690eaabf3cf76029c91de99583875e在执行前冻结。
+
+最终CI_FAILURE.json SHA `0f85120dae2e44726f34f82323066868a7aa0def35672c2a01039a35114e68b0`，更新SHA256SUMS.json SHA `7727c0ed433421365e13b74ff1aef34328ed78a3be7c10cb416da7b9ba8a2404`。
+
+## Code-style 后续状态
+
+用户再次指出code-style失败，核验最新head仍58d97aff。run42579990419/job129036183272在2026-11-09 07:47:20–07:59:15 UTC的robust-checkout阶段五轮失败，含curl28低于20480bytes/sec持续20s与连接超时；checkout报all links failed after 5 rounds，未执行任何formatter/pre-commit hook。与已确认required-rule的runner网络阻塞一致。当前测试文件SHA仍f141e572966647a95a2d33ef60f79c0aff39deebfdc193ee9a3b1b900739a0bf，本地formatter通过证据仍绑定该文件。没有据此修改格式、追加空提交或重跑硬件测试。

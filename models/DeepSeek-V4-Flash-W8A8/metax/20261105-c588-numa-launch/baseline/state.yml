@@ -1,0 +1,67 @@
+schema_version: 4
+identity:
+  case_id: 20261105-c588-numa-launch
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mxC588-5
+  baseline_id: start-model-original-9edac7b004eb
+  topology: TP8-visible8-15-NUMA7-7-4-4-4-4-6-6
+stage: baseline
+current:
+  status: configuration_recorded_only
+  candidate: null
+  next_action: User restarts target service and runs E2E measurements
+experiments: []
+metrics: []
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+scenario_status:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+remote_case_dir: /data/jinghao/deepseek/numa-bind-20261105-01
+environment:
+  source_container: deepseekV4-flash
+  image_id: sha256:590a7f7dd0481b8a61662dcbe6f2cb457df9c826c082eb9834d07af4827be14c
+  vllm_version: 0.24.0+empty
+  visible_devices:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  tp: 8
+  original_script_sha256: 9edac7b004ebd9aa6eb0722c98aa3e19e60021088e5275cc8ddc3af785f3f8e1
+  launch_config:
+    port: 18001
+    enable_prefix_caching: false
+    gpu_memory_utilization: 0.85
+    max_num_batched_tokens: 4096
+  optimization_container: null
+  image_lineage: not_applicable_no_service_started
+  mount_parity: not_applicable_no_container_created
+phase_views:
+  prefill:
+    status: unknown
+    metrics: null
+    reason: No model or workload was run in this script-delivery task
+  decode:
+    status: unknown
+    metrics: null
+    reason: No model or workload was run in this script-delivery task
+  mixed:
+    status: unknown
+    metrics: null
+    reason: No model or workload was run in this script-delivery task

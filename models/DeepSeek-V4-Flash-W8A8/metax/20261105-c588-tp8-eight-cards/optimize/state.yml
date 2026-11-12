@@ -1,0 +1,401 @@
+schema_version: 4
+identity:
+  case_id: 20261105-c588-tp8-eight-cards
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mxC588-5
+  baseline_id: numa-four-cards-d11d5148f7a3
+  topology: TP8-eight-modules-one-die-each-0-2-4-6-8-10-12-14
+stage: optimize
+current:
+  status: delivered_for_manual_retest
+  candidate: numa-eight-cards-001
+  next_action: User frees selected dies, restarts using modified script, verifies
+    runtime affinity and compares steady-state E2E
+experiments:
+- experiment_id: numa-eight-cards-001
+  category: framework
+  status: delivered_for_manual_retest
+  scenario_id: manual-e2e-retest
+  document: numa-eight-cards-001.md
+  visible_devices:
+  - 0
+  - 2
+  - 4
+  - 6
+  - 8
+  - 10
+  - 12
+  - 14
+  binding_nodes:
+  - 3
+  - 0
+  - 0
+  - 2
+  - 7
+  - 4
+  - 4
+  - 6
+  remote_case_dir: /data/jinghao/deepseek/numa-bind-8cards-20261105-01
+  decision: incomplete
+  target_phases:
+  - prefill
+  - decode
+  - mixed
+  verification:
+    device_allocations: 0
+    kernels_launched: 0
+    new_visible_buses:
+    - '0000:03:00.0'
+    - '0000:24:00.0'
+    - '0000:29:00.0'
+    - '0000:54:00.0'
+    - 0000:73:00.0
+    - 0000:94:00.0
+    - 0000:99:00.0
+    - 0000:e6:00.0
+    native_wrapper_passed: true
+    child_library_path_unchanged: true
+    native_worker_args:
+    - --cpunodebind=3 --membind=3
+    - --cpunodebind=0 --membind=0
+    - --cpunodebind=0 --membind=0
+    - --cpunodebind=2 --membind=2
+    - --cpunodebind=7 --membind=7
+    - --cpunodebind=4 --membind=4
+    - --cpunodebind=4 --membind=4
+    - --cpunodebind=6 --membind=6
+    native_engine_args: --cpunodebind=0,2,3,4,6,7 --membind=0,2,3,4,6,7
+    binding_checks:
+    - role: worker0
+      args: --cpunodebind=3 --membind=3
+      actual:
+        cpus:
+        - 42
+        - 43
+        - 44
+        - 45
+        - 46
+        - 47
+        - 48
+        - 49
+        - 50
+        - 51
+        - 52
+        - 53
+        - 54
+        - 55
+        mode: 2
+        mask: 8
+        rc: 0
+        errno: 0
+    - role: worker1
+      args: --cpunodebind=0 --membind=0
+      actual:
+        cpus:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        mode: 2
+        mask: 1
+        rc: 0
+        errno: 0
+    - role: worker2
+      args: --cpunodebind=0 --membind=0
+      actual:
+        cpus:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        mode: 2
+        mask: 1
+        rc: 0
+        errno: 0
+    - role: worker3
+      args: --cpunodebind=2 --membind=2
+      actual:
+        cpus:
+        - 28
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+        - 36
+        - 37
+        - 38
+        - 39
+        - 40
+        - 41
+        mode: 2
+        mask: 4
+        rc: 0
+        errno: 0
+    - role: worker4
+      args: --cpunodebind=7 --membind=7
+      actual:
+        cpus:
+        - 98
+        - 99
+        - 100
+        - 101
+        - 102
+        - 103
+        - 104
+        - 105
+        - 106
+        - 107
+        - 108
+        - 109
+        - 110
+        - 111
+        mode: 2
+        mask: 128
+        rc: 0
+        errno: 0
+    - role: worker5
+      args: --cpunodebind=4 --membind=4
+      actual:
+        cpus:
+        - 56
+        - 57
+        - 58
+        - 59
+        - 60
+        - 61
+        - 62
+        - 63
+        - 64
+        - 65
+        - 66
+        - 67
+        - 68
+        - 69
+        mode: 2
+        mask: 16
+        rc: 0
+        errno: 0
+    - role: worker6
+      args: --cpunodebind=4 --membind=4
+      actual:
+        cpus:
+        - 56
+        - 57
+        - 58
+        - 59
+        - 60
+        - 61
+        - 62
+        - 63
+        - 64
+        - 65
+        - 66
+        - 67
+        - 68
+        - 69
+        mode: 2
+        mask: 16
+        rc: 0
+        errno: 0
+    - role: worker7
+      args: --cpunodebind=6 --membind=6
+      actual:
+        cpus:
+        - 84
+        - 85
+        - 86
+        - 87
+        - 88
+        - 89
+        - 90
+        - 91
+        - 92
+        - 93
+        - 94
+        - 95
+        - 96
+        - 97
+        mode: 2
+        mask: 64
+        rc: 0
+        errno: 0
+    - role: enginecore
+      args: --cpunodebind=0,2,3,4,6,7 --membind=0,2,3,4,6,7
+      actual:
+        cpus:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 28
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+        - 36
+        - 37
+        - 38
+        - 39
+        - 40
+        - 41
+        - 42
+        - 43
+        - 44
+        - 45
+        - 46
+        - 47
+        - 48
+        - 49
+        - 50
+        - 51
+        - 52
+        - 53
+        - 54
+        - 55
+        - 56
+        - 57
+        - 58
+        - 59
+        - 60
+        - 61
+        - 62
+        - 63
+        - 64
+        - 65
+        - 66
+        - 67
+        - 68
+        - 69
+        - 84
+        - 85
+        - 86
+        - 87
+        - 88
+        - 89
+        - 90
+        - 91
+        - 92
+        - 93
+        - 94
+        - 95
+        - 96
+        - 97
+        - 98
+        - 99
+        - 100
+        - 101
+        - 102
+        - 103
+        - 104
+        - 105
+        - 106
+        - 107
+        - 108
+        - 109
+        - 110
+        - 111
+        mode: 2
+        mask: 221
+        rc: 0
+        errno: 0
+    model_argv_preserved_except_numa: true
+    model_env_preserved_except_visible_devices: true
+    numactl_wrapper_sha256: 4ac805fbf1e800bfb71d5b987d06c3f6bd077e671188042fa345dac86b2b6a67
+  existing_processes_unchanged: true
+  service_restarted: false
+  accuracy_status: incomplete
+  performance_status: incomplete
+  script_sha256: 3f47d744397ccab0ab9d664a29f233a3ee7f41d4169c4a2dd91aec6541e31b6d
+  rollback_command: python3 /data/jinghao/deepseek/numa-bind-8cards-20261105-01/commands/restore-original.py
+  external_manifest: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/manifest.json
+metrics: []
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+remote_case_dir: /data/jinghao/deepseek/numa-bind-8cards-20261105-01
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+scenario_status:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+artifacts:
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/start-model.original.sh
+  sha256: d11d5148f7a33c30fe42ebfebe1954159f9d68ad0741ebcb681917a9baf77e39
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/start-model.numa.sh
+  sha256: 3f47d744397ccab0ab9d664a29f233a3ee7f41d4169c4a2dd91aec6541e31b6d
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/commands/apply-eight-cards.py
+  sha256: 3e02e91e05584427d88ee7964362d39c3494693fd416731139484ecd6598542b
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/commands/restore-original.py
+  sha256: 9620f16bcca6c0ef9823fd727369bf20ba7ccf412c1920b6a5760a07b24833f9
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/tools/numactl
+  sha256: 4ac805fbf1e800bfb71d5b987d06c3f6bd077e671188042fa345dac86b2b6a67
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/tools/numactl.bin
+  sha256: 1d2f13cb605e63ab5b5b35db707caef07f860f7eba0f49ea534d02c2dc15cd1a
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+- path: /data/jinghao/deepseek/numa-bind-8cards-20261105-01/tools/lib/libnuma.so.1
+  sha256: 509807b07a101c7994a50c9e381b7cd3e5657ac123dafcb5a9d109bcf1a9a05c
+  retention: external_verified
+  experiment_id: numa-eight-cards-001
+resource_precondition:
+  observed_other_vllm_boards:
+  - 0
+  - 1
+  - 2
+  action_taken: none; no services stopped
+  before_model_start: Release selected dies; control competing workloads on companion
+    dies for a valid comparison

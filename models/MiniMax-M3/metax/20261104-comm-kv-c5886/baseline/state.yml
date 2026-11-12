@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261104-comm-kv-c5886
+  model: MiniMax-M3
+  platform: metax
+  host: mx588-6
+  baseline_id: stock-fl976f389-c5886
+  topology: TP16:single-node-16die
+stage: baseline
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

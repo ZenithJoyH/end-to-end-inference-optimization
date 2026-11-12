@@ -1,0 +1,15 @@
+schema_version: 4
+identity:
+  case_id: 20261105-m3-c588-comm-e2e-092
+  model: MiniMax-M3
+  platform: metax
+  host: mx588-6
+  baseline_id: stock-fl976f389-c5886-092-default
+  topology: single-node-TP16-8xC588
+stage: baseline
+current:
+  status: not_run
+  candidate: null
+  next_action: null
+experiments: []
+metrics: []

@@ -1,0 +1,157 @@
+schema_version: 4
+identity:
+  case_id: 20261105-m3-c588-comm-e2e-092
+  model: MiniMax-M3
+  platform: metax
+  host: mx588-6
+  baseline_id: stock-fl976f389-c5886-092-default
+  topology: single-node-TP16-8xC588
+stage: optimize
+current:
+  status: 64k-regression-investigated
+  candidate: comm-e2e-001
+  next_action: 64K同条件短探针及多rank trace拆分通信贡献，再单独评估通道4→8、buffer1MiB。
+experiments:
+- experiment_id: comm-e2e-001
+  document: comm-e2e-001.md
+  status: complete
+  direction: framework
+  scenario_id: 32K target, 1K guard
+  decision: reverted
+  source_pause: true
+  restored: true
+  image_lineage: verified
+  mount_parity: passed
+  observed_utc: '2026-11-06T00:15:34.486467+00:00'
+  seen_capacity_tokens:
+    baseline: 88939
+    candidate: 115301
+    revert: 95082
+  prior_attempt:
+    path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092
+    baseline_kv: 92138
+    guard_1k_warmups_tps:
+    - 958.95
+    - 1301.87
+    warmup_status: failed (30.34% spread)
+    source_restoration_verified: true
+  result_32k: passed
+  result_1k: incomplete-baseline-revert-drift
+  restored_to: original default / 0.92 / 18050
+  deployment_status: user-script-active-4channels-1MiB
+metrics:
+- scenario_id: p32768-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 2292.189
+  unit: tok/s
+  scope: targeted-performance-only
+- scenario_id: p1024-d1024-c64-n128
+  role: baseline
+  metric: total_token_throughput
+  value: 1245.4342
+  unit: tok/s
+  scope: targeted-performance-only
+- scenario_id: p32768-d1024-c64-n128
+  role: candidate
+  metric: total_token_throughput
+  value: 2506.2856
+  unit: tok/s
+  scope: targeted-performance-only
+- scenario_id: p1024-d1024-c64-n128
+  role: candidate
+  metric: total_token_throughput
+  value: 1575.7647
+  unit: tok/s
+  scope: targeted-performance-only
+- scenario_id: p32768-d1024-c64-n128
+  role: revert
+  metric: total_token_throughput
+  value: 2301.5203
+  unit: tok/s
+  scope: targeted-performance-only
+- scenario_id: p1024-d1024-c64-n128
+  role: revert
+  metric: total_token_throughput
+  value: 1342.1067
+  unit: tok/s
+  scope: targeted-performance-only
+acceptance_scope: diagnostic
+accuracy_status: minimal-C1-C8-passed;formal-pending
+performance_status: 32K-passed;1K-incomplete
+external_case: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2
+monitor:
+  automation_id: c588-minimax-0-92
+  interval_minutes: 15
+  disable_when_complete: true
+  local_snapshot: /private/tmp/m3-c588-comm-e2e-r2/latest.json
+  result_path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2/results/results-summary.json
+  status: completed-disable
+external_artifacts:
+  results/results-summary.json:
+    path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2/results/results-summary.json
+    sha256: 1f053a332cd21f20e25b8b7ecc2c9ed9c04112dfbdc09e0c0883c294ccf684d7
+  results/long-comparison.json:
+    path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2/results/long-comparison.json
+    sha256: 9304b02bd30448868a55d332d0b8db1191e3e277f75412c5ea7b85b2ac23b6c6
+  results/short-comparison.json:
+    path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2/results/short-comparison.json
+    sha256: 0aba03cee0b1830ef04891182384f2cc35634551bd17ceb961232e2739dbd88e
+  manifests/resume-restore-ready.json:
+    path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2/manifests/resume-restore-ready.json
+    sha256: dce1fabd52c32686fc6245d1137aeb2f81b65531964fb4db19ab28f8aba4b611
+  resume-status.json:
+    path: /data/jinghao/minimaxM3/20261105-m3-c588-comm-e2e-092-r2/resume-status.json
+    sha256: 6df1db44a2da876202e80d92773137fe434cfcde429dcc29d1f94aeb6c3f9cb4
+launch_script_update:
+  date: '2026-11-06'
+  user_requested: true
+  path: /data/jinghao/minimaxM3/start-model.sh
+  policy: 4channels-1MiB
+  gpu_memory_utilization: 0.92
+  sha256: a0fe1b602415499012efcd7c8280e125db605fafe9a0cb53597813e9825ae1ef
+  syntax_host_and_container: passed
+  activation: next service launch by user
+planning_review:
+  id: review-optmccl-64k-20261106
+  status: incomplete-causal-attribution
+  evidence_cutoff: '2026-11-06'
+  current_candidate: comm-e2e-001 / 4channels-1MiB / 0.92
+  phase_bottlenecks:
+    prefill: residual per serial request 6.229→8.942s; includes host/scheduling
+    decode: TPOT25.64→25.79ms
+    mixed: 64K Running1→1; total tok/s -8.12%
+  user_historical_comparison:
+  - input: 1024
+    default: 1000.7
+    candidate: 1143.43
+    change_pct: 14.26
+  - input: 4096
+    default: 1357.74
+    candidate: 1472.52
+    change_pct: 8.45
+  - input: 16384
+    default: 1941.83
+    candidate: 2034.66
+    change_pct: 4.78
+  - input: 32768
+    default: 1996.66
+    candidate: 2252.16
+    change_pct: 12.8
+  - input: 65536
+    default: 2050.63
+    candidate: 1884.2
+    change_pct: -8.12
+  immediate_experiment: matched 64K N4 targeted probe plus aligned multirank prefill
+    trace
+  ranked_directions:
+  - same-workload default/candidate attribution
+  - 8channels with 1MiB fixed; 32K sentinel
+  - buffer-only ablation if supported by trace
+  required_skills:
+  - inference-performance-evaluation targeted
+  - inference-profiling
+  - inference-accuracy-evaluation minimal-regression
+  next_review_trigger: matched64K trace or channel-only candidate result
+  superseded_decision_summary: Earlier diagnostic proved32K improvement and bounded1K
+    results;64K was outside its coverage.

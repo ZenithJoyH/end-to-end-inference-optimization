@@ -2,7 +2,9 @@
 
 日期：2026-11-04。范围为只读诊断，证据等级 `observation`；未运行新 benchmark、profiling、正确性或精度评测，未修改任何模型服务、源码、启动配置或容器。不是 CPU 型号的单变量实验，也不是正式优化验收。
 
-交付：已将本轮结果、配置/KV/Running 证据和归因边界追加到[飞书报告](https://jwolpxeehx.feishu.cn/docx/DuwsdmPo7oi979xodNac0OVknab)第八节，并通过页面“已经保存到云端”核验。mx-101、mx-102 的 CPU 型号和拓扑均已现场只读核验。
+交付：结果、配置/KV/Running、后续显存预算证据和归因边界已写入[飞书报告](https://jwolpxeehx.feishu.cn/docx/DuwsdmPo7oi979xodNac0OVknab)，并通过页面“已经保存到云端”核验。按用户后续要求，报告已重组为先比较五模型、再分别归因，MiniMax 内容位于第三章；原始案例继续保留。mx-101、mx-102 的 CPU 型号和拓扑均已现场只读核验。
+
+后续更新：已完成独立通信显存探针及预算/调度核验，见[通信与KV机制诊断](../20261104-minimax-m3-metax-comm-kv-diagnosis/README.md)。下文“未做新实验”描述的是本历史比较阶段，不代表后续状态；KV吞吐反事实测量仍未完成。
 
 ## 结论
 
@@ -88,6 +90,36 @@ CSV 批次分别为 `20261103_093147` 与 `20261029_070842`，并非同时测量
 32K/64K 的 KV 使用率未达到100%也不否定容量门槛：剩余可用页可能不足以接纳下一条长请求。仅用容量除以完整 P+D 也不能精确反推 Running，因为请求在不同 prefill/decode 进度，且有缓存分组/块对齐。实际采样是更直接的并发证据。
 
 显存比例不同是 KV 差异的一项明确配置因素，但还可能包含设备可用显存、graph/工作区、内存布局或启动时资源状态。未将 0.92 改为 0.96，也未做相同 KV budget 的反事实实验，不能将全部 60054 token 的容量差直接归为单个参数。不能在未核验余量时直接建议提高参数，以免 OOM。
+
+### 显存预算补充核验（2026-11-04）
+
+用户补充：C588 先前尝试 0.96 会 OOM，因此使用 0.92。这不是漏对齐参数，而是实际可运行约束。本轮没有重启或重现 OOM，而是从两端既有 `M3_MEMORY_BUDGET` 中各提取 16 rank，并只读核对实际 Plugin 源码。
+
+单位为 GiB，每个逻辑设备/rank；C588 对应一个 die，C550 对应一张卡。范围为全部 16 rank 的最小至最大值，不把模块级 128 GiB 与单 die 预算比较。
+
+| 项目 | C588-6 | C550 101+102 |
+|---|---:|---:|
+| 运行时可见总显存 | 63.59375 | 63.59375 |
+| 初始化快照可用显存 | 59.48654 | 61.98277–62.00681 |
+| 总量减初始可用量 | 4.10720–4.10721 | 1.58694–1.61098 |
+| requested_memory | 58.50625（0.92） | 61.05000（0.96） |
+| model_memory_usage | 50.40941 | 50.40941 |
+| peak_activation_memory | 2.72952 | 3.97593 |
+| non_torch_memory（相对初始快照的增量） | 1.35080–1.35277 | 0.09225–0.11570 |
+| 可用于 KV 的字节预算，换算 GiB | 4.01455–4.01651 | 6.54896–6.57240 |
+| cudagraph_memory_estimate 字段 | 0 | 0 |
+
+实际 `/work/vllm-plugin-FL/vllm_fl/worker/worker.py` 的 `init_device` 在通信初始化后采集 `init_snapshot`（480–506 行），随后用 `total_memory × gpu_memory_utilization` 计算 requested_memory，并在 free_memory 小于 requested_memory 时直接报 ValueError（507–520 行）。这和原生 vLLM 的基本逻辑一致，但报告以实际 Plugin 为准。因而这里的约 4.11 GiB 是**设备/通信初始化之后、权重加载之前的总已用量**，不能称为启动服务前的空卡占用，也不能全部归到通信。
+
+按现有成功启动的快照计算，C588 设 0.96 需要 61.05 GiB，比初始可用量多 1.56346 GiB；可用/总量仅约 0.935415。在这个相同初始状态下 0.96 会触发启动显存门禁；0.92 在初始门禁之后还剩约 0.98029 GiB 预算余量。它不是对历史 OOM 栈的重现，也不代表 0.935415 是可稳定运行的推荐上限，后续 graph/临时峰值仍需空间。
+
+预算公式按实际 Plugin 617–678 行为：requested_memory − model_memory_usage − peak_activation_memory − non_torch_memory − 已应用的 graph estimate。两端权重相同，C588 的 non-Torch 增量多约 1.24 GiB，但 activation peak 少约 1.25 GiB，二者基本抵消；预算差的主要数值项是 0.04×63.59375=2.54375 GiB，实测最小 KV 字节预算相差约 2.53441 GiB。由此可以将“KV 少”的直接预算原因收敛到较低的可用利用率参数；参数无法提高又有更高初始总占用的证据。仍未通过 A/B 量化它对端到端吞吐的全部贡献。
+
+**通信判断：有依据的候选，尚未单独实锤。**通信初始化位于初始快照之前，所以已初始化的通信缓冲区可能计入约 4.11 GiB；后续非 Torch 增量也可能包含延迟分配的通信、运行时和 vendor workspace，但不能把约 1.35 GiB 全称为 MCCL，更不能与初始占用重复计算同一分量。两类数字分属不同统计时点。C550 策略显式限制 NCCL/MCCL BUFFSIZE=1048576、MIN/MAX_NCHANNELS=4、MAX_P2P_NCHANNELS=4；C588 成功启动的 after_capture rank0 effective_env 没有 NCCL_/MCCL_ 项。默认选路、单机 16 local rank 的 peer/IPC 映射与双机每机 8 local rank、驱动/运行时差异均需继续排查；未读取到能够拆分 MCCL 实际分配字节数的现有证据，不能从环境变量或 non-Torch 统计算出纯通信占用。
+
+`cudagraph_memory_estimate=0` 只说明本次预算字段为零，不能解释为实际 graph 显存为零。若要拆出通信贡献，应在隔离环境的新进程按绑定设备后、分布式/通信初始化后、首个 collective 后分别记录 free/allocated/reserved，并结合实际 communicator/channel 与 vendor 分配记录；本轮没有执行该实验。
+
+原始行：C588 `service.log` 1158–1173；C550 `service101.log` 1351–1358、`service102.log` 1150–1157。本次读取 C588 service.log SHA256 为 `2ef86a8f0779f02eacaf4b0be24ea8571a47db80e395844c10ca72ac85dbbf58`，服务日志可继续追加；C550 两日志 SHA 与前文一致。实际 Plugin worker.py SHA256 为 `bdbec6c8204f05d861f3edcc5ef21bb87ee5cbfce943bc756bf13206834064de`，audit bootstrap.py 为 `5807ef5284a334f251a5310c9fef408c2d3fa7c0b3810d6b491248c3f48b524d`。提取记录和计算材料在外部临时目录的 `memory_{c588,c550,analysis}.json`。
 
 ## Prefill、Decode、Mixed 与通信
 

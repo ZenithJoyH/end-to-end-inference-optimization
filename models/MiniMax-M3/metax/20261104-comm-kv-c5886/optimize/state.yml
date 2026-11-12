@@ -1,0 +1,471 @@
+schema_version: 4
+identity:
+  case_id: 20261104-comm-kv-c5886
+  model: MiniMax-M3
+  platform: metax
+  host: mx588-6
+  baseline_id: stock-fl976f389-c5886
+  topology: TP16:single-node-16die
+stage: optimize
+current:
+  status: bounded_diagnosis_complete
+  candidate: null
+  next_action: 通信显存已定位策略差异、多套通信器及P2P资源差异；通道/BUFFSIZE/P2P、tuning与驱动的单独贡献及C588模型级优化待独立验证，不自动重启。
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+authorization:
+  service_pause: allowed
+  source: 用户在当前任务明确答复“允许暂停并在诊断后恢复”
+  scope: mx588-6/minimaxM3/18050推理进程；保留容器、原脚本及原日志，完成后原配置恢复
+service_transition:
+  source_service_paused: false
+  pause_receipt: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/manifests/source-pause.json
+  pause_idle_and_exit_verified: true
+  restore_command: docker exec minimaxM3 /bin/bash --noprofile --norc /data/jinghao/minimaxM3/20261104-comm-kv-c5886/commands/restore-source.sh
+  restored: true
+  restore_receipt: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/manifests/restore-ready.json
+  restore_receipt_sha256: 14436a22521ca39fbad0cc6fb85e5017b4c8c6d24a4e192dededc1b2f08233c1
+target:
+  source_container_name: minimaxM3
+  optimization_container_name: e2e-m3-comm-c5886-20261104
+  source_image_id: sha256:73cf6f40bdf2c662673895ce9a66ce7145c1df256f9c37bd53f3fe2ddbb780d4
+  remote_work_root: /data/jinghao/minimaxM3
+  remote_case_dir: /data/jinghao/minimaxM3/20261104-comm-kv-c5886
+  image_lineage: verified
+  mount_parity: passed
+  gate_receipt: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/manifests/container-gates.json
+  source_mounts:
+  - type: bind
+    source: /data
+    destination: /data
+    rw: true
+    propagation: rslave
+experiments:
+- experiment_id: comm-001
+  document: comm-001.md
+  status: complete
+  direction: framework
+  primary_variable: 通信初始化阶段与通信配置，使用独立进程分组对照
+  result: communication_footprint_measured_3x16_ranks
+  evidence: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/results/probe-suite-state.json
+- experiment_id: kv-002
+  document: kv-002.md
+  status: complete
+  direction: framework
+  primary_variable: 结合C550同机KV限额A/B量化容量因素；不把跨硬件差值直接相减当贡献
+  result: same_C550_KV_causal_effect_verified_on_32K_N4; historical_N128_share_unquantified
+  evidence: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/results/quick02-results-summary.json
+metrics:
+- scenario_id: comm-probe-tp16-8192x6144
+  role: default_communication
+  metric: communication_path_device_memory_delta
+  value: 3.9161605834960938
+  unit: GiB/die
+  scope: memory_probe_only_not_E2E
+- scenario_id: comm-probe-tp16-8192x6144
+  role: four_channels_1MiB
+  metric: communication_path_device_memory_delta
+  value: 1.3591842651367188
+  unit: GiB/die
+  scope: memory_probe_only_not_E2E
+communication_memory:
+  samples_per_policy: 48
+  repetitions: 3
+  ranks_per_repetition: 16
+  unit: GiB/die
+  default:
+    context_median: 1.5046920776367188
+    after_distributed_init_median: 4.1104278564453125
+    after_8192_collective_median: 5.420860290527344
+    init_delta_median: 2.6057300567626953
+    late_collective_delta: 1.3104171752929688
+    comm_path_delta_median: 3.9161605834960938
+    comm_path_delta_min: 3.9161300659179688
+    comm_path_delta_max: 3.916179656982422
+    destroy_released_median: 3.8869361877441406
+  four_channels_1mib:
+    context_median: 1.5046806335449219
+    after_distributed_init_median: 2.4070701599121094
+    after_8192_collective_median: 2.8638687133789062
+    init_delta_median: 0.9023952484130859
+    comm_path_delta_median: 1.3591842651367188
+  saving_per_die: 2.5569915771484375
+  summary_path: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/results/communication-summary-compact.json
+  summary_sha256: da6f955b6a534d73758cd179a9f824b0f7b3d7d938e71e99930a5fc5999c78bb
+  boundary: actual vLLM/MCCL initialization and TP collective device-memory deltas;
+    includes driver/peer resources; not model graph/KV or pure buffers
+analysis_authorization:
+  source: 用户：你先进行分析吧，直到需要C550数据进行对比的时候告诉我
+  scope: existing evidence and C588 read-only code/log checks
+  C550_service_restart: false
+analysis:
+  status: existing_evidence_plus_controlled_counterfactual_complete
+  path: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/results/analysis-20261104/existing-evidence-analysis-v2.json
+  sha256: 83093787a4507ab4197f8c757ae54ddb1d7d27654e4a6fe994ca4a0b400504d4
+  archive_command: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/commands/archive-analysis-20261104.py
+  archive_command_sha256: f4f8fe9d8e55d329730c2131311dea28f9365dc98875ea8803cb2d0a6afa2cbc
+  KV_difference_terms_GiB:
+    requested_memory: 2.5437499999999957
+    weight_memory: 0.0
+    peak_activation: -1.2464103698730469
+    post_init_non_torch: 1.2370681762695312
+    sum_terms: 2.53440780639648
+    observed_kv_difference: 2.53440780639648
+    reconciliation_error: 0.0
+  historical_comparison_C550_baseline:
+  - input_tokens: 1024
+    output_tokens: 1024
+    concurrency_limit: 64
+    requests: 128
+    C550_baseline_total_tps: 1041.13
+    C588_total_tps: 1000.7
+    C588_change_pct: -3.883280666199229
+    duration_seconds_C550_C588:
+    - 251.79
+    - 261.96
+    ttft_seconds_C550_C588:
+    - 3.48697
+    - 5.11047
+    tpot_ms_C550_C588:
+    - 119.5
+    - 103.66
+    sampled_running:
+      c550:
+      - 64
+      - 64
+      c588:
+      - 49
+      - 49
+    queue_max:
+      c550: 0
+      c588: 18
+    kv_usage_max_pct:
+      c550: 84.6
+      c588: 100
+    mode_fraction:
+      c550:
+        running: 64
+        samples: 40
+        total_samples: 42
+        fraction: 0.9523809523809523
+      c588:
+        running: 49
+        samples: 7
+        total_samples: 42
+        fraction: 0.16666666666666666
+  - input_tokens: 4096
+    output_tokens: 1024
+    concurrency_limit: 64
+    requests: 128
+    C550_baseline_total_tps: 1577.11
+    C588_total_tps: 1357.74
+    C588_change_pct: -13.909619493884373
+    duration_seconds_C550_C588:
+    - 415.55
+    - 482.69
+    ttft_seconds_C550_C588:
+    - 78.2668
+    - 121.10432
+    tpot_ms_C550_C588:
+    - 101.89
+    - 71.81
+    sampled_running:
+      c550:
+      - 31
+      - 31
+      c588:
+      - 19
+      - 19
+    queue_max:
+      c550: 34
+      c588: 46
+    kv_usage_max_pct:
+      c550: 99.9
+      c588: 100
+    mode_fraction:
+      c550:
+        running: 31
+        samples: 15
+        total_samples: 75
+        fraction: 0.2
+      c588:
+        running: 19
+        samples: 21
+        total_samples: 88
+        fraction: 0.23863636363636365
+  - input_tokens: 16384
+    output_tokens: 1024
+    concurrency_limit: 64
+    requests: 128
+    C550_baseline_total_tps: 2025.56
+    C588_total_tps: 1941.83
+    C588_change_pct: -4.133671675980965
+    duration_seconds_C550_C588:
+    - 1100.06
+    - 1147.49
+    ttft_seconds_C550_C588:
+    - 358.86235
+    - 396.89587
+    tpot_ms_C550_C588:
+    - 68.75
+    - 41.43
+    sampled_running:
+      c550:
+      - 9
+      - 9
+      c588:
+      - 5
+      - 5
+    queue_max:
+      c550: 56
+      c588: 59
+    kv_usage_max_pct:
+      c550: 100
+      c588: 91.6
+    mode_fraction:
+      c550:
+        running: 9
+        samples: 127
+        total_samples: 216
+        fraction: 0.5879629629629629
+      c588:
+        running: 5
+        samples: 203
+        total_samples: 224
+        fraction: 0.90625
+  - input_tokens: 32768
+    output_tokens: 1024
+    concurrency_limit: 64
+    requests: 128
+    C550_baseline_total_tps: 2445.62
+    C588_total_tps: 1996.66
+    C588_change_pct: -18.357717061522226
+    duration_seconds_C550_C588:
+    - 1768.62
+    - 2166.3
+    ttft_seconds_C550_C588:
+    - 630.36474
+    - 790.79685
+    tpot_ms_C550_C588:
+    - 48.75
+    - 30.11
+    sampled_running:
+      c550:
+      - 4
+      - 4
+      c588:
+      - 2
+      - 2
+    queue_max:
+      c550: 61
+      c588: 62
+    kv_usage_max_pct:
+      c550: 87.2
+      c588: 71.2
+    mode_fraction:
+      c550:
+        running: 4
+        samples: 325
+        total_samples: 353
+        fraction: 0.9206798866855525
+      c588:
+        running: 2
+        samples: 418
+        total_samples: 432
+        fraction: 0.9675925925925926
+  - input_tokens: 65536
+    output_tokens: 1024
+    concurrency_limit: 64
+    requests: 128
+    C550_baseline_total_tps: 2497.82
+    C588_total_tps: 2050.63
+    C588_change_pct: -17.903211600515657
+    duration_seconds_C550_C588:
+    - 3410.86
+    - 4154.67
+    ttft_seconds_C550_C588:
+    - 1250.96471
+    - 1539.488
+    tpot_ms_C550_C588:
+    - 42.54
+    - 25.64
+    sampled_running:
+      c550:
+      - 2
+      - 2
+      c588:
+      - 1
+      - 1
+    queue_max:
+      c550: 62
+      c588: 63
+    kv_usage_max_pct:
+      c550: 85.9
+      c588: 70.1
+    mode_fraction:
+      c550:
+        running: 2
+        samples: 642
+        total_samples: 680
+        fraction: 0.9441176470588235
+      c588:
+        running: 1
+        samples: 818
+        total_samples: 818
+        fraction: 1.0
+  scheduler_source:
+    gpu_cache_token_semantics: int(max_concurrency * max_model_len), computed from
+      per-group page requirements; not a raw contiguous-token pool
+    kv_capacity_rank_rule: minimum num_blocks across ranks; no summing rank token
+      budgets
+    full_input_admission:
+      source_default: true
+      config_source: /flagos/lib/python3.12/site-packages/vllm/config/scheduler.py:140
+      config_sha256: 4102ccd3d73188200b25f47a0cba837853662647850f283012d8cc1f9e8c47c2
+      call_site: /flagos/lib/python3.12/site-packages/vllm/v1/core/sched/scheduler.py:874
+      gate: KVCacheManager.allocate_slots checks full input block requirement against
+        free blocks; returns None if not fit, scheduler leaves request waiting
+      evidence_boundary: Default source and launcher without override; no live Python
+        scheduler object introspection
+    restored_C588_token_capacity: 95082
+    restored_capacity_is_new_performance_run: false
+  required_C550_data:
+    hosts:
+    - mx-101
+    - mx-102
+    gpus_per_host: 8
+    controlled_variable: KV capacity bytes only
+    baseline_bytes: 7031890227
+    low_kv_bytes: 4310590566
+    revert_bytes: 7031890227
+    constant_max_model_len: 70000
+    scenarios:
+    - P: 32768
+      D: 1024
+      C: 64
+      N: 8
+      role: targeted long-input milestone
+    - P: 1024
+      D: 128
+      C: 64
+      N: 64
+      role: short-input sentinel
+    need:
+    - actual block/groups capacity after each launch
+    - no-profiler total/output throughput and full batch duration
+    - TTFT/TPOT/ITL
+    - Running/Waiting/KV usage/preemptions
+    - baseline/revert drift and all warmup/measured rounds
+    status: superseded by completed native-block quick02 N4/N32 counterfactual
+    effect_threshold_interpretation: 5% threshold only detects an effect; it does
+      not by itself prove dominant historical cause
+    history_comparison_boundary: New same-host effect cannot be directly subtracted
+      from historical cross-hardware gap to claim exact contribution
+    current_case: 20261104-kv-c550101102
+    current_summary: &id001
+      path: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/results/quick02-results-summary.json
+      sha256: 4f2b3b564578339ad885fca8b7f530d65fb8c32e5d13d7e322c51dd607fb9fc8
+  limitations:
+  - C55032K/N4 same-host KV causal effect measured; exact historical N128 cross-hardware
+    contribution remains unquantified.
+  - KV token log is group-aware max-concurrency*max_model_len, not necessarily a raw
+    sum of resident tokens; allocator/spec math must be checked.
+  - Communication path delta includes MCCL/peer/driver resources, not only native
+    buffer bytes or complete model graph footprint.
+  - Probe savings cannot all be added directly to KV at unchanged memory_utilization;
+    init occupancy gates allocation separately from post-init delta.
+  - Different historical max_model_len, hardware/topology, driver, image identity
+    and CPU prevent a one-variable cross-hardware comparison.
+controlled_counterfactual:
+  long_tps_change_pct: -32.50909139244381
+  long_revert_drift_pct: -0.13651310909894576
+  short_tps_change_pct: 1.2679805180098507
+  short_revert_drift_pct: 0.5015099633736586
+  measured_running_modes_long:
+  - 4
+  - 2
+  - 4
+  measured_preemptions_all_scenes: 0
+  history_N128_contribution: unquantified; do not subtract from historical cross-hardware
+    gap
+  evidence: *id001
+communication_cause_followup_20261105:
+  status: bounded_read_only_analysis_complete
+  no_model_or_communication_test: true
+  no_service_or_source_change: true
+  artifacts:
+    dir: /data/jinghao/minimaxM3/20261104-comm-kv-c5886/results/communication-causes-20261105
+    sha256:
+      communication-causes-20261105.json: 0c966993a6871d33e4a24cd0440ac2afc752203a553736ceeccbb242667b5d94
+      comm-causes-c588-20261105.json: ebf16cf66888ac76f0278316ddedce60d83946001686003457ba064a576f488b
+      comm-causes-c550-20261105.json: b3d79358edd3d439dfcf49a8910c79129e5cc5e9a71f12b7ca35351565900fa7
+      comm-routing-c588-20261105.json: eb4051bc8061cf4183debb9105c2edb428765a5fa57abfc4d0176860169eeffc
+      comm-params-c588-20261105.json: 62fa9a9d62d2332727491fb2a24f824646271cc868873cd1acc7e9f1ecc4a040
+      comm-fingerprints-c550102-stopped-20261105.json: 7d516ddaa8e7fc78c4c30c0d4897cdf202e8c27ef189001cb62c835f0cc13809
+    archive_control_sha256: c12e1b93845b3278e8081f6f76a040a84be9f06147741bdbf0a7f381965f95d0
+  communicators_per_rank:
+    pynccl_tp: 1
+    pynccl_ep: 1
+    torch_tp_lazy: 1
+  communication_configuration:
+    C588_default:
+      coll_channels: 32
+      p2p_channels: 32
+      p2p_channels_per_peer: 4
+      p2p_chunk_bytes: 1048576
+      communication_GiB_per_die: 3.9161605834960938
+      init_native_used_bytes_typical_per_comm: 719677056
+    C588_limited:
+      coll_channels: 4
+      p2p_channels: 16
+      p2p_channels_per_peer: 4
+      p2p_chunk_bytes: 1048576
+      BUFFSIZE: 1048576
+      MAX_P2P_NCHANNELS_environment: 4
+      communication_GiB_per_die: 1.3591842651367188
+      init_native_used_bytes_typical_per_comm: 450940256
+    C550_original:
+      coll_channels: 4
+      p2p_channels: 4
+      p2p_channels_per_peer: 1
+      p2p_chunk_bytes: 131072
+      BUFFSIZE: 1048576
+      MAX_P2P_NCHANNELS_environment: 4
+      init_native_used_bytes_typical_per_comm: 8477344
+      local_ranks_per_node: 8
+      nodes: 2
+      use_file_tuning: 1
+    same_C588_policy_saving_GiB_per_die: 2.5569915771484375
+    limited_further_breakdown_not_identified: Changing coll channels, BUFFSIZE and
+      P2P cap together does not separate their individual causal contributions.
+  same_current_mccl_and_mcruntime_bytes: true
+  c550102_container_stopped_not_started: true
+  source_patch:
+    path: /work/vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/metax/patches/pynccl_wrapper.py
+    lines:
+    - 464
+    - 470
+    sha256: 977a9c37e7bd1335301eda53dbe031f24c04d8e952a9917535bffb82e41d4491
+  limitations:
+  - P2P channel/chunk differences are runtime observations; exact topology-vs-driver-vs-tuning
+    memory contributions not isolated.
+  - Native Init COMPLETE used bytes is a native accounting statistic, not an independent
+    physical-memory total or a term to add again.
+  - EP/TP PyNccl may serve collectives other than ordinary all_reduce; no claim they
+    are globally unused or safe to disable.
+  - 'No MCCL allocator call-stack breakdown. No evidence of a leak: prior destroy
+    released approximately 3.887GiB/die, but not a repeated model lifecycle leak test.'
+  - Current binary equality cannot retroactively prove historical binary identity;
+    original native logs independently show MCCL 2.16.5.
+  - No C588 full-model channel-limited accuracy, graph or throughput validation; 0.96
+    not proven safe.
+  feishu_sync:
+    status: saved_and_visually_verified
+    document_url: https://jwolpxeehx.feishu.cn/docx/DuwsdmPo7oi979xodNac0OVknab
+    section: 3.5 为什么 C588 的通信显存更多（2026-11-05 补充）
+    only_machine_models_in_added_content: true
+    proof_screenshot: /private/tmp/minimax-m3-comm-causes-feishu-20261105.jpg
+    model_or_service_changes: false

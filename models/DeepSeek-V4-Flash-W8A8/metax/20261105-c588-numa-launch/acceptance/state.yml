@@ -1,0 +1,32 @@
+schema_version: 4
+identity:
+  case_id: 20261105-c588-numa-launch
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mxC588-5
+  baseline_id: start-model-original-9edac7b004eb
+  topology: TP8-visible8-15-NUMA7-7-4-4-4-4-6-6
+stage: acceptance
+current:
+  status: incomplete
+  candidate: numa-launch-001
+  next_action: No formal model accuracy/performance acceptance performed; user runs
+    E2E
+experiments: []
+metrics: []
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+scenario_status:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+remote_case_dir: /data/jinghao/deepseek/numa-bind-20261105-01

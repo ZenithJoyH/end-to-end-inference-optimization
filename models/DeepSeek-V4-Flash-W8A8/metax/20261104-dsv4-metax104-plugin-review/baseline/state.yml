@@ -1,0 +1,28 @@
+schema_version: 4
+identity:
+  case_id: 20261104-dsv4-metax104-plugin-review
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mx-104
+  baseline_id: image-70c61a835289
+  topology: TP8; current argv verified
+stage: baseline
+current:
+  status: code_snapshot_captured_performance_not_run
+  candidate: source before config externalization
+  next_action: Read optimize/review-001; no new performance baseline in this task
+experiments: []
+metrics: []
+environment:
+  source_container: deepseekV4-flash
+  container_id: 5da4d97faec4d3ac65ebfb6c86a5d4ee87ddb5c33cb624c71683d8e64afe75b6
+  image_id: sha256:70c61a83528977a4de8070a9a9bc20ea702ab08abaea52e8a894ea25688e6562
+  plugin_head: a696859b9aa528dfd5b21f5da3403fdc16bac4cd
+  plugin_path: /opt/vllm-plugin-fl
+  vllm: 0.24.0+empty
+  mounts:
+  - /public-flash:/public-flash:rw,rprivate
+  - /data:/data:rw,rslave
+  scope: existing user deployment code/config review; no performance optimization container or new benchmark
+  service_restart: false
+  remote_root: /public-flash/jinghao/deepseekV4/20261104-dsv4-metax104-plugin-review

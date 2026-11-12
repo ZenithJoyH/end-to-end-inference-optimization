@@ -1,0 +1,252 @@
+schema_version: 4
+identity:
+  case_id: 20261104-kv-c550101102
+  model: MiniMax-M3
+  platform: metax
+  host: mx-101,mx-102
+  baseline_id: stock-fl976f389-c550101102
+  topology: TP16:2nodes-8gpu-per-node
+stage: optimize
+current:
+  status: diagnostic_complete_services_released
+  candidate: null
+  next_action: 同机KV容量因果效应已验证；101/102服务与观察器均退出。后续历史N128贡献或C588模型级通信优化另需资源窗口。
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: passed
+target:
+  source_container_name: minimax-m3
+  optimization_container_name: e2e-m3-kv-c550-20261104
+  remote_work_root: /public-flash/jinghao/minimaxM3
+  remote_case_dir: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102
+  image_lineage: verified
+  mount_parity: passed
+  node_gate_paths:
+    mx-101: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/mx-101/attempt2/manifests/container-gates.json
+    mx-102: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/mx-102/manifests/container-gates.json
+  source_mounts:
+  - type: bind
+    source: /public-flash
+    destination: /public-flash
+    rw: true
+    propagation: rprivate
+runtime_observations:
+  mx-101:
+    driver: 3.3.12
+    gpu_processes_at_precheck: none
+  mx-102:
+    driver: 3.8.1
+    gpu0_transient_process_seen: true
+experiments:
+- experiment_id: kv-001
+  document: kv-001.md
+  status: complete
+  direction: framework
+  primary_variable: KV block/byte预算，当前相同双机环境下baseline→缩小KV→revert
+  result: 32K KV reduction causes -32.5091% total TPS; restored drift -0.1365%; short
+    sentinel +1.2680%
+  evidence: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/results/quick02-results-summary.json
+  decision: diagnostic hypothesis supported; low-KV not retained
+metrics:
+- scenario_id: p32768-d1024-c64-n4-kv-diagnostic
+  role: baseline
+  metric: total_token_throughput
+  value: 2604.3343241474836
+  unit: tok/s
+  scope: targeted finite-batch diagnostic only
+- scenario_id: p32768-d1024-c64-n4-kv-diagnostic
+  role: candidate
+  metric: total_token_throughput
+  value: 1757.6888985455944
+  unit: tok/s
+  scope: targeted finite-batch diagnostic only
+- scenario_id: p32768-d1024-c64-n4-kv-diagnostic
+  role: revert
+  metric: total_token_throughput
+  value: 2600.779066390259
+  unit: tok/s
+  scope: targeted finite-batch diagnostic only
+- scenario_id: p1024-d128-c64-n32-kv-sentinel
+  role: baseline
+  metric: total_token_throughput
+  value: 2995.9015506430505
+  unit: tok/s
+  scope: targeted finite-batch diagnostic only
+- scenario_id: p1024-d128-c64-n32-kv-sentinel
+  role: candidate
+  metric: total_token_throughput
+  value: 3033.8889986439594
+  unit: tok/s
+  scope: targeted finite-batch diagnostic only
+- scenario_id: p1024-d128-c64-n32-kv-sentinel
+  role: revert
+  metric: total_token_throughput
+  value: 3010.9262954123915
+  unit: tok/s
+  scope: targeted finite-batch diagnostic only
+user_intervention:
+  request: 那你直接把C550的上的模型服务停掉吧
+  agent_action: 按指令停止本任务API及关联workers；两个容器保留，GPU与端口释放已核验
+  services:
+  - mx-101/e2e-m3-kv-c550-20261104/18150
+  - mx-102/e2e-m3-kv-c550-20261104/headless
+  last_observed_phase: 795.51GiB BF16 checkpoint loading; no performance traffic sent
+  resume_requires: 用户明确继续，并重新核验当前服务、设备与冻结契约
+  applies_to: previous stop; superseded by resume_authorization and final service_stop
+service_stop:
+  status: verified
+  date: '2026-11-04'
+  timezone: Asia/Shanghai
+  source_containers_untouched: true
+  diagnostic_containers_preserved: true
+  automatic_restart: false
+  cleanup_watchers_finished: true
+  total_gpus_without_processes: 16
+  api_18150_closed_on_both_hosts: true
+  nodes:
+    mx-101:
+      receipt: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/manifests/quick02-final-release-mx-101.json
+      receipt_sha256: 60d30d5292f0e8f3d42f1ad4c75e705bbd1fb593fb6ff29ac9351fb681930420
+      only_idle_container_process: true
+    mx-102:
+      receipt: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/manifests/quick02-final-release-mx-102.json
+      receipt_sha256: ccd6d0291ee57508b54c4069873ee80630ad6f1fde3ef11d7a9ee3372772aadc
+      only_idle_container_process: true
+resume_authorization:
+  source: 用户：你现在赶紧验证下吧，我待会还要用机器；你验证完了赶紧停掉模型服务释放显存就行
+  scope: mx-101/102 isolated MiniMax KV diagnostic only
+  cleanup_required: true
+  start_sequence: node0 then node1
+  plans_unchanged: true
+  cache_policy: identity-guarded shared compile cache quick01, all roles remeasured
+  performance_skill_mode: targeted
+  performance_skill_bundle_sha256: 872b65dd0e7a4e8c5b342c37b1c34729f14154d1e68be01ed60938d5b22dc8d1
+quick01:
+  status: failed_before_measurement
+  reason: 'AttributeError: MiniMaxWorkerFL has no attribute peak_activation_memory'
+  actual_failure_log_time: 2026-11-04 17:57:15 Asia/Shanghai
+  logs: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/runs/quick01-baseline/node{0,1}/service.log
+  waiter_cancelled: true
+  GPU_cleanup_verified_both_nodes: true
+  stop_receipt_SHA256:
+    mx-101: b551af3d1440e9fd6ff7962a5392170e75c0c39a80ae5f9615c3e90ebbdd43cd
+    mx-102: e08427fe6e523ee780f3fcac2119af9035806c3f1c4a7defd5264cb508cb8a47
+quick02:
+  scope: targeted diagnostic only
+  control: num_gpu_blocks_override
+  blocks:
+    baseline: 1212
+    candidate: 743
+    revert: 1212
+  expected_native_tokens_at_maxlen70000:
+    baseline: 155100
+    candidate: 95082
+    revert: 155100
+  scenarios:
+  - p32768-d1024-c64-n4-kv-diagnostic
+  - p1024-d128-c64-n32-kv-sentinel
+  measured_rounds_per_role: 2
+  warmup_rounds: 3
+  steady_window: 2
+  steady_relative_spread: 0.05
+  same_identity_compile_cache: cache-quick01/node{0,1}
+  frozen_manifest: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/manifests/quick02-frozen-tools-and-plans.json
+  final_cleanup_required: true
+  client_controller_version: v5; graph log pattern corrected before any performance
+    measurement
+  client_controller_manifest: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/manifests/quick02-controller-v5.json
+  cleanup_controller: watch_cleanup_quick02_v3.py; each role101 then102; no automatic
+    model restart
+  baseline_long:
+    status: complete
+    native_tokens: 155100
+    steady_warmup_rounds_tps:
+    - 2594.0874426841897
+    - 2592.5759919125812
+    measured_rounds_tps:
+    - 2611.971980048885
+    - 2596.696668246082
+    observed_running: 4
+    comparison_status: candidate_and_revert_pending
+  baseline_cleanup:
+    mx-101: cc98f5c493ab32aa0e2098735b238678a3d4968fd6d80cd4207574c21e4e0eb3
+    mx-102: eab95ed7443a62d40bfc45b06b956823a9fc2f3c99f8747f7ee251d76b467d21
+    all_16_gpus_without_processes: true
+  baseline_short:
+    status: complete
+    measured_rounds_tps:
+    - 2985.4682191294914
+    - 3006.3348821566096
+  candidate_native_tokens: 95082
+  observed_baseline_candidate_identity_diff:
+  - /launch_config/num_gpu_blocks_override
+  candidate_long:
+    status: complete
+    measured_rounds_tps:
+    - 1759.0686830502752
+    - 1756.3091140409133
+    running: 2
+  candidate_short:
+    status: complete
+    measured_rounds_tps:
+    - 3039.0835224952434
+    - 3028.6944747926755
+  candidate_cleanup_verified_all_16_gpus: true
+  result: passed performance_only diagnostic contract; no project/formal acceptance
+  summary:
+    path: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/results/quick02-results-summary.json
+    sha256: 4f2b3b564578339ad885fca8b7f530d65fb8c32e5d13d7e322c51dd607fb9fc8
+  comparisons:
+    long:
+      status: passed
+      path: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/results/quick02-long-comparison.json
+      sha256: e3bd59be54d32cfdb0d373624d29a7537ecbe7bce24c86e337ee419bc9e482b7
+    short:
+      status: passed
+      path: /public-flash/jinghao/minimaxM3/20261104-kv-c550101102/results/quick02-short-comparison.json
+      sha256: c3f98d5cb2af5a572e8563cc846cf69c33800413e3010836fae342a09b9a8bf0
+  revert_native_tokens: 155100
+  revert_long:
+    status: complete
+    measured_rounds_tps:
+    - 2606.2187219046223
+    - 2595.3394108758953
+  revert_short:
+    status: complete
+    measured_rounds_tps:
+    - 3022.6884106296834
+    - 2999.164180195099
+  causal_effect:
+    long_tps_change_pct: -32.50909139244381
+    long_revert_drift_pct: -0.13651310909894576
+    short_tps_change_pct: 1.2679805180098507
+    short_revert_drift_pct: 0.5015099633736586
+    measured_running_modes_long:
+    - 4
+    - 2
+    - 4
+    measured_preemptions_all_scenes: 0
+    history_N128_contribution: unquantified; do not subtract from historical cross-hardware
+      gap
+  correctness: 17 fixed arithmetic C1/two C8 batches passed per role; GPQA baseline-sanity/formal
+    gate incomplete; native PIECEWISE/FULL capture completed, replay counter not separately
+    attested
+  stage_views:
+    prefill: mean TTFT long12.062→26.151→12.018s; client proxy includes admission/queue/mixed
+      effects
+    decode: mean TPOT long38.763→31.878→38.878ms; different Running4→2→4, not same-batch
+      kernel speedup
+    mixed: long TPS2604.334→1757.689→2600.779; short2995.902→3033.889→3010.926; measured
+      preemptions0
+    sampling_time_alignment: native result date minus duration; end1s rounding, sampler2s;
+      excluded shared FS mtime with ~229-230s skew
+report:
+  url: https://jwolpxeehx.feishu.cn/docx/DuwsdmPo7oi979xodNac0OVknab#TABCdyU3QoDIMWxkx9acLWmQnzb
+  sections_updated:
+  - '3.1'
+  - '3.4'
+  - '3.5'
+  cloud_save_observed: true
+  screenshot: /Users/baai/.codex/visualizations/2026/11/03/01a1a055-824d-7030-9f8c-215553e96d0a/minimax-kv-verified.jpg

@@ -1,0 +1,116 @@
+schema_version: 4
+identity:
+  case_id: 20261105-c588-numa-launch
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mxC588-5
+  baseline_id: start-model-original-9edac7b004eb
+  topology: TP8-visible8-15-NUMA7-7-4-4-4-4-6-6
+stage: optimize
+current:
+  status: superseded_by_topology_change
+  candidate: null
+  next_action: See separate 20261105-c588-tp8-eight-cards case; former rollback refuses
+    later script SHA
+experiments:
+- experiment_id: numa-launch-001
+  category: framework
+  status: superseded
+  scenario_id: manual-e2e-retest
+  document: numa-launch-001.md
+  remote_case_dir: /data/jinghao/deepseek/numa-bind-20261105-01
+  binding_nodes:
+  - 7
+  - 7
+  - 4
+  - 4
+  - 4
+  - 4
+  - 6
+  - 6
+  accuracy_status: incomplete
+  performance_status: incomplete
+  decision: superseded
+  target_phases:
+  - prefill
+  - decode
+  - mixed
+  hypothesis: NUMA-local worker CPU and new allocations may reduce host-side/host-I/O
+    overhead; E2E gain remains unproven
+  verification:
+    bash_syntax: passed
+    native_numa_argument_generation: passed
+    cpu_affinity_and_mempolicy: passed_8_workers_plus_enginecore_cpu_only
+    native_wrapper: passed_cpu_only
+    original_argv_and_model_environment: unchanged
+    existing_service_identity_and_affinity: unchanged
+    gpu_initialized: false
+    service_restarted: false
+    model_correctness: not_run
+    model_performance: not_run
+  script_sha256: d11d5148f7a33c30fe42ebfebe1954159f9d68ad0741ebcb681917a9baf77e39
+  rollback_command: python3 /data/jinghao/deepseek/numa-bind-20261105-01/commands/restore-original.py
+  external_manifest: /data/jinghao/deepseek/numa-bind-20261105-01/manifest.json
+metrics: []
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+scenario_status:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+remote_case_dir: /data/jinghao/deepseek/numa-bind-20261105-01
+artifacts:
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/start-model.original.sh
+  sha256: 9edac7b004ebd9aa6eb0722c98aa3e19e60021088e5275cc8ddc3af785f3f8e1
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/start-model.numa.sh
+  sha256: d11d5148f7a33c30fe42ebfebe1954159f9d68ad0741ebcb681917a9baf77e39
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/commands/apply-numa.py
+  sha256: 3940302664e36428007eb2fe23abe3ef219c2a459f70c3293eefe2c2006c1959
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/commands/apply-numa-r1.py
+  sha256: fb5db21ff1ec4002bc544b9bfff20f2cdaf2c8f82a95dc407d12bd4435df3156
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/commands/restore-original.py
+  sha256: c5ea3850c093f83ddf4bb62db1af2994709d868f34014ad288f3e34de00779bc
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/tools/numactl
+  sha256: 4ac805fbf1e800bfb71d5b987d06c3f6bd077e671188042fa345dac86b2b6a67
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/tools/numactl.bin
+  sha256: 1d2f13cb605e63ab5b5b35db707caef07f860f7eba0f49ea534d02c2dc15cd1a
+  retention: external_verified
+  experiment_id: numa-launch-001
+- path: /data/jinghao/deepseek/numa-bind-20261105-01/tools/lib/libnuma.so.1
+  sha256: 509807b07a101c7994a50c9e381b7cd3e5657ac123dafcb5a9d109bcf1a9a05c
+  retention: external_verified
+  experiment_id: numa-launch-001
+execution_attempts:
+- attempt: initial
+  status: validation_failed_before_target_replacement
+  reason: Host numactl required newer libnuma than container provides
+- attempt: r1
+  status: delivered
+  control_sha256: fb5db21ff1ec4002bc544b9bfff20f2cdaf2c8f82a95dc407d12bd4435df3156
+  tool_isolation: private dynamic-loader library path; child LD_LIBRARY_PATH unchanged
+local_record_checks:
+  schema_summary: passed
+  git_diff_check: passed
+  global_project_records: failed_due_to_existing_unrelated_document_and_process_artifact_issues
+superseded_by_case: 20261105-c588-tp8-eight-cards

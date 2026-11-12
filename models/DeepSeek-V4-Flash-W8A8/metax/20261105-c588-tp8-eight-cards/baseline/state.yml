@@ -1,0 +1,71 @@
+schema_version: 4
+identity:
+  case_id: 20261105-c588-tp8-eight-cards
+  model: DeepSeek-V4-Flash-W8A8
+  platform: metax
+  host: mxC588-5
+  baseline_id: numa-four-cards-d11d5148f7a3
+  topology: TP8-eight-modules-one-die-each-0-2-4-6-8-10-12-14
+stage: baseline
+current:
+  status: configuration_recorded_only
+  candidate: null
+  next_action: User restarts and benchmarks after freeing selected dies
+experiments: []
+metrics: []
+policy_version: '0.44'
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+accuracy_status: incomplete
+performance_status: incomplete
+remote_case_dir: /data/jinghao/deepseek/numa-bind-8cards-20261105-01
+required_acceptance_scenario_ids:
+- p1024-d1024-c64-n128
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+scenario_status:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+environment:
+  source_container: deepseekV4-flash
+  image_id: sha256:590a7f7dd0481b8a61662dcbe6f2cb457df9c826c082eb9834d07af4827be14c
+  vllm_version: 0.24.0+empty
+  prior_visible_devices:
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  prior_binding_nodes:
+  - 7
+  - 7
+  - 4
+  - 4
+  - 4
+  - 4
+  - 6
+  - 6
+  original_script_sha256: d11d5148f7a33c30fe42ebfebe1954159f9d68ad0741ebcb681917a9baf77e39
+  optimization_container: null
+  image_lineage: not_applicable_no_model_started
+  mount_parity: not_applicable_no_new_container
+  performance_context:
+    prefix_cache_state: disabled
+  scope: User requested startup script change only; no new model service, request,
+    accuracy or performance test
+phase_views:
+  prefill:
+    status: unknown
+    metrics: null
+  decode:
+    status: unknown
+    metrics: null
+  mixed:
+    status: unknown
+    metrics: null

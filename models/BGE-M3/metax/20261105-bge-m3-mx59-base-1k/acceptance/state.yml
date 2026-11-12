@@ -1,0 +1,109 @@
+schema_version: 4
+identity:
+  case_id: 20261105-bge-m3-mx59-base-1k
+  model: BGE-M3
+  platform: metax
+  host: mx-59
+  baseline_id: current-adapted-source-20261105
+  topology: TP1:GPU3
+stage: acceptance
+current:
+  status: incomplete-not-in-scope
+  candidate: null
+  next_action: No formal acceptance was requested or issued
+experiments: []
+metrics: []
+environment:
+  host: mx-59
+  source_container: BGE-M3
+  base_image: harbor.baai.ac.cn/flagos-inner-models-release/bge-m3-metax:fp16-dense-vllm0.24.0-ef7339f1-r1-20261104
+  base_image_id: sha256:1785f7a848059ca51932b938b4fdd75565603c456fe1d7bb1251348c42c22472
+  remote_work_root: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3
+  remote_case_dir: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i
+  image_lineage: verified
+  mount_parity: passed
+  original_service_preserved: true
+  user_authorized_stop:
+    service: MiniCPM-V-4.7-1B
+    port: 8031
+    gpu: 3
+    result: released
+    container_stopped: false
+    evidence: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/authorized-stop.after.json
+  containers:
+    current:
+      container: bge-m3-1k-current-20261105-x4jxof0i
+      image: sha256:632f985eee774f5cf25d716d23e84d837e718002033c9a264709b3491d0d74d8
+      image_lineage: verified
+      mount_parity: passed
+      source_fingerprint:
+        vllm-plugin-FL: b470eb312454fbdffbd176f823bebeae7511dc43f1afd24d9efd35a1bcb8fb4f
+        FlagGems: 022236e8b2a673e8b7e0d9d577336c20ed9bbed37d52e90120a8c6eaa2d0e5ea
+        FlagGems-vllm: 87b7f4268c0147f49e142eeef0a9576fcc503d8ed9364bda75d01a94df0adcbc
+      imports:
+        vllm: /flagos/lib/python3.12/site-packages/vllm/__init__.py
+        vllm_fl: /workspace/bge-m3/tune-src/vllm-plugin-FL/vllm_fl/__init__.py
+        flag_gems: /workspace/bge-m3/tune-src/FlagGems/src/flag_gems/__init__.py
+        flaggems_vllm: /workspace/bge-m3/tune-src/FlagGems-vllm/src/flaggems_vllm/__init__.py
+    base:
+      container: bge-m3-1k-base-20261105-x4jxof0i
+      image: sha256:1785f7a848059ca51932b938b4fdd75565603c456fe1d7bb1251348c42c22472
+      image_lineage: verified
+      mount_parity: passed
+      source_fingerprint:
+        vllm-plugin-FL: 9ff1d347d849d39acb9f51f3ea67895ce8173fe489f38a6b3a45d29049b0844c
+        FlagGems: a629f8014aad419e5ef122d491b780c10fdf680623bcacdbd6b49d78a90c203a
+        FlagGems-vllm: b10601f08e901ce90ceb6c23cc46eeaedf571d8c295a99695595a259eb1e77eb
+      imports:
+        vllm: /flagos/lib/python3.12/site-packages/vllm/__init__.py
+        vllm_fl: /workspace/bge-m3/tune-src/vllm-plugin-FL/vllm_fl/__init__.py
+        flag_gems: /workspace/bge-m3/tune-src/FlagGems/src/flag_gems/__init__.py
+        flaggems_vllm: /workspace/bge-m3/tune-src/FlagGems-vllm/src/flaggems_vllm/__init__.py
+  commit_event_audit: commit only; no pause/unpause; source health200
+  final_audit:
+    path: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/FINAL_AUDIT.json
+    status: passed
+    source_unchanged: true
+    benchmark_script_unchanged: true
+    historical_artifacts_unchanged: true
+    source_service_health: 200
+    gpu3_released: true
+    new_containers_retained_idle: true
+policy_version: SOP0.44 / experiment-schema3 / model-record-schema4
+policy_date: '2026-11-04'
+acceptance_scope: diagnostic
+external_evidence:
+  case: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i
+  comparison: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/results/COMPARISON.json
+  comparison_sha256: faa01afc2bcd21069a411830dddd717be5698bf68fbecff285269bcba6a93eb9
+  sha256_manifest: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/SHA256SUMS.json
+  measurement_contract: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/measurement-contract.json
+  prepared: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/PREPARED.json
+  commit_audit: /public-flash/jinghao/BGEM3/test/perf_test/benchmark_results/bge-m3/20261105-bge-m3-mx59-base-1k.x4jxof0i/manifests/commit-runtime-audit.json
+phase_analysis:
+  prefill:
+    status: client-end-to-end-measured
+    description: encoder workload includes input processing, encoder execution, pooling,
+      queue, network and JSON; no pure-device timing
+  decode:
+    status: not_applicable
+    reason: embedding encoder has no autoregressive decode
+  mixed:
+    status: not_applicable_for_prefill_decode_mixture
+    api_e2e: measured finite-batch concurrent embedding requests
+formal_accuracy_status: not_run; embedding smoke is not a formal accuracy gate
+formal_performance_status: not_run; maintained generative runner does not support
+  embedding
+required_formal_catalog:
+  p1024-d1024-c64-n128:
+    status: not_run
+    reason: outside user-requested 1K encoder diagnostic; no autoregressive decode
+  p4096-d1024-c64-n128:
+    status: not_run
+    reason: outside user-requested 1K encoder diagnostic; no autoregressive decode
+  p16384-d1024-c64-n128:
+    status: not_run
+    reason: outside user-requested 1K encoder diagnostic; no autoregressive decode
+  p32768-d1024-c64-n128:
+    status: not_run
+    reason: outside user-requested 1K encoder diagnostic; no autoregressive decode
