@@ -537,7 +537,7 @@ experiments:
     classification: framework
     status: stopped_before_experiment
     decision: no_go_no_new_equivalent_single_variable_candidate
-    evidence: docs/cases/20260919-qwen38-flash-next-ppu-e2e/p4k-scheduler-framework-frontier-readonly.md
+    evidence: .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/p4k-scheduler-framework-frontier-readonly.md
     result: Current async scheduling is already enabled and the V1 scheduler is already running-first. Concurrent partial-prefill controls are unsupported or not consumed, DP prefill_schedule_interval is inert at DP1, reserve_full_isl cannot reduce a P4096 prompt that equals the 4096 token budget, and the remaining existing controls either change ITL semantics, reduce capacity, or lack a credible 1% Mixed mechanism.
     notes: This audit excludes re-sweeping max_num_batched_tokens 6144/8192, long_prefill_token_threshold2048, and max_num_seqs48/64. No remote run or source/service change was performed. Reopen scheduler work only after low-overhead evidence proves a removable host scheduler critical-path gap above 1% Mixed wall.
   - experiment_id: op-017-qsa-block-centric-traversal-frontier
@@ -557,7 +557,7 @@ experiments:
     decision: passed_overlap_gate_proceed_to_complete_transaction_microbenchmark
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/op-018-qsa-selected-set-overlap.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-selected-set-overlap-plan.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-selected-set-overlap-plan.md
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/profiling/op018-qsa-overlap-summary-001.json
     result: Prefill/Mixed rho for R2 was 44.0555%/44.0526%, R4 69.5122%/69.4798%, R8 83.8933%/83.7094%, and R16 91.7276%/91.2856%. Prefill coverage was 100%; Mixed coverage was 99.9349%/99.8697%/99.7395%/99.4791%, with exactly two request runs.
     notes: Diagnostic-only client timing is invalid. Before/after fixed completions matched. The source was restored to SHA e18fbb229d9c4a5c2b06a6858ae4679596e1a6f971a4ff8878acbbc4f469db23, helper removed, PPU0-7 freed, and service50 remained healthy. This passes only the design gate; union/mask implementation cost and complete-transaction performance remain unproven.
@@ -568,9 +568,9 @@ experiments:
     decision: no_service_integration_eager_dynamic_precondition_invalid_graph_gate_not_reached
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/op-019-qsa-r4-union-mask.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op019-qsa-row-group-union-mask-microbench-design.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-union-mask-cost-model.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op019-final-evidence-audit.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op019-qsa-row-group-union-mask-microbench-design.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-union-mask-cost-model.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op019-final-evidence-audit.md
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/profiling/op019-qsa-exact-prefill-001/verification.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/profiling/op019-qsa-exact-mixed-001/verification.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op019-qsa-r4-direct-membership-smoke-20260920T165455Z-1947604
@@ -584,7 +584,7 @@ experiments:
     decision: proceed_only_to_real_p4k_producer_fixture_and_rows4096_correctness_no_timing_yet
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/op-020-qsa-producer-integrated-r4.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-captured-transaction-design.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-captured-transaction-design.md
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op020-qsa-producer-integrated-r4-rows64-20260920T171532Z-2356688/result.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op020-qsa-producer-integrated-r4-rows64-20260920T171728Z-2395070/result.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op020-qsa-producer-integrated-r4-rows64-20260920T171728Z-2395070/snapshots.pt
@@ -597,7 +597,7 @@ experiments:
     decision: passed_real_prefill_and_mixed_producer_replay_proceed_to_op020_rows4096_correctness_no_timing_yet
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/op-021-real-p4k-qsa-producer-fixture.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op021-qsa-producer-fixture-capture-design.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op021-qsa-producer-fixture-capture-design.md
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/profiling/op021-qsa-producer-prefill-005/op021-p4k-prefill-producer-001/manifest.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/transitions/op021-qsa-producer-prefill-005/verification.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/profiling/op021-qsa-producer-mixed-001/op021-p4k-mixed-producer-001/manifest.json
@@ -611,7 +611,7 @@ experiments:
     decision: proceed_to_separate_op022_complete_consumer_transaction_timing_no_service_integration
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/op-020-qsa-producer-integrated-r4.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-rows4096-design.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-rows4096-design.md
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op020-qsa-producer-integrated-r4-rows4096-prefill-20260920T183652Z-4001203/result.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op020-qsa-producer-integrated-r4-rows4096-mixed-20260920T183619Z-3989727/result.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op020-qsa-producer-integrated-r4-rows4096-mixed-20260920T182725Z-3810411/result.json
@@ -625,7 +625,7 @@ experiments:
     decision: stopped_after_prefill_eager_and_graph_regressed_over_32_percent_mixed_not_run
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/op-022-qsa-r4-complete-consumer-transaction.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/op022-qsa-r4-complete-consumer-timing-design.md
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op022-qsa-r4-complete-consumer-timing-design.md
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/op022-qsa-r4-complete-consumer-timing-prefill-20260920T185150Z-105188/result.json
     result: All Prefill integrity, full membership and writer ownership, sampled FP32, eager numerical, static-graph bit-exact replay, post-timing correctness, service-health, source-identity, and PPU0 isolation gates passed. Generic versus complete R4 medians were 9.950968 versus 14.746951 ms eager and 9.941424 versus 14.667456 ms graph, so the candidate regressed 32.5219% and 32.2212%. Seven balanced samples were stable; all MAD/median ratios were below 0.8%.
     notes: The complete candidate includes 33,644,552 workspace bytes plus output clear, full workspace clear, membership build, grouped attention, and exact fallback every invocation. This result does not isolate one subcomponent, but it decisively fails the frozen 8% complete-transaction gate. Mixed was not run because the four-way gate could no longer pass. No installed source/service change or endpoint speedup claim exists; live qsa.py remained e18fbb229d9c4a5c2b06a6858ae4679596e1a6f971a4ff8878acbbc4f469db23.
@@ -980,7 +980,7 @@ experiments:
     decision: retain_for_current_service_identity_with_unreplayed_original_cohort_caveat
     evidence:
       - models/Qwen3.8-Flash-Next/ppu/optimize/accfix-001-flaggems-sqlite-cache-safety-20260924.md
-      - docs/cases/20260919-qwen38-flash-next-ppu-e2e/commands/acc011-prepare-cachefix.py
+      - .cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/commands/acc011-prepare-cachefix.py
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/accuracy/acc-011-full-gpqa-dual-cachefix-20260924/evidence/cachefix-preparation.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/accuracy/acc-011-full-gpqa-dual-cachefix-20260924/evidence/sqlite-eight-process-stress.json
       - /mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/accuracy/acc-011-full-gpqa-dual-cachefix-20260924/evaluation/minimal-port8000.json

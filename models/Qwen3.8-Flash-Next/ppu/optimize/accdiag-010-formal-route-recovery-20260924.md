@@ -8,7 +8,7 @@ Frozen next action: parse exactly 198 evaluator response log lines using the pre
 
 ## Result
 
-Status: `completed_full198_route_recovered`. The frozen script `docs/cases/20260919-qwen38-flash-next-ppu-e2e/commands/accdiag010-recover-formal-route.py` matched all **198** evaluator responses one-to-one to proxy completions. For 196, timestamp/duration and unused-proxy-line exclusion yielded a unique match. Two responses finished in the same second with close durations; their evaluator and proxy completion orders agreed, and their client-minus-proxy durations were within 0.1 second. The maximum absolute duration difference across the 198 pairs is 0.041 second. The exact per-doc mapping, method and line numbers are preserved in `formal-http-recovered/route-match.json`.
+Status: `completed_full198_route_recovered`. The frozen script `.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/commands/accdiag010-recover-formal-route.py` matched all **198** evaluator responses one-to-one to proxy completions. For 196, timestamp/duration and unused-proxy-line exclusion yielded a unique match. Two responses finished in the same second with close durations; their evaluator and proxy completion orders agreed, and their client-minus-proxy durations were within 0.1 second. The maximum absolute duration difference across the 198 pairs is 0.041 second. The exact per-doc mapping, method and line numbers are preserved in `formal-http-recovered/route-match.json`.
 
 | Formal backend | Port | Unique docs | Strict correct | 60K length caps | Completed wrong |
 |---|---:|---:|---:|---:|---:|

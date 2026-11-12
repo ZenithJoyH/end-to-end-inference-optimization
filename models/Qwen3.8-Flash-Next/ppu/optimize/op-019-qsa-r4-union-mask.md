@@ -82,9 +82,9 @@ service or source integration.
 - No host tensor-value read, dynamic allocation, or capture-time synchronization.
 
 Detailed schema and fixture selection are frozen in
-`docs/cases/20260919-qwen38-flash-next-ppu-e2e/op019-qsa-row-group-union-mask-microbench-design.md`;
+`.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op019-qsa-row-group-union-mask-microbench-design.md`;
 the transaction model is in
-`docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-union-mask-cost-model.md`.
+`.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-union-mask-cost-model.md`.
 
 ## Standalone outcome
 

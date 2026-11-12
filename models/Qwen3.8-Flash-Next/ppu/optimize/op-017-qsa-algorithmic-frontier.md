@@ -157,7 +157,7 @@ rows4096 达到预冻结 `>=8%` 才允许修改实际源码。
 ## 证据
 
 - live call chain 与 shape：
-  `docs/cases/20260919-qwen38-flash-next-ppu-e2e/qsa-live-path-readonly.md`。
+  `.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/qsa-live-path-readonly.md`。
 - rows4096 sparse baseline 与 group-3 反例：
   `models/Qwen3.8-Flash-Next/ppu/optimize/op-015-qsa-sparse-gqa-group3.md`。
 - prof005 Mixed 归因：755 次 sparse 调用累计 `7.339s`，marker wall

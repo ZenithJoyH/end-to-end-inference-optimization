@@ -78,4 +78,4 @@ helper was removed, `qsa.py` returned exactly to
 and retained service50 on 8030 remained healthy.
 
 The full insertion, eligibility, artifact, and stop rules are frozen in
-`docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-selected-set-overlap-plan.md`.
+`.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op018-qsa-selected-set-overlap-plan.md`.

@@ -49,9 +49,9 @@ failure, a weighted gain below 8%, or predicted Mixed gain below 1%.
 ## Evidence locations
 
 - Plan:
-  `docs/cases/20260919-qwen38-flash-next-ppu-e2e/fw010-tp8-collective-microbench-plan.md`
+  `.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/fw010-tp8-collective-microbench-plan.md`
 - Script:
-  `docs/cases/20260919-qwen38-flash-next-ppu-e2e/fw010-tp8-collective-microbench.py`
+  `.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/fw010-tp8-collective-microbench.py`
 - Planned remote root:
   `/mnt/nfs/users/jinghao/qwen3.8-flash/20260919-qwen38-flash-next-ppu-e2e/microbench/fw010-tp8-collective-002`
 

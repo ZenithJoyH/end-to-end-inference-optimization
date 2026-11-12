@@ -14,7 +14,7 @@
   forbidden.
 
 The frozen design is recorded in
-`docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-captured-transaction-design.md`.
+`.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-captured-transaction-design.md`.
 The executed script SHA-256 is
 `ef28b47f96fbe733bf4dd56e5e91aa06e667886569163423350c9b5189936176`;
 the imported op-019 candidate SHA-256 is
@@ -62,7 +62,7 @@ The passing evidence is:
 ## Passed real-P4K rows4096 gate and boundary-race repair
 
 The final correctness harness is
-`docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-rows4096.py`,
+`.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/op020-qsa-producer-integrated-r4-rows4096.py`,
 SHA-256 `13bf633180074fb578bc99897ab645b922fc5e63efccb0ae585417b78aa08fd5`.
 It consumes the immutable op021 Prefill/Mixed manifests, replays the real
 producer, reconstructs every membership cell on CPU, checks sampled FP32

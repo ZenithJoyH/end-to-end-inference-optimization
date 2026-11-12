@@ -29,4 +29,4 @@ Current async scheduling is already enabled and the V1 scheduler is already runn
 
 ## 外部证据
 
-- `docs/cases/20260919-qwen38-flash-next-ppu-e2e/p4k-scheduler-framework-frontier-readonly.md`
+- `.cache/model-record-archives/20261112-qwen38-hy4-case-materials/files/docs/cases/20260919-qwen38-flash-next-ppu-e2e/p4k-scheduler-framework-frontier-readonly.md`
