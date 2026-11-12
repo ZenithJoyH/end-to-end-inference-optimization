@@ -33,7 +33,7 @@
 - **理解执行与接入层**：[Plugin 架构分析](docs/vllm-plugin-FL-analysis.md) 用于定位调用链、模块职责和扩展点。
 - **理解 vLLM 专用算子层**：[FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) 用于追踪 Plugin 显式调用的 MoE、Attention、KV、量化和采样等专用算子。
 - **理解通用算子层**：[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于追踪 PyTorch/ATen 注册、通用实现、vendor 特化和调优入口。三份分析资料使用时都要核对目标代码 revision 与真实导入路径。
-- **深入具体算子**：[关键算子技能](skills/key-operator-analysis/SKILL.md) 在已有算子级瓶颈证据时使用，按需读取 MLA、mHC 等材料。
+- **优化热点算子**：使用[关键算子优化技能](skills/key-operator-opt/SKILL.md)匹配目标平台、算子和实际 shape。沐曦案例已整理为[ATen 与 vLLM 融合算子的首个对照实验](skills/key-operator-opt/references/platforms/metax.md)。
 - **借鉴已有实验**：[案例索引](docs/cases/README.md) 提供具体环境、结果和失败证据；[优化模式](docs/optimization-patterns.md) 提供提炼后的候选思路与适用边界。
 
 ## 优化范围
@@ -93,7 +93,7 @@
 
 这是默认排查顺序。实际优先级由预期端到端净收益、证据强度、验证成本和维护风险决定；已有充分证据时可以直接进入对应方向。候选同时满足正确性、稳定性和框架设计要求，收益不能豁免多模型/多平台兼容问题。
 
-用户已授权在明确指定的模型、Host 和隔离源码副本内修改 Plugin、FlagGems-vllm 与 FlagGems。vLLM、权重、tokenizer、基础镜像及共享系统配置的修改仍受 [AGENTS.md](AGENTS.md) 中的授权边界约束。源适配容器用于读取事实，不承载本任务的源码修改、profiling 或性能实验。提交、推送和创建 PR 需有明确指示。
+用户已授权在明确指定的模型、Host 和隔离源码副本内修改 Plugin、FlagGems-vllm 与 FlagGems。热点指向代码生成时，也可修改优化容器私有的 FlagTree，用相同算子比较原构建与候选构建。vLLM、权重、tokenizer、基础镜像及共享系统配置的修改仍受 [AGENTS.md](AGENTS.md) 中的授权边界约束。源适配容器用于读取事实，不承载本任务的源码修改、profiling 或性能实验。提交、推送和创建 PR 需有明确指示。
 
 ## 快速开始
 
@@ -231,7 +231,7 @@ models/<model>/<platform>/<case-id>/
   optimize/                     # state.yml、README 总览、每个优化点的独立 Markdown
   acceptance/                   # 最终候选验收配置、结果/状态与总结
 
-skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库
+skills/key-operator-opt/        # 按需使用的算子优化方法、平台经验与案例
 ```
 
 每个新案例按 Host、设备拓扑和 anchor baseline 隔离，只使用 `baseline/`、`optimize/`、`acceptance/` 三个子目录；按需创建，不为未请求的目标批量生成空目录。中间和未达标实验数据留在 `optimize/`，案例摘要链接到对应记录。原始响应、日志、CSV/JSONL、trace、数据库和数据集放外部存储，项目记录绝对位置及必要校验值。
@@ -242,7 +242,7 @@ skills/key-operator-analysis/   # 按需使用的算子分析方法及知识库
 
 从 [案例索引](docs/cases/README.md) 检索同结构、阶段、平台和 workload 的证据，再核对当前运行条件。[xing4 / PPU](models/xing4/ppu/README.md) 提供实际实验与产物导航；带 `imported` 标记的历史案例尚未在本项目复测，不与本项目实测结论混用。
 
-当端到端测量已收敛到具体算子、dispatch、layout 或融合路径时，按需使用 [关键算子技能](skills/key-operator-analysis/SKILL.md)。知识按“案例证据 → 算子证据卡 → 优化地图 → 稳定理解”演进，当前包含 MLA Attention 与 mHC 资料。仅在证据改变下一次诊断或设计决策时更新相应层级。
+当端到端测量已收敛到具体算子、dispatch、layout 或融合路径时，按需使用[关键算子优化技能](skills/key-operator-opt/SKILL.md)。算子证据卡与优化地图保留具体实现的适用边界。多个案例改变了某平台上的实验选择时，将所得经验汇入该平台条目，并链接到原始实验。
 
 经验等级采用 `observation`、`reproduced`、`transferred`、`invariant`。历史记录保留当时的 schema、已知条件和缺失证据，不追认为满足后来新增的规则；成功、失败和负优化均应可追溯。
 

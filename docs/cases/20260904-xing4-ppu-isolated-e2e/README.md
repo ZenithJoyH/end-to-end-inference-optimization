@@ -56,7 +56,7 @@ page16、B64、S1024/4096/16384微基准耗时约为原实现1/4。worker命中�
 
 实际kernel命中、head padding和shape比静态文档更能支撑决策。已记录容器设备重编号、安装元数据与实际源码revision不一致、并发峰值一秒桶语义、不同进程历史导致基线差异。失败启动、editable安装失败和早期数据均保留。
 
-单机同模型结果只作为该场景复现证据，不形成所有MLA通用BH16规则。SOP不新增通用性能规则；本案例已提炼为 [MLA 证据卡](../../../skills/key-operator-analysis/references/operators/mla_attention/case-index.md#case20260904-xing4-ppu-isolated-e2e) 和 [MLA 优化地图](../../../skills/key-operator-analysis/references/operators/mla_attention/optimization-map.md)。知识差量是：tile 判断应使用 TP 后每 rank 的有效 head 数并先量化 head padding ratio；occupancy 改善和通用 BH16 规则均未被证明。完整性能数字仍以本案例为准。
+单机同模型结果只作为该场景复现证据，不形成所有MLA通用BH16规则。SOP不新增通用性能规则；本案例已提炼为 [MLA 证据卡](../../../skills/key-operator-opt/references/operators/mla_attention/case-index.md#case20260904-xing4-ppu-isolated-e2e) 和 [MLA 优化地图](../../../skills/key-operator-opt/references/operators/mla_attention/optimization-map.md)。知识差量是：tile 判断应使用 TP 后每 rank 的有效 head 数并先量化 head padding ratio；occupancy 改善和通用 BH16 规则均未被证明。完整性能数字仍以本案例为准。
 
 标签：xing4、MoE、MLA、mHC、mixed、decode、operator/improve、PPU-ZW810E、TP4、BF16、graph、throughput。
 

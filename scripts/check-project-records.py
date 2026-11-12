@@ -91,7 +91,7 @@ def check(root):
                     errors.append(f'missing schema 4 stage record: {expected}')
     for name in ('inference-accuracy-evaluation', 'inference-performance-evaluation',
                  'inference-accuracy-diagnosis', 'inference-profiling', 'inference-optimization-planning',
-                 'key-operator-analysis'):
+                 'key-operator-opt'):
         entry = root / 'skills' / name / 'SKILL.md'
         if not entry.is_file():
             errors.append(f'missing local Skill: {entry}')

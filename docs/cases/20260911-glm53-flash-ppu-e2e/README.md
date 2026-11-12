@@ -52,7 +52,7 @@
 
 23:36进行中：[点51 MM因果对照06](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)真实PPU四候选×23shape的92项oracle和8次动态graph回放已通过，原P4096 C1/C8三臂唯一启动。MBT/FULL/kernel/key/生产DB不变，仅临时缩短候选搜索；同源SQL缓存、共享编译cache限制与实际shape对照在账本冻结。暂无模型修复/新gate/性能结论；已有只读monitor跟进，终态精确恢复SQL-only/OFF，不把23:04旧终态当当前试验结果。
 
-23:04只读定位终态：[点51](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)SQL修复保留，但C8仍约300s RPC失败。真实原生key/prune及前后只读DB差分进一步确认：不是缓存失效，19个winner/2040条候选标签正常写入；M20480已有11组、M20481/8198进入21504/9216冷bucket，每projection104候选（默认114经合法性裁剪），20个冷组中最后一组未完成。充分修复仍需同初始缓存单变量MM策略对照，另有独立do_bench协议tag风险未修复。本轮零模型/GPU请求、零库/生产DB变更，完整审计通过、服务OFF、H4未安装、monitor暂停。原C8失败/新gate/性能缺口保留，不将CPU预算推算当端到端收益；[可复用诊断卡](../../../skills/key-operator-analysis/references/operators/mm/case-index.md)。
+23:04只读定位终态：[点51](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-sparse-mla-small-head-dual-backend-51.md)SQL修复保留，但C8仍约300s RPC失败。真实原生key/prune及前后只读DB差分进一步确认：不是缓存失效，19个winner/2040条候选标签正常写入；M20480已有11组、M20481/8198进入21504/9216冷bucket，每projection104候选（默认114经合法性裁剪），20个冷组中最后一组未完成。充分修复仍需同初始缓存单变量MM策略对照，另有独立do_bench协议tag风险未修复。本轮零模型/GPU请求、零库/生产DB变更，完整审计通过、服务OFF、H4未安装、monitor暂停。原C8失败/新gate/性能缺口保留，不将CPU预算推算当端到端收益；[可复用诊断卡](../../../skills/key-operator-opt/references/operators/mm/case-index.md)。
 
 17:11定位：[点50](../../../models/GLM-5.3-Flash-BF16/ppu/optimize/20261021-pr454-public-path-50.md)公共Sparse MLA的H4→H64物化使SQ20172时Query/输出各1.23 GiB，有效输出仅78.8 MiB；切片仍持有大存储，源码与PR454方法一致。启动profile跳过真实attention，未覆盖额外物化，已用原生日志+源码AST/CPU-meta确认该机制；全峰值/碎片/缓存副本未完全归因，未修复/重启或重跑、无gate/性能。知识增量见MLA卡/map，不把历史BF16 vendor性能归属本公共路径。
 

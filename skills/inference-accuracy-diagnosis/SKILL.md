@@ -64,7 +64,7 @@ Do not attribute the issue to the first change whose removal makes it disappear.
 
 ## Use other Skills at clear boundaries
 
-- Invoke `$key-operator-analysis` only after the divergence has been isolated to a concrete operator, dispatch, layout, or adjacent fusion path.
+- Invoke `$key-operator-opt` only after the divergence has been isolated to a concrete operator, dispatch, layout, or adjacent fusion path.
 - Invoke `$inference-profiling` only when execution-path or rank/graph-hit evidence is missing; profiler timing is not accuracy evidence.
 - Use `$inference-accuracy-evaluation` `minimal-regression` to validate each candidate fix, and `formal-gate` when the original failure was formal GPQA or when policy requires a new gate.
 - Pause `$inference-performance-evaluation` only when the frozen score threshold, required minimal regression, or evidence-validity scope is failing. An output-health-only investigation is non-gating and may run alongside continued performance work.

@@ -1,0 +1,7 @@
+interface:
+  display_name: "关键算子优化"
+  short_description: "根据目标平台的真实案例，为推理热点算子选择优化实验并验证收益"
+  default_prompt: "使用 $key-operator-opt 根据当前平台、热点算子和实际形状选择首个优化实验。"
+
+policy:
+  allow_implicit_invocation: true

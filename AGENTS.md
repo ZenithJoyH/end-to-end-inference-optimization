@@ -27,7 +27,7 @@ Agent 的职责是：
 
 默认先检查框架中的明显浪费和低风险配置，再评估热点算子的已有实现，最后投入当前算子的深度优化。这是默认排查顺序而不是强制串行阶段；实际执行按瓶颈、预期端到端净收益、证据强度、验证成本和风险排序，每次保留改动后重新排序。具体规则见 SOP 的“两层优化分类与优先级”。
 
-热点收敛到算子后，按 [SOP C4](docs/performance-optimization-sop.md#c4-利用平台编译器特性做算子特化) 检查目标平台编译器特性是否提供可证伪的改善机制；初次选择方向及后续规划复盘时均纳入候选评估。按实际安装版本、构建与具体原语核实支持，不把支持 TLE 等同于支持全部接口，也不要求所有算子改写为 TLE。采用特性的实现归入 `operator/improve`，接入已有实现归入 `operator/replace`；保留能力/shape guard 和正确 fallback，通过既有正确性、graph 与端到端性能流程验证。本方向不扩大到修改或升级 FlagTree、厂商编译器及其他未授权依赖。
+热点收敛到算子后，按 [SOP C4](docs/performance-optimization-sop.md#c4-利用平台编译器特性做算子特化) 检查目标平台编译器特性是否提供可证伪的改善机制；初次选择方向及后续规划复盘时均纳入候选评估。按实际安装版本、构建与具体原语核实支持，不把支持 TLE 等同于支持全部接口，也不要求所有算子改写为 TLE。采用特性的实现归入 `operator/improve`，接入已有实现归入 `operator/replace`；保留能力/shape guard 和正确 fallback，通过既有正确性、graph 与端到端性能流程验证。若瓶颈来自生成代码，还可在当前任务的独立优化容器内修改、重建并使用其私有 FlagTree，按同一算子源码验证编译器改动，归入 `operator/improve`。
 
 ## 2. 当前工作区提供的本地资源
 
@@ -57,7 +57,7 @@ Agent 的职责是：
 ### 2.3 知识与记录：定位问题、复用证据
 
 - **推理栈架构资料**：[vllm-plugin-FL-analysis.md](docs/vllm-plugin-FL-analysis.md) 用于理解 Plugin 调用链与扩展点；[FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) 用于理解 vLLM 专用算子、vendor backend 和测试/benchmark；[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于理解通用算子、ATen 注册和多后端特化。三者都是特定 revision 的静态分析，分阶段使用要求见第 6 节。
-- **算子知识**：[关键算子技能](skills/key-operator-analysis/SKILL.md) 包含 MLA Attention、mHC、固定版本 vLLM 源码快照及通用分析方法。仅在端到端测量或 profiler 已收敛到具体算子、dispatch、layout 或相邻融合路径时按需读取；不提前加载整套知识库，不直接套用历史硬件、shape、revision 和性能判断。
+- **算子优化**：热点收敛到具体算子、dispatch、布局或融合路径后，用[关键算子优化技能](skills/key-operator-opt/SKILL.md)按平台和算子选择首个实验。沐曦任务可从[平台案例经验](skills/key-operator-opt/references/platforms/metax.md)匹配现场信号，再查单点实验和回退记录。其他平台沿用算子地图，在有案例依据时补充相应平台经验。
 - **精度评测**：本地 [inference-accuracy-evaluation](skills/inference-accuracy-evaluation/SKILL.md) 负责精度操作；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。自动发现不可用时直接完整读取该入口，不依赖全局同名 Skill。
 - **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
 - **性能评测**：本地 [inference-performance-evaluation](skills/inference-performance-evaluation/SKILL.md) 负责无 profiler 性能测量及 Prefill、Decode、Mixed 证据；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。
@@ -114,7 +114,7 @@ Agent 的职责是：
 - 用户声明模型已完成适配时，将其作为任务前提；仍需用最小 smoke test 确认当前服务没有漂移或失效。
 - 每次性能优化都必须从用户指定的已适配容器复刻一个新的专用优化容器。源适配容器只作为环境事实和基线来源，不直接承载源码修改、profiling 或性能实验。
 - 默认不改模型权重和 tokenizer，不重新训练，不改变输出语义。
-- 用户已授权在端到端性能优化任务中直接修改目标模型推理环境内的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码。针对当前任务的框架优化、算子接入和算子实现优化，无需仅因修改这三个仓库而再次申请授权。
+- 用户已授权在端到端性能优化任务中直接修改目标模型推理环境内的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码。针对当前任务的框架优化、算子接入和算子实现优化，可直接在任务私有副本中实施。算子代码生成优化也可修改、重建或安装当前优化容器的私有 FlagTree 构建；厂商 SDK、驱动、厂商独立编译器和共享安装沿用原有授权边界。
 - 默认保持 vLLM 源码只读；优先使用启动参数、Plugin 扩展点、FlagGems、平台 backend 或独立 Triton 实现。
 - 上述授权仅限当前任务明确指定的模型、Host、容器和源码副本，不自动扩大到其他服务、共享安装或其他工作区。工具权限要求及共享环境保护规则仍然适用。
 - 确实必须修改 vLLM、基础镜像、权重或共享系统配置时，先说明证据、替代方案、影响范围和回退方式，取得用户明确同意。
@@ -220,7 +220,7 @@ Agent 的职责是：
 6. Plugin hook 必须幂等，因为 general plugin 可能在多个 worker 中重复加载。
 7. 性能优化以 graph 服务为准；新实现必须验证目标 graph 模式可以启动、capture 并至少 replay 两次。eager 只在定位 graph 差异时作为可选诊断，不是进入优化或候选晋级的门禁。
 8. FlagGems 与 FlagGems-vllm 存在同名或相近算子时，从运行中函数对象、import、注册 key 和 profiler 反向确认来源，不按文件名推断。
-9. 当前常规修改授权覆盖目标推理环境实际使用的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码副本；修改前分别记录 revision、工作区状态、真实导入路径、生效方式和回退方法。该授权不扩大到其他容器、共享安装或无关工作区。
+9. 当前常规修改授权覆盖目标推理环境实际使用的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码副本，以及第 4 节所述的私有 FlagTree；修改前分别记录 revision、工作区状态、真实导入路径、生效方式和回退方法。该授权不扩大到其他容器、共享安装或无关工作区。
 
 ## 7. 执行流程与门禁入口
 
@@ -236,7 +236,7 @@ Agent 的职责是：
   服务、目录和原生回执。该契约只承担项目适配；本项目规则和用户范围可以收紧执行边界，
   但不能静默替换或削弱 Skill 方法。
 - 低开销指标无法继续归因或需要确认执行路径时调用 `$inference-profiling`；收敛到具体算子
-  后调用 `$key-operator-analysis`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由调用方显式选择，
+  后调用 `$key-operator-opt`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由调用方显式选择，
   对应 Skill 校验支持范围，不在本文件维护模式副本。
 - 当前 Agent 的正式性能优化目标目录固定为以下四个 finite-batch 场景，长度单位均为 token：
   `P1024/D1024/C64/N128`、`P4096/D1024/C64/N128`、`P16384/D1024/C64/N128`、
@@ -350,7 +350,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
   inference-performance-evaluation/  # 分层无 profiler 性能测量与正式性能门禁
   inference-profiling/            # trace 采集、热点归因与优化后复查
   inference-optimization-planning/  # 多轮实验归纳与下一阶段优先级重排
-  key-operator-analysis/          # profiler 收敛后的关键算子分析
+  key-operator-opt/               # 热点算子优化方法、平台经验与算子地图
 ```
 
 新案例使用 `models/<model>/<platform>/<case-id>/`，同一案例下只准备 `baseline/`、`optimize/` 和 `acceptance/` 三个子目录；平台根部保留导航；案例根部可保留 `README.md`。已有三层模型记录按旧布局兼容读取，不自动迁移活跃任务。Host、设备拓扑或 anchor baseline 改变时创建新 case-id，不复用旧案例的当前状态。三个目录统一采用结构化记录和 Markdown 两类长期文档：`state.yml` 是供 Agent 读取和更新的结构化事实主记录；各目录的 `README.md` 是供人查看的阶段总览；`optimize/<experiment-id>.md` 是每个优化点的人类可读独立记录。详细字段和迁移规则见 [模型产物契约](docs/model-artifact-contract.md)。
@@ -365,7 +365,9 @@ skills/                  # 项目级可复用技能与按需加载的知识库
 
 ### 案例摘要与知识沉淀
 
-`docs/cases/<case-id>/` 默认只保留 `README.md`；瓶颈分析、单变量实验或多轮结果无法在摘要中清晰表达时，再增加少量专题 Markdown。模型当前状态和实验账本归入 `state.yml`，多轮总览归入 `optimize/README.md`，每个优化点的方向、内容与效果归入对应的 `optimize/<experiment-id>.md`；案例中只保留能形成复用经验的结论和证据链接，不复制逐轮实验正文，也不得在模型目录另建 `history/`。
+`docs/cases/<case-id>/` 默认只保留 `README.md`。有独立查阅价值的跨实验专题可由摘要链接。模型当前状态和实验账本归入 `state.yml`，多轮总览归入 `optimize/README.md`，每个优化点的方向、内容与效果归入对应的 `optimize/<experiment-id>.md`；案例中只保留能形成复用经验的结论和证据链接，不复制逐轮实验正文，也不得在模型目录另建 `history/`。
+
+按[案例模板](docs/cases/TEMPLATE.md)写目标、结论、适用边界和主记录链接。[总索引](docs/cases/README.md)按平台每案一行，写案例日期、模型和检索主题。逐轮进展更新模型实验主记录，改变案例结论时再更新案例摘要。跨案例方法更新已有的优化模式或 SOP；平台算子经验更新 `key-operator-opt` 中对应的平台条目。
 
 一次性的 `install-*`、`run-*`、PID/容器状态快照、监控和硬编码远端修复脚本，在结论提取后不长期保存。确实承担复现、正确性或结果校验作用的代码，参数化后提升到 `test/`、`evaluation/`、`scripts/`、`benchmarks/` 或 `unit_tests/` 的相应公共工具目录；只适用于一次执行的文件留在远程 case 产物目录，不进入 `models/`。
 
@@ -377,7 +379,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
 - `optimization-map.md` 保存会改变后续行动的触发信号、适用条件、首个实验、反例和停止条件。
 - 稳定 `README.md` 只在语义、实现模型或跨案例瓶颈理解发生变化时更新，不按日期追加完整案例。
 
-具体方法见 [案例到知识的沉淀规则](skills/key-operator-analysis/references/case-to-knowledge.md)。
+具体方法见 [案例到知识的沉淀规则](skills/key-operator-opt/references/case-to-knowledge.md)。
 
 ## 12. 实验记录
 

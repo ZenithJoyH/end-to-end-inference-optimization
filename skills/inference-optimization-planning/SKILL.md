@@ -25,7 +25,7 @@ Read only the current case and linked artifacts:
 - task/experiment contract, frozen scenario catalog, baseline summary, and current service/source identity;
 - every experiment since the previous planning review, including retained, reverted, failed, incomplete, and negative results;
 - no-profiler performance results from `$inference-performance-evaluation`;
-- trace conclusions from `$inference-profiling`, correctness/accuracy status from `$inference-accuracy-evaluation`, unresolved or resolved incidents from `$inference-accuracy-diagnosis`, and operator findings from `$key-operator-analysis` when they were actually invoked;
+- trace conclusions from `$inference-profiling`, correctness/accuracy status from `$inference-accuracy-evaluation`, unresolved or resolved incidents from `$inference-accuracy-diagnosis`, and operator findings from `$key-operator-opt` when they were actually invoked;
 - current patches/configuration, dependencies between changes, and the active optimization objective and constraints;
 - relevant prior cases from `docs/cases/README.md` and bounded candidate patterns from `docs/optimization-patterns.md` only when their model, platform, shapes, execution mode, and revision are comparable.
 

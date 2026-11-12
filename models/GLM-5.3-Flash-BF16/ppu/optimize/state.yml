@@ -2394,7 +2394,7 @@ pr454_public_path_50:
           not_supported: index_operator_root_cause_or_FP8_numeric_bug_or_TileLang_cause_or_PPU_hardware_defect
         production_after: {same_instance_sources_argv_environment_weights_tokenizer_DB_thead: true, health: 200, idle: true, model_requests: 0, installed_changes: 0, service_restarts: 0, monitor: foreground_completed_heartbeat_remains_paused}
         proposed_fix_not_applied: builder_owned_capacity_stable_tail_slot_buffer_in_place_updates_before_replay_preserve_invalid_padding_and_capacity_bounds_no_vendor_branch_or_vLLM_patch
-        knowledge_delta: {outcome: refined, prior: capture_and_single_kernel_graph_support_not_enough_for_whole_public_FULL_path, new: external_metadata_requires_keepalive_and_in_place_content_refresh_not_only_new_Python_reference, evidence_level: reproduced, case_card: skills/key-operator-analysis/references/operators/kpool_cache/case-index.md, map: skills/key-operator-analysis/references/operators/kpool_cache/optimization-map.md}
+        knowledge_delta: {outcome: refined, prior: capture_and_single_kernel_graph_support_not_enough_for_whole_public_FULL_path, new: external_metadata_requires_keepalive_and_in_place_content_refresh_not_only_new_Python_reference, evidence_level: reproduced, case_card: skills/key-operator-opt/references/operators/kpool_cache/case-index.md, map: skills/key-operator-opt/references/operators/kpool_cache/optimization-map.md}
       repair06:
         status: CPU_dynamic_graph_and_actual_C8_passed_whole_minimal_failed_new_P16385_RPC_exact_original_restored
         timeout07:

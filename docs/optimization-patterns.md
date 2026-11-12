@@ -82,6 +82,7 @@
 | 以真实 stride 传递 view，避免按 cache 容量物化连续副本 | `observation` | 下游实现支持该 layout，最内维连续且非兼容情况有明确 fallback |
 | 按最大中间张量字节预算推导 Prefill chunk | `observation` | 中间张量是已证实的内存/调度瓶颈，预算包含并发与 graph 所需余量 |
 | 利用目标平台 FlagTree/Triton 特性定向优化热点算子 | 用户指定候选，待测 | 具体 TLE 原语、布局或流水线能力已在目标版本核实，收益机制与生产 shape 匹配，guard/fallback 完整 |
+| 修改优化容器私有 FlagTree 的代码生成 | 用户指定候选，待测 | IR 或设备代码指向具体冗余；固定算子和厂商工具链，对照原构建、候选与回退，复测命中同一编译规则的其他 kernel |
 
 ## 案例驱动的首个实验卡
 

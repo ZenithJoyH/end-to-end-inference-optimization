@@ -3514,8 +3514,8 @@ experiments:
       kernel algorithm or allocator.
     scope: MetaX C550 current private FlagGems8200f71f+patch/FlagTree317a0249, tested layouts and P32 only; no new fullGPQA/four-scenario
       acceptance
-    case_card: skills/key-operator-analysis/references/operators/indexer_topk/case-index.md
-    map: skills/key-operator-analysis/references/operators/indexer_topk/optimization-map.md
+    case_card: skills/key-operator-opt/references/operators/indexer_topk/case-index.md
+    map: skills/key-operator-opt/references/operators/indexer_topk/optimization-map.md
     sop_change: none; single-platform evidence stays bounded
   restoration_commands:
     restored-extra-graph-replay.py:

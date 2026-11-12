@@ -4244,8 +4244,8 @@ experiments:
     new: Verify actual table scope, nearest/exact M and tuned/default fast-path boolean before judging semantic
       equivalence; stage-only overrides and full-table replacement are different experiments. Performance effect
       remains open.
-    card: skills/key-operator-analysis/references/operators/fused_moe/case-index.md
-    map: skills/key-operator-analysis/references/operators/fused_moe/optimization-map.md
+    card: skills/key-operator-opt/references/operators/fused_moe/case-index.md
+    map: skills/key-operator-opt/references/operators/fused_moe/optimization-map.md
   evidence:
   - path: /public-flash/jinghao/qwen3-VL/20261015-qwen3vl-metax-p64k-opt3/results/diag014-config-cpu01.json
     sha256: b9b7c1717db15d0c348c1c2ab758ef6e4f0a60fd61a93a22c9651cd27ab0cf34

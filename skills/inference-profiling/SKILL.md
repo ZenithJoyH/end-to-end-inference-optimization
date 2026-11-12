@@ -22,7 +22,7 @@ When a request includes both collection and analysis, run `capture` followed by 
 - Read the `Profiling 与 SGLang 诊断` section of `evaluation/performance/README.md` for maintained commands, result semantics, and current tool limitations.
 - Read the active case and experiment contract for scenario IDs, service identity, external artifact directory, and the bottleneck question.
 - If container/service preparation is required, read `docs/container-isolation.md` before changing the optimization environment.
-- After analysis converges to a specific operator, dispatch, layout, or adjacent fusion path, invoke `$key-operator-analysis`; do not preload the whole operator knowledge base.
+- After analysis converges to a specific operator, dispatch, layout, or adjacent fusion path, invoke `$key-operator-opt`; do not preload the whole operator knowledge base.
 
 ## Establish the diagnostic contract
 

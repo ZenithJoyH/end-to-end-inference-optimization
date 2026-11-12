@@ -12,13 +12,13 @@
 
 ### Case index：算子证据账本
 
-位置：`skills/key-operator-analysis/references/operators/<operator>/case-index.md`。
+位置：`skills/key-operator-opt/references/operators/<operator>/case-index.md`。
 
 每个实际案例只保留一张结构化证据卡，用于快速判断当前场景是否与历史案例相似，并可反向链接到完整证据。成功、负优化、未命中、精度失败和未证实实验都应保留。
 
 ### Optimization map：可执行理解
 
-位置：`skills/key-operator-analysis/references/operators/<operator>/optimization-map.md`。
+位置：`skills/key-operator-opt/references/operators/<operator>/optimization-map.md`。
 
 把一个或多个证据卡提炼成未来决策：看到什么信号、先检查什么、什么条件下尝试哪类方案、何时停止、哪些解释已被反例否定。这里不是性能排行榜，也不保存完整实验流水账。
 

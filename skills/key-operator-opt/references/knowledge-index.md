@@ -7,6 +7,10 @@
 - [operator-analysis-method.md](operator-analysis-method.md)：定义、理论性能建模、源码到 Kernel 的调用链、benchmark、profiling、优化验证与报告规范。新算子或完整分析任务优先阅读。
 - [case-to-knowledge.md](case-to-knowledge.md)：实际端到端案例结束后，将完整案例提炼为算子证据卡、优化地图和稳定理解的规则。关闭算子优化案例时必须阅读。
 
+## 平台经验
+
+- [沐曦 MetaX](platforms/metax.md) 汇总 C550 案例中的短上下文 Indexer、MoE 配置命中、Attention 分片、ATen 派发、布局、整数位宽和请求期选参。按现场症状选一项，再查对应算子的证据和适用边界。
+
 ## mHC
 
 TP通信首差异定位另见[TP allreduce限域证据卡](operators/tp_allreduce/case-index.md)：Qwen3.8-Flash-Next/PPU TP8 BF16完整目标行在归约前相同、归约后不同；不与下列Sinkhorn mHC性能案例混用，不把FP64单次舍入reference差异直接称通信bug。
