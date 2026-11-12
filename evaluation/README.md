@@ -2,6 +2,8 @@
 
 正式流程和例外边界由 [SOP](../docs/performance-optimization-sop.md) 管理。配置字段、可比性和记录格式见 [实验契约](../docs/experiment-contract.md)。本页维护实际命令，不重复定义验收政策。
 
+本目录说明中的“执行者”和 Skill 执行步骤，按 [AGENTS.md 第 5.5 节](../AGENTS.md#55-主-agent-协调与-dsh-headless-执行)及 [Skills 项目契约](../docs/skills-project-contract.md#skill-方法与执行归属)分配：具体取证、配置准备、回归、评测、profiling 和统计必须委派给执行子 Agent；主 Agent 负责契约、协调、证据复核和验收，直接操作仅限明确例外。命令示例不扩大执行权限；人工产物仍按同一原生入口验证和复用，身份、安全与验收要求不变。
+
 端到端优化任务通过 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 选择 baseline sanity、最小回归、正式 gate 或 gate check 模式；该 Skill 调用本页工具和命令，本页仍是实际执行接口的唯一维护位置。
 
 当 Skill 实际启动 baseline sanity、最小回归或正式精度进程时，它会先创建绑定当前 Codex 任务的 heartbeat，默认每 30 分钟通知一次可验证进展，并在完成、失败、取消或提前停止后停用。`gate-check` 只核验证据，不创建监控；automation ID、实际频率和清理证据写入实验记录。

@@ -2,6 +2,8 @@
 
 面向**已经完成适配的模型推理服务**，由 Agent 协同完成运行事实核验、性能基线、瓶颈定位、单变量优化、正确性回归和结果归档。
 
+主 Agent 主要负责规划、协调和验收；除 [AGENTS.md 第 5.5 节](AGENTS.md#55-主-agent-协调与-dsh-headless-执行)列明的直接执行例外外，可独立交付的分析、实现和测试必须委派给执行子 Agent。远端默认使用对应目标机器的 `dsh headless`，按恢复规则回退到内置子 Agent；纯本地任务保持本地委派。执行前分配、例外记录和交接见[执行说明](docs/agent-execution.md#具体执行必须委派)，命令示例不授予主 Agent 额外执行权限。
+
 项目以端到端收益为依据，关注 TTFT、TPOT/ITL、吞吐、尾延迟、显存、稳定性和资源成本。局部 kernel 加速需要在真实服务路径中兑现；最终代码还需符合 `vllm-plugin-FL` 的框架设计，具备多模型、多平台兼容性及后续提交 PR 所需的证据。
 
 本仓库保存独立的控制工具、评测入口、实验记录与知识库。模型权重、实际推理环境和大体积原始产物保留在目标机器或外部存储；运行时不依赖其他本地模型适配工作区。
@@ -14,6 +16,7 @@
 
 - [AGENTS.md](AGENTS.md)：明确 Agent 的职责、授权范围、远端操作边界和必须遵守的约束。
 - [性能优化 SOP](docs/performance-optimization-sop.md)：组织从目标预检、基线、诊断到实验、验收和复盘的完整流程。
+- [Agent 执行说明](docs/agent-execution.md)：具体执行委派、主 Agent 直接执行例外、任务观察、恢复和验收分工。
 
 ### 执行任务：按阶段查阅
 
@@ -146,7 +149,7 @@ TARGET_HOST='YOUR_HOST_ALIAS'
 资源与修改约束：
 ```
 
-开始实际实验前，Agent 阅读 SOP、实验契约并检索相似案例，使用 [案例模板](docs/cases/TEMPLATE.md) 和 [验收模板](evaluation/ACCEPTANCE_TEMPLATE.md) 建立记录。模型身份、业务 workload 或验收门槛不能由 Agent 猜测；信息不足时先形成诊断和候选方案。
+开始实际实验前，主 Agent 阅读 SOP、实验契约并检索相似案例，使用 [案例模板](docs/cases/TEMPLATE.md) 和 [验收模板](evaluation/ACCEPTANCE_TEMPLATE.md) 建立记录，按阶段分配执行工作及验收标准。模型身份、业务 workload 或验收门槛不能由 Agent 猜测；信息不足时先形成诊断和候选方案，其中具体诊断仍按职责分工委派。
 
 ## 从基线到验收
 

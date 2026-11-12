@@ -23,6 +23,19 @@
 - 项目执行顺序和授权边界由 `AGENTS.md`、`docs/performance-optimization-sop.md` 和
   `docs/experiment-contract.md` 维护。
 
+## Skill 方法与执行归属
+
+- Skill 中的“调用”“执行”“分析”和 `run/execute/invoke` 描述方法步骤，不指定由主 Agent 亲自执行。
+  本项目具体执行遵循 [AGENTS.md 第 5.5 节](../AGENTS.md#55-主-agent-协调与-dsh-headless-执行)和
+  [执行说明](agent-execution.md#具体执行必须委派)：除明确例外外，分析、实现和测试必须委派。
+- 主 Agent 选择模式、冻结目标与契约、分配任务并复核原始证据和原生回执。执行子 Agent 必须读取
+  所派任务的本地 Skill 入口及必读引用，按其完整方法执行并交付产物；委派不降低测试或证据要求。
+- 远端默认使用对应目标机器上的 `dsh headless`，按恢复规则回退到内置子 Agent；纯本地任务在本地
+  委派。入口缺失、权限不足或执行器故障不自动允许主 Agent 接管，也不授权安装工具或扩大范围。
+- 规划复盘与最终决策由主 Agent 负责，需要新增源码/trace 分析、统计、代码或实验时另行委派。
+  主 Agent 可按明确例外调用不启动新 workload 的现成校验器；需重跑评测时仍须委派，不改 Skill
+  方法、runner、接口或原生 gate 来适应执行者差异。
+
 ## 运行身份与产物
 
 Host、源适配容器、独立优化容器、模型/权重、tokenizer、engine、Plugin、FlagGems-vllm、FlagGems、设备拓扑、

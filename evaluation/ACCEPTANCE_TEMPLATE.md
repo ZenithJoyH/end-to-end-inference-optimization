@@ -3,6 +3,7 @@
 ## 1. 验收契约（测试前填写）
 
 - 执行规则版本、日期及验收范围（formal/performance_only/diagnostic）：
+- 执行前工作分配（工作单元、执行子 Agent、输入、产物、依赖、预算、成功/停止条件及验收标准；可链接既有记录）：
 - “新模型适配”交付来源模型/案例、只读路径、读取时间、revision/SHA、导入事实及运行时复核：
 - 用户提供的远程工作根目录、本案例子目录及路径/权限/空间检查：
 - 预冻结 contract/config/service manifest 路径与 SHA：
@@ -103,6 +104,7 @@
 
 ## 6. 结论
 
+- 执行子 Agent 已交付/未完成项、主 Agent 直接执行例外及原因/范围、主 Agent 验收结果（可链接既有阶段记录）：
 - 精度门禁：`passed|failed|incomplete`
 - 性能门禁：`passed|failed|incomplete`
 - Plugin 工程复核（如适用）：设计记录、非目标回归、最终补丁复测与未测项：

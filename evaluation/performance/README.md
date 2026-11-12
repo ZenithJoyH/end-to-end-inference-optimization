@@ -195,10 +195,10 @@ vLLM profiling 默认 temperature=0；分析 temperature=1 的目标服务时显
 工具核验原始长度、并发、请求数和 finite-batch 模式；缩短后沿用原 ID 也不能通过。
 中间验收改用 `--lifecycle intermediate-single-target --baseline-kind scenario-entry`
 并指定一个 `--scenario-id`。所有测量通过 `--comparison-contract` 绑定准备好的新契约。
-`prepare` 只准备文件，不判断基线来源真实与否；Agent 仍须核验该 manifest 来自未优化原路径
-或相应场景入口，记录 baseline ID 的来源。工具随后保证 baseline/revert 与冻结身份一致。
+`prepare` 只准备文件，不判断基线来源真实与否；执行子 Agent 必须提供该 manifest 来自未优化原路径
+或相应场景入口的证据并记录 baseline ID 的来源，主 Agent 负责复核。工具随后保证 baseline/revert 与冻结身份一致。
 
-收齐运行后，由 Agent（也可以人工）准备外部 `acceptance-manifest.json`，字段为：
+收齐运行后，由执行子 Agent 准备外部 `acceptance-manifest.json`，主 Agent 复核证据并验收；人工准备的产物按同一原生入口验证和复用。职责及直接执行例外见 [AGENTS.md 第 5.5 节](../../AGENTS.md#55-主-agent-协调与-dsh-headless-执行)。字段为：
 
 - `schema_version: 1`。
 - `contract`：测量前冻结的比较契约，格式 `{"path":"/绝对路径","sha256":"文件SHA256"}`。
