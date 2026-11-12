@@ -112,3 +112,19 @@ refactor-007当前：新增FGV公开ID 8→4，复用4项主线接口；18CPU通
 
 
 2026-11-12 op006/007/008：仅独立回归容器内私有候选。Decode/Prefill复用已有MetaX TLE selector，无新数学kernel/公共名；最终candidate05数值边界30、真实dispatch/graph16、禁用fallback2全部通过，Black/isort/flake8通过。INT8多种launch调优未全shape达到SDK×1.05，全部量化代码已回退原版，mixedNaN参考规则错误及继承的allNaN/subnormal SDK差异完整保留。当前等待最终micro B/C/R审计，模型阶段CPU预检已过但尚未发模型请求；原整改容器与安装源码/服务不动，本数值任务不提交推送。完整结果持续写[op-006](op-006.md)/[op-007](op-007.md)/[op-008](op-008.md)，不得把micro收益当端到端改善。
+
+候选10完成71 native通过/1原生skip、补充82算子tests/37CPU参数合约、真dispatch/graph和B-C-R20shape各3轮；最大B-R漂移3.57%。Decode6/9达到SDK×1.05，另3项仍慢约11%；Prefill1/4达到，余3项仍慢8–52%但优于baseline1.50–2.52倍。量化全部改动撤回，不称三个算子均追平SDK。tile256/1024两反例保留且恢复10，完整源SHA20b74f...。模型仍0请求，model04/commands05 CPU预检中，旧model01/02/03未启动不复用。原整改容器及本轮PR未改。
+
+PR CI侧线见[refactor-014.md](refactor-014.md)：#1145环境依赖下载超时，未执行算子测试；需上游Actions写权限重跑。与当前私有算子候选独立，无本机GPU或源变化。
+
+规划复盘03：几何11/12两次有结果但均退步，停止tile扫描；保留唯一数学/规范均通过的10，量化无保留改动。Prefill仍有共享scratch内canonical排序/归约成本，Decode full-valid仍约11%SDKgap；未通过真实模型前不叠新算法/编译器改动。phase当前仅micro及历史op005 Mixed证据，新的模型Prefill/Decode/Mixed代理和累计收益须由model04实测补齐，不将26–39倍短Decode micro与其他单点相加。首个证伪为sameFGVsource8rank实际canonical命中+new正式GPQA，任一无效停止BCR；通过才缩减Mixed3角色全轮。model04为相同代码的验证，不是新优化点。
+
+诊断op006-model-long15：model04完成22请求，20短/C8正确，两个长prompt(3618/14370tokens)均output2048/finishlength/contentempty，非OOM。未进入GPQA/性能；原结果保留且自身服务已精确清理。调用accuracy-diagnosis，required minimal失败阻止晋级；不通过加max_tokens/删case/改判断追通过。新外部diagnosis15，same源码/ON/.85/TP8/graph/22精确请求/seed1234/temp0/max2048，baseline→candidate各fresh实例，完整44请求有界复现，允许记录预期断言rc1但不当correctness pass/不跑性能。两侧完整graph/8rank真实path/sourceidentity核验，原整改容器不动。执行前SHA {"diagnosis-coordinate15.py": "3ceb28be949325db6273ec19b27c778ccfc2eaa1ff0e6d82f36077ec0c790355", "diagnosis-supervisor15.py": "2da8049ab0c9c00c629fb0fd4d014e99b4d753384de04ad000e425c2cb19c028", "diagnosis-launch15.py": "627cd7c179423d1c927b692820cde87dae54bc8a380459b3020b96f810de98a3", "diagnosis-stage15-inner.py": "0f79c7957890edf1d9a22c537473bc6ea8d35d53cfbd69319d75a76d3a8137fd"}。
+
+诊断15复现完成：baseline22/22pass，long输出62/54tokens；C再次20pass+2long空输出2048截断，与model04同症状，44请求全保留/图及8rank身份通过/精确清理。不能按预算不足处理，源差异相关已复现但具体prefill/decode/诊断器边界未隔离。下一diagnosis16三角色各fresh22精确请求：先fullC+原无observerPlugin控制，再prefill-only（C common/helper/publicprefill+原Decode）和decode-only（C common/helper/decode+原publicPrefill完整AST）；原candidate/baseline不改，仅新私有包副本，3角色统一原Plugin。66请求仅定位、不跑GPQA/性能，无模型参数/阈值放宽，无新数学kernel。实际8rank CachedOp/source身份/7capture和单FULL>=2分别核验；不以无hook的CachedID替代已取得的C内核证据。执行前SHA {"bisect-coordinate16.py": "0f076ebcb270c279cdc78af5caa8b112035ec25f1add21e16cecd19b0b897dcc", "bisect-supervisor16.py": "3dd29b573120d7fe83575489a700e80a84be22d602d921063fda2c2e77807f94", "bisect-launch16.py": "c2ee0f30bc234d74272e94ebcd8faf81c8af1f6441fecfdc51d4bceb79e36f81", "bisect-stage16-inner.py": "8626764bd327db47d25eb02b9eff507dc16525109bc46b35af7d304c5e98937d"}。
+
+最新模型诊断：原baseline及Decode-only均22/22通过；完整候选与Prefill-only各20/22，两long2048截断空输出。新Prefill路径已隔离为足够触发边界，原语/索引消费机制仍待真实tensor定位，未发新GPQA/性能，不部署。合成实际shape的C8/8数值graph通过并不替代模型正确性；B在额外I64元数据形状出现旧编译类型冲突，单独保留。按新AGENTS5.5核验mx104 dsh入口未发现，已限域回退内置两子Agent（GPU真实tensor/CPU消费者分析），主Agent负责协调/验收。
+
+2026-11-12 Decode PR更新优先：仅授权更新[#1145](https://github.com/flagos-ai/FlagGems-vllm/pull/1145)，精确当前head570da31的五文件最小补丁CPU检查通过，GPU28正在验证，尚未提交推送；保留Draft和全部262K历史慢轮。新Prefill仍未通过模型；baseline捕获22已22/22正确并保存真实[3618,904]/I32元数据，全部自身模型清理、8卡独立核验空闲；离线逐tensor比较排在Decode发布之后，不重复捕获或发GPQA。原整改容器/安装源码/脚本不改。见[refactor-015](refactor-015.md)及[op-008](op-008.md)。
+
+Decode PR[#1145](https://github.com/flagos-ai/FlagGems-vllm/pull/1145)已非force更新到`9dd07431`，两生产文件/五文件最小增量，精确测试树与发布tree一致；仍Draft。29quick/15focused及支持域graph/dispatch/初始化sentinel通过，8继承输出layout失败完整保留；fixed9 B/C/R所有三轮均齐，两口径6/9达到SDK×1.05，fullvalid仍慢10–12%，原full11新33点仍全部慢SDK，全部历史/新慢轮保留，无模型/GPQA/E2E冒称。GPU28清理/8卡idle，原整改容器不动；已开始op008新40min真实tensor离线对照任务，不自动重发模型。见[refactor-015](refactor-015.md)。
