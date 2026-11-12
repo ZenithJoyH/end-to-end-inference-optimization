@@ -1,0 +1,10 @@
+schema_version: 1
+case_id: 20261104-qwen3vl-mx59-topk-topp-pr
+host: mx-59
+source_container: qwen3vl
+source_image: harbor.baai.ac.cn/flagos-inner-models-release/qwen3-vl-metax001-gems5.5.0-tree0.7.0-cxnone-plugin0.2.0-vllm0.24.0-sglangnone-sglangflnone-cp312-pt28-maca37-x64-3.8.1:202610291523
+source_fgv_head: bad340d67a35e583989fcebf56326f60edc85c9c
+source_plugin_head: 08da21cb39601752040196232b60a152382c0f8f
+scope: PR source extraction and component validation
+performance: not_run
+model_accuracy: not_run

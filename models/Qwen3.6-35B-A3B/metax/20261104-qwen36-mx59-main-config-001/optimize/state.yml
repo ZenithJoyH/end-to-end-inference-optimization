@@ -1,0 +1,1254 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen36-mx59-main-config-001
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: image-c4673aea
+  topology: user-specified qwen36-35b; TP2/GPU4/5 service; isolated GPU0 operator compatibility
+stage: optimize
+current:
+  status: PR1069_applied_on_disk_restart_and_GPU_validation_pending
+  candidate: main-profile016dac84-on-image-c467
+  next_action: PR1069 source and Plugin public API bridge applied; existing user benchmark/service left running with old loaded code. User restart required; GPU/operator graph/model accuracy not run for new code. Preserve prior exact-instance GPQA and ERQA as historical evidence.
+experiments:
+- experiment_id: clone-image-issues-20261111-001
+  document: clone-image-issues-20261111-001.md
+  status: completed_clone_reproduced_public_feedback_posted_excel_links_verified
+  reproduction_processes: 8
+  native_and_excluded_passed: 4
+  enabled_and_reenabled_expected_failures: 4
+  confirmed_mechanism: CPU_clone_enters_CUDA_device_guard_without_fallback
+  clone_source_sha256: 1255fcbf5b32a9cb6a10269b64e431fe38a34415e97097e9e0d6d37bb8d034aa
+  verification_sha256: 920c75118375b10c581c57ead09f75d170fe8b9242a9397e0ba84b31c1772c77
+  existing_clone_issue: https://github.com/flagos-ai/FlagGems/issues/8566
+  clone_comment_published: true
+  clone_comment_url: https://github.com/flagos-ai/FlagGems/issues/8566#issuecomment-6811533403
+  topk_issue_published: true
+  topk_issue_url: https://github.com/flagos-ai/FlagGems/issues/8959
+  publication_readback_verified: true
+  disclosure_user_approved_on: '2026-11-12'
+  public_internal_registry_and_host_paths: excluded
+  publication_blocker: resolved_by_explicit_user_approval_of_redacted_drafts
+  workbook_links_verified: true
+  host: mx-59
+  acceptance_scope: diagnostic
+  source_changes: 0
+  service_requests: 0
+- experiment_id: topk-softmax-image-20261111-001
+  document: topk-softmax-image-20261111-001.md
+  status: component_diagnosis_completed_shape_dependent_performance_gap
+  image_id: sha256:a4734ce7758490551c7cb7fed1794df8ccd9417a7356ac351d40bb128930fe65
+  diagnostic_container: qwen36-topk-softmax-mx59-20261111-001
+  gpu: 4
+  numerical_cases_passed: 22
+  changed_input_graph_replays: 2
+  functional_defect_reproduced: false
+  benchmark_m8192_flaggems_over_native: 1.293682691523463
+  benchmark_m64_flaggems_over_native: 0.7886927264062111
+  benchmark_scope: graph_operator_only_no_alloc_compile_or_python_dispatch
+  historical_blacklist_cause: not_established
+  source_changes: 0
+  verification_sha256: 8d23c1352873b0c901f1de68f993a9248a36d5affda808c11b53a8900bc53962
+  host: mx-59
+  acceptance_scope: diagnostic
+  requested_image_tag: 202611091810
+  service_requests: 0
+  full_model_accuracy: not_run
+- experiment_id: sampler-pr1069-align-20261106-001
+  document: sampler-pr1069-align-20261106-001.md
+  status: applied_CPU_import_verified_GPU_tests_not_run
+  latest_alignment_check: 2026-11-09
+  latest_public_head_unchanged: true
+  latest_alignment_files_checked: 11
+  latest_alignment_matches: true
+  latest_alignment_source_changes: 0
+  latest_alignment_report_sha256: 1bae27e7d51f9059250a1e588e3c29a1b6ae1e0d9f25484b604e3571f408c088
+  public_api: flaggems_vllm.top_k_top_p
+  backend_sha256: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+  protected_file_count_before: 7328
+  unrelated_sources_unchanged: true
+  GPU_validation: not_run_existing_user_benchmark_active
+  model_requests: 0
+  service_restarted: false
+  upstream_head: 039f03ed143914ec3a80a21394bf732118a13cf2
+  host: mx-59
+  container: qwen36-35b
+  restart_authorized_by_this_task: false
+- experiment_id: gpqa-kv-revert-c64-20261106-001
+  document: gpqa-kv-revert-c64-20261106-001.md
+  status: independently_verified_passed_terminal_review_complete
+  run_id: 936cf5368dea42c1b4328ac06970f385
+  start_observation_sha256: 966703b6cba9b0a0bcbc0786de2be5fb37cdd866da5b2162dafc85588836c002
+  native_initializations: 1
+  response_cache_hits_at_start: 0
+  current_score: 0.8888888888888888
+  current_native_correct: 176
+  historical_strict_correct: 165
+  historical_strict_score: 0.8333333333333334
+  independent_sha256: 0ad60eacfafe8ca0abb8850f100f79a1025501d3435d2b2d78b0385b3819b326
+  gate_sha256: 75fbdb2acec170c04d2c41e827040236e3af362eee384a314ee7d1c9b437ed66
+  terminal_review_sha256: 10ff76724f1041cd18ce4385cf93b9f04c45c5b5678fd41b771f30d8757983c7
+  native_exit_code: 0
+  controller_exit_code: 0
+  output_health: 194stop_4length_0empty_0timeout
+  OOM_observed: false
+  latest_observation_sha256: faa6750e44e8dc558f10eb4e903fe694e073f83bb93c7fc531d7c658c79db550
+  observed_native_response_count: 198
+  observed_scheduler_running: 0
+  observed_scheduler_waiting: 0
+  observation_scope: full198_396filters_native_independent_terminal_review
+  automation_id: qwen35-mx59-kv-revert-gpqa-c64
+  monitor_status: DELETED
+  monitor_interval_minutes: 30
+  execution_plan_sha256: 3f666025f2078fdb62c2fc12e88aef18ec07b6aff16dde6f4798e74cb3d3a049
+  start_command_sha256: 61b2d6b4976056bf0564250f0e7b134b686543ce28055b4a8dfe97ec01c3be77
+  supervisor_launch_sha256: 3a9bbf8d713a8a27350f929d71dfbed46569a1863539b6fc92930d751f8e72ad
+  controller_sha256: d31342905dcf7853caabfeb40dae38e34e7862c32d497c74ebdf396d9d39aab6
+  skill: inference-accuracy-evaluation
+  mode: formal-gate
+  concurrency: 64
+  expected_samples: 198
+  threshold: 0.75
+  host: mx-59
+  container: qwen36-35b
+  service_parameters_change: false
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/gpqa-kv-revert-c64-20261106-001
+- experiment_id: erqa-kv-revert-default-c64-20261106-001
+  document: erqa-kv-revert-default-c64-20261106-001.md
+  status: verified_complete_terminal_review_passed
+  execution_plan_sha256: 1c1cece05cf52177b12743e3c5d10fa52c5069147ac4f5324b10c393bde12828
+  controller_sha256: 313d3bdbbc08d2598561c515c1f3e0f8ad52fb943403e46b3fa44da255fce618
+  start_observation_sha256: 5a965acab24a7ee4059b7543758d801a3cde8d7f6434c20d3918c1220628fb75
+  latest_observation_sha256: 82dd8df9c2d1a7f84bc730571770d4d4a36a6daa8fb457c07010ccede86391c7
+  observed_completed: 400
+  observed_failed: 0
+  observed_send_intents: 400
+  observation_scope: full400_native_independent_and_terminal_fresh_verified
+  correct: 245
+  accuracy: 0.6125
+  timeouts: 0
+  length_empty_final_scored_wrong: 2
+  OOM_observed: false
+  contiguous_telemetry_chunks: 99
+  independent_sha256: 3fa8c876328ec996ad45bec1861657d5aad59c788a21b1dd81f581deb71905bc
+  terminal_review_sha256: ca244767d6efcc7ba11c9cb6dc9c0babb174f1a3e0f86d0beedc361e4d24a5b1
+  comparison_is_single_variable_KV_causal_proof: false
+  automation_id: qwen35-mx59-kv-revert-erqa-c64
+  monitor_status: DELETED
+  monitor_interval_minutes: 30
+  host: mx-59
+  container: qwen36-35b
+  scope: ERQA400_default_sampling_thinking65536_C64_after_KV_revert
+  service_parameters_change: false
+  threshold: null
+  retries: 0
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/erqa-kv-revert-default-c64-20261106-001
+- experiment_id: kv-budget-revert-20261106-001
+  document: kv-budget-revert-20261106-001.md
+  status: completed_disk_revert_no_service_restart
+  host: mx-59
+  container: qwen36-35b
+  scope: revert_PR702_worker_and_archive_helper_tests
+  command_sha256: fc66af7d373c685b9f16c9087d19413b73542e6a02ef410f152749eb24562aa2
+  result_sha256: cb5c48f3cecfe7440e280f48c3104d7c8586a9e9277b83a93397bf4d4d611267
+  worker_sha256: 51a168eae6dbe45b3598eefb1dba7fb5ce6bfb9344ffe3ec5d9df4d725cd2bc5
+  other_scanned_python_files_unchanged: 4164
+  restart: false
+  new_model_requests: 0
+- experiment_id: gdn-lazy-revert-20261106-001
+  document: gdn-lazy-revert-20261106-001.md
+  status: completed_disk_revert_no_service_restart
+  host: mx-59
+  container: qwen36-35b
+  scope: restore_original_GDN_import_timing_only
+  command_sha256: 12a86ed123c72cd5fdd543c56e56f5a4d22ef2acd7732a395dd6eca5acab5d96
+  result_sha256: bb72b1b87ee2690c78b90b01e84f778ff509be5d431b2de5bf62b942f7b103a3
+  actual_base_commit: 1bc0c775ffbdf4a0b0e2efb5e847d586e902273f
+  changed_files: 2
+  other_scanned_python_files_unchanged: 4165
+  restart: false
+  new_model_requests: 0
+- experiment_id: kv-budget-user-container-audit-20261106-001
+  document: kv-budget-user-container-audit-20261106-001.md
+  status: readonly_complete_unpatched_startup_passed_initial_occupancy_unquantified
+  host: mx-59
+  container: vllm0202-fl-release02-20261106
+  source_budget_omission_present: true
+  patch_required_for_observed_normal_startup: false
+  current_initial_non_torch_bytes: null
+  current_oom_reproduced: false
+  new_model_requests: 0
+  service_or_PR_changes: false
+  evidence_sha256: 90ba0316b146c1c3c7238ef4502fbd8b7fd7765aae53e7de55517d68ea8c8090
+- experiment_id: gdn-user-container-audit-20261106-001
+  document: gdn-user-container-audit-20261106-001.md
+  status: complete_import_order_dependent_failure_confirmed
+  host: mx-59
+  container: vllm0202-fl-release02-20261106
+  base_commit: 6e11d0ab687247fdf4347a52788ec4f2baf57c79
+  mode: finite_fresh_real_imports_no_source_replacement_no_model
+  normal_cli_bootstrap_and_gdn_registration: passed
+  layernorm_first: caught_RMSNormGated_cycle_gdn_unregistered_at_return
+  sampler_first: caught_rocm_aiter_ops_cycle_gdn_unregistered_at_return
+  service_or_PR_changes: false
+  new_model_requests: 0
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/gdn-user-container-audit-20261106-001
+  command_sha256: 062c4d64567a89ccb5ce106ea57dc2214b25b46dddd86bcdbe03066429b7c33d
+  result_sha256: d7f09bce38571ceea136b35e1d8fa729e3ccde3961cb196b2597564fd249a69c
+  service_identity_and_1933_python_sources_unchanged: true
+- experiment_id: cross-platform-pr-audit-001
+  document: cross-platform-pr-audit-001.md
+  status: source_and_cpu_control_flow_audit_complete
+  mode: readonly_cross_platform_PR699_PR702_review
+  base_commit: 6e11d0ab687247fdf4347a52788ec4f2baf57c79
+  pr699_head: d2ce43f6fd7133f321b6abd033a0159552df498e
+  pr702_head: 42b27b3ed5f2259e2a3a1d5f2a5163b5d283d3c6
+  artifacts: cross-platform-pr-audit-001/report.json
+  worker_branch_cases: 22
+  post_warmup_hint_cases: 18
+  injected_import_failure_cases: 3
+  new_model_requests: 0
+  service_or_PR_changes: false
+  conclusion: Generic Worker paths omit positive initial non-Torch occupancy; Sunrise allocator correction still excludes its baseline. Ascend automatic and TXDA fixed budgets are separate. MUSA/GCU/Sunrise partial import failure latches reproduced with CPU fault injection; actual non-MetaX circular imports and OOM not device-validated.
+- experiment_id: erqa-default-sampling-c64-20261106-001
+  document: erqa-default-sampling-c64-20261106-001.md
+  status: single_full400_independently_verified_236_correct_59percent
+  host: mx-59
+  container: qwen36-35b
+  mode: user_requested_official_ERQA_full400_auxiliary_no_GPQA_gate
+  expected_count: 400
+  concurrency: 64
+  thinking: true
+  max_tokens: 65536
+  sampling_source: fresh_current_model_generation_config_not_modelcard_presence_preset
+  expected_temperature: 1.0
+  expected_top_p: 0.95
+  expected_top_k: 20
+  new_model_requests_started: true
+  service_source_launch_changes_authorized: false
+  threshold: null
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/erqa-default-sampling-c64-20261106-001
+  preflight_sha256: d0b207e8e34352b18e6f199138b2e93564f0fd3b0e60008238097549d9fc7cfe
+  input_manifest_sha256: e2a72f9f64e3cf7dbce2a930259957ef815ee596e2c76569a52425e5f5171e22
+  controller_sha256: 5c0216f8d7d8b5f63ed34957eb5684f9324a7ae0da69a02e2250141bfe4a08e7
+  runner_sha256: 94c091ce1cfa4a8c952ea8283add183bf721599140e1822edd4e622fb6dc352f
+  independent_sha256: 215d6196e1b2d98cd632737ef43a79037abacccac2d2cfb56ff6506849731d28
+  service_api_pid: 661469
+  service_api_start_ticks: 680527657
+  source_digest: 85cc6c3abe98a2e38292a1f5c4e4162bdce4f1cc0e0de18ce82b1278e3d814d5
+  execution_plan_sha256: 1641f7591edca4e6bb33c559791ec5220c87f6a4b75746afc8f658179eed4a80
+  execution_command_sha256: 4967fdc628548d6559ec9cde877574bf0385e30afd06649b8a3a15a3a45877d0
+  starter_sha256: 5858d0b52f19cb174df49a2c4f1db14faa776bff43fa311ecf5973e4bc21dd8d
+  supervisor_launch_sha256: e7deeb8310fbac59b042fb1685ea912f747b8a77acdb9336f89c3950b1fb8a4c
+  host_controller_pid: 516508
+  host_controller_start_ticks: 686197637
+  host_supervisor_pid: 516507
+  host_supervisor_start_ticks: 686197634
+  eval_pid: 6987
+  eval_start_ticks: 686198183
+  eval_pgid: 6987
+  evaluator_container_id: d833ef21e976ba3cd3244f9fcf948941936a36fd5097e06988fcb91f94739f62
+  start_observation_sha256: 5c05d8a323a509cafdbc36443d55d8b3c7111f3f1091f50c19dc9179f95ee182
+  send_intents_at_snapshot: 400
+  completed_at_snapshot: 400
+  failed_at_snapshot: 0
+  snapshot_time_unix: 1793922468.8055575
+  current_accuracy: 0.59
+  automation_id: qwen35-mx59-erqa-default-c64
+  monitor_interval_minutes: 30
+  monitor_status: deleted_after_independent_terminal_review
+  previous_qualification_reused_same_exact_instance: true
+  new_qualification_requests: 0
+  native_exit: 0
+  controller_native_exit: 0
+  correct: 236
+  HTTP200: 400
+  timeouts: 0
+  finish_stop: 397
+  finish_length: 3
+  missing_final: 3
+  empty_scoring_text: 3
+  client_HTTP_inflight_peak: 64
+  unique_wire_attempts: true
+  all400wire_default_sampling_verified: true
+  independent_verification_sha256: f54bdd59d7d9d54fd75ffe21459a4dc7fb9a2820df0fad86338cad24253a7335
+  native_result_sha256: e3134f458cf5f509e985381dedbdc6eeed141bda180d6c8297f8083257b0df19
+  controller_result_sha256: efcb62e682c881979cf5e5db988dea16be667042f1f4e3c62cab4444d501d24c
+  final_summary_sha256: 17cce7f189723c888960d4ecfe8aa7d92e40215e2fc98b0abfa48c618071666b
+  terminal_review_sha256: f6ef5f89dd04e584a038f33d7ecbed2a0034594664ff3d08e9760615d2ba3692
+  terminal_review_command_sha256: 44fad71b951ec45f0390afcf72b7dca24de1c677deb92d3cfdb7b92da38cebe5
+  terminal_fresh_manifest_sha256: 051cdfd25853eb7759cb46e71da0e314cc4abd1c2c95d5f862aa4cd8ebd5523b
+  heartbeat_observation_sha256: 42c5eccc9ecfb5b41d58aa76430793c1bff3ebec9ebf4b2adbcf0669c6159a90
+  previous_three_phase_score: 0.525
+  observed_difference_correct: 26
+  observed_difference_percentage_points: 6.5
+  previous_length: 50
+  comparison_not_isolated_causal_gain: true
+  service_source_launch_stable_before_after_current_fresh: true
+  new_GPQA_gate: false
+- experiment_id: erqa-quality-20261105-001
+  document: erqa-quality-20261105-001.md
+  status: offline_diagnosis_complete_direct_losses_confirmed_component_cause_unconfirmed
+  mode: inference-accuracy-diagnosis
+  classification:
+  - historical72_subset_comparison_not_full400
+  - repeated_reasoning_budget_exhaustion
+  - 140_normal_final_wrong_letters
+  gate_blocking: false
+  new_generation_authorized: false
+  service_source_config_changes_authorized: false
+  current_ERQA_correct: 210
+  current_ERQA_count: 400
+  current_ERQA_three_phase_score: 0.525
+  known_previous_complete_ERQA_correct: 190
+  known_previous_complete_ERQA_count: 400
+  known_previous_protocol: thinkingFalse/max300/C32 on mx104 opt4; not matched current thinkingTrue/max65536/C64+subset
+    phases
+  root_cause_confidence:
+    direct_output_failure: confirmed
+    greedy_thinking_protocol_trigger: suspected_not_single_variable_verified
+    component_numerical_regression: unconfirmed
+  remote_analysis_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy-diagnosis/erqa-quality-20261105-001
+  new_model_requests: 0
+  current_final_correct: 210
+  current_final_wrong_letter: 140
+  current_length_missing_final: 50
+  current_format_correct_letter_rejected: 0
+  length_with_repeated_longline_atleast3: 49
+  old_thinking_completed_subset: 72
+  old_thinking_subset_correct: 59
+  current_same72_correct: 58
+  old_thinking_full400_score: null
+  official_score_changed: false
+  current_gate_revoked: false
+  evidence:
+    '001':
+      path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy-diagnosis/erqa-quality-20261105-001/analysis-001.json
+      sha256: 444a9fa1e51ca12c6ac91cfcdf0972a610c4e5ba29b8bb19b71af81085f74ecb
+    '002':
+      path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy-diagnosis/erqa-quality-20261105-001/analysis-002.json
+      sha256: 500d900c10a830f821ae9d951d9474a80317b136e786169b697fd23242ca2ca4
+    '003':
+      path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy-diagnosis/erqa-quality-20261105-001/analysis-003.json
+      sha256: d5be21a43d9f9133cbf7a8b62c69fbb3c99f58b4c2a6fb20385bf19458be319e
+  next_action: Obtain intended higher reference if different; matched fixed small-request sampling/repetition controls
+    before any fullrun or component bisection; no new traffic started.
+- experiment_id: erqa-timeout29-20261105-001
+  document: erqa-timeout29-20261105-001.md
+  status: independently_verified_retry29_complete_aggregated400_210_correct
+  automation_id: qwen35-mx59-erqa-timeout29
+  monitor_interval_minutes: 30
+  monitor_status: deleted_after_independent_terminal_review
+  eval_client_pid: 4878
+  eval_client_start_ticks: 682772362
+  new_send_intents_at_snapshot: 29
+  new_completed_at_snapshot: 29
+  new_failed_at_snapshot: 0
+  heartbeat_observation_sha256: 5be270595c9ad2c7c1079935e0dce9c1b481ede7616f9d6afb4045e8b3c86d2a
+  heartbeat_observation_command_sha256: 407aa78684927e15e72e7e33e6b3f56142e67bdaa04631a544f1df92e1bec44b
+  scheduler_running_at_snapshot: 0
+  scheduler_waiting_at_snapshot: 0
+  heartbeat_observation_outcome: complete_terminal_verified_monitor_deleted
+  host: mx-59
+  container: qwen36-35b
+  max_new_generation_requests: 29
+  doc_ids:
+  - 197
+  - 211
+  - 212
+  - 219
+  - 239
+  - 241
+  - 243
+  - 244
+  - 254
+  - 262
+  - 269
+  - 272
+  - 273
+  - 284
+  - 296
+  - 307
+  - 317
+  - 324
+  - 325
+  - 330
+  - 339
+  - 341
+  - 342
+  - 344
+  - 345
+  - 347
+  - 353
+  - 356
+  - 365
+  controller_sha256: 41b7f4b2a08aabb1d82ff9154ee349a0878f20acf1ba44a0475ebcfa03a2b16e
+  execution_plan_sha256: ac4282f66e49a3f471e807c14e65a86bb6c4a5432a027b8ae96f98b6efec5d46
+  supervisor_launch_sha256: 7f5d56e0fb44039008aea6078aef68ae4a86df997cdf89beba5a4b0aa1ef57e5
+  selection: original_failed_doc_ids_only
+  per_doc_new_attempts: 1
+  prior371_rerun_authorized: false
+  service_source_config_changes_authorized: false
+  thinking: true
+  max_tokens: 65536
+  concurrency_limit: 64
+  effective_max_inflight: 29
+  prior_successful_response_documents: 371
+  prior_correct: 205
+  aggregation: three_phase400_coverage_no_single_native_fullrun_claim
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/user-gpqa-erqa-c64-20261105-001/erqa/timeout29-retry-001
+  native_exit: 0
+  controller_native_exit: 0
+  new_correct: 5
+  new_incorrect: 24
+  new_length65536_empty_final: 18
+  new_finish_stop: 11
+  combined_successful_response_documents: 400
+  combined_correct: 210
+  combined_accuracy: 0.525
+  still_without_response: 0
+  official_single_run_full400_accuracy: null
+  new_gate_issued: false
+  independent_verification_sha256: 112c2e43dca4508953641d899910449cf510ea06da2ad83241a1b6ed90428a84
+  final_summary_sha256: 8155cdb391f7f73d13b91951c99d0423eb27657229f533b4f3e7fffce048afb4
+  terminal_review_sha256: dcb8dc4eb1d5ef49291fc84e840e6696ae2d410717ac5816882d2fc7c7a7f753
+  service_fresh_sha256: 44fabb0c38c0f771fe48179e0af897098abf0934af8cd654515934a473e87c42
+- experiment_id: erqa-unsubmitted7-20261105-001
+  document: erqa-unsubmitted7-20261105-001.md
+  status: independently_verified_seven_complete_four_correct
+  automation_id: qwen35-mx59-erqa-seven
+  monitor_interval_minutes: 30
+  monitor_status: deleted_after_seven_independent_completion
+  host: mx-59
+  container: qwen36-35b
+  doc_ids:
+  - 393
+  - 394
+  - 395
+  - 396
+  - 397
+  - 398
+  - 399
+  max_new_generation_requests: 7
+  controller_sha256: 674646d780e204b28c739257d57fd982c5eb40ea7ee79358ee71f98e7d08bff5
+  execution_plan_sha256: 31add89de38130b6d8bfe3ae7150d5f4586730f9967a3cc5a471637403e13233
+  supervisor_launch_sha256: 6de5158a29112a845d2e9a8120bd0b7f83c2b90f7c91abb09511d4a130cee9e6
+  new_send_intents_at_snapshot: 7
+  new_completed_at_snapshot: 7
+  new_failed_at_snapshot: 0
+  native_exit: 0
+  controller_native_exit: 0
+  new_correct: 4
+  new_incorrect: 3
+  new_score: 0.5714285714285714
+  combined_successful_response_documents: 371
+  combined_correct: 205
+  original_timeouts_retained: 29
+  combined_score_over_successful_response_documents: 0.5525606469002695
+  diagnostic_points_over400_with_timeouts_zero: 0.5125
+  independent_verification_sha256: 06edccb622734781e44392103150ed36f1a7dd56edab8f76492bb1c6a5d36873
+  final_summary_sha256: 3c3f8d304f707d894bb54d66fe06f39358fd849330a3770713a018ce3c07f3de
+  service_fresh_sha256: 5fced8a4ea6a406b4d164a365fec5dd861b9f8dee63cc8166c3c2e490010d075
+  old29_timeout_retry_authorized: false
+  service_source_config_changes_authorized: false
+  thinking: true
+  max_tokens: 65536
+  concurrency_limit: 64
+  effective_max_inflight: 7
+  original_partial_correct: 201
+  original_partial_completed: 364
+  formal_full400_accuracy: null
+  aggregation: diagnostic_observed_points_over400_with_missing_zero_not_native_full_run
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/user-gpqa-erqa-c64-20261105-001/erqa/unsubmitted7-001
+- experiment_id: user-gpqa-erqa-c64-20261105-001
+  document: user-gpqa-erqa-c64-20261105-001.md
+  status: attempts_terminal_GPQA_pass_ERQA_incomplete_no_rerun
+  host: mx-59
+  container: qwen36-35b
+  mode: formal-gate_GPQA_and_official_ERQA
+  gpqa_concurrency: 64
+  gpqa_samples: 198
+  gpqa_run_id: ee704bf6b2cb450c9a8c39c433bd718c
+  gpqa_eval_wrapper_pid: 973
+  gpqa_eval_wrapper_start_ticks: 680785479
+  initial_scheduler_observation: running64_waiting0_not_device_shape
+  last_heartbeat_observation_sha256: eb23ddad39d8602ebe13519800dcd3365d3176b64cd5c9dd0525ee3ddb0a230d
+  last_heartbeat_outcome: ERQA_native_exit2_partial_independently_verified_client_exited_queue0
+  latest_observed_gpqa_completed: 198
+  latest_observed_gpqa_timeouts: 0
+  latest_observed_gpqa_time_utc: 2026-11-05 09:46:40+00:00
+  gpqa_threshold: 0.75
+  gpqa_native_correct: 168
+  gpqa_native_score: 0.8484848484848485
+  gpqa_historical_strict_offline_correct: 160
+  gpqa_historical_strict_offline_score: 0.8080808080808081
+  gpqa_strict_extraction_rule_flip_count: 8
+  gpqa_independent_verification_sha256: 9139f804217cb7afd897b5bcef073c128df0f3cd946aa45d64d5a035a7cf50bc
+  gpqa_gate_sha256: 7997b3572ab902120e897ea2630f1d4ffed149698ce538c450348fd0019c8c36
+  gate_scope: current_pre_frozen_task_provenance_only_not_historical_regex
+  erqa_model_requests_started_at_last_check: true
+  erqa_environment_native_exit: 0
+  erqa_environment_verification_sha256: d71a3c2355b25edb855317b137cd157b377a3e80094271115582874a4cf805af
+  erqa_input_manifest_sha256: dbb59cb4d46d6c1ec9e4a2afbb300bace43a9b56e04fbf8f23e4d2e4fab8fc2b
+  erqa_native_binding_fresh_sha256: aef0b5d73b2df14f63042d0b45e69feb8f208fed6980e29382d7e3958e74b3c3
+  erqa_eval_client_pid: 2227
+  erqa_eval_client_start_ticks: 681297605
+  erqa_completed_at_snapshot: 364
+  erqa_failed_at_snapshot: 29
+  erqa_native_exit: 2
+  erqa_main_controller_native_exit: 1
+  erqa_unsubmitted_documents: 7
+  erqa_send_intents: 393
+  erqa_HTTP200_responses: 364
+  erqa_correct_over_completed_only: 201
+  erqa_partial_accuracy_over_completed_only: 0.5521978021978022
+  erqa_full400_accuracy: null
+  erqa_length65536_missing_final_count: 32
+  erqa_independent_scope: actual_partial_only_no_full400_claim
+  erqa_partial_verification_sha256: 1dcf537b07debf5204d0b8f75a729968e8d170a02ebae1e95e94d304c4b4a73f
+  terminal_review_sha256: eb23ddad39d8602ebe13519800dcd3365d3176b64cd5c9dd0525ee3ddb0a230d
+  service_fresh_after_terminal_sha256: a20fc9c8ecd963091ddec40a9e0e7dcf552449d3327dc297a3643ab953560166
+  erqa_operational_issue: forward_progress_stall_001
+  erqa_health_HTTP_status: 200
+  erqa_pause_GET_status: 404_unsupported_no_pause_conclusion
+  erqa_running_at_snapshot: 0
+  erqa_waiting_at_snapshot: 0
+  erqa_KV_usage_at_snapshot: 0.0
+  erqa_client_still_running: false
+  erqa_failure_or_timeout_receipt: native_exit2_29_timeouts
+  erqa_root_cause: suspected_scheduling_admission_stall_not_confirmed_OOM
+  model_service_recovery_or_rerun_authorized: false
+  erqa_snapshot_time_utc: 2026-11-05 13:39:22+00:00
+  erqa_concurrency: 64
+  erqa_samples: 400
+  erqa_thinking: true
+  erqa_max_tokens: 65536
+  pipeline_controller_sha256: fffe17b7ff1929647209c00b1b471b6fe276c4d8fc6a990dd14d8b05c85bef81
+  pipeline_plan_sha256: d99ac33e5531a035a68490b4695c77bf62a770c460ded8d3ad759d48ef96b28d
+  pipeline_supervisor_launch_sha256: 44bec644d11435f8b8e66d5f1cbc5f9d4cdd814c9b354dc51414c9baa94a7059
+  model_service_changes_allowed: false
+  monitor_interval_minutes: 30
+  monitor_cleanup_reason: both_authorized_attempts_terminal_GPQA_pass_ERQA_incomplete_no_rerun
+  automation_id: qwen35-mx59-gpqa-erqa-c64
+  monitor_status: deleted_after_independent_partial_terminal_review
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/user-gpqa-erqa-c64-20261105-001
+- experiment_id: plugin-kv-budget-pr-001
+  document: plugin-kv-budget-pr-001.md
+  status: closed_unmerged_user_requested_after_revert_validation
+  closure_date: 2026-11-06
+  closure_comment_url: https://github.com/flagos-ai/vllm-plugin-FL/pull/702#issuecomment-6681144523
+  patch_branch_commits_and_tests_preserved: true
+  closure_reason: unpatched_full400_C64_completed_without_observed_OOM; runtime_necessity_and_KV_only_causality_not_established
+  current_container_patch_state: reverted_by_prior_user_request
+  pr_url: https://github.com/flagos-ai/vllm-plugin-FL/pull/702
+  head_sha: 42b27b3ed5f2259e2a3a1d5f2a5163b5d283d3c6
+  changed_files: 3
+  tests: 15 CPU tests passed; two preceding-head warmup-hint regressions reproduced; pre-commit passed
+  warmup_hint_followup: requested-limit hint only; free-memory hint and non-Torch increment unchanged
+  ci_status_at_publication: previous head in progress; new follow-up CI not yet verified
+  ci_url: https://github.com/flagos-ai/vllm-plugin-FL/actions/runs/41955717045
+  authorization: user explicitly requested separate KV memory budget PR targeting release/0.2
+  upstream: flagos-ai/vllm-plugin-FL
+  base_branch: release/0.2
+  base_sha: 6e11d0ab687247fdf4347a52788ec4f2baf57c79
+  scope: worker MetaX automatic KV budget, pure CPU helper and relevant tests
+  deployment_changes: true
+  deployment_host_container: mx-59/qwen36-35b
+  deployment_pr_head: 42b27b3ed5f2259e2a3a1d5f2a5163b5d283d3c6
+  deployment_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/kv-pr702-align-20261105-001
+  deployment_native_exit: 0
+  deployment_report_sha256: dd975540abeef8ae1ec28f2011602bb96c0ec414118ab8fe0f82ab51efb8dbad
+  deployment_tests_passed: 15
+  deployment_source_records: 6517
+  deployment_changed_files: 3
+  deployment_other_records_unchanged: 6514
+  active_service_restarted_or_reloaded: false
+  gpu_model_tests: not_run_for_this_release_patch
+- experiment_id: plugin-gdn-lazy-pr-001
+  document: plugin-gdn-lazy-pr-001.md
+  status: withdrawn_closed_unmerged_at_user_request
+  closed_at: '2026-11-06T05:30:38Z'
+  withdrawal_reason: Normal CLI bootstrap and current service succeed without this patch; import-order robustness fix deferred by user.
+  withdrawal_comment: https://github.com/flagos-ai/vllm-plugin-FL/pull/699#issuecomment-6677752493
+  branch_and_evidence_preserved: true
+  pr_url: https://github.com/flagos-ai/vllm-plugin-FL/pull/699
+  head_sha: d2ce43f6fd7133f321b6abd033a0159552df498e
+  changed_files: 3
+  authorization: user explicitly requested scoped GDN import-cycle PR
+  upstream: flagos-ai/vllm-plugin-FL
+  base_branch: release/0.2
+  base_sha: 6e11d0ab687247fdf4347a52788ec4f2baf57c79
+  scope: two production import-registration sites and one CPU lifecycle test
+  tests: five CPU lifecycle tests pass; baseline fails; hooks pass except inherited five trailing whitespace lines
+    preserved
+  real_import_verification: current deployment and clean release snapshot reproduce GDN cycle; deferred layernorm
+    path and late native GDN import pass
+  real_import_boundary: release _aiter_ops-first also has a separate sampler cycle, intentionally not fixed
+  gpu_model_validation: not_run_on_current_main_patch
+  container_mutations: false
+- experiment_id: fgv-moe-main-config-001
+  document: fgv-moe-main-config-001.md
+  status: controlled_diagnostic_completed
+  authorization: 'user: 沐曦59的 qwen36-35b（推荐）'
+  host: mx-59
+  target_container: qwen36-35b
+  target_container_id: b96e1f3a3c61bcf2946803b8d88aace5bcff7599466023de86007db9e9fb4094
+  target_file: /opt/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/fused/fused_moe.py
+  before_sha256: c4673aea289a2ad815ca20a01046c014add163756846675556027781a8aa7c73
+  candidate_sha256: 22670fd313b0d6a30cfc019924be6a941427e5809ea0306fcac762f0d12e20d1
+  upstream_commit: 016dac84e46abb1f2acda56b41cf18a2d2cff16a
+  upstream_file_sha256: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+  scope: copy exact TP2 config helpers; old host consumer handles UNFUSE_SILU; no kernel/API/GDN/sampling upgrade
+  host_config_comparisons: 262152
+  unchanged_fallback_comparisons: 1720
+  image_compatibility_validation_host: mx-59
+  model_service_at_preflight: none; target contains bash processes only
+  model_requests: 0
+  E2E_performance: same-host targeted old/new/old independent passed; new+2.5978%, revert drift-0.4989%; not formal
+    all-scenario acceptance
+  formal_accuracy: not_run_no_new_gate
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001
+  directory_authorization: 'user: 可以沿用这个目录'
+  validation_scope: dedicated same-image container, target bind mounts preserved, private FGV source, GPU0 operator-only
+  compatibility:
+    tests: 25
+    changed_input_graph_replays: 50
+    status: passed
+    verification_container_stopped: true
+    mount_parity: passed_with_user_target
+    runner_sha256: 92d4621c77fc515cd64bb2ad1b2fbac9245c14838a083397938a152d07828c22
+    gpu_log_sha256: e3d84b3f9e122a2f0dc187f7b17e19124b7d4e68c5d10afc3904eb883bc22b70
+    junit_sha256: 274208c6c9f03d3551002cf13e2b2822c5c5ac87afb75e25459d104021c9a92e
+  application_pre_record:
+    host_script_sha256: e950332daa92f40f925e432f95b8ee6ccdca9e9e9d9780057db873de5258b06a
+    container_script_sha256: 9fa307da598956e2fb57403f20fdf129f652e9a90f4e53e3085befe31d9973f2
+    guard: exact name/ID/image, no model process, old SHA CAS, all four source roots before/after
+    rollback: application-001/fused_moe.before.py; automatic rollback on post-write failure if new SHA still exact
+  application:
+    command_sha256: 34866a8fb0fb3189496af9f591ee0e3269fa60b7b06c55fdc404cea492a19b52
+    native_exit_code: 0
+    protected_file_count: 6559
+    changed_files:
+    - /opt/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/fused/fused_moe.py
+    model_requests: 0
+    actual_public_import_verified: true
+    actual_selector_comparisons: 72
+    embedded_override_for_target: false
+    application_sha256: 087f3076a2e78f07134f4149733ece6029d266fabe30f20891a1df6add386338
+    final_verification: application-001/final-verification.json
+    gpu_compat_result_sha256: 2da4734719470f233dfc1a047ebcb8432deeee4aa7209d3ac5104b03cf06c289
+    actual_public_import_proof_sha256: e4126bd229a40cffca4620aeb834382cfd878b9cee8062a5e7685f89f7012e6c
+    target_service_started_by_agent: false
+    other_source_files_unchanged: 6558
+    backup: application-001/fused_moe.before.py
+  final_check_pre_record:
+    confirm-config-in-container-001.py: 524e171c0e7043b2ca6eb82ef829896bae370adc32960010d8f8b590f0c24ea3
+    confirm-final-host-001.py: 82015fc2169678b5d6dea3a3e1c000f6a51568ade3d98b7424f37e69e839a97b
+  decision: Keep pre-experiment new profile and exact launch; no >=3% regression reproduced, operator micro trigger
+    not met; large cold-shape JIT contamination confirmed. No additional code optimization.
+  user_E2E_review:
+    status: read_only_complete_no_E2E_gain_observed_formal_attribution_incomplete
+    mode: existing_user_results_review_no_benchmark_invocation
+    primary_metric: total_token_throughput
+    candidate_path: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35b-opt5
+    reference_path: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35b-retest
+    excluded: retest P16384 per explicit user report of test issue; preserve original files
+    boundary: preserve all rounds; inspect original summary and variation; cross-host historical observations, not
+      controlled software A/B
+    actions: read result files and existing service logs/source; 0 new requests, no profiler, no service/source
+      mutation
+    remote_artifacts: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/e2e-comparison-001
+    collector_sha256: 9d996442b5a104389763df2ead3c1c46249cb4d9853bf92ca09d83f7c59259e5
+    analysis_script_sha256: 21055c16e5d8a33fda02d9937e910110c9e4321c17ca8cfa01bbfd6efc9ea667
+    collection_sha256: 8656c72632f2d637f8007cc8c82493abaabec98aced8245999b0e34183a84441
+    analysis_sha256: 4f5605fc5eecee08e66d40bb865070219f3568cfa340ec13b5e5ba37491cbd0a
+    actual_current_source_verified: true
+    new_requests: 0
+    new_service_or_source_changes: false
+    results:
+    - P: 1024
+      all3_reference_total_tps: 2777.65
+      all3_opt5_total_tps: 2156.9266666666667
+      all3_change_percent: -22.3470679651264
+      original_summary_reference_total_tps: 3095.1
+      original_summary_opt5_total_tps: 2239.65
+      original_summary_change_percent: -27.638848502471646
+      reference_run_tps:
+      - 2142.76
+      - 3018.43
+      - 3171.76
+      opt5_run_tps:
+      - 1991.48
+      - 2090.44
+      - 2388.86
+      reference_last2_relative_range: 0.04953967487266154
+      opt5_last2_relative_range: 0.13324403366597462
+      TTFT_summary_reference_ms: 2008.93
+      TTFT_summary_opt5_ms: 2678.05
+      TPOT_summary_reference_ms: 39.39
+      TPOT_summary_opt5_ms: 48.76
+      median_ITL_summary_reference_ms: 37.42
+      median_ITL_summary_opt5_ms: 39.92
+    - P: 4096
+      all3_reference_total_tps: 4358.46
+      all3_opt5_total_tps: 5211.503333333333
+      all3_change_percent: 19.572127158063466
+      original_summary_reference_total_tps: 4812.15
+      original_summary_opt5_total_tps: 5951.6
+      original_summary_change_percent: 23.678605197261128
+      reference_run_tps:
+      - 3451.08
+      - 3352.62
+      - 6271.68
+      opt5_run_tps:
+      - 3731.3
+      - 5948.91
+      - 5954.3
+      reference_last2_relative_range: 0.6066020385898196
+      opt5_last2_relative_range: 0.0009056380589774234
+      TTFT_summary_reference_ms: 18323.95
+      TTFT_summary_opt5_ms: 4551.64
+      TPOT_summary_reference_ms: 55.13
+      TPOT_summary_opt5_ms: 49.14
+      median_ITL_summary_reference_ms: 37.83
+      median_ITL_summary_opt5_ms: 40.73
+    - P: 32768
+      all3_reference_total_tps: 10920.013333333334
+      all3_opt5_total_tps: 10901.2
+      all3_change_percent: -0.17228306192544895
+      original_summary_reference_total_tps: 10952.51
+      original_summary_opt5_total_tps: 10944.45
+      original_summary_change_percent: -0.07359043726049563
+      reference_run_tps:
+      - 10855.03
+      - 10938.56
+      - 10966.45
+      opt5_run_tps:
+      - 10814.69
+      - 10938.13
+      - 10950.78
+      reference_last2_relative_range: 0.0025464494195621217
+      opt5_last2_relative_range: 0.0011558364486857916
+      TTFT_summary_reference_ms: 61901.24
+      TTFT_summary_opt5_ms: 61711.33
+      TPOT_summary_reference_ms: 120.23
+      TPOT_summary_opt5_ms: 120.47
+      median_ITL_summary_reference_ms: 49.0
+      median_ITL_summary_opt5_ms: 50.18
+    - P: 65536
+      all3_reference_total_tps: 9463.443333333333
+      all3_opt5_total_tps: 9383.473333333333
+      all3_change_percent: -0.8450412517219674
+      original_summary_reference_total_tps: 9464.27
+      original_summary_opt5_total_tps: 9391.24
+      original_summary_change_percent: -0.771639017061021
+      reference_run_tps:
+      - 9461.79
+      - 9459.07
+      - 9469.47
+      opt5_run_tps:
+      - 9367.95
+      - 9380.66
+      - 9401.81
+      reference_last2_relative_range: 0.0010988697490667146
+      opt5_last2_relative_range: 0.002252099963423302
+      TTFT_summary_reference_ms: 237976.95
+      TTFT_summary_opt5_ms: 239520.88
+      TPOT_summary_reference_ms: 154.74
+      TPOT_summary_opt5_ms: 156.04
+      median_ITL_summary_reference_ms: 44.96
+      median_ITL_summary_opt5_ms: 45.77
+    scheduler_evidence:
+      opt5_scheduler:
+        samples: 563
+        active_samples: 533
+        KV_ge99_with_waiting: 90
+        running_counts_at_KV_ge99_and_waiting:
+          '49': 44
+          '26': 46
+        capacity_tokens:
+        - 1786116
+      reference_archived_scheduler:
+        samples: 558
+        active_samples: 528
+        KV_ge99_with_waiting: 88
+        running_counts_at_KV_ge99_and_waiting:
+          '49': 43
+          '26': 45
+        capacity_tokens:
+        - 1786116
+    source_path_evidence:
+      reference: G1 M8192 fuse_silu=True BK64 warps8/stages2; G2 groupM1/basic/load-1
+      opt5: G1 M8192 fuse_silu=False BK128 warps4/stages4/cpasync; G2 groupM8
+    conclusion: P32K/P64K total TPS all3 mean -0.1723%/-0.8450%; no observed gain. P1K worse and unstable; P4K baseline
+      transition makes SUMMARY misleading. Cross-host historical data cannot isolate config effect.
+    next_decisive_experiment: 'If continued: same mx-59 image/GPU4/5/launch/workload/warmup, old/new/revert, targeted
+      small-M Decode and M8192 Prefill with Mixed guard; no test/service change authorized by this review itself.'
+  controlled_1k:
+    status: incomplete_old1_warmup_failed_new_service_restored
+    mode: targeted
+    authorization: user explicitly asks old config -> new config -> old config in mx-59 qwen36-35b, other launch/GDN/sampling
+      unchanged
+    in_place_exception: same user container, GPU4/5 only; explicit in-place exception, preserve other GPU0/3 workloads
+    remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-001
+    execution_plan_sha256: 1576156d03bb3bd204768b18e01d3653b07107911b4c6871e4293ffb0921c975
+    script_sha256:
+      capture-001.py: e1e2d6ca4a2abeca120142f94f84880e3fb8c35fb767fe2bd5b1e972adb3447a
+      skill-bundle.json: 4e27796b3c628daa6266a4ecdd356c446e172fe0de25d3fced7ddc11abd145ae
+      supervisor-001.py: 83bc8e7f562f189f88061fcbdade1c34fa38cb677c0ff69ec155a06cd7bdf719
+      plan.json: 5f10e71b7bf6e93ffd17d57db021ca069f9230bd2a3a21e08891d8418c9be018
+      preflight-001.py: 09a40e5d04067c5d16fbdd087024c91583e39a572d920df41d77527aed3ccc9c
+      comparison.json: 75b19956afc94037bbed3e5eff0f9287ad23954c84105e769a54aabdcea3fa22
+      micro-001.py: 74c6833e9e2e993cca809929f81dbb7e971d02502d08ba15ce4883ae930a0207
+      controller-001.py: 71ee2630735791f26e7c877c8a8e92ba36f259121b6a45ac8c97f7e15913435e
+    workload: p1024-d1024-c64-n128
+    warmup: last2 warmup total TPS relative range/median <=3%; all admitted measurements retained
+    repeats: 4 warmup +3 measured, same old/new/old; min1 service per role diagnostic
+    conditional_micro: only if complete valid E2E new vs old <=-3% with valid old/revert drift; stop model and public
+      full-MoE graph timing BF16 E256/H2048/I256/top8, synthetic uniform routing M8/32/64/128, old/new/old, 5 samples
+      x100 replays; graph/eager consistency per profile, no profiler
+    restoration: finally restore pre-experiment new file and original model argv/env/cwd with fresh qualified service,
+      distinct log; no user script change
+    formal_accuracy_or_performance_gate: not_requested_diagnostic_only
+    preflight: passed native exit0 / 6559 source files / 0 model requests / maintained dry-run passed
+    starter_sha256: e37063b4a3bf1ddf83a6739431c2c14377f18101505e6c8e0668679624f9290d
+    supervisor:
+      pid: 2622576
+      start_ticks: 672385624
+      job_launch: controlled-1k-001/job-launch.json
+    controller_sha256: 71ee2630735791f26e7c877c8a8e92ba36f259121b6a45ac8c97f7e15913435e
+    native_exit_code: 2
+    restored_api:
+      pid: 132733
+      start_ticks: 672507180
+    restoration_independent_verified: true
+    old1_warmup_total_tps:
+    - 1568.0916015085018
+    - 2359.032961225799
+    - 2889.626484091653
+    - 2159.3973991440544
+    failure_reason: last2 warmup relative spread28.93% >3%; no measured rounds, no candidate/revert comparisons
+    new_evidence: 3.42-3.53s global stream gaps at tail batch shrink; r3 no gaps >0.5s, r4 total32.38s global gaps
+    next_action: read-only timeline/cache attribution before revised same-host contrast; do not replay original
+      controller
+    followup:
+      status: completed_independently_verified
+      remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001
+      old_first_run_preserved: true
+      unchanged_inference_sources: true
+      shape_coverage: unchanged production sampler, request cohorts64..1 each2 times, D8/temp1/p.95/k20/ignoreEOS,
+        same on every service including restoration; 4160 requests /33280 forced output tokens per service; no code
+        or environment change
+      warmup: after full cohort-shape conditioning, last2 full P1K warmup TPS spread/median<=3%; 3 measured rounds
+        all retained
+      execution_plan_sha256: 53557fe79a8a2522fb18d26f55d52d7d49e87134ba81b0847df659de8a37fa8a
+      controller_sha256: e87a45dc9d6d5eb5c0ebdcc99ab0594e53ab5c83a07c0d06322ff3f711355ece
+      supervisor_pid: 2729134
+      supervisor_start_ticks: 673191324
+      controller_pid: 139114
+      controller_start_ticks: 673191330
+      preflight_protected_file_count: 6559
+      preflight_model_requests: 0
+      original_api_pid: 132733
+      original_api_start_ticks: 672507180
+      starter_sha256: e524d9ae6278bb8c783e0fcddc8f4d898860dbcc4bea08a2e53bacb448e4289a
+      latest_observation:
+        phase: terminal_verified
+        all_three_roles_complete: true
+        restoration_verified: true
+        independent_comparison: passed
+        fresh_http: passed
+      native_run_records_sha256:
+        old1: 86ad763e48d76c7b6eed82f7218980b62268d974862767ed9d398f5bd031d0d2
+        new: 08651724bb1b782b23e3f1377ad5e61f7725a1b9e77550bca0afe54608690631
+        old2: 6cb0327edfac252ef9ecec76c92b8c80c3a81c667a26e2440f191e3a316fd722
+      final_independent_preparation:
+        status: executed_once_all_native_exit0
+        sha256:
+          verify-final-001.py: 0ca44fc815685d8e4f841caba90234fac8dbc873aec684722ed018fb7ce520f8
+          timeline-cache-001.py: 4e492c39f944fd27ab561c6cc2f05ba52a35d514ec9a5dc3c514477496906124
+          upload-final-independent-001.py: 3bf9bd852c44f0dca25f9c8f25d3b4dbaeacaa3d97c6f4f9b4c6e82921392de0
+        precondition: actual terminal native0/2 + summary restored true without restoration error; review native
+          schema, wait resource observer completion before independent commands
+        scope: read-only file revalidation and fresh source/API checks;0 model/admin requests
+        fresh_http_script_sha256: 7b411b74cad4fd7f0dc514ce335b9c9a3d5e42371818c107e171ae8657753055
+      native_exit: 0
+      comparison_status: passed
+      comparison_scope: performance_only
+      results:
+        old1:
+          rounds_total_tps:
+          - 2907.060559418215
+          - 2905.344410024949
+          - 2920.4800783781943
+          median_total_tps: 2907.060559418215
+          spread: 0.005206519796847452
+          mean_ttft_ms_median: 1740.5236330378102
+          mean_tpot_ms_median: 42.301029496498096
+          median_itl_ms_median: 40.94318859279156
+        new:
+          rounds_total_tps:
+          - 2991.217839102962
+          - 2982.5798748912484
+          - 2972.173417683932
+          median_total_tps: 2982.5798748912484
+          spread: 0.006385217569311396
+          mean_ttft_ms_median: 1682.1256176262978
+          mean_tpot_ms_median: 41.26555131145218
+          median_itl_ms_median: 39.560315664857626
+        old2:
+          rounds_total_tps:
+          - 2892.5560312383573
+          - 2894.6194145340355
+          - 2887.2628291286824
+          median_total_tps: 2892.5560312383573
+          spread: 0.002543281902201788
+          mean_ttft_ms_median: 1743.2234773295932
+          mean_tpot_ms_median: 42.516317949075265
+          median_itl_ms_median: 41.32636031135917
+      new_vs_old1_fraction: 0.025977895516613225
+      old1_vs_old2_drift_fraction: -0.00498941383689655
+      measured_main_requests: 1152
+      all_native_main_requests_including_warmups: 1920
+      all_native_main_failures: 0
+      shape_warmup:
+        services: 4
+        requests_per_service: 4160
+        forced_output_tokens_per_service: 33280
+        actual_sampler_step_batch_counter: false
+        validated: All raw answers/usage and cohort order verified; this is requested cohort coverage, not a direct
+          batch counter.
+      cold_shape_finding:
+        status: confirmed in current exact sampler stack
+        sampler_sha256: 49e9c663a72a151b5d6f30561ccd1a9702f87d527d68acf1f0e238d8a79817f2
+        first_attempt_timed_guarded_sweep_metadata: 558
+        first_attempt_round2_global_gap_seconds: 20.794733064249158
+        first_attempt_round4_global_gap_seconds: 32.37830477580428
+        followup_measured_kernel_metadata_entries: 0
+        followup_measured_global_gaps_gt0_5s: 0
+        followup_measured_max_global_gap_s: 0.44409958831965923
+        scope: Client token events and kernel metadata, not a device trace. No subtraction from throughput. Historical
+          cross-host CSV has no per-request detail; not a sole-cause claim for every historical gap.
+      restoration:
+        status: fresh_verified
+        api:
+          pid: 408658
+          start_ticks: 673702476
+          ppid: 1
+          argv:
+          - /opt/conda/bin/python3.12
+          - /opt/conda/bin/vllm
+          - serve
+          - /public-flash/models/Qwen3.6-35B-A3B
+          - --host
+          - 127.0.0.1
+          - --port
+          - '8020'
+          - --served-model-name
+          - qwen36-35b-opt5
+          - --tensor-parallel-size
+          - '2'
+          - --dtype
+          - bfloat16
+          - --max-num-batched-tokens
+          - '8192'
+          - --max-num-seqs
+          - '64'
+          - --gpu-memory-utilization
+          - '0.9'
+          - --no-enable-prefix-caching
+          - --compilation-config
+          - '{"cudagraph_mode":"FULL_DECODE_ONLY","max_cudagraph_capture_size":64}'
+          cwd: /public-flash/jinghao/qwen3.6-35B
+        new_source_sha256: 22670fd313b0d6a30cfc019924be6a941427e5809ea0306fcac762f0d12e20d1
+        source_files: 6559
+        environment_and_cwd: original selected env/argv/cwd verified; controller launched original full env
+        model_identity_scope: weight names/size/mtime plus small-file bytes; tokenizer bytes; no full weight-byte
+          hash
+        running_waiting:
+          num_requests_running:
+          - 0.0
+          num_requests_waiting:
+          - 0.0
+        log: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/restored-new/service.log
+        launcher_script: unchanged
+        GDN_and_sampler: unchanged
+        fresh_http_get_requests: 2
+        new_model_admin_requests_from_independent_tools: 0
+      evidence_cutoff_asia_shanghai: '2026-11-04T21:21:38.563375+08:00'
+      reports:
+        native-result.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/native-result.json
+          sha256: 9b093f50bbff40d86a6cb421dfbcc9a6787d638c2cda49f4391029374a158cf3
+          bytes: 50
+        summary.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/summary.json
+          sha256: 68b5bbcd0d5ffdc3fd2bc08c7f18b94033de8306e8109ae93fe8c59b787252bc
+          bytes: 2353
+        comparison-result.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/comparison-result.json
+          sha256: 183ababbae2ff5bf745b7a427a5c594c96276dcc2fafd84e922516692e097a6f
+          bytes: 2771
+        independent-verification-001.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/independent-verification-001.json
+          sha256: 4c787e3874aa8365091b53d7ba81336bc3da2af63bc8b0ca5f57609039280467
+          bytes: 23607
+        fresh-http-001.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/fresh-http-001.json
+          sha256: d1a2cab5558601e60a7a30d5c3c371b5d33e9549b3efc81965938be3c3f6eb51
+          bytes: 2145
+        fresh-http-001.result.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/fresh-http-001.result.json
+          sha256: 6f3b805e4e667ffe4108056fa91a5dc4487689f31f77e1d574f416c9219864f2
+          bytes: 50
+        execution-plan.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/execution-plan.json
+          sha256: 53557fe79a8a2522fb18d26f55d52d7d49e87134ba81b0847df659de8a37fa8a
+          bytes: 4114
+        final-independent-command.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/final-independent-command.json
+          sha256: 5e831982d28c770835b6b0259ad1b0f370d01a32d8735087ea6e523bfc46c65c
+          bytes: 878
+        independent-timeline-cache-001.json:
+          path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/independent-timeline-cache-001.json
+          sha256: f9ec2d8931a9712e1b0a5eda89f43a5567e05931cc5c28a42faa58830c74ea88
+          bytes: 2042354
+      conditional_operator_micro: not_triggered; no >=3percent E2E regression with valid drift
+      source_role_independent_pre_record:
+        script_sha256: c44027e67d45d31aae747ab2aa1353ca41f5b09b303a817e61f85e504fb2eb33
+        scope: 0 requests; semantic comparison of frozen all-role manifests, closes broad FGV-package variable path
+          to exactly one file
+      source_role_independent:
+        status: passed
+        native_exit_code: 0
+        model_requests: 0
+        admin_requests: 0
+        role_count: 4
+        files_per_role: 6559
+        all_other_6558_files_equal_initial: true
+        report_path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/controlled-1k-followup-001/source-role-independent-001.json
+        sha256: 4a1502a041383b31a8d441e26db2c7c5af799d17564367dd83b3258a11170187
+  classification: operator/improve
+  affected_phases:
+  - prefill
+  - decode
+  - mixed
+  model_requests_scope: Initial application/operator compatibility had0 model requests; later real model traffic
+    is recorded under controlled_1k, not included in that historical0.
+  engineering_review:
+    operator_scope: Only exact MoE profile file switched c467/2267; original new profile retained at terminal. Actual
+      native both-rank M64 GEMM1/2 logs show stages2/3/2. Restored active log only partial due stdout buffering;
+      do not invent rank1 function-object evidence.
+    compatible_original_evidence: 25 independent GPU numerical tests/50 changing-input Graph from original application
+      reused, not rerun; every new service had native Graph capture and2 C8 waves.
+    compiler_features: Existing basic/cpasync config paths executed with installed compiler; no compiler change
+      or unverified TLE claim.
+    untested:
+    - new full model accuracy
+    - formal two-independent-service four-scenario performance acceptance
+    - device trace or exact per-GEMM causal time decomposition
+  model_service_at_preflight_scope: Initial application preflight only; current running service is recorded in controlled_1k.followup.restoration
+- experiment_id: fgv-gdn-cleanup-001
+  document: fgv-gdn-cleanup-001.md
+  classification: operator/improve
+  status: completed
+  authorization: User explicitly requested FGV GDN rollback in mx59 qwen36-35b only
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/gdn-cleanup-20261105-001
+  scripts_sha256:
+    rollback-host-001.py: 2627099cb3fdff37abff2533289801c2691c9424613e1e79d037c93f18aa6729
+    rollback-container-001.py: 39e85df5b15a89f09ccc5cf50567a311b7769e8699c2acd79ebc459322134e64
+  guard: Exact container/image, private source, no model process, SHA CAS, all four source roots
+  validation: Syntax/signatures, exact HEAD bytes and no other source changes;0 GPU/model requests, no benchmark
+    or gate
+  decision: Reverted only unused FGV GDN local fixed-config/prune/logging to tracked HEAD; preserve Plugin GDN/MoE/sampler;
+    no benchmark or model gate
+  native_exit_code: 0
+  result:
+    status: passed
+    file: /opt/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/fused/gdn_chunk.py
+    before_sha256: 109a6f92b0a7bb728acc6029d471bdb302d097c9ef04ded48bf8ccc7b6c0e04d
+    after_sha256: f4a6bd6cf6db191439fa3bdc1e6b25d432b739c1a0700b85a2da78e427a3d75a
+    restored_revision: HEAD@e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+    restored_git_blob: 5a506d20b8251c0fd3b949434dd3eea3cf340ccc
+    protected_files: 6559
+    only_changed_file: /opt/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/fused/gdn_chunk.py
+    other_files_unchanged: true
+    plugin_GDN_registration_preserved: true
+    MoE_and_sampler_preserved: true
+    AST_compile: passed
+    all_original_function_signatures: unchanged
+    git_diff_target_empty: true
+    model_requests: 0
+    gpu_requests: 0
+    service_operations: 0
+    time: 1793842136.021162
+  report_sha256: 14fb5644046c3ce250dfeedc8d1b15106ba2de3da46f9d7df17121d631d982a4
+  backup: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/gdn-cleanup-20261105-001/gdn_chunk.before.py
+  forward_restore_backup: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/gdn-cleanup-20261105-001/gdn_chunk.restored.py
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: historical_mx104_retest
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 2777.65
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; unstable_short_context
+- scenario_id: p1024-d1024-c64-n128
+  role: user_mx59_opt5
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 2156.9267
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; unstable_short_context
+- scenario_id: p4096-d1024-c64-n128
+  role: historical_mx104_retest
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 4358.46
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; unstable_short_context
+- scenario_id: p4096-d1024-c64-n128
+  role: user_mx59_opt5
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 5211.5033
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; unstable_short_context
+- scenario_id: p32768-d1024-c64-n128
+  role: historical_mx104_retest
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 10920.0133
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; stable_long_context
+- scenario_id: p32768-d1024-c64-n128
+  role: user_mx59_opt5
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 10901.2
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; stable_long_context
+- scenario_id: p65536-d1024-c64-n128
+  role: historical_mx104_retest
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 9463.4433
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; stable_long_context
+- scenario_id: p65536-d1024-c64-n128
+  role: user_mx59_opt5
+  metric: total_token_throughput_all3_arithmetic_mean
+  value: 9383.4733
+  unit: tok/s
+  scope: cross_host_user_observation_no_causal_gain; stable_long_context
+- scenario_id: p1024-d1024-c64-n128
+  role: controlled_mx59_old1
+  metric: total_token_throughput_measured3_median
+  value: 2907.060559418215
+  unit: tok/s
+  scope: same_host_targeted_performance_only; 1 service per role, 3 measured rounds; not formal acceptance
+- scenario_id: p1024-d1024-c64-n128
+  role: controlled_mx59_new
+  metric: total_token_throughput_measured3_median
+  value: 2982.5798748912484
+  unit: tok/s
+  scope: same_host_targeted_performance_only; 1 service per role, 3 measured rounds; not formal acceptance
+- scenario_id: p1024-d1024-c64-n128
+  role: controlled_mx59_old2
+  metric: total_token_throughput_measured3_median
+  value: 2892.5560312383573
+  unit: tok/s
+  scope: same_host_targeted_performance_only; 1 service per role, 3 measured rounds; not formal acceptance
+engineering_review:
+  operator_standard:
+    status: scoped_config_port_and_targeted_E2E_independently_verified_full_model_score_unrun
+    ownership: FlagGems-vllm MetaX fused MoE; existing public fused_experts_impl API unchanged
+    applicable_evidence:
+      A1_A2_A3: reuse existing target backend and activation; no new numerical kernel or Plugin compute
+      B1_B2: actual installed public import path verified plus public API GPU tests; no registry change
+      B3_C3_D3: existing kernels/compiler/cache/launch retained; no module-global or Triton-kernel AST changes
+      D1_D5: C550 TP2 plain-half guards, INT8/block/device/batch-invariant exclusions and original fallback retained
+      E1_E3_E4: 25 independent FP32-reference cases and 50 changing-input Graph replays; original tolerance unchanged
+      F1_F2: Same-host targeted old/new/revert P1K independently passed; existing25/50 correctness reused; no new
+        full model score or formal all-scenario performance
+    untested:
+    - new full model accuracy
+    - formal four-scenario performance acceptance
+    - direct device-phase profiling attribution
+planning_review:
+  review_id: main-config-review-002
+  evidence_cutoff: '2026-11-04T21:21:38.563375+08:00'
+  candidate: main-profile016dac84-on-image-c467 /22670fd3
+  scope: Requested P1K diagnosis complete; full optimization acceptance remains incomplete
+  ledger:
+  - id: fgv-moe-main-config-001/application
+    point_document: fgv-moe-main-config-001.md
+    classification: operator/improve
+    decision: retained user-requested config; compatibility evidence25/50; no full model score
+  - id: fgv-moe-main-config-001/controlled-1k-001
+    point_document: fgv-moe-main-config-001.md
+    decision: incomplete, old1 warmup admission failed;0 measured; original service restored; preserve all4 rounds
+  - id: fgv-moe-main-config-001/controlled-1k-followup-001
+    point_document: fgv-moe-main-config-001.md
+    decision: complete diagnostic; exact same protocol on all roles after uniform shape conditioning; no new inference
+      source optimization
+  cumulative_boundary: Only incremental old-vs-new MoE profile effect+2.5978% on listed same-host finite-batch P1K
+    measured, not all-stack cumulative gain; do not add kernel/diagnostic speedups or count cold pauses removed
+    as optimization gain.
+  phases:
+    prefill: mean TTFT proxy1.741/1.682/1.743s old/new/old; contains scheduler/network and is not device time
+    decode: median ITL proxy40.943/39.560/41.326ms; no seconds-long all-stream gaps in measured rounds; exact hot-kernel
+      contribution unknown
+    mixed: total TPS2907.061/2982.580/2892.556;3% warmup and drift plus5% spread rules passed
+  ranked_directions:
+  - rank: 1
+    direction: Use declared shape-aware sampling warmup and native steady admission after any future service restart
+    class: measurement method, no inference-code change
+    support: cold third round fast/fourth round slow with new shape JIT; all9 admitted rounds hot
+    first_falsification: after a future restart, same requested cohort coverage and same P1K native plan; preserve
+      all; reject admission if last2 spread>3% or measured spread>5%
+    skills:
+    - inference-performance-evaluation
+    stop: Do not extend to source changes if admitted state already stable.
+  - rank: 2
+    direction: Only if further steady performance optimization is requested, collect a bounded current-stack steady
+      Prefill/Decode/Mixed trace before choosing kernel work
+    class: framework/operator attribution pending evidence
+    expected_gain: unknown; no fabricated kernel share
+    first_falsification: same P1K parent/C64, valid actual workers and phase windows; profiler-on results excluded
+      from benefit; require unprofiled targeted baseline/candidate/revert for any subsequent change
+    skills:
+    - inference-profiling
+    - key-operator-analysis
+    - inference-performance-evaluation
+    stop: No valid/large steady hotspot or no net targeted gain -> no deep rewrite; current task authorizes no new
+      profiler run.
+  deferred:
+  - 'Blind GEMM1/GEMM2 retuning or public-MoE micro: >=3% regression trigger did not occur.'
+  - Changing sampler M constexpr to runtime is a potential cold-shape preparation improvement, not a measured steady
+    bottleneck; user required sampler unchanged.
+  - 'P4K/P16K/P32K and formal accuracy: outside this requested P1K diagnosis; no new gate.'
+  immediate_next_experiment: none; user-requested diagnosis complete, do not automatically launch more tests
+  next_review_trigger: new source/runtime, new admitted steady regression, or user requests further optimization
+  SOP_decision: No global SOP/default warmup change from one specialization case. Keep shape-coverage lesson in
+    this case and preserve existing steady-state admission rules.
+current_source_clarification_20261105:
+  scope: read-only source and startup wiring; no running model process at inspection,0 GPU/model/admin requests
+  container: mx-59/qwen36-35b
+  fgv_checkout: e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+  current_moe_sha256: 22670fd313b0d6a30cfc019924be6a941427e5809ea0306fcac762f0d12e20d1
+  latest_main: f4c16203083f3cbc712867fbc7d68e2ebb9d75a8
+  latest_main_moe_path: src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py
+  latest_main_file_sha256: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+  target_tp2_helpers_AST_equal: true
+  whole_library_upgraded: false
+  fgv_gdn_local_change: gdn_chunk.py _prune_qwen_h_configs and fixed-config logging; no current Plugin/vLLM/FlagGems
+    caller; safe candidate for separate rollback, not executed
+  plugin_gdn_registration: ModelRunnerFL imports gdn_linear_attn before model construction; register_oot selects
+    MetaX subclass with bool projection flag and plain self.prefix. Keep this active compatibility path.
+  native_gdn_patch: vendor patches/__init__.py imports chunk_delta_h; it is a separate vLLM FLA patch, not the unused
+    FGV fixed-config change.
+  source_and_service_mutations: false
+  audit_file_sha256:
+    container-audit.json: 50318d4ae6808b191c0c72d4e678bb7ab025a0aaed6c911e785ea7d8de83cd6d
+    callpath-audit.json: 648188c5e7df4d2c108bcff0e928a445359705d7f7660ecbe72ca82a80db61d8
+    provider-audit.json: 6b37133b296c35826b8c63af834502a4f91079db33a76ad925d363d57c41ac7e
+  after_user_requested_rollback:
+    experiment: fgv-gdn-cleanup-001
+    FGV_gdn_local_diff: removed
+    after_sha256: f4a6bd6cf6db191439fa3bdc1e6b25d432b739c1a0700b85a2da78e427a3d75a
+    Plugin_registration_MoE_sampler: unchanged

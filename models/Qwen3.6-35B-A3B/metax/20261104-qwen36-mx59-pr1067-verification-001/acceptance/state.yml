@@ -1,0 +1,19 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen36-mx59-pr1067-verification-001
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: main-00f4ed653
+  topology: operator-GPU0; model-TP2-GPU0-1-if-needed
+stage: acceptance
+current:
+  status: incomplete_candidate_not_promoted
+  candidate: PR1067 draft, not recommended for merge
+  next_action: See optimize/pr1067-hardware-001.md; no model accuracy/E2E acceptance
+    was requested or run.
+experiments: []
+metrics: []
+operator_verification_case: pr1067-hardware-001
+formal_model_accuracy: not_run
+formal_E2E_performance: not_run

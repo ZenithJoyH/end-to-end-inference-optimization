@@ -1,0 +1,26 @@
+schema_version: 4
+identity:
+  case_id: 20261105-qwen3vl-c64-accuracy-mx59-001
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt17-user-restarted
+  topology: TP2:GPU0,1
+stage: baseline
+current:
+  status: completed
+  scope: current-user-service identity and normal smoke/C8 only
+  performance_baseline: not_run
+  native_accuracy_contract: GPQA198/C64/cap65536 and ERQA400/C64/cap18000
+experiments: []
+metrics: []
+source_summary:
+  container: qwen3vl
+  model: qwen3vl-opt17
+  port: 8030
+  GPU:
+  - 0
+  - 1
+  TP: 2
+  prefix_cache: true
+  source_preserved: true

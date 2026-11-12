@@ -1,0 +1,582 @@
+schema_version: 4
+identity:
+  case_id: 20261105-qwen3vl-opt16-hot1k-mx59-001
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: old-filter-on-current-stack
+  topology: TP2:GPU6,7; original user GPU0,1 preserved
+stage: optimize
+current:
+  status: completed
+  candidate: Original current PR1069/source preserved; no new optimization installed
+  next_action: No further GPU work. Reopen only for a new bound steady regression
+    or a separately requested optimization.
+experiments:
+- experiment_id: diag-001-hot1k
+  document: diag-001-hot1k.md
+  scenario_id: p1024-d1024-c64-n128
+  status: completed
+  decision: retained
+  direction: framework/measurement warmup diagnosis; sampler path ablation, no source
+    optimization
+  meaning: Retain original current production code; targeted comparison only, not
+    formal acceptance.
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: total_token_throughput
+  value: 3045.655713892056
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: output_throughput
+  value: 1522.827856946028
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: mean_ttft_ms
+  value: 1711.7291839749669
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: mean_tpot_ms
+  value: 40.33835395749961
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: median_itl_ms
+  value: 38.72897243127227
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: duration_s
+  value: 86.0714488523081
+  unit: s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: measured_relative_spread
+  value: 0.01246441234407402
+  unit: fraction
+  scope: all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: total_token_throughput
+  value: 3046.8356063301508
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: output_throughput
+  value: 1523.4178031650754
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: mean_ttft_ms
+  value: 1723.2771347698872
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: mean_tpot_ms
+  value: 40.277191090704164
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: median_itl_ms
+  value: 38.70025742799044
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: duration_s
+  value: 86.03811753261834
+  unit: s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: current
+  metric: measured_relative_spread
+  value: 0.01848719140249621
+  unit: fraction
+  scope: all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: total_token_throughput
+  value: 3071.2508575976603
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: output_throughput
+  value: 1535.6254287988302
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: mean_ttft_ms
+  value: 1717.201819876209
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: mean_tpot_ms
+  value: 39.98198072114471
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: median_itl_ms
+  value: 38.4520054794848
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: duration_s
+  value: 85.354147920385
+  unit: s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: measured_relative_spread
+  value: 0.011205468247665796
+  unit: fraction
+  scope: all3 admitted measured rounds
+protocol:
+  experiment_id: diag-001-hot1k
+  mode: targeted
+  scope: performance_only
+  authorization: 2026-11-05 user asks wait for current matrix, keep other config,
+    fully warm sampler then same-machine1K controlled comparison; if residual gap
+    continue clone/filter diagnosis. Bounded diagnostic exception only; no formal
+    gate.
+  source_preservation:
+    container: qwen3vl
+    service: qwen3vl-opt16
+    port: 8030
+    GPU:
+    - 0
+    - 1
+    pid: 3036790
+    ticks: '673628125'
+    stop_calls: 0
+    source_writes: 0
+  isolated_clone: qwen3vl-hot1k-mx59-20261105
+  GPU:
+  - 6
+  - 7
+  port: 8037
+  roles:
+  - old1
+  - current
+  - old2
+  variable: Previous supported filter+caller versus current PR1069 filter+caller only;
+    all MoE and other code stays current. Legacy API exists only in private historical
+    roles, not production.
+  same_parameters: Original current source argv/env/cwd; only GPU pair and port differ
+    for isolation, same across every role; prefixOFF .91 TP2 BF16 graph64 batch8192/maxseq64;
+    model defaults .7/.8/20/rep1 and no requestseed. Maintained client explicittemperature.7
+    agrees effective original default; paired derived client dataset seeds, not model
+    request seeds.
+  warmup:
+    component: 6 old/new/public equality cases and18 changed-input graph replays before
+      each private service
+    startup_smoke:
+    - 1
+    - 8
+    - 8
+    shape_sweeps: 4
+    cohorts: 64..1 defaultsampling D8, 8320 totalrequests per role, no retries
+    native_full_warm_rounds: 2
+    warm_spread_limit: 0.03
+    measured_rounds: 3
+    measured_spread_limit: 0.05
+    measured_new_or_changed_cache_metadata_limit: 0
+    all_rounds_retained: true
+    failed_admission: incomplete; no extra retries or selective round drops
+  performance:
+    scenario: p1024-d1024-c64-n128
+    stage: mixed
+    Prefill: meanTTFT proxy with queue/sampling residual
+    Decode: meanTPOT/medianITL proxies with host/communication residual
+    Mixed: native total_token_throughput
+    baseline_revert_drift_limit: 0.03
+    diagnostic_regression_tolerance: 0.03
+    guards_relative: 0.05
+    min_independent_services_per_role: 1
+    not_final_acceptance: true
+  conditional_followup: If valid hot current remains slower beyond diagnostic uncertainty,
+    freeze separate finite component clone/fullfilter/sort+graph timing on privateGPU6;
+    no automatic production code optimization or fullmatrix/accuracy run.
+  stop_rules:
+  - source drift
+  - GPU6/7 conflict
+  - port conflict
+  - startup1200sec
+  - component1200sec
+  - shape3600sec
+  - native600sec/round
+  - totalrole-start4h
+  - missing actual two-rank successful graph replay/filter proof
+  - cachecold measured or spread
+  finally: Stop only own private service, restore private current files, verify user
+    PID/source/models200 unchanged. No source restart.
+  remote_directory_authorization: 2026-11-05 user explicitly approved /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001
+remote_root: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001
+commands:
+  source_inventory.py: 4b9681f5ebcaa60ba8085134e352886cf4733c9fda07fe9a428c7b4519768b2f
+  warm_shapes.py: 076bb99ef8f3b73f68103a2f27eabafcc8f1c8358240507a2a4f66c60b129ad9
+  controller.py: e940672424a0303eb3a15edecc4195ea67ef49c2e8599910ae83bb71b7937430
+  worker_proof.py: efc25bca0864a2f46758d2cce72e0fc7efed3415a141ddc8735ef66ba4804c80
+  vllm-wrapper: 7b4d85b7110648ba01314a324a6024c0b81ddb6c32b2c6e1b59d52957c3062ab
+  old-files.json: d58c94dc3e07df65ae18e574a9cbc0a9e0ab1ab8b64bbe2866d990825f6a06a6
+  cache_snapshot.py: 9453b71845415fe90c7d5648b4cf44269929cce0c52cc748fa9e810ea027b6f7
+  sitecustomize.py: 42695865cb7c635abdcf273f04b4dad704d897761e531cfb66073deb6f356311
+  component.py: 2ab6d4f3ebaae5ac6b80858a93dc9f92018996bf11c1c9efb4c9bb49fe6fda1a
+  prepare.py: 957cb3b52f750b8e12a750d5a81c23a21cae36c3e20d3645c419d22b93407b00
+inputs:
+  precheck.json: ad4e193e4e4731382c1590fe89c85fcf71d89203ef0f7c49b7381643245c7f6b
+  plan.json: 9670cad2e8d10a660686123f74a5f0f3889bbe35cd0d7a2c7ea892d43559f928
+  comparison.json: 116187fd988ade638cff8838b8f4aed95c3680685f182f3858992a94b9138f36
+  cpu-tests.json: 2f55f056ff541a3f7d26fe19f02343c504fb436090713add8b0ad173dc93aa12
+  performance-bundle.json: 4e27796b3c628daa6266a4ecdd356c446e172fe0de25d3fced7ddc11abd145ae
+  execution-contract.json: 7d4888fda6c249a543bbc5e53f1dc2b6cfe4a8f02ce4f5429a9eb01515fa9609
+no_current_accuracy_gate: true
+no_production_deployment: true
+controller_addendum:
+  path: /tmp/qwen3vl-hot1k-20261105/assets/controller_v2.py
+  remote: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/commands/controller_v2.py
+  sha256: 0bc45d418818b1adc93d8c3176480e8f6ebff13ba48e9c34c12af1df7bf01675
+  reason: Before first controller launch, accept native comparison exit2 as a valid
+    failed/incomplete comparison receipt; do not mistake real performance regression
+    for tool crash. No traffic/threshold/warmup/source changes.
+prepare_incident:
+  sha256: c4ec6311c9f746c37b89f6aee6bb15124a1c8ba05f86661e14ae4a5ffd6405bf
+  reason: Recover existing Docker snapshot after stdout parsing guard failed before
+    clone creation; no second commit or duplicate model start. Source exact and clone
+    inventory/mount checks mandatory.
+  resolved: true
+  recovery_script_sha256: c4ec6311c9f746c37b89f6aee6bb15124a1c8ba05f86661e14ae4a5ffd6405bf
+controller:
+  pid: 3469427
+  ticks: '678264464'
+  sha256: 8ffb65660d955c969b8d6aa6bf2c20b53766b98b47191fd40b5d8b5ece7fe496
+  root: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003
+  status: exited
+image: sha256:293f7edeb76f455df16e9a36474229fe9de1ac3747359b7d413bcaacafdbd90f
+mount_parity: passed
+image_lineage: verified
+automation_id: qwen3-vl-1k
+startup_validation:
+  old1:
+    component_cases: 6
+    changed_input_component_graph_replays: 18
+    two_rank_model_filter_and_graph_proof: true
+    startup_observer_removed: true
+  current:
+    component_cases: 6
+    changed_input_component_graph_replays: 18
+    two_rank_model_filter_and_graph_proof: true
+    startup_observer_removed: true
+    physical_GPU_mapping: 6/7 only; source0/1 unchanged
+automation_incident: Detailed internal metadata prompt rejected by automatic review;
+  approved replacement prompt contains only generic task boundaries, runtime details
+  remain in local case records.
+attempt1:
+  status: incomplete
+  component_cases: 6
+  graph_replays: 18
+  shape_warmup_requests: 8320
+  native_benchmark_rounds: 0
+  failure: CLI --version and --help preflight timeout30sec; not model/precision/performance
+    failure
+  source_preserved: true
+  controller:
+    pid: 3376139
+    ticks: '678100910'
+    script_sha256: 0bc45d418818b1adc93d8c3176480e8f6ebff13ba48e9c34c12af1df7bf01675
+followup:
+  root: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003
+  controller_sha256: 8ffb65660d955c969b8d6aa6bf2c20b53766b98b47191fd40b5d8b5ece7fe496
+  cli_probe_sha256: a40f81d7b5fc197692f06a3297a49b3a0b85dde8054e6047288b960daf74f4cc
+  only_control_change: client capability probe timeout30->120; native benchmark600sec/round,
+    config, warmup, repetition and thresholds unchanged
+  not_started: false
+  copy_incident: controlled-002 copytree/copystat hit storageEIO before CLI/model
+    start; preserve partial folder, new controlled-003 uses bytes+SHA only and excludes
+    pycache
+  preflight_launcher_sha256: 1cb8ac644e8e7cb4a2a883e6c3033fed878a337b86d77acce63a71b759f2a4f4
+  cli_preflight: passed,113flags,CLI/Python0.24.0+empty exact,0HTTP
+  copied_launch_receipt_incident: First launch guard found copied old commands/controller-launch.json
+    and refused before Popen; separate controller-followup-launch.json used once.
+    No duplicate controller.
+resource_audit_command:
+  remote: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/commands/resource_audit.py
+  sha256: 389243a837a3eebe2f8262b00abe3735d3dc9d57f0e88c16c7518573c86c02c8
+baseline_old1:
+  total_tps:
+  - 3037.83734580237
+  - 3075.7996544784055
+  - 3045.655713892056
+  median_total_tps: 3045.655713892056
+  measured_spread: 0.01246441234407402
+  measured_new_metadata:
+  - 0
+  - 0
+  - 0
+  measured_changed_metadata:
+  - 0
+  - 0
+  - 0
+  all_requests_128: true
+  status: passed_role_only
+  full_BCR_pending: true
+current_role:
+  total_tps:
+  - 3046.8356063301508
+  - 3086.495181233247
+  - 3030.167748207081
+  median_total_tps: 3046.8356063301508
+  spread: 0.01848719140249621
+  measured_new_or_changed_cache_metadata: 0
+  requests_each_round: 128
+  relative_to_old1: 0.0003874017777889538
+  status: passed_role_only; BCR pending
+independent_audit_script:
+  path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/commands/independent_audit.py
+  sha256: d3ac5c07f3d46bbb10130f1c8a1553428e13a2a62c4887507558803b5284a134
+  status: passed
+fresh_final_audit_script:
+  path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/commands/fresh_final_audit.py
+  sha256: c2f15515d6640d5335cee0be76a7985006dd68c61ae7b6003b62f42a2abf2ef7
+result:
+  status: passed_targeted_comparison
+  scope: sameHost sameGPU6/7; old-filter/current-filter/old-filter on otherwise current
+    stack
+  mode: targeted
+  scenario_id: p1024-d1024-c64-n128
+  current_vs_first_old: 0.0003874017777889538
+  current_vs_mean_of_two_old_medians: -0.0037985472816788324
+  baseline_revert_drift: 0.008403820428178443
+  measured_requests: 1152
+  all_native_rounds_including_warmup: 15
+  no_rounds_discarded: true
+  measured_new_or_changed_metadata: 0
+  all_KV_capacities_tokens: 562992
+  native_comparison: passed
+  independent_CPU_audit: passed
+  fresh_source_audit: passed
+  residual_clone_filter_followup: not_triggered; current near zero vs first old and
+    -0.38% vs two-old reference, below0.84% revert drift and1.12..1.85% group variation.
+    No evidence of a material sampler E2E regression. Intrinsic clone cost not separately
+    measured.
+phase_views:
+  prefill:
+    method: client meanTTFT median, includes queuing/scheduling/sampling/network residual
+    old1_ms: 1711.7291839749669
+    current_ms: 1723.2771347698872
+    old2_ms: 1717.201819876209
+    current_vs_old1: 0.006746365548377078
+    device_attribution: unknown; no profiler trace
+  decode:
+    method: client TPOT/ITL proxies, not pure device time
+    mean_TPOT_old1_current_old2_ms:
+    - 40.33835395749961
+    - 40.277191090704164
+    - 39.98198072114471
+    median_ITL_old1_current_old2_ms:
+    - 38.72897243127227
+    - 38.70025742799044
+    - 38.4520054794848
+    current_vs_old1_meanTPOT: -0.0015162459742380707
+    current_vs_old1_medianITL: -0.0007414346800134929
+  mixed:
+    method: no-profiler native finiteBatch P1K D1K C64 N128
+    current_vs_old1_totalTPS: 0.0003874017777889538
+    revert_drift: 0.008403820428178443
+    max_global_client_event_gaps_measured_s:
+      old1: 0.4231751672923565
+      current: 0.4294325290247798
+      old2: 0.4616719800978899
+    stream_gap_interpretation: Client reconstructed event gaps only, not GPU idle/critical-path
+      time.
+final_evidence:
+  summary.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/summary.json
+    sha256: d2cf6f69cda4d3868153c17fde779a5650ef5a34e27f919cd94cd770be8395d7
+  comparison-result.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/comparison-result.json
+    sha256: 4970856c3b6edf697775bb7f28218100190f0b867bab0c9065f3ca54405ba857
+  independent-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/independent-audit.json
+    sha256: 5a27994af2cffc6d763718c7bd4b53dfada103e1b50e5360a105b9e5989fb6b4
+  fresh-final-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/fresh-final-audit.json
+    sha256: 157dba37c32a5fb47106c3e9403397de018df949ec7b3f4f171ea82e35d47d08
+  source-preserved.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/source-preserved.json
+    sha256: f6e14c9560427c898a4fa47196e91ba4fb2031ad75f3c3c026340c0b05bd126c
+  plan.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/plan.json
+    sha256: 9670cad2e8d10a660686123f74a5f0f3889bbe35cd0d7a2c7ea892d43559f928
+  comparison.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/comparison.json
+    sha256: 116187fd988ade638cff8838b8f4aed95c3680685f182f3858992a94b9138f36
+  followup-contract.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/followup-contract.json
+    sha256: 3c101033441c1cce9862e1eb5eba3991cbee90efd2ab391d2a5def116f7a32fb
+  old1/component.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/component.json
+    sha256: 2b192a3f2f726514e455646d56fa6f1213e7fcb5ae0547c28e29c2df2ca7de3a
+  old1/runtime.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/runtime.json
+    sha256: 9ff26578a26d5bd64903275c1edb048198fd83a43d7e49219cb4f6110772a5f1
+  old1/service.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/service.json
+    sha256: 0e7413dcb7c21dd3c8746c61c1196f256b631813d1b173d9b6d30a6c6674d7c5
+  old1/sources-before.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/sources-before.json
+    sha256: a5f3646f75687390ae1b36666b9f69afaac0a093eef5c7829fdfa8bc8c040881
+  old1/sources-after.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/sources-after.json
+    sha256: a5f3646f75687390ae1b36666b9f69afaac0a093eef5c7829fdfa8bc8c040881
+  old1/resource-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/resource-audit.json
+    sha256: 630334d161f2f667136f4ea86801bd3e4fcac4237d9c080067478ecc408977d1
+  old1/completed.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/completed.json
+    sha256: 2ebf368e9f2be4a60f730b2e1e5ff8fa623e58afe093a7f27ca72fd523e10b82
+  old1/graph/worker-proof-90958.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/graph/worker-proof-90958.json
+    sha256: 5146b0b23b3050d01a218fc50ce32ab6f1408d1b7d6a38b8c5b12e2511bbf9f1
+  old1/graph/worker-proof-90957.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old1/graph/worker-proof-90957.json
+    sha256: 9f414b773fbe699d3ebb5ece70c1df43acc42d907e56ff28fdbe570557145918
+  current/component.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/component.json
+    sha256: 5b24b024360e13660441bf84964323986427d007a598ab353fccd69aee5af3de
+  current/runtime.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/runtime.json
+    sha256: 419055c6f62aa620ac1f5d77d63d2bc837d79ae75ed464d8f7c693a1aac87171
+  current/service.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/service.json
+    sha256: 0acc03116964077c230705f704119684b5ef6a016e66e110c621275998504d27
+  current/sources-before.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/sources-before.json
+    sha256: 51f6bc69a34f69784da8f4da2e33f3558009c29571bf7e30a3ebce4a7cb029de
+  current/sources-after.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/sources-after.json
+    sha256: 51f6bc69a34f69784da8f4da2e33f3558009c29571bf7e30a3ebce4a7cb029de
+  current/resource-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/resource-audit.json
+    sha256: 27ae5455cfe9e1d12c430698143b9c2bca222d42426fd7d60c8c600a9c50a3f0
+  current/completed.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/completed.json
+    sha256: 2a431c140151308ec07eef09274e06be9842a92762876940ef866265f8c7fae9
+  current/graph/worker-proof-176180.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/graph/worker-proof-176180.json
+    sha256: ec3240e8339c1294d31ec0bfcd1eaa11780b3b4d0cbcc89f13a6423930dcabdb
+  current/graph/worker-proof-176179.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/current/graph/worker-proof-176179.json
+    sha256: 391315cac1e01a63678f57d67750a0c1897bbcaf52d7eae1991cd0ea598e5be7
+  old2/component.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/component.json
+    sha256: 2b192a3f2f726514e455646d56fa6f1213e7fcb5ae0547c28e29c2df2ca7de3a
+  old2/runtime.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/runtime.json
+    sha256: c19f0f25354383458c216824d6b8b92d07f6a9d052bdaccc126d2821016945fa
+  old2/service.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/service.json
+    sha256: 88a4f50b52d6701f3f71b40f8373f325aeb25dbb1efc7de9ee3b7291c89c2bf8
+  old2/sources-before.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/sources-before.json
+    sha256: a5f3646f75687390ae1b36666b9f69afaac0a093eef5c7829fdfa8bc8c040881
+  old2/sources-after.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/sources-after.json
+    sha256: a5f3646f75687390ae1b36666b9f69afaac0a093eef5c7829fdfa8bc8c040881
+  old2/resource-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/resource-audit.json
+    sha256: add82d3053165645e41d61427483f943b582c288ba226635937f36456d702507
+  old2/completed.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/completed.json
+    sha256: 74991376d25ef6f9f2b7dfe9585a95cef9297c0330d262e7247b3022e3bd6c96
+  old2/graph/worker-proof-257044.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/graph/worker-proof-257044.json
+    sha256: a7ad3b17507427472fa11e1f36cf8d03a02629752a4ce70caf9085010a99c28b
+  old2/graph/worker-proof-257045.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/old2/graph/worker-proof-257045.json
+    sha256: ca2bbbd5fc2e5f0e1a9b47b2957d0413453e2a031412d0087c4fd03c7c03f713
+automation_status: deleted
+automation_deleted_after_terminal: true
+source_preservation:
+  status: passed
+  source_same_pid_ticks_argv_selected_env: true
+  source_same_repositories_model_tokenizer: true
+  source_models200: true
+  source_stop_calls: 0
+  private_current_code_restored: true
+  private_GPU_processes: []
+  source_GPU_processes:
+  - GPU: 0
+    pid: 3038028
+    name: VLLM::Worker_TP
+    memory_MiB: 61708
+  - GPU: 1
+    pid: 3038029
+    name: VLLM::Worker_TP
+    memory_MiB: 61708
+  controller_exited: true
+  only_HTTP: GET /v1/models; no generation
+  script_sha256: c2f15515d6640d5335cee0be76a7985006dd68c61ae7b6003b62f42a2abf2ef7
+planning_review:
+  id: plan-hot1k-close-001-20261105
+  cumulative_effect: No newly installed code. Current sampler net P1K effect is indistinguishable
+    from old sampler under this frozen test; no performance optimization gain claimed.
+  evidence_cutoff_utc: '2026-11-05T03:17:23.609211+00:00'
+  retained: Original user PR1069 and MoE code/config. Private current files restored.
+  not_triggered: 'Additional clone/filter mutation or microbenchmark: no material
+    controlled E2E regression.'
+  what_changed_in_belief: Historical large short-input deficit is not reproduced as
+    current-sampler steady regression after exact shape/type warmup. Cold-specialization/module
+    preparation remains supported explanation for historical stalls; its complete
+    historical fraction is unquantified.
+  ranked_next:
+  - rank: 1
+    direction: framework/measurement
+    first_falsifier: For future restarts repeat model-specific actual sampler shape+dtype
+      warmup and frozen admission; preserve every measured round.
+    mode: targeted
+    trigger: new service or renewed steady regression
+    stop: No new accepted rounds if warmup, cache delta or drift rule fails.
+  - rank: 2
+    direction: operator/improve if future evidence supports it
+    first_falsifier: If a new bound same-device regression appears, prove real request
+      filter input layout and active ATen clone backend, then measure fullAPI/clone/sort
+      with identical registration; avoid nativeTorch-only clone timing as a model
+      proxy. Potential copy+mask fusion must retain out-of-place semantics.
+    profiling: Only if residual low-overhead attribution is insufficient; no profiler
+      capture in this task.
+    compiler_features: No new TLE or compiler upgrade justified without a steady hotspot.
+      Existing installed FlagTree/Triton retained.
+  - rank: 3
+    direction: historical stack binding
+    first_falsifier: Bind complete old opt15 source/runtime/weights/device facts before
+      comparing it with current stack. The present control swaps sampler only; does
+      not reconstruct all of opt15.
+    trigger: separate request to close remaining cross-version historical absolute
+      gap
+  next_review_trigger: new bound steady regression, new code candidate or requested
+    scenario beyondP1K; no automatic next GPU task.
+formal_omitted_scenarios:
+- p4096-d1024-c64-n128
+- p16384-d1024-c64-n128
+- p32768-d1024-c64-n128
+performance_objective: steady_state
+cold_start_in_scope: false

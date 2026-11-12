@@ -1,5 +1,15 @@
 # FGV MoE GEMM1 / GEMM2配置调优
 
+## 2026-11-04 上游 PR 整理（执行前）
+
+用户明确要求将当前 `qwen36-35b` 容器的 FGV fused_moe 改动提交 PR，授权该主题 commit/push/PR。只读确认容器 FGV HEAD e1a02b6、MoE 文件仍为 c4673aea；其他 GDN/采样改动不纳入。当前上游 main 00f4ed653bcdf9dae33fb418a60eac01396813ba 已通过 PR977 加入 TP2 profile 和新版大M fast path，因此不整文件覆盖。
+
+在本地独立 checkout 迁移两个实测 BF16/C550/M64、8192 配置点：M64保留2 stages，M8192仅非新版fast path采用原实测字典。新增dtype/device/量化/block/batch-invariant边界，embedded优先级和新版fast path保持。补 host selector测试和现有benchmark TP2 shapes。无远端源码/服务/依赖/GPU操作，旧正式评测仍暂停。历史53+12+14硬件证据仅属于旧版本，不能当新main GPU或收益通过；拟创建draft PR并披露主线硬件复测缺口。归属operator/improve/config；A2/B3/D4/F4：仅vendor配置，无kernel/API/打印或依赖升级；B1/E2/F1-F3：主线真实GPU入口、graph/性能尚未新测，先交草稿评审。
+
+已提交 [FlagGems-vllm PR #1067](https://github.com/flagos-ai/FlagGems-vllm/pull/1067)，draft，head `a1913e73af9c2517601b9b69a00fd734ebd349e3`，仅3文件（vendor配置、host测试、benchmark形状）。81项host测试、仓库pre-commit和wheel构建均通过，wheel中源码与最终文件一致；四组配置与容器c467字典逐项相同，生产AST仅get_default_config变化。发布文件回读与审阅版本一致，SHA `a288621f06b9a921e4c9ceebc40244877750643d948d2f526025d94b65ba06a3`。
+
+首轮host测试因临时工具环境Python3.9立即求值主线union注解而失败，测试fixture加future annotations后81通过；不是GPU数值失败。无主线GPU/Graph/端到端新测或正式gate。PR正文明确旧53+12+14来自pre-977，不计算对新main收益；当前容器源码、服务及其他实验均未修改。后续硬件结果见下文：数值已通过，但性能退化，仍不转ready。
+
 **当前状态：apply-004已按用户要求写入私有FGV算子源码，新进程实际选参验证通过；现有服务未重启，新参数在运行服务中的命中尚未验证。**
 
 用户2026-10-26明确要求：以`/public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35b`当前端到端性能为观察，寻找当前FlagGems-vllm GEMM1/2更好的配置。延续本案例独立B，保留已有MoE接入和PR638；不修改vLLM、模型或采样实现，不提交推送。
@@ -132,3 +142,9 @@ application.json SHA9197dcc25593ea13cb196fe2bf995bbade7c222d5f0fca1795fd2034baf2
 ## 2026-10-28 当前 opt3 组合精度复测
 
 用户重启后的当前组合、实际prefix-on/GPU4/5/TP2，原生GPQA198/滚动C64独立通过**161/198=81.3131% >= 77.53%**。198唯一doc/396filter行/原prompt-target-args/无旧回答缓存/前后fresh源码一致，旧160/147/161/154逐题重现。验证：`/public-flash/jinghao/qwen3.6-35B/20261022-qwen36-35b-mx104-stack-regression/accuracy/user-gpqa-erqa-c64-20261028-001/gpqa-followup-001/independent-verification-001/verification.json` SHA c9437b838bd089152dc01a11c3f32076e89941334e545a89b8f175606366ebb9。此为保留组合精度，不证明本点独立贡献，不与旧prefix-off不同配置计算收益。随后官方ERQA多模态C64发生FGV MoE临时cache13申请256MiB OOM，服务退出；GPQA已测通过分数仍有效，旧实例gate不可直接用于新实例/新参数。ERQA部分证据保留、完整400分数缺失，不自动恢复/补跑/性能。详见[user-gpqa-erqa-c64-20261028-001.md](user-gpqa-erqa-c64-20261028-001.md)。
+
+## 2026-11-04 沐曦59后续硬件结果
+
+新Host独立案例[pr1067硬件验证](../../20261104-qwen36-mx59-pr1067-verification-001/optimize/pr1067-hardware-001.md)已完成：主线与候选各11 GPU数值/变化输入Graph用例通过，共44次replay；42项三角色Graph计时中，M64集中路由完整MoE延迟+9.7025%，M8192内部非快路径GEMM1+13.9591%，这两项B/R漂移均<1%。M8192非快路径GEMM2漂移5.8644%超3%，单项incomplete，不计算确定收益。普通M8192公开路径保留了新版主线fast path，不能用旧非快路径的历史3.5x宣传主线收益。
+
+[PR1067](https://github.com/flagos-ai/FlagGems-vllm/pull/1067)已追加GPU测试，head fb7c9f9461e5b88b64617eb996db42636ddfc423，正文明确负优化并保持draft；没有改动生产补丁或104任何容器/服务，不自动改用户现有c467配置。该新Host数据不覆盖旧104同配置微测/模型精度事实，也没有新模型全量精度或端到端性能。

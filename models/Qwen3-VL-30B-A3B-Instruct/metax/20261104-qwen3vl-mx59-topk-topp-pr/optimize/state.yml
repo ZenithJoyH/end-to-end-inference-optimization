@@ -1,0 +1,1589 @@
+schema_version: 1
+case_id: 20261104-qwen3vl-mx59-topk-topp-pr
+host: mx-59
+source_container: qwen3vl
+experiment_id: fix-012-signed-zero
+document: fix-012-signed-zero.md
+status: completed-pr-updated-source-preserved
+category: operator/improve
+scope: Signed-zero filtering correctness repair published to PR1069; original sorting/prefix optimizations
+  preserved, original model service/source unchanged.
+remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr
+source_revision: bad340d67a35e583989fcebf56326f60edc85c9c
+upstream_base: 5877f5c0b73ac221fe23419d1634783411b141e1
+authorization: User explicitly requests creating a FlagGems-vllm PR from the mx-59 Qwen3-VL container
+engineering_review:
+  operator_standard:
+    status: component_validation_passed_pending_review
+    api: top_k_top_p(logits, p=None, k=None), out-of-place; no legacy export
+    dtype: FP32
+    shape: contiguous M<=64, 1<=V<=262144
+    backend: metax
+    reference: vLLM ee0da84ab apply_top_k_top_p_pytorch; explicit stable token-index tie policy
+    no_autotune: Fixed M1 tile4096/merge256; batched schedules unchanged; no new dependency or autotune
+      search.
+    moe_fix:
+      status: component_and_graph_passed
+      classification: vLLM-specific activation INT8 quant; FlagGems-vllm generic source; no Plugin numerical
+        code
+      applicable_clauses:
+      - A1
+      - A2
+      - A3
+      - A4
+      - B1
+      - B3
+      - C1
+      - C2
+      - C3
+      - C4
+      - C5
+      - C6
+      - C7
+      - D1
+      - D2
+      - E1
+      - E2
+      - E3
+      - E4
+      - E5
+      - E6
+      - F3
+      - F4
+      math_or_api_change: false
+      no_fallback_or_dependency_change: true
+      graph: 42 changed-input replays; sentinels/reference/input/RNG checks; plus24 publicMetaX and36
+        PR1069 operator/caller
+      independent_oracle: native per-token quant; separate unchanged unfused OAI activation with FP64
+        precision bound; original48 unchanged
+      lint: black/isort(project src classification)/flake8 passed
+      unmeasured: no model graph/score/E2E performance or non-MetaX hardware validation; correctness repair
+        scope only
+    signed_zero_fix:
+      contract: Stable numerical zero equality for threshold counts/mask, original bit patterns preserved
+        in retained values
+      sort_key_sort_merge_and_prefix_AST_unchanged: true
+      host_dispatch_allocations_guard_unchanged: true
+      no_torch_compute_or_RNG_added: true
+      public_API_reference_dependencies_unchanged: true
+      compiler: Existing MetaX uint32 bitcast/where; no new compilerfeature/upgrade/autotune config
+      boundary: MetaX component only; no modelprecision gate/E2E benefit or non-MetaX hardware claim
+      inherited_reference_gap: Old B64/V4096 <0.9Torch reference remains disclosed, not changed or reclassified
+      status: component_and_graph_and_regression_passed
+      PR_head: b1287f170190078481c71f9c2836067846892499
+      device: MetaX C550 GPU6
+      audit: &id002
+        path: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/fix012-signed-zero-20261109/v4/results/independent-final-audit.json
+        sha256: 43dd83bf5ebaaa3b550fc2af1bf669eed634ae61cdbdfa81904f4f312d1cfc6a
+  threshold_prefix:
+    integer_semantics: bitwise compatible and independent CPUint64 oracle passed
+    graph: 6 captures/18 changed-input replays plus inherited graph tests
+    actual_path: public top_k_top_p to new prefix kernel launch verified
+    compiler: actual Triton3.6.0 tl.cumsum on C550; no dependency change
+    decision: shape-scoped candidate only; uniform replacement not retained
+    e2e: not measured
+  deploy_010:
+    status: passed
+    public_api: top_k_top_p(logits,p=p,k=k), returnedtensor consumed
+    installed_file_sha256: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+    graph: 12capture/36changed-inputreplay through actualPluginhook
+    input_RNG: unchanged
+    precision_performance_evidence: reuse exactfile/stack-bound op009134UT/44controlledperformance; no
+      new fullmodel gate
+    model_effective_state: not reloaded/restarted; disk-onlysync
+pr_readiness: pending_review
+commands:
+  prepare_remote.py: 45fecc09180f8ec9e1f16a14fa203e713032452bfe9848f613c019c9eb8a3c51
+  launch.py: 6e9212fa1bc360063e59bbc8d7585ed79eef1a23898745d70e6343106160bd24
+  upload_files.py: eb2cb5c44b98804ab7ed6910f305adde75d056d85c482d5df6cf429206e5e34a
+  rounding_diagnostic.py: f46bc3c08c95cc864a44e037309e54010b931d7283b22f38cd5e2e00097feac7
+  update_v2.py: f06183830c8f22b35c53830fa7410ff45ca07db7a45d6daeba3b101d721df5ad
+  update_v3.py: 95bf4a84e0a83ed24d25b502faaee2204d48fe5902fdefdf55ae76168e287d75
+  update_v4.py: b0007be56b1070c0c7f517a3e9967e3d5bbc27e34fe1457de64063985c3a02a6
+  container-payload.json: b728144612b8c320eb3b6fcd0460a701a41d94c8960100ef56b060c76189226c
+  apply_container.py: 01ae3f6692d33a4de6bdada6cf02b72d15174f94bd588603298be40d6f13e6cf
+  post_install_check.py: 939f7235ec533e84999e38d0b79720ef13b50b0c872f1fc08103ab18dd75b23b
+  apply_container_v2.py: ef9db5d823b11b3d610261f5c5ad4f04a65aa4fa1be179fed278ad5ec4c27c1b
+  final_audit.py: 78b68f1410d0beae73fd1843eb89f66aa6486bc6de6ead0e8d87e8ff198de4ed
+pr_branch: ZenithJoyH/FlagGems-vllm:metax-apply-top-k-top-p
+rounding_diagnosis:
+  status: confirmed boundary rounding, not sort corruption
+  sort_exact: true
+  fp32_cdf_difference_at_disputed_tokens: 4.470348358154297e-08
+  fp64_reference: candidate closer at both tokens
+  testing_contract: top-p-only CPU FP64 CDF with repository FP32 RESOLUTION 1.3e-6; retained values exact,
+    masks exact outside interval and monotonic suffix inside
+  initial_strict_test_failure_retained: true
+user_steering: Use only top_k_top_p(logits,p=None,k=None), no compatibility API; synchronize the target
+  container Plugin caller
+caller_update:
+  status: applied_and_verified
+  files:
+  - vllm_fl/ops/sampler.py
+  - vllm_fl/dispatch/backends/flaggems/impl/sampler.py
+  api: return top_k_top_p(logits, p=p, k=k)
+  policy_key: top_k_top_p
+  fallback: capability/metadata check before dispatch; execution errors propagate
+  production_safety: current qwen3vl only bash; guarded backup and SHA check before any write; no unrelated
+    files
+  preflight_incident: docker top requires PID column; first attempt failed before backup/writes; corrected
+    to pid,comm
+  actual_hook_proof:
+    status: passed
+    public_api: top_k_top_p(logits,p=None,k=None)
+    legacy_api_absent: true
+    actual_plugin_hook: true
+    keyword_arguments_verified: true
+    input_preserved: true
+    unsupported_metadata_native_fallback: true
+    execution_error_no_retry: true
+    registration_idempotent: true
+    changed_input_graph_replays: 3
+    rng_state_unchanged: true
+    fgv_source: /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+  files_sha256:
+    /workspace/FlagGems-vllm/src/flaggems_vllm/ops/top_k_top_p.py: 477b570a8852d787f3ea53e85c02ea74fe8bfe718e345a531f43c41d1309b8b8
+    /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py: 8d88c5dcc17e60ffc3a636661d033b9ba7bc5aca6a5e49e0324cb82ad78e2987
+    /workspace/FlagGems-vllm/src/flaggems_vllm/ops/__init__.py: 0fee39d60ae1f7b65b3b7323318fc855b2e1886f8b28f4628ed5e2592cd6b91f
+    /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/__init__.py: d76931e43a04e99c726839cad0196bcf63f07a0a567d1c7b1c1f2873dd4232eb
+    /workspace/FlagGems-vllm/src/flaggems_vllm/__init__.py: 9d53d6106320acfde59b500d199a11e0efeffb732fb247e514b7ace4bced78c2
+    /workspace/FlagGems-vllm/conf/operators.yaml: 0aa15a87853a922d18c3590a059f3dbc50502f0947467aa86a8be6d25c49971f
+    /workspace/vllm-plugin-FL/vllm_fl/dispatch/backends/flaggems/impl/sampler.py: 0643cd9ce549239155c9d3ffcfb7f532d9405409749c54b7b7fae1960206ecbb
+    /workspace/vllm-plugin-FL/vllm_fl/ops/sampler.py: 9f9c378a7abe4feba198e0426c938d136dbb363dd29a37abfd6e65afeb414fb5
+  latest_validation: deploy-004-container-sync; actual hook 18 changed-input graph replays
+  startup_switch: Original start-model.sh exports VLLM_FL_USE_FLAGGEMS_VLLM=1; unchanged
+performance_limitations: 44 component rows x2timingmethods; maximum relative latency increase0.547%, not
+  an E2E improvement. Known inherited B64/V4096 Torch-reference gap remains.
+pr_commit: b1287f170190078481c71f9c2836067846892499
+pr:
+  url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+  number: 1069
+  head: b1287f170190078481c71f9c2836067846892499
+  draft: false
+  mergeable: true
+  reason: Signed-zero fix hardware validated, published; pending reviewer/CI
+decision: Retain validated main208ab generic+three-kernel int64 offset grouping, exact-main MetaX, original
+  PR1069; no model/E2E gate or performance claim
+source_audit:
+  fgv_changed_files:
+  - src/flaggems_vllm/__init__.py
+  - src/flaggems_vllm/ops/__init__.py
+  - src/flaggems_vllm/ops/top_k_top_p.py
+  - src/flaggems_vllm/runtime/backend/_metax/ops/__init__.py
+  - src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+  moe_source_unchanged: true
+  unexpected_source_changes: []
+raw_evidence:
+  results/completed-v4.json: 21b89eecce87cbf997be68b30f922da149c1b1e8def82b2ac8e45ea63d2b9985
+  results/benchmark-v4.json: eb09567a06e38c369cebba0cb6b1c7a08b0e9be816979c5709713f798097f003
+  results/container-updated.json: b9e859d8718cd8e35d0885a53b49b24eda6206fb6e117f7b08cf08cd094ab130
+  logs/rounding-diagnostic.log: 9bc680ba2ca71f36e326f64760120598adb2eb9e300e972225d94db84fee7265
+  logs/container-integration.log: ad427275cd393eb8291444ba9dbb7d318ffbb039fe2a35818b42b647cea35a93
+final_audit: &id001
+  path: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy004/results/final-audit.json
+  sha256: a2c91c250338ef0a2677debd5cad1d908d0d59c58ac3103a099199dfd136eb12
+experiments:
+- experiment_id: pr-001-topk-topp
+  document: pr-001-topk-topp.md
+  status: completed
+  classification: operator/replace
+  correctness: component_and_caller_passed
+  performance: M1 regressed; draft PR
+  pr_url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+- experiment_id: op-002-single-batch-sort
+  document: op-002-single-batch-sort.md
+  status: completed
+  classification: operator/improve
+  scope: PR1069 single-row sorting, no inference service or sampling configuration changes
+  head_before: 675b36e9b39397e097ce5b7cf0289769bd97bd02
+  target:
+    batch: 1
+    vocabs:
+    - 4096
+    - 151936
+    input_kinds:
+    - bf16-grid
+    - arbitrary-fp32
+    dtype: FP32
+    k: 20
+    p: 0.8
+  sentinels:
+    batch:
+    - 8
+    - 64
+    vocab: 151936
+  guards:
+  - Preserve exact bit-ordered sorted values versus previous implementation
+  - Preserve existing softmax, cumsum and mask kernels
+  - 68 original tests plus boundary tests and changed-input graph
+  - Input and RNG unchanged; no Torch compute fallback
+  - All non-M1 paths unchanged
+  method: Independent same-mount snapshot container, GPU0; profiler for attribution only, upper-repo benchmark
+    without profiler for performance
+  stop: On new numerical/graph failure stop promotion; report all trials; do not change tolerance or runtime
+    configuration
+  compiler_feature_candidate: Check installed tl.sort/bitcast and TLE support; prefer lower launch count
+    before new compiler features
+  e2e_mode: not_applicable_operator_only; no new model/E2E gate
+  commands:
+    backend-before.py: 8d88c5dcc17e60ffc3a636661d033b9ba7bc5aca6a5e49e0324cb82ad78e2987
+    backend-candidate-final.py: 3513e43713ca0dced706dfbc8369a7291c4759e338235586dca59cd7599cb279
+    backend-candidate-v1.py: e7a2ce2dc71561d4e89fe32ade5f33f899621ce6e2555148557854ecb1f9f5bd
+    bench-v1.py: 49e513f18447a4c79ffa8a0986e0ab532b6e72b02975293517154f7f3257746e
+    create-container-argv-v2.json: 1a9bfe751371657e7ba0a453e1568b567766e3a15a96ae9e82dec1be558713d5
+    create-container-argv.json: b25f9363f2bac7344119681409e660a23c1a55e09eebe97f2ff8be4ff3303042
+    final_audit.py: d79daf32eb496292f9dbb6ad76eff1653d2225c446e417c1e0ed84bdbacd86c9
+    prepare.py: 0ae65c5999b657f5bf8f64e894457ae870b1b0f2f89009f673498d41bd1ecb2c
+    prepare_v2.py: 002cb273c1972a14ea8638f360dc59a2f8399ca42e1be44a363c5aebe9aa74f3
+    profile-candidate.py: 90190195c0bba290cd4fea16bcd756b918c4c510524a82595595862d8e60a5e9
+    profile_baseline.py: 96695899c11435f5deb66acd5fdb3a44c9d51bcac146cfadb630d603196d4e87
+    run-baseline-profile.json: f2200dee7627ca9ccbf2742d042f55e62593c548280879bbaff4decf009c6f49
+    run-bench-v1.json: b0b93fc82eb174d0c24c5c9513274560e8ac8703417b1cc5244af5db5738042c
+    run-profile-candidate.json: e1ac37ff2d0f54364637913820c31743ed5e8e26e969a38049452ee6b0f0e481
+    run-smoke-v1.json: 10beb21d1ec4039d04c86272c02b60f9f81bf48971a84a1a9469e1ae67cd6048
+    run-tests-v1.json: e3799f3f1490b6b75b0ee97d10a35196456c61fe93479239528dbb83e8057dc7
+    smoke-v1.py: d007d6ed9781d8d4fc5a53ab4239d62e85a3f56fa91fdde1ffe0de3516ac8112
+    stop-owned-clone.json: 2b26ff3c2de905643e68c3e94e896b91236b009a095368b180091c182064b6e9
+    test_top_k_top_p_metax_v1.py: ea99f9209a9601a4842cf7b41fa8850a8fa5438e15e38a49c9be6f9351fe45ec
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/op002
+  profiling:
+    mode: capture/analyze component only
+    cases: M1 V4096/151936 x bf16-grid/arbitraryFP32, 20 warmup, 3 captured calls
+    e2e_worker_phases: not_applicable
+    coverage: one GPU0 process, original actual public API and sort substage
+    not_formal_timing: true
+  preparation_incident: Docker commit emitted a deprecation notice on stdout; image exists, first docker
+    run rejected malformed reference before container creation. Recovery uses image inspect exact SHA;
+    no source/GPU change.
+  decision: keep_PR_only
+  pr_url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+  implementation_commit: 2e157ea485ccd0704f5542f782c43b83ded7be20
+  head_after: e635daac04def3f603714928858a977a1a31ea9f
+  task_container: qwen3vl-topk-opt1069-20261104
+  task_container_stopped: true
+  production_container_unchanged: true
+  validation:
+    unit_tests_passed: 91
+    graph_captures: 6
+    changed_input_replays: 18
+    bitwise_old_cases: 20
+    filter_modes_per_case: 3
+    rng_unchanged: true
+  kernel_counts_before:
+  - 33
+  - 35
+  kernel_counts_after:
+  - 8
+  - 16
+  benchmark:
+  - bf16_grid: true
+    m: 1
+    n: 4096
+    median_ms:
+      B: 0.567296028137207
+      C: 0.12031999975442886
+      R: 0.5692159831523895
+      torch: 0.13235199451446533
+    vs_old: 4.714893860497414
+    vs_torch: 1.0999999566538694
+    revert_ratio: 1.0033843970695282
+  - bf16_grid: true
+    m: 1
+    n: 151936
+    median_ms:
+      B: 0.6351360082626343
+      C: 0.27980801463127136
+      R: 0.6268160045146942
+      torch: 0.2969599962234497
+    vs_old: 2.2698992703965652
+    vs_torch: 1.061299107585539
+    revert_ratio: 0.9869004376390204
+  - bf16_grid: true
+    m: 8
+    n: 151936
+    median_ms:
+      B: 0.6476799845695496
+      C: 0.6595840156078339
+      R: 0.6561279892921448
+      torch: 1.9202560186386108
+    vs_old: 0.981952214188644
+    vs_torch: 2.9113137571549785
+    revert_ratio: 1.0130434858631763
+  - bf16_grid: true
+    m: 64
+    n: 151936
+    median_ms:
+      B: 1.767680048942566
+      C: 1.767680048942566
+      R: 1.7687040567398071
+      torch: 9.497599601745605
+    vs_old: 1.0
+    vs_torch: 5.372917801175112
+    revert_ratio: 1.000579294764261
+  - bf16_grid: false
+    m: 1
+    n: 4096
+    median_ms:
+      B: 0.5928959846496582
+      C: 0.12006399780511856
+      R: 0.5880320072174072
+      torch: 0.13363200426101685
+    vs_old: 4.938166273723578
+    vs_torch: 1.1130064524248238
+    revert_ratio: 0.991796238196612
+  - bf16_grid: false
+    m: 1
+    n: 151936
+    median_ms:
+      B: 0.6484479904174805
+      C: 0.27980801463127136
+      R: 0.6498560011386871
+      torch: 0.2949120104312897
+    vs_old: 2.317474684461772
+    vs_torch: 1.053979854079313
+    revert_ratio: 1.0021713548997202
+  - bf16_grid: false
+    m: 8
+    n: 151936
+    median_ms:
+      B: 1.1891199946403503
+      C: 1.1886079907417297
+      R: 1.1893759965896606
+      torch: 1.9970559477806091
+    vs_old: 1.000430759260083
+    vs_torch: 1.68016365642501
+    revert_ratio: 1.0002152868932186
+  - bf16_grid: false
+    m: 64
+    n: 151936
+    median_ms:
+      B: 6.530816078186035
+      C: 6.529024124145508
+      R: 6.529024124145508
+      torch: 9.463295936584473
+    vs_old: 1.0002744597058388
+    vs_torch: 1.449419661598048
+    revert_ratio: 0.9997256156016224
+  evidence_sha256:
+    results/baseline-profile.json: ca483631e11fe41715cd6528895e83b7953835a57a8a10ea41f89b715fdd1197
+    results/benchmark-v1.json: 890ec770cc0e2ae644194a30fa773729495208738776f03e5e8f438ae70db877
+    results/candidate-profile.json: 749d3e94b0b05a11222207cd8652aac4424f7bc81f3ee25298e86b9f63e161c4
+    results/compiler-features-candidate.json: 1d2f52a04141dab67d92282c528f8416f283759f57876f2a099343ee1a666671
+    results/compiler-features.json: 428f4df5aca55e50546a91673c01ca775602df3fc55596092ec6c1266474bbe7
+    results/prepared-v2.json: ac78d748a866043787a25086bc95709c0880600029af543a427a4e8f83025a31
+    results/pytest-v1.xml: 1352224cef55573725713978b8b850304dd70026e2aaf5e7b8eb7e6202f9656c
+    results/smoke-v1.json: 328cd054cd3189133bf89853db98996fdfa9e8c4414ac1365c7efdffa9ef91fb
+  published_backend_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+  documentation_only_sync:
+    documentation_only: true
+    executable_AST_unchanged: true
+    before_sha256: 3513e43713ca0dced706dfbc8369a7291c4759e338235586dca59cd7599cb279
+    after_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+  comparison_method: All three old/candidate/revert/Torch kernel rounds kept; one input clone each, k20/p0.8;
+    upstream Benchmark.get_latency, 20 warmup calls, 20ms/50ms, median.
+  no_autotune_exemption: Fixed single-row 4096-value sort tiles and 256-value merge blocks; launch-overhead
+    specialization, no schedule search or dependency changes.
+  limitations:
+  - 8 measured component cases only; no model/E2E gain or gate
+  - Original top-p boundary tolerance unchanged
+  - M8 BF16 sentinel varied by 1.8%; non-M1 executable path unchanged
+  - Production source not updated; verified candidate was only in stopped clone
+  completion_receipt:
+    status: completed
+    decision: keep_PR_only
+    pr: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+    head: e635daac04def3f603714928858a977a1a31ea9f
+    implementation_commit: 2e157ea485ccd0704f5542f782c43b83ded7be20
+    mergeable: true
+    draft: true
+    source_container_unchanged: true
+    test_clone_stopped: true
+    production_deployed: false
+    final_audit_sha256: ac87c3243f5a68d1f43083511001d2ee957308b63d6582c3cd71dbcf85369308
+    published_backend_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+    published_files_verified: 9
+  final_audit:
+    path: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/op002/results/final-audit.json
+    sha256: ac87c3243f5a68d1f43083511001d2ee957308b63d6582c3cd71dbcf85369308
+  record_check:
+    this_case_errors: 0
+    unrelated_workspace_errors: 85
+- experiment_id: ci-003-export-order
+  document: ci-003-export-order.md
+  status: completed
+  scope: Only reorder MetaX __all__; no inference, math, CI workflow or container changes
+  head_before: e635daac04def3f603714928858a977a1a31ea9f
+  failed_run: 41799746290
+  failed_job: 126472314404
+  diagnosis: check_init_exports.py requires casefold ordering; top_k_top_p preceded SUPPORTED_FP8_DTYPE
+  verification:
+    export_set_unchanged: true
+    non_export_AST_unchanged: true
+    before_sha256: 0b5dfcfca8edaeb5a6a853e0fdc7e7070cac3218b109490ff7b2a33d4764877b
+    after_sha256: 2519e25b33da88c1609f947ef5ea18601f6c82bfea3e4ec52102c1445700d776
+    checks:
+    - command:
+      - tools/ci_checks/check_operators_yaml.py
+      - --operators
+      - '["top_k_top_p", "top_k_top_p_metax"]'
+      exit_code: 0
+    - command:
+      - tools/ci_checks/check_init_exports.py
+      exit_code: 0
+    - command:
+      - tools/ci_checks/check_operator_markers.py
+      - --operators
+      - '["top_k_top_p", "top_k_top_p_metax"]'
+      exit_code: 0
+    - command:
+      - tools/ci_checks/check_aten_operators.py
+      - --operators
+      - '["top_k_top_p", "top_k_top_p_metax"]'
+      exit_code: 0
+    - command:
+      - tools/ci_checks/check_performance_reference.py
+      - --operators
+      - '["top_k_top_p", "top_k_top_p_metax"]'
+      exit_code: 0
+    - command:
+      - -m
+      - unittest
+      - discover
+      - -s
+      - tools
+      - -p
+      - test_ci_*.py
+      exit_code: 0
+    - command:
+      - tools/check_ci_pins.py
+      exit_code: 0
+  local_precommit: passed
+  gpu_tests: not_repeated; export set and non-export AST unchanged
+  remote_changes: false
+  head_after: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+  published_file_exact: true
+  rule_check_run: 41800956811
+  rule_check_status: success
+  basic_ci_run: 41800957375
+  basic_ci_status: success
+  ci_helper_unit_tests_passed: 54
+  decision: keep_export_order_fix
+  cla_status: success
+  mergeable: true
+  ci_backend_jobs:
+    metax-maca3720: success
+    metax-maca3810: success
+    nvidia: skipped_by_existing_policy
+    multi_backend_summary: success
+  published_file_blob: 74993170c8a0130171540a3236c5b90c857e95d2
+- experiment_id: deploy-004-container-sync
+  document: deploy-004-container-sync.md
+  status: completed
+  authorization: 2026-11-04 user asks deploying PR1069 to mx-59/qwen3vl with interfaces/correctness/graph
+    verified and other settings unchanged
+  scope: Six PR-related files, only backend implementation replaces math; no model service or launch changes
+  pr_head: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy004
+  source_idle: true
+  source_private_workspace: true
+  roots:
+    flaggems_vllm: /workspace/FlagGems-vllm/src/flaggems_vllm/__init__.py
+    vllm_fl: /workspace/vllm-plugin-FL/vllm_fl/__init__.py
+    vllm: /workspace/vllm/vllm/__init__.py
+    flag_gems: /workspace/FlagGems/src/flag_gems/__init__.py
+  source_revisions:
+    fgv: bad340d67a35e583989fcebf56326f60edc85c9c
+    plugin: 08da21cb39601752040196232b60a152382c0f8f
+    fg: c3c5f5ab274f7d1a8a95e3d3ba7bbac28e4a9fd4
+  package_versions:
+    torch: 2.8.0+metax3.7.0.7
+    triton: null
+    flagtree: 0.7.0.post2+metax3.6
+    flag_gems: 5.5.0.dev0+gc3c5f5ab2
+    flaggems_vllm: 0.3.0.dev1
+    vllm: 0.24.0+empty
+  plugin_action: already aligned; no writes
+  validation_mode: minimal-regression component + actual Plugin hook; no model server running, model graph
+    not claimed
+  files:
+  - src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+  - baseline/apply_top_k_top_p.py
+  - tests/test_top_k_top_p_metax.py
+  - benchmark/test_top_k_top_p_metax.py
+  - src/flaggems_vllm/runtime/backend/_metax/ops/__init__.py
+  - conf/operators.yaml
+  commands_sha256:
+    controller.py: ad48750e89c62f97c87b428ed53984131f19890cc12ddc7d5b3dfde4ee88ac09
+    deploy-payload.json: 157f6203bca6ec731142b36a51bbf37c9e712b9f48836655a835734f5932d9d7
+    hook_check.py: 9edd5ed4cee86ec20c60d9007d68348cd698103113132c382e5a0a3f2ebefc82
+    bitwise_old.py: 28dc14e3b1bc573f441b701b2415135f1a338de11126026f2a3123bab3f6d989
+  rollback: Exact backups; automatic on validation failure
+  default_configuration: unchanged; hook-test activation only in test process
+  guarded_unrelated_metadata: true
+  guarded_unrelated_export_AST: true
+  preflight_incidents: Optional dist metadata name and command filename/quoting issues occurred before
+    writes; v3 resolved, no dataset/model requests
+  tooling_incident:
+    issue_id: accdiag-deploy004-hook-import
+    skill: inference-accuracy-diagnosis
+    classification: measurement-invalid
+    cause_confirmed: Direct script sys.path did not include repo root; baseline import failed before actual
+      hook calls
+    numeric_result: 91 component tests and 20 exact old cases passed
+    first_attempt: auto-rolled back; original artifacts retained
+    fix: test reference resolved through explicit verified file path; no production or tolerance changes
+    revalidation: Verify full rollback/config, reapply identical payload, reuse SHA-bound passed component
+      artifacts, execute unchanged 6-case hook/graph contract
+    status: resolved_after_exact_rollback_and_identical_candidate_reinstall
+  commands_v2_sha256:
+    controller_v2.py: 3341230c086b387b0e49307fefc081783ccab56fef3027a032947fb4fe713936
+    hook_check_v2.py: e1da8df86bac3ff69cd2db09a915ff831fdbb4e528c65f584b9a1299cc3f237e
+  partial_validation:
+    component_tests: 91
+    component_replays: 18
+    bitwise_old_cases: 20
+    hook: passed_v2
+  decision: keep_deployed_fixed_PR_files
+  files_sha256:
+    src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+    baseline/apply_top_k_top_p.py: 5669adac399baf427341e5eb26d2748cc4e9f2de59218d233ee0e155651ada76
+    tests/test_top_k_top_p_metax.py: ea99f9209a9601a4842cf7b41fa8850a8fa5438e15e38a49c9be6f9351fe45ec
+    benchmark/test_top_k_top_p_metax.py: f54b766dc2e95b6042ec97a7e06a580b76e3ff0817639af9002644be8aa1e311
+    src/flaggems_vllm/runtime/backend/_metax/ops/__init__.py: 8127fb734c729d041c7e6cd2102ab0437c184c552c6df4851117904d1ec29673
+    conf/operators.yaml: 21cbeb7ffd2e18981132ea8de302cfa96e631d4ca0c11d01398d23cf5c6eaa82
+  plugin_sha256:
+    vllm_fl/ops/sampler.py: 9f9c378a7abe4feba198e0426c938d136dbb363dd29a37abfd6e65afeb414fb5
+    vllm_fl/dispatch/backends/flaggems/impl/sampler.py: 0643cd9ce549239155c9d3ffcfb7f532d9405409749c54b7b7fae1960206ecbb
+  validation:
+    component_tests: 91
+    bitwise_before_cases: 20
+    component_changed_input_replays: 18
+    actual_hook_changed_input_replays: 18
+    input_rng_preserved: true
+    actual_api: top_k_top_p(logits,p=p,k=k)
+    model_graph: not_run_no_model_service
+    formal_gate: not_issued
+    performance: not_run
+  configuration_unchanged: true
+  effective_default_policy:
+    VLLM_FL_USE_FLAGGEMS_VLLM: false
+    top_k_top_p_allowed: true
+  default_policy_note: Container/default process gate remains false; enabled only in isolated hook-test
+    process. No startup/env/blacklist changes.
+  final_audit: *id001
+  current_terminal: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy004/results/completed.json
+  artifact_sha256:
+    results/completed-v2.json: 9c8ffa6e10782e0aaca004b5b90af7cbd837308814944ab5138a301489ee0196
+    results/component.xml: 9a04fd58d36d8cc3dd64451b5fa3812d349d6029a418b2b252f38e2029f5485a
+    results/bitwise-old.json: 328cd054cd3189133bf89853db98996fdfa9e8c4414ac1365c7efdffa9ef91fb
+    results/hook-check-v2.json: 9b8d8d4af941de15989e490e6554e5b738a9f33b69a0dbb771eb2456f562b19d
+    results/source-recovery-v2.json: f693b048c24450da997b99fbe801f1f9515939d0fac5c6c56f3c5638093d3ab4
+    commands/execution-contract.json: 361230a25cfb5861b844b1c46055a302e3bfd3c2f9f7d163611ab751e6609758
+    commands/execution-contract-v2.json: 9eb6f7bb9f57b3afd0739e52598f573b351195480ccbc5c9e8f2832dda9ce19b
+    logs/component.log: 8ec6bcfd07ca00d884b195451c77b2940d57dd281e74779b5de0cfba10aae263
+    logs/hook-v2.log: 688454bdd5d826b58dbc6e437fcd2d4a94eeef4d52414da4792e420faacf3db0
+  startup_script_policy:
+    path: /public-flash/jinghao/qwen3-VL/start-model.sh
+    sha256: 86cd7f6222d6f293870478be0a47bdd852a29ace09a3dbb0f07564dec87a2a0a
+    existing_switch_lines:
+    - export VLLM_FL_USE_FLAGGEMS_VLLM=1
+    sets_flaggems_vllm_to_one: true
+    modified: false
+  terminal_sha256: 40199ab869b9e97f58a302c6793fdcc67aa42dd1bfa59902113e74802b023ecc
+- experiment_id: sync-006-moe-main
+  document: sync-006-moe-main.md
+  status: incomplete
+  authorization: User requests MoE main sync in mx-59/qwen3vl preserving PR1069 and other settings
+  main_sha: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+  scope: Generic and MetaX fused_moe.py plus upstream tests only
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/moe006
+  validation_mode: minimal-regression component and actual MetaX public operator; no model service
+  source_revisions:
+    fgv: bad340d67a35e583989fcebf56326f60edc85c9c
+    plugin: 08da21cb39601752040196232b60a152382c0f8f
+    fg: c3c5f5ab274f7d1a8a95e3d3ba7bbac28e4a9fd4
+  protected_pr1069:
+    benchmark/test_top_k_top_p_metax.py: f54b766dc2e95b6042ec97a7e06a580b76e3ff0817639af9002644be8aa1e311
+    tests/test_top_k_top_p_metax.py: ea99f9209a9601a4842cf7b41fa8850a8fa5438e15e38a49c9be6f9351fe45ec
+    baseline/apply_top_k_top_p.py: 5669adac399baf427341e5eb26d2748cc4e9f2de59218d233ee0e155651ada76
+    src/flaggems_vllm/ops/top_k_top_p.py: 477b570a8852d787f3ea53e85c02ea74fe8bfe718e345a531f43c41d1309b8b8
+    src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+  protected_config_files: 104
+  commands_sha256:
+    controller.py: 1ce16affb8219b00fcbc1e5c1c13b8dbdff1f442e9f8cc58686d020ca89ba3b5
+    payload.json: 01546f56db30892e3ea264d2dd658fdd3cd88e6acd2c8cb00c3103370880d8a4
+    moe_regression.py: f6b69657fbad4125d8fef13e71e074aea25f3a44c4fbbc47edc83cb0356872c1
+    topk_hook.py: 392482128ae8307d9afdf3d24324f14e7379f3a9530d0c68729a9cd580f81fdf
+  on_failure: Exact MoE file restoration; PR1069 not touched
+  incident:
+    issue_id: accdiag-sync006-large-offset
+    mode: minimal-regression
+    status: confirmed_component_failure_generic_sync_blocked
+    classification: execution-mode large-offset kernel boundary
+    evidence: moe006/logs/upstream-moe.log; abort134 at test_quant_offsets_promote_past_int32 after39
+      test dots
+    candidate: fixed main208ab580
+    known_good: pre-sync source backup and preserved PR1069
+    next: none; resolved by007 for component scope
+    isolated_result:
+      native_fixture: passed
+      native_reference: passed
+      main_quant_kernel: illegal memory access at synchronize
+    model_score_cause: not_claimed
+    source_state: Generic/tests original bytes; only validated MetaX exact-main file retained; PR1069
+      intact
+    compiler_ir: TTIR/LLVM offsets int64; lower-level cause unconfirmed; archive moe006/results/offset-ir
+    harness_v2: Missing required workspace args caused API guard; exact rollback; v3 corrected call only;
+      all v3 tests passed
+    resolution: Fixed by007 address normalization; original unpatched-main failure remains historical,
+      not relabeled passed
+  diagnostic_script_sha256: 36dea4bfffa2ef1b3a997b7e74527749c2124aa8cbf12a5422c4104cc10c9f45
+  metax_only_execution:
+    status: passed
+    remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/moe006/metax-only-v3
+    commands_sha256:
+      controller.py: 411334aaf510336ca53e82092ad21fa6c24dfe4fe206e51958dd5687cae5a9b1
+      payload.json: be7e786efc6575e937305e7db0d21e76578962e91492056b243b6e9632377f32
+      moe_regression.py: 8c2a0a0c48fb122db3b148722722fe2a0f61d11e8a5b02cf6f578c100872b0b0
+      topk_hook.py: 7d677b4629be9f54a6f4b5d4a2b95e240a6891f3cf100b8c154959d71c51c2d7
+    independent_final_audit_sha256: 29e9809783abdf1446295413d9355e8f0cf710839fcbaae3890f81321debb4df
+    audit:
+      status: passed
+      target: mx-59/qwen3vl
+      result_scope: MetaX fused_moe exact main only; generic upgrade not retained
+      main_sha: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+      source_differences:
+        fgv:
+        - src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py
+        plugin: []
+        fg: []
+      updated_files_sha256:
+        src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+      PR1069_preserved: true
+      PR1069_backend_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+      plugin_and_flaggems_unchanged: true
+      all_104_configs_unchanged: true
+      container_config_hostconfig_unchanged: true
+      startup_script_sha256: 86cd7f6222d6f293870478be0a47bdd852a29ace09a3dbb0f07564dec87a2a0a
+      runtime_idle_no_model_started: true
+      existing_moe_tests: 25
+      actual_moe_numeric_cases: 8
+      moe_changed_input_replays: 24
+      topk_tests: 91
+      topk_component_replays: 18
+      actual_plugin_replays: 18
+      generic_main_blocker: Quant kernel illegal memory access for BF16 stride2**30 rows3; fixture/native
+        reference passed; exact rollback retained
+      model_graph_or_formal_gate: not_run
+      performance: not_run
+      completed_receipt_sha256: f36082879b8355c5f46dc01a67e459ee17a5be8d0a29309dfcda319b28a14cec
+  retained_scope: MetaX fused_moe exact main only
+  remaining_scope: Generic main fused_moe and tests not retained
+  superseded_by: fix-007-int8-large-stride
+- experiment_id: fix-007-int8-large-stride
+  document: fix-007-int8-large-stride.md
+  status: completed
+  authorization: User explicitly requests fix, correctness+graph then sync; PR1069 and all settings preserved
+  issue_id: accdiag-sync006-large-offset
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/moe007
+  main_sha: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+  mode: minimal-regression
+  preflight_sha256: c2e1e988b784f83f7d5f5baaa3c8afa3109c634bb499516c3bae3349d6c1566c
+  source_writes_before_validation: false
+  root_cause:
+    confidence: confirmed at source expression/lowering boundary
+    mechanism: Equivalent chained vs combined 64-bit large offsets control failure on current MetaX compiler
+      path
+    original_int64_cast_already_present: true
+    exact_downstream_compiler_pass: not localized
+    controls:
+      chained_copy: illegal access
+      combined_copy: exact
+      explicit_uint64_address: exact
+      rebased_original_quant: exact
+      original_runtime_stride_unfused_activation: passed
+    numerical_helpers_unchanged: true
+  candidate_sha256: 4434453dc5eab0b2f3a9f8f80c2143f5e2b60bbfc891dc5713ea32e1f7f91146
+  private_validation:
+    upstream_tests: 48
+    added_stride_tests: 14
+    changed_input_replays: 42
+    skipped: 0
+    status: passed
+  scope: 3 quant kernel address expressions only relative to main208ab; no numeric helper/config changes
+  source_state: synchronized and independently audited
+  category: operator/improve correctness repair
+  validation:
+    status: passed
+    target: mx-59/qwen3vl
+    main_sha: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+    generic_fix_sha256: 4434453dc5eab0b2f3a9f8f80c2143f5e2b60bbfc891dc5713ea32e1f7f91146
+    metax_main_sha256: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+    source_differences:
+      fgv:
+      - src/flaggems_vllm/ops/fused_moe.py
+      - tests/test_fused_moe.py
+      - tests/test_fused_moe_large_strides.py
+      plugin: []
+      fg: []
+    only_changed_generic_functions_vs_main:
+    - _int8_quantize_per_token_kernel
+    - _int8_quantize_per_token_wide_kernel
+    - _swigluoai_quantize_per_token_kernel
+    original_48_upstream_tests_byte_exact: true
+    PR1069_backend_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+    PR1069_preserved: true
+    plugin_flaggems_other_source_unchanged: true
+    runtime_configs_unchanged: 111
+    known_test_artifact_updated: accuracy_result.json; reports archived; not read by production source
+    post_reapply_tests: 15
+    container_config_hostconfig_unchanged: true
+    startup_script_sha256: 86cd7f6222d6f293870478be0a47bdd852a29ace09a3dbb0f07564dec87a2a0a
+    runtime_idle_no_model_started: true
+    private_regression: 62 passed/0 skipped;42 changed-input graph replays before sync
+    installed_moe_tests: 62
+    quant_changed_input_replays: 42
+    actual_metax_cases: 8
+    actual_metax_changed_input_replays: 24
+    topk_tests: 91
+    topk_component_changed_input_replays: 18
+    actual_plugin_changed_input_replays: 18
+    root_cause: Confirmed equivalent chained vs combined large-offset addressing controls failure; exact
+      downstream compiler pass not localized
+    issue_resolution_scope: component MoE synchronization blocker resolved; no historical GPQA/model-score
+      causal claim
+    model_graph_or_formal_gate: not_run
+    performance: not_run
+    completed_receipt_sha256: 5bf224abd2495597eb1cb6dccffc122a0b07a44216486b3dd10a4e10c2d1df63
+  final_audit_sha256: e29ebbc4e382732ca58636c765337b53ff5e0d937504b70df5c278d4894583be
+  commands_sha256:
+    preflight.py: 858caadb5c0ea25a01a03ae8d31fae99345c2840750efbd0325aa344cdd55724
+    address_probe.py: e92a782e93811cf276f1bc7ac99bb3cb9401a10b7c0ce45b80672b0a9a2444c4
+    generic-fixed.py: 4434453dc5eab0b2f3a9f8f80c2143f5e2b60bbfc891dc5713ea32e1f7f91146
+    private_validate_v2.py: b92b96f92fbedbeb00773ed7694b66a8da8649edff3114224f0009329ee100ea
+    test_fused_moe_large_strides_v2.py: f71f5fa44e307a813a9893ae909f92b6ad0c6ddb0445c4c59133e393bb95d744
+    oai_audit.py: 4344b6207b33b3b3769129f954484d7c7ed9a5eea4f8c8ee8f7e9933231cd91d
+    deploy_controller.py: 33731e4aa0de0d32306fae3d36ded6e9feacf2484d0ad553f5311cbfc0c4920b
+    recover_deploy.py: ce488835b7a62359a39102dd3c8a7b6ebd9c5a99fcb42aae1e77f6e66928be0d
+    final_audit.py: d2cb295a2b888c5be91c57ff0a1b325d49fdb9fe270cfc5300b812c2d2962370
+  incident_resolution:
+    issue_id: accdiag-sync006-large-offset
+    status: resolved_component_sync_blocker
+    original_48_tests_unchanged: true
+    private_initial_result: 61 passed/1 new OAI native-reference mismatch, inherited1ULP; no production
+      write
+    reference_audit: 8 original/fixed/unfused fixtures exact; corrected new oracle to independent existing
+      activation reference plus FP64 storage-precision check, target checks still0/0
+    collector_incident: Post-test report accuracy_result.json misclassified; exact rollback retained;111
+      true config assets identical; same payload reapplied and15 stride tests passed
+    failed_evidence_preserved: true
+  formal_performance_allowed: false
+  model_or_GPQA_root_cause_claim: false
+- experiment_id: op-008-threshold-prefix
+  status: completed-diagnostic-only
+  document: op-008-threshold-prefix.md
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/op008-threshold-prefix-20261106/v2
+  contract:
+    id: op-008-threshold-prefix
+    date: '2026-11-06'
+    scope: operator/improve diagnostic component only; no production or PR modification
+    host: mx-59
+    source: qwen3vl
+    clone: qwen3vl-topk-prefix1069-20261106
+    gpu: 6
+    baseline_PR_head: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+    remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/op008-threshold-prefix-20261106/v2
+    commands_sha256:
+      control.py: 0e3f1157ccb442498be1e292980144be038d84d605e1002e5dcdc907b4aee567
+      backend-baseline.py: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+      mounts.py: 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+      component.py: ecc8facb0eceb78cc2c457088b1e0cbfbe55d4d9077e260e6c4c8c22d37e2028
+      identity.py: f50f65e0a8ecf09ed55d57e7831ffcd76efc7b26ad9a1c8ff2ce4de497de2edd
+      backend-candidate.py: e5cf41b4bfdf0e011ae0f3189aa28fe8fbcaa308952280032f27cb2703facf28
+    matrix:
+      M:
+      - 1
+      - 8
+      - 64
+      V:
+      - 4096
+      - 151936
+      - 262144
+      input:
+      - BF16-grid FP32
+      - arbitrary FP32
+      filters:
+      - k20 p0.8
+      - p0.8
+    timing: upstream Benchmark.get_latency, KERNEL and CUDAGRAPH if supported; full API plus common clone/count/mask
+      stage; no profiler
+    warmup: 20 calls plus upstream20ms; admit3windows spread<=10%,max8; retain all admission
+    measurement: 5 fixed B/C/R cycles, upstream50ms median each; B/R drift<=5% for attribution, retain
+      all slower cases
+    correctness: baseline-candidate bitwise; independent CPUint64 stats oracle; inherited upstream independent
+      Torch/FP64 tests unchanged; graph6captures/18 changed-input replays with sentinels
+    preserved: all float numerical paths and sampling semantics, no RNG; no service stop/pause/restart/cacheclear;
+      no MoE changes
+    stop: any resource/mount/source/import/correctness/graph error stops diagnostic and finally restores
+      clone code/stops own clone, verifies source unchanged
+    e2e: not measured; no benefit/gate claimed
+    compiler: reuse installed Triton integer cumsum, no dependency or compiler change
+    incident: v1 PATH did not resolve python; exited before snapshot/container/GPU. Use absolute /opt/conda/bin/python.
+      Preserve v1 failure.
+  incident: v1 PATH did not resolve python; exited before snapshot/container/GPU. Use absolute /opt/conda/bin/python.
+    Preserve v1 failure.
+  component_cases: 42
+  upstream_tests_passed: 91
+  graph_captures: 6
+  changed_input_replays: 18
+  v3_commands_sha256:
+    component_v3.py: 8588c0dfaf1436b8be9387dbb15bb3eff6744d35573bc97e3c7d0a30e4887264
+    benchmark_control_v3.py: d85c28a5134e6ef435e09ed6b08b47d20ced8543a6fcb6f613708545b9203115
+    upload_v3.py: bcf41a92c709fd9f24ee5175bf6c017427bb1be720962b0dc19fd6844ea0468c
+  decision: do not apply uniformly; large-batch/large-vocab benefit, small-shape regressions; production/PR
+    unchanged
+  correctness:
+    cases_bitwise: 42
+    independent_integer_oracle: passed
+    upstream_tests_passed: 91
+    graph_captures: 6
+    changed_input_replays: 18
+    input_RNG_unchanged: true
+  performance:
+    matrix_rows: 36
+    methods:
+      full_filter_kernel_method:
+        comparable: 36
+      counts_mask_with_common_clone:
+        comparable: 36
+      full_filter_cudagraph_method:
+        comparable: 36
+    rounds_per_method: 5
+    max_abs_revert_drift_percent:
+      full_filter_kernel_method: 2.8544240205023996
+      counts_mask_with_common_clone: 1.162791091182136
+      full_filter_cudagraph_method: 0.30776338111340173
+    all_rows_retained: true
+    e2e: not measured
+    benefit_B64_BF16_k20p08_V151936_percent: 4.079559395713872
+    benefit_B64_BF16_k20p08_V262144_percent: 4.519081875584973
+    B8_BF16_k20p08_V151936_normal_regression_percent: 8.161093804953401
+    small_shape_guard_needed: true
+  final_audit_sha256: 69bc81daee787a292ba240fa9508f2d37055a16a99aa6e61b5597bcd861dd578
+  artifacts_sha256:
+    results/benchmark.json: 11ef212c39b477337b78f7eabed8f1da1bb170cd66e98e3633929cd04f01d481
+    results/component-correctness.json: 665d744e66b2ef8933877c0dd7a5dbfd72bd2cbef835bdc06ee685c4870180e0
+    results/performance-completed-v3.json: 97700aac3e83c4760c6353ab5487ed4504275ea4c17bed426840c04d938367a8
+    results/source-preserved-v3.json: 08c0787a434a3c5e38822d243f63b1e5d4265dcb71a0b3f6ef87a3a5f0ffe589
+    results/runtime-mapping-v3.json: 4f17418cee0bf55f90d52849897c7a721b56f8df7f62a9bbc599e04ebfa5b077
+    logs/pytest.log: c9dc3cb0eda486b31af9e9e0f6f07b05b3489bbcee81cdb1164dfb73dda5fb35
+    manifests/upstream-benchmark-v3.json: 4fadfcdcda0b70ad476473d754231893fa063821f8caa2590a653d74964877b4
+  source_preserved: passed; same PID/ticks/source/argv/env/models200; no stop or pause
+  private_clone: baseline restored and stopped
+  PR_updated: false
+- experiment_id: op-009-shape-guard
+  status: completed-pr-updated-with-inherited-reference-gap
+  document: op-009-shape-guard.md
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/op009-guard-prefix-20261106/v2
+  contract:
+    id: op-009-shape-guard
+    host: mx-59
+    remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/op009-guard-prefix-20261106/v2
+    user_scope: Add shape guard, preserve semantics, validate correctness/graph/performance, update PR1069;
+      no source model changes
+    guard: m>=32 and n>=131072, p present; k-only unchanged
+    baseline_PR_head: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+    image_lineage: reuse verified immutable18128 snapshot only after fresh full source+clone static/import/model/mount
+      parity
+    clone: qwen3vl-topk-guard1069-20261106
+    physical_gpu: 3
+    commands_sha256:
+      control.py: b9c22c867c7e4c900ab06602e7735d1b949cf183b54302c7a1539513dbcb298e
+      backend-baseline.py: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+      tests-candidate.py: abb9e0f980b4dd64460e40100e82b8c830dbf9bea65d8e9d1e1f7adc63d6845b
+      mounts.py: 32adacf39859e88ad6e2dad04ada248a00b636c795fed67d34328f5264bec3e3
+      benchmark-candidate.py: 68961c3dd85a7e24f4406b31a18a7410f08802bcfc95ac15e9f088dd6e99fcb2
+      component.py: 7469724baa82d01091341b7431277da05f9308b35e53d73d04ab1f55a4c370cc
+      identity.py: f50f65e0a8ecf09ed55d57e7831ffcd76efc7b26ad9a1c8ff2ce4de497de2edd
+      backend-candidate.py: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+    matrix_pairs:
+    - - 1
+      - 4096
+    - - 1
+      - 151936
+    - - 8
+      - 151936
+    - - 8
+      - 262144
+    - - 31
+      - 131072
+    - - 32
+      - 131071
+    - - 32
+      - 131072
+    - - 32
+      - 151936
+    - - 64
+      - 4096
+    - - 64
+      - 151936
+    - - 64
+      - 262144
+    distributions:
+    - BF16-grid
+    - FP32
+    modes:
+    - k20p.8
+    - p.8
+    row_count: 44
+    performance: upstream get_latency KERNEL and CUDAGRAPH;20warmcalls,20mswarm/50msrep;3stable admission<=10%max8;5fixedB/C/R
+      cycles;<=5%B/Rdrift;all retained
+    keep_rule: all correctness/graph passed, disabled-path no material>5% reproducible regression; enabled
+      B32/B64 large vocab latency not regressed>5% in either timing, B64 BF16151936/262144 normal+graph
+      retain improvement; no E2E claim
+    stop: any source/resource/mount/import/correctness error ->finallyrestore clone files+stop own clone;
+      no model requests
+    changes: integer statistics + static metadata guard only; no sampling/softmax/cumsum/float mask/tie
+      semantics change; no dependencies or autotune search (MetaX fixed4warps <=1024 stats)
+    PR_main_sync: current upstream5db6f9e0 merged; sole library-only exports conflict resolved by union;
+      no unrelated source customization
+    resource_incident: GPU6/7 newly occupied; first control1099192 exited before source identity/container/GPU;
+      GPU3 fresh same-GPU B/C/R
+  guard: m>=32 and n>=131072; p present; original small/k-only path
+  PR:
+    url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+    head: 039f03ed143914ec3a80a21394bf732118a13cf2
+    tree: c45251a451e974af90f9f8c04663d9ae7f7bf7a4
+    state: open-ready
+    mergeable: true
+    changed_files_vs_main: 9
+    published_bytes_verified: true
+    CI: rule-check success; basic ci in_progress
+  correctness:
+    upstream_tests_passed: 134
+    before_after_bitwise_cases: 48
+    extra_graph_captures: 8
+    extra_changed_input_replays: 24
+    UT_graph_captures: 14
+    UT_changed_input_replays: 42
+    integer_CPU_int64_reference: passed
+    FP64_reference_tolerance: unchanged repository1.3e-6
+    source_input_RNG_unchanged: true
+  performance:
+    primary_frozen_promotion: passed
+    rows: 44
+    methods:
+      full_filter_kernel_method:
+        comparable: 44
+      full_filter_cudagraph_method:
+        comparable: 44
+    cycles: 5
+    drift_max_percent:
+      full_filter_kernel_method: 1.2242878626020914
+      full_filter_cudagraph_method: 0.4876834330989732
+    max_disabled_path_change_percent: 1.0122551161495519
+    native_benchmark_pytest: 2 passed;20rows
+    supplemental_all20_reference_gate: FAILED retained;18/20>=0.9, unchanged B64/V4096 0.459/0.471x
+    new_guarded_native_rows: 8/8>=1.487xTorch
+    inherited_gap_not_relabeled: true
+    no_full_model_E2E_claim: true
+  artifacts_sha256:
+    results/benchmark.json: cd4b4af540eab148b4cb5fd435e4b6f945c34d68b7a5420f137014fbd8db4c23
+    results/component-correctness.json: 86edc9e2dd7165a28901e935884481ed04b5bd7c5037f3ea9dfbb331a6453707
+    results/completed.json: eaddb648ce98b8f9b07983b91f520f5411124873c0dc81641a0a5cb292b27b06
+    results/source-preserved.json: 08c0787a434a3c5e38822d243f63b1e5d4265dcb71a0b3f6ef87a3a5f0ffe589
+    results/runtime-mapping.json: aae94a9f74aa6395028f432dc4842e1ff74baae98bf6b2f65a9e20a4f24715cd
+    logs/pytest.log: cbcc3c8767d48ca95ae7fa41d3c479b8eee6d0c70b7a480a025efc23d3b4eb34
+    manifests/upstream-benchmark.json: 1dc8bcb27fabac9d9f96f5cec3b500ec544b2682937d57f0ac844ed517a5e758
+  independent_audit_sha256: 10c712e23e8a7dc3a7b28f24eee114c1d4f62c848a4d0bab797b62ae38df9db2
+  native_report_sha256: 73e6013767425fcb1560ef556362bd2d1b06675ab9524f6d1e6ff65589689732
+  source_preserved: both controllers finally passed; samePID/ticks/code/config/models200; no source stop/pause/requests;
+    GPU3privateclone restored/stopped
+  knowledge_delta: CPU-launch/workspace overhead requires conservative shape split; integer-prefix semantics
+    exact, C550guard32/131072 reproduced only; no general SOP update
+- experiment_id: deploy-010-pr1069-guard
+  status: completed-disk-synced-service-not-restarted
+  document: deploy-010-pr1069-guard.md
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy010-pr1069-guard-20261106
+  contract:
+    id: deploy-010-pr1069-guard
+    status: prepared
+    host: mx-59
+    container: qwen3vl
+    head: 039f03ed143914ec3a80a21394bf732118a13cf2
+    remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy010-pr1069-guard-20261106
+    files:
+    - asset: backend.py
+      path: src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+      before_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+      target_sha256: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+    - asset: tests.py
+      path: tests/test_top_k_top_p_metax.py
+      before_sha256: ea99f9209a9601a4842cf7b41fa8850a8fa5438e15e38a49c9be6f9351fe45ec
+      target_sha256: abb9e0f980b4dd64460e40100e82b8c830dbf9bea65d8e9d1e1f7adc63d6845b
+    - asset: benchmark.py
+      path: benchmark/test_top_k_top_p_metax.py
+      before_sha256: f54b766dc2e95b6042ec97a7e06a580b76e3ff0817639af9002644be8aa1e311
+      target_sha256: 68961c3dd85a7e24f4406b31a18a7410f08802bcfc95ac15e9f088dd6e99fcb2
+    authorization: User explicitly requests syncing current container to PR1069; retain unrelated source/config/customizations
+      and preserve live model
+    scope: only changed PR top-k/top-p backend, test, benchmark; public interfaces already aligned, no
+      main checkout/merge/dependency change or MoE/Plugin edit
+    preconditions: exact current container ID/expected old3SHA/privateunmountedworkspace/live service
+      identity, GPU3free
+    install: backupall3 and permissions; expectedSHA guard; atomicperfile os.replace; rollback3 on any
+      validationerror
+    validation: publishedbyteSHA + installedpublicactualPlugin12capture/36changed-inputreplay/inputRNG/kwargs/idempotence/fallback/errorpropagation;
+      identical134UT/44perf evidence from op009 retained, no repeated fullperf/GPQA
+    preserved: no restart/stop/modelrequests/cacheclear; sourcePID/ticks/argv/env/models200/config unchanged;
+      only declaredbackend differs in sourcepackage tree
+    effective_state: disknew for next process; existing loaded opt17 remains olduntiluserrestart
+    commands_sha256:
+      backend.py: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+      controller.py: 8470715a77d36aed3f341175888cb82af77650ff7ad1619ffca06b67c73998f9
+      benchmark.py: 68961c3dd85a7e24f4406b31a18a7410f08802bcfc95ac15e9f088dd6e99fcb2
+      integration.py: 29a3f04287620f4e26368c0085deec630ec2d8d64cc02a4e9195ffc6da7f73bb
+      files.json: e6e67b0e155c1f7ec40ee3ca00677d9ad2b8a5672fc5567a4446f9b57fade65b
+      install.py: d198458f5bcb251330b1de2b746ad70aea9e4fb3d2e42cc153b585a016de658b
+      tests.py: abb9e0f980b4dd64460e40100e82b8c830dbf9bea65d8e9d1e1f7adc63d6845b
+      identity.py: f9e69f7ce528028349fc65e1ca7200f872cbde7ef1f619bb5975ee55a8f73ab5
+  PR_head: 039f03ed143914ec3a80a21394bf732118a13cf2
+  disk_exact_PR_files:
+    src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+    tests/test_top_k_top_p_metax.py: abb9e0f980b4dd64460e40100e82b8c830dbf9bea65d8e9d1e1f7adc63d6845b
+    benchmark/test_top_k_top_p_metax.py: 68961c3dd85a7e24f4406b31a18a7410f08802bcfc95ac15e9f088dd6e99fcb2
+  actual_installed_integration:
+    captures: 12
+    changed_input_replays: 36
+    kwargs_returned_tensor: passed
+    fallback_idempotence_error_propagation: passed
+    input_RNG_preserved: true
+  source_preservation: passed; PID/ticks/argv/env/config/otherrepositories unchanged/models200;0stop/0modelrequests
+  effective_state: new processes load039f03ed; existingopt17 was not restarted/reloaded
+  final_audit_sha256: 1e336ba7847a79b19afdc22d97b36bcc29c1886eafa0a1562a9d91742670bf76
+  artifacts_sha256:
+    results/completed.json: 781f55480b5057e107712271f364118fcdd6ccfdaa73732c029c7b7454fc7956
+    results/install.json: 853b0e909d1e066159d4e4a9b71e9cb4787cb66d3c1f30c022568522dd557181
+    results/installed-hook-check.json: 141db35f48216a9602360d511005af542e5e0b9213cea0fe404a0aa887de33bc
+    results/source-preserved.json: a10369199151dfdaf4822c4629f35076fe4ff58ea1cc2500917daa893e45aca7
+    results/runtime-mapping.json: 357264f7b91d357ba6078951231d46876dab83ed024f33ac0d634ebd20eabe09
+  backups: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy010-pr1069-guard-20261106/backups
+  whole_repo_checkout_unchanged: true
+  audit_stdout_sha256: 8117dcf59f12dc3977ef90bd47ff56622ed347111d7bd8acc5f21f48c2fb70c1
+- experiment_id: fix-012-signed-zero
+  status: completed-pr-updated-source-preserved
+  document: fix-012-signed-zero.md
+  summary: &id003
+    id: fix-012-signed-zero
+    document: fix-012-signed-zero.md
+    status: completed-pr-updated-source-preserved
+    base_PR_head: 039f03ed143914ec3a80a21394bf732118a13cf2
+    PR_head: b1287f170190078481c71f9c2836067846892499
+    PR_url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+    remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/fix012-signed-zero-20261109/v4
+    source_container: qwen3vl
+    physical_gpu: 6
+    source_modified: false
+    source_runtime: qwen3vl-opt18/8030 unchanged; source backend remains PR039f03ed
+    private_clone_removed: true
+    unit_tests: 258
+    new_signed_zero_tests: 124
+    old_bug_GPU_repro_cases: 6
+    ordinary_bitwise_B_C_cases: 48
+    graph_captures: 34
+    changed_input_replays: 102
+    performance_rows: 44
+    timing_methods: 2
+    fixed_B_C_R_cycles: 5
+    all_rounds_retained: true
+    latency_change_range_percent:
+      full_filter_kernel_method:
+      - -1.146581027421778
+      - 0.4550821183896048
+      full_filter_cudagraph_method:
+      - -1.4535532958633746
+      - 0.5466100311135369
+    max_regression_percent: 0.5466100311135369
+    max_abs_BR_drift_percent: 1.332760232286101
+    backend_sha256: 6a21e25a36135d115a571722ee1a2343a17cf3baca15d700ee57320d4d367be1
+    tests_sha256: 168c5a2a537d096147d4eb6ecc728abe71b1b840caeba78fcf3a940a9f20ecb6
+    independent_audit: *id002
+    publication:
+      tested_published_files_exact: true
+      tree: cef856dfc20ee7c545c1b87b81cad89132b12bac
+      delta_files: 2
+      force_push: false
+      review_reply_sent: false
+      review_thread_resolved: false
+      merged: false
+    CI:
+      rule_check:
+        run_id: 42555465105
+        run_number: 735
+        status: queued
+      basic_ci:
+        run_id: 42555465471
+        run_number: 2225
+        status: queued
+      license_cla: success
+      boundary: Remote CI not claimed passed; current local precommit and54tool tests plus16subtests passed.
+    engineering_review:
+      contract: Stable numerical zero equality for threshold counts/mask, original bit patterns preserved
+        in retained values
+      sort_key_sort_merge_and_prefix_AST_unchanged: true
+      host_dispatch_allocations_guard_unchanged: true
+      no_torch_compute_or_RNG_added: true
+      public_API_reference_dependencies_unchanged: true
+      compiler: Existing MetaX uint32 bitcast/where; no new compilerfeature/upgrade/autotune config
+      boundary: MetaX component only; no modelprecision gate/E2E benefit or non-MetaX hardware claim
+      inherited_reference_gap: Old B64/V4096 <0.9Torch reference remains disclosed, not changed or reclassified
+    incidents:
+    - GPU4occupied before snapshot/GPUcalls; new GPU6 fresh comparison
+    - v2 oldcollector historicalopt17PID pin; 0snapshot/GPUcalls
+    - v3 snapshot succeeded; deprecatedCLI warning parsing failure; same snapshot reused withoutnewcommit
+      orpause
+    raw_sha256:
+      results/completed.json: 07cfd12c0e70e229abbbbaa7df986e6cc3875633de259aa0f79af2f5845a4d84
+      results/benchmark.json: 7059ef7573ce67141856d5fe64a2a0c2ee70bc33c69d9ee52a3787e61325ccf9
+      results/component-correctness.json: e64bb65b1ddb225d74de96f194f08aa79fc7ff7c5dd23ba7305ddfafe9b41d71
+      results/baseline-reproducer.json: c91bc56790502b9d5c94ec9ba7358e576790ce7af1054ca6f95a0d03e038b58c
+      results/pytest.xml: baa34b850c5acf29748a1e11e6eb97dfb52b0af335ca1bab5464bee2fb593d52
+      results/source-preserved.json: 5b218ecce8be6107c4bc0d0c01129090d546d8029af9b3f7ee52aab3028d6d5b
+      results/runtime-mapping.json: bdcdae11a5aac9405165e4fe6972212aa81ccdcf730d8672e7be56c086e7b9d1
+      manifests/upstream-benchmark.json: 1dc8bcb27fabac9d9f96f5cec3b500ec544b2682937d57f0ac844ed517a5e758
+- &id004
+  experiment_id: report-013-disabled-flaggems-operators
+  document: report-013-disabled-flaggems-operators.md
+  status: completed-issues-published-workbook-verified
+  classification: diagnostic/issue-reporting
+  host: mx-104
+  remote_root: /public-flash/jinghao/qwen3-VL/20261110-flaggems-disabled-ops-issues
+  authorization: User explicitly requested separate issues + template Excel, then direct investigation
+    on mx-104 with exact supplied image and approved artifact directory.
+  image: harbor.baai.ac.cn/flagrelease-public/qwen3-vl-metax001-gems5.5.0-tree0.7.0-cxnone-plugin0.2.0-vllm0.24.0-sglangnone-sglangflnone-cp312-pt28-maca37-x64-3.8.1:202611091656
+  image_digest: sha256:8eea91662853b5df230c836a0ced54c31a0f138be11aeaafc30fb6bdc95b02af
+  flag_gems_revision: c3c5f5ab274f7d1a8a95e3d3ba7bbac28e4a9fd4
+  sdk: 3.7.0.38
+  driver: 3.8.1
+  disabled_set_origin: user report; image Config.env only historical mm,mm_out,layer_norm,log_softmax;
+    do not equate defaults with actual runtime override
+  operators:
+  - exponential_
+  - index_select
+  - mm
+  - max
+  - mm_out
+  - max_dim
+  - linear
+  - sort
+  - sort_stable
+  issues:
+  - operator: exponential_
+    number: 8764
+    url: https://github.com/flagos-ai/FlagGems/issues/8764
+    type: 功能
+    state: open
+    title_body_readback_exact: true
+  - operator: index_select
+    number: 8765
+    url: https://github.com/flagos-ai/FlagGems/issues/8765
+    type: 精度
+    state: open
+    title_body_readback_exact: true
+  - operator: mm
+    number: 8771
+    url: https://github.com/flagos-ai/FlagGems/issues/8771
+    type: 性能
+    state: open
+    title_body_readback_exact: true
+  - operator: max
+    number: 8766
+    url: https://github.com/flagos-ai/FlagGems/issues/8766
+    type: 精度
+    state: open
+    title_body_readback_exact: true
+  - operator: mm_out
+    number: 8772
+    url: https://github.com/flagos-ai/FlagGems/issues/8772
+    type: 性能
+    state: open
+    title_body_readback_exact: true
+  - operator: max_dim
+    number: 8767
+    url: https://github.com/flagos-ai/FlagGems/issues/8767
+    type: 精度
+    state: open
+    title_body_readback_exact: true
+  - operator: linear
+    number: 8773
+    url: https://github.com/flagos-ai/FlagGems/issues/8773
+    type: 性能
+    state: open
+    title_body_readback_exact: true
+  - operator: sort
+    number: 8774
+    url: https://github.com/flagos-ai/FlagGems/issues/8774
+    type: 功能
+    state: open
+    title_body_readback_exact: true
+  - operator: sort_stable
+    number: 8775
+    url: https://github.com/flagos-ai/FlagGems/issues/8775
+    type: 精度
+    state: open
+    title_body_readback_exact: true
+  component_validation:
+    deterministic_cases: 55
+    rng_actual_calls: 6
+    minimal_fixed_cases: 5
+    initial_graph_captures: 34
+    initial_changed_input_replays: 68
+    initial_passed_graph_rows: 28
+    initial_default_tolerance_mismatch_graph_rows_preserved: 6
+    sort_copy_context_captures: 4
+    sort_copy_context_changed_input_replays: 8
+    sort_copy_context_values_and_initial_indices_match_native: true
+    model_root_cause: unconfirmed; no model requests or new precision gate
+  performance:
+    mm:
+      shape_mnk:
+      - 1
+      - 2048
+      - 2048
+      dtype: bfloat16
+      median_native_gems_revert_ms:
+      - 0.020735999569296837
+      - 0.02739199995994568
+      - 0.020735999569296837
+      slower_percent: 32.09876798273172
+      valid: true
+      context: host network; optional xgboost missing; actual FlagTune default fallback
+    mm_out:
+      shape_mnk:
+      - 1
+      - 2048
+      - 2048
+      dtype: bfloat16
+      median_native_gems_revert_ms:
+      - 0.020735999569296837
+      - 0.02611199952661991
+      - 0.020735999569296837
+      slower_percent: 25.92592625861718
+      valid: true
+      context: host network; optional xgboost missing; actual FlagTune default fallback
+    linear:
+      shape_mnk:
+      - 1
+      - 2048
+      - 2048
+      dtype: bfloat16
+      median_native_gems_revert_ms:
+      - 0.02534399926662445
+      - 0.03097599931061268
+      - 0.02534399926662445
+      slower_percent: 22.222223038828037
+      valid: true
+      context: host network; optional xgboost missing; actual FlagTune default fallback
+  performance_boundaries:
+  - Official Triton do_bench, fixed5 B/C/R; all retained; steady spread and B/R drift <=10%.
+  - Initial mm_out allocation-asymmetric figures excluded; online both sides preallocated out= used.
+  - Offline model-download failure and online missing-xgboost default fallback disclosed; no cost-model-loaded
+    measurements.
+  - Six initial graph rows failed strict native default tolerance; retained as diagnostic, not changed
+    to passed; not enough to declare model accuracy bug.
+  - Standalone sort UInt32 copy_ error confirmed; registering only copy_ unblocks; stable signed-zero
+    order wrong.
+  - No E2E performance or model-score causality inferred.
+  production_changes: 0
+  model_requests: 0
+  temporary_containers: both owned clones removed after natural finalizers and source audits
+  all_prior_running_containers_same_identity: true
+  workbook:
+    path: /Users/baai/Documents/ChatGPT/端到端推理优化/outputs/qwen3vl-flaggems-issues-20261110/FlagGems_问题反馈批量导入_Qwen3VL_MetaX_20261110.xlsx
+    sha256: 757e593b07d7dba9878bb48097073c8b45607ff93995a878538585f2fb3adb8e
+    rows: 9
+    columns: 12
+    template_headers_exact: true
+    roundtrip_values_exact: true
+    repro_python_syntax_checked: true
+    visual_review: all changed views reviewed, no clipping
+  evidence:
+    final_audit: /public-flash/jinghao/qwen3-VL/20261110-flaggems-disabled-ops-issues/results/final-audit.json
+    final_audit_sha256: a0f390a6adbcb1cbad5609b14ae4ab9c10e26f70a8e1a39f1d81af13b485a871
+    github_readback: nine existing issues fetched independently; title/body exact
+    commands: /public-flash/jinghao/qwen3-VL/20261110-flaggems-disabled-ops-issues/commands
+    results: /public-flash/jinghao/qwen3-VL/20261110-flaggems-disabled-ops-issues/results
+    logs: /public-flash/jinghao/qwen3-VL/20261110-flaggems-disabled-ops-issues/logs
+risks:
+- No NVIDIA/Ascend hardware verification or new model/E2E gate
+- Observed vendor patch circular-import warnings in the standalone integration process; full model startup
+  not tested
+- Upstream optimization.md and deep_opt.md absent at inspected main; scoped experiment followed available
+  workflow, one trace-driven candidate and full active-set regression.
+- Unpatched main208ab still exhibits chained constexpr large-stride addressing failure on this stack;
+  keep container patch when updating upstream. Exact lower compiler pass and other hardware are unverified.
+local_record_check:
+  this_case_errors: 0
+  full_checker_has_unrelated_errors: true
+  raw_log: /tmp/qwen3vl-topk-pr-20261104/moe007/project-record-check.log
+current_experiment: fix-012-signed-zero
+authorization_followup: 2026-11-04 user explicitly requests optimizing single-batch regression with numerical
+  semantics/other settings unchanged, then updating PR1069
+initial_pr_validation:
+  correctness:
+    final_api_cases_passed: 68
+    graph_replays: 6
+    input_preserved: true
+    no_legacy_export: true
+  graph:
+    operator_changed_input_replays: 6
+    actual_plugin_changed_input_replays: 3
+    status: passed
+  benchmark:
+    status: measured_with_regressions
+    reference: stable-sort Torch vLLM semantics; one clone each side
+    items:
+    - input_kind: bf16-grid
+      shape:
+      - - 1
+        - 4096
+      - true
+      baseline_ms: 0.13337600231170654
+      candidate_ms: 0.5619199872016907
+      speedup: 0.23735764049950714
+    - input_kind: bf16-grid
+      shape:
+      - - 1
+        - 151936
+      - true
+      baseline_ms: 0.2982400059700012
+      candidate_ms: 0.6131200194358826
+      speedup: 0.4864300569477488
+    - input_kind: bf16-grid
+      shape:
+      - - 8
+        - 151936
+      - true
+      baseline_ms: 1.9571199417114258
+      candidate_ms: 0.6132480204105377
+      speedup: 3.1914003414168963
+    - input_kind: bf16-grid
+      shape:
+      - - 64
+        - 151936
+      - true
+      baseline_ms: 9.519871711730957
+      candidate_ms: 1.77510404586792
+      speedup: 5.36299364191709
+    - input_kind: arbitrary-fp32
+      shape:
+      - - 1
+        - 4096
+      - false
+      baseline_ms: 0.13516800105571747
+      candidate_ms: 0.5653760135173798
+      speedup: 0.2390762922798853
+    - input_kind: arbitrary-fp32
+      shape:
+      - - 1
+        - 151936
+      - false
+      baseline_ms: 0.2964479923248291
+      candidate_ms: 0.5736960172653198
+      speedup: 0.5167335721414454
+    - input_kind: arbitrary-fp32
+      shape:
+      - - 8
+        - 151936
+      - false
+      baseline_ms: 1.9759359955787659
+      candidate_ms: 1.1966720223426819
+      speedup: 1.6511926064006635
+    - input_kind: arbitrary-fp32
+      shape:
+      - - 64
+        - 151936
+      - false
+      baseline_ms: 9.597184181213379
+      candidate_ms: 6.539008140563965
+      speedup: 1.4676819442505937
+    e2e_claim: false
+  model_accuracy: not_run
+  e2e_performance: not_run
+  lint: pre-commit all applicable changed-file hooks passed
+  public_api: passed on isolated latest-main checkout; actual MetaX function path and library-only registration
+    exclusion verified
+  prior_interface_v2: 67 passed, 6 changed-input graph replays; superseded by unified API
+validation:
+  component_tests: 91
+  bitwise_before_cases: 20
+  component_changed_input_replays: 18
+  actual_hook_changed_input_replays: 18
+  input_rng_preserved: true
+  actual_api: top_k_top_p(logits,p=p,k=k)
+  model_graph: not_run_no_model_service
+  formal_gate: not_issued
+  performance: not_run
+  moe_sync:
+    status: passed minimal-regression
+    generic_upstream_tests: 48
+    added_stride_tests: 14
+    changed_input_graph_replays: 42
+    metax_public_cases: 8
+    metax_changed_input_replays: 24
+    topk_tests: 91
+    actual_plugin_changed_input_replays: 18
+    private_before_sync_passed: true
+    post_reapply_tests: 15
+    independent_final_audit: true
+    model_graph: not_run_no_model_service
+    formal_gate: not_issued
+    performance: not_run
+current_pr_head: b1287f170190078481c71f9c2836067846892499
+risk_followup: Signed-zero fix is PR-only; source qwen3vl still039f03ed. CI queued, review pending; inherited
+  small-vocab reference gap retained, no model/E2E gate claimed.
+knowledge_delta:
+  confirmed: Small-batch common sorting path paid 33/35 total launches; integer-key tile/merge reduces
+    to 8/16 with bitwise-preserved outputs and 2.27–4.94x operator improvement.
+  boundary: M1 only; larger batches unchanged; graph-safe; no RNG or probability-path change
+  sop_change: 'Not needed: existing operator workflow, key-sort specialization and no-profiler B/C/R were
+    sufficient.'
+  moe_large_stride:
+    prior: Promoting row/column indices to int64 should suffice
+    observed: Original TTIR/LLVM was64-bit but chained pointer additions failed; equivalent integer-offset
+      grouping passed same fixture
+    lesson: Use address-only faithful probes and compare pointer expression lowering before adding casts
+      or changing numerical logic; scope to tested MetaX compiler build
+    boundary: Component-only; no GPQA or vendor-wide inference
+  signed_zero_filter:
+    prior: A reversible integer float-sort key can also define filtering ties.
+    observed: GPU sixcases show signed-zero key separation changes nucleus candidates; separate normalized
+      filter key restores stable numerical ties with exact retained bits.
+    boundary: Keep reversible sort/merge bit order unchanged; normalize only in count/mask. MetaX current
+      stack validated, no model score attribution.
+initial_pr_submission:
+  pr_commit: 675b36e9b39397e097ce5b7cf0289769bd97bd02
+  pr:
+    url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+    number: 1069
+    head: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+    draft: true
+    mergeable: true
+    reason: CI export-order fix verified; rule-check and basic ci successful; pending human review
+  decision: PR created as draft; unified API and target caller synchronized; no additional optimization
+  performance_limitations: Prior interface M1 slower than stable Torch reference. Draft PR will disclose
+    all shape results; no new tuning or E2E claim.
+current_container_code:
+  source_container: qwen3vl
+  import_root: /workspace/FlagGems-vllm
+  head_metadata_retained: bad340d67a35e583989fcebf56326f60edc85c9c
+  applied_public_commit: 039f03ed143914ec3a80a21394bf732118a13cf2
+  backend_sha256: 8e34b2921baadc8c619288027f9ed1e8e14155b176b24d79edcedd671ba06f13
+  method: Targeted PR1069 plus main208ab MetaX/generic MoE; generic has three-kernel large-stride address
+    correction; all other edits preserved
+  plugin_root: /workspace/vllm-plugin-FL
+  plugin_untouched: true
+  metax_moe_main: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+  metax_moe_sha256: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+  generic_moe_state: main208ab plus verified combined-offset patch
+  generic_moe_sha256: 4434453dc5eab0b2f3a9f8f80c2143f5e2b60bbfc891dc5713ea32e1f7f91146
+  upstream_tests_sha256: 7558592f4b305b7120955ccad854b1b7b1a6678181d2a17a54898b5729a7071c
+  latest_validation: fix012 source-preserved + independentfinalaudit; this newfix notdeployed
+read_only_audits:
+- audit_id: audit-005-moe-main-diff
+  document: audit-005-moe-main-diff.md
+  status: completed
+  summary:
+    status: passed_read_only_static_audit
+    main: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+    container_HEAD: bad340d67a35e583989fcebf56326f60edc85c9c
+    config_comparisons_exact: 131080
+    guard_comparisons_exact: 896
+    scope: Extracted pure Python config functions only; no imports of operator modules, no torch/GPU/model
+      execution
+    all_audited_moe_files_unchanged_by_deploy004:
+      src/flaggems_vllm/runtime/backend/_metax/ops/fused_moe.py: true
+      src/flaggems_vllm/ops/fused_moe.py: true
+      tests/test_fused_moe.py: true
+    metax_only_differing_common_functions:
+    - get_default_config
+    - _qwen_tp2_config
+    - _is_qwen_tp2_moe_shape
+    main_only_functions:
+    - _is_qwenvl_tp2_moe_shape
+    - _qwenvl_tp2_config
+    metax_kernel_ASTs_equal: true
+    generic_file_equal_to_PR943_head: true
+    generic_file_equal_to_current_main: false
+  changes_made: false
+planning_review:
+  review_id: plan-moe-stride-repair-20261104
+  status: completed_scope_correctness_sync
+  objective: Resolve only generic INT8 stride blocker, preserve PR1069/config; no new performance optimization
+  candidate:
+    main: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+    generic_sha256: 4434453dc5eab0b2f3a9f8f80c2143f5e2b60bbfc891dc5713ea32e1f7f91146
+    metax_sha256: 9de7b6eb0c366da625cb291b3be37d1fda01e8b9c346d10fb0924c12f0541746
+    pr1069: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+  ledger:
+  - id: sync-006-moe-main
+    decision: MetaX retained, generic failed and rolled back; original evidence preserved
+  - id: fix-007-int8-large-stride
+    decision: retained; private and installed correctness/graph passed; collector report-classification
+      incident resolved without numerical change
+  cumulative_e2e: unknown/not measured; do not add historical topk microbenchmark speedups or infer model
+    improvement
+  phase_views:
+    prefill: no new model data
+    decode: only synthetic activation/filter component coverage
+    mixed: no model/E2E measurement
+  next_directions:
+  - rank: 1
+    action: Finish delivery, stop further GPU diagnostics
+    first_falsifier: independent source/config/receipt audit passed
+    stop_condition: current user scope completed
+  - rank: 2
+    action: If user later requests model acceptance, freeze current service contract and run accuracy
+      skill; no automatic launch
+    required_skill: inference-accuracy-evaluation
+    stop_condition: missing current service/workload identity -> incomplete
+  deferred:
+  - new performance optimization
+  - compiler/dependency upgrade
+  - new full model assessments
+  - upstream MoE PR without explicit instruction
+  immediate_experiment: null
+  next_review_trigger: new user-authorized model/performance task or new correctness failure
+  superseded_decision: 006 generic sync blocked; now resolved by three-function address normalization,
+    no config workaround
+maintenance_cleanup_011:
+  id: cleanup-011-qwen3vl-containers
+  status: completed-cleanup-and-source-preserved
+  document: cleanup-011-qwen3vl-containers.md
+  remote_root: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/cleanup011-containers-20261109
+  keep: qwen3vl
+  exact_targets: 18
+  running_targets: 8
+  sha256:
+    cleanup.py: 79fe1ba533816c410cb668868402942e9da293007a79c7afdfa5c4b9b963a23f
+    contract.json: f2dbc21ae4af91bc26996d826468868c248a80fda35825f6a7352db00cd7b69e
+    baseline.json: f17886f278222c582a8103da049bd6b15d5f2c5d1ad58e85150aaba8ec488315
+  result:
+    removed: 18
+    stopped_running: 8
+    remaining_related:
+    - qwen3vl
+    source_opt18_8030_same_PID_config: true
+    models_http: 200
+    other_models_no_mutation_commands: true
+    unchanged_other_containers: 37
+    concurrent_external_changes:
+    - minicpm-v-4.7-1b-removed
+    - qwen36-35b-runtime-state
+    final_audit_remote: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/cleanup011-containers-20261109/v2/results/final-audit.json
+    final_audit_sha256: 13b31ef38d0445df03c068b845c8678db70ecc6f96ec34f5a0b161d9746d057d
+    incidents_preserved:
+    - v1-mount-order-guard-before-mutations
+    - v2-unrelated-concurrent-change-after-all18-removed
+fix_012_signed_zero: *id003
+operator_issue_reporting: *id004

@@ -3896,6 +3896,33 @@ last_evaluated_service_availability:
   later_observation: SDK maintenance finds already user-restarted opt3 PID702104/start1146203102; no signal/restart by this
     task
 gemm_tuning_001:
+  upstream_pr_20261104:
+    status: draft_hardware_numerical_pass_performance_regressions_confirmed
+    url: https://github.com/flagos-ai/FlagGems-vllm/pull/1067
+    branch: ZenithJoyH:perf/metax-qwen36-tp2-bf16-configs-20261104
+    head_commit: fb7c9f9461e5b88b64617eb996db42636ddfc423
+    published_source_sha256: a288621f06b9a921e4c9ceebc40244877750643d948d2f526025d94b65ba06a3
+    host_selector_tests: 81_passed
+    pre_commit: passed
+    wheel_build_and_source_parity: passed
+    original_container_four_configurations_equal: true
+    production_AST_changed_nodes: [get_default_config]
+    engineering_review:
+      operator_standard:
+        A2_B3_D4_F4: vendor_config_only_no_kernel_API_dependency_or_print_changes
+        B1_E2: public_API_and_22_GPU_tests_passed_on_mx59
+        F1_F2: current_main_mx59_regressions_9_70_and_13_96_percent_disclosed
+        F3_E4: mx59_44_changed_input_Graph_replays_passed_new_test_published
+      pr_readiness: needs_revision_performance_regressions
+    authorization: user_explicit_submit_fused_moe_PR_from_qwen36-35b
+    target_repository: flagos-ai/FlagGems-vllm
+    base_commit: 00f4ed653bcdf9dae33fb418a60eac01396813ba
+    scope: retained_plain_BF16_C550_M64_M8192_configs_only_preserve_new_fast_path
+    container_source_sha256: c4673aea289a2ad815ca20a01046c014add163756846675556027781a8aa7c73
+    current_main_GPU_revalidation: mx59_numerical_pass_performance_not_eligible
+    hardware_validation_case: 20261104-qwen36-mx59-pr1067-verification-001
+    hardware_report_sha256: 899d3082f8c984d832f1d6e68e734cf846a2dd80c30cdf3ea3367db25002dabc
+    service_or_model_operations: false
   status: code_applied_pending_service_reload
   experiment_id: fgv-moe-gemm-tune-001
   user_performance_directory: /public-flash/jinghao/qwen3.6-35B/test/perf_test/benchmark_results/qwen36-35b
@@ -5084,3 +5111,10 @@ supplementary_documents:
   scope: 既有说明/评测文档；未猜测实验状态或性能值
 - document: user-gpqa-erqa-c64-20261029-001.md
   scope: 既有说明/评测文档；未猜测实验状态或性能值
+
+fgv_moe_main_config_001:
+  experiment_id: fgv-moe-main-config-001
+  document: fgv-moe-main-config-001.md
+  status: not_executed_on_mx104_user_selected_mx59
+  destination_case: 20261104-qwen36-mx59-main-config-001
+  source_or_model_service_changes: false

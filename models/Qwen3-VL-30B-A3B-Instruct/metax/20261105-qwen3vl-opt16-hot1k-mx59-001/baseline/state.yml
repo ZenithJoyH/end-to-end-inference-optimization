@@ -1,0 +1,117 @@
+schema_version: 4
+identity:
+  case_id: 20261105-qwen3vl-opt16-hot1k-mx59-001
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: old-filter-on-current-stack
+  topology: TP2:GPU6,7; original user GPU0,1 preserved
+stage: baseline
+current:
+  status: completed
+  candidate: old filter on current stack
+  next_action: BoundedP1K baseline and revert verified; no further run
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: total_token_throughput
+  value: 3045.655713892056
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: output_throughput
+  value: 1522.827856946028
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: mean_ttft_ms
+  value: 1711.7291839749669
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: mean_tpot_ms
+  value: 40.33835395749961
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: median_itl_ms
+  value: 38.72897243127227
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: duration_s
+  value: 86.0714488523081
+  unit: s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old1
+  metric: measured_relative_spread
+  value: 0.01246441234407402
+  unit: fraction
+  scope: all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: total_token_throughput
+  value: 3071.2508575976603
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: output_throughput
+  value: 1535.6254287988302
+  unit: token/s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: mean_ttft_ms
+  value: 1717.201819876209
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: mean_tpot_ms
+  value: 39.98198072114471
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: median_itl_ms
+  value: 38.4520054794848
+  unit: ms
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: duration_s
+  value: 85.354147920385
+  unit: s
+  scope: targeted/performance_only; median of all3 admitted measured rounds
+- scenario_id: p1024-d1024-c64-n128
+  role: old2
+  metric: measured_relative_spread
+  value: 0.011205468247665796
+  unit: fraction
+  scope: all3 admitted measured rounds
+correctness: 6 component cases/18 changed-input graph replays, model two-rank backend/capture/replays
+  proof; no formal score gate
+scope: targeted/performance_only; no formal gate
+formal_scenarios:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+evidence:
+  comparison-result.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/comparison-result.json
+    sha256: 4970856c3b6edf697775bb7f28218100190f0b867bab0c9065f3ca54405ba857
+  independent-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/independent-audit.json
+    sha256: 5a27994af2cffc6d763718c7bd4b53dfada103e1b50e5360a105b9e5989fb6b4
+  fresh-final-audit.json:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-opt16-hot1k-mx59-001/controlled-003/fresh-final-audit.json
+    sha256: 157dba37c32a5fb47106c3e9403397de018df949ec7b3f4f171ea82e35d47d08

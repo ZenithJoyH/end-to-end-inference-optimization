@@ -1,0 +1,111 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen36-mx59-main-config-001
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: image-c4673aea
+  topology: user-specified qwen36-35b; TP2/GPU4/5 service; isolated GPU0 operator compatibility
+stage: acceptance
+current:
+  status: accuracy_only_GPQA_pass_ERQA_default_sampling_single400_59percent
+  candidate: qwen36-35b-opt6-current-service
+  next_action: Latest singleERQA400 defaultsampling236/400=59% independently verified under unchanged service; prior
+    greedy aggregate and native GPQA gate retained separately. Monitor deleted; no further generation, service/source
+    changes or automatic performance. No combined E2E performance acceptance.
+experiments:
+- experiment_id: user-gpqa-erqa-c64-20261105-001
+  document: ../optimize/user-gpqa-erqa-c64-20261105-001.md
+  scope: accuracy_only_current_service_prefix_on_C64
+  gpqa_status: independently_passed
+  native_correct: 168
+  samples: 198
+  native_score: 0.8484848484848485
+  threshold: 0.75
+  historical_strict_offline_correct: 160
+  historical_strict_offline_score: 0.8080808080808081
+  historical_filter_gate_rebound: false
+  current_gate_sha256: 7997b3572ab902120e897ea2630f1d4ffed149698ce538c450348fd0019c8c36
+  independent_verification_sha256: 9139f804217cb7afd897b5bcef073c128df0f3cd946aa45d64d5a035a7cf50bc
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/user-gpqa-erqa-c64-20261105-001
+  erqa_status: native_exit2_incomplete_independently_verified_actual_partial
+  erqa_completed: 364
+  erqa_native_timeouts: 29
+  erqa_unsubmitted: 7
+  erqa_correct_over_completed_only: 201
+  erqa_partial_accuracy_over_completed_only: 0.5521978021978022
+  erqa_full400_accuracy: null
+  erqa_length65536_missing_final: 32
+  erqa_partial_verification_sha256: 1dcf537b07debf5204d0b8f75a729968e8d170a02ebae1e95e94d304c4b4a73f
+  terminal_review_sha256: eb23ddad39d8602ebe13519800dcd3365d3176b64cd5c9dd0525ee3ddb0a230d
+  performance_status: not_run
+- experiment_id: erqa-unsubmitted7-20261105-001
+  document: ../optimize/erqa-unsubmitted7-20261105-001.md
+  scope: auxiliary_user_authorized_seven_first_submissions_no_formal_gate
+  new_completed: 7
+  new_correct: 4
+  new_failed: 0
+  combined_successful_response_documents: 371
+  combined_correct: 205
+  original_timeouts_not_retried: 29
+  diagnostic_points_over400_with_timeouts_zero: 0.5125
+  score_over_successful_response_documents: 0.5525606469002695
+  native_single_full400_accuracy: null
+  new_gate_issued: false
+  independent_verification_sha256: 06edccb622734781e44392103150ed36f1a7dd56edab8f76492bb1c6a5d36873
+  final_summary_sha256: 3c3f8d304f707d894bb54d66fe06f39358fd849330a3770713a018ce3c07f3de
+- experiment_id: erqa-timeout29-20261105-001
+  document: ../optimize/erqa-timeout29-20261105-001.md
+  scope: user_authorized_three_phase_ERQA400_aggregate_not_single_native_run
+  status: independently_verified_complete
+  new_completed: 29
+  new_correct: 5
+  new_failed: 0
+  new_length65536_empty_final_counted_wrong: 18
+  prior_completed: 371
+  prior_correct: 205
+  combined_completed: 400
+  combined_correct: 210
+  aggregated400_accuracy: 0.525
+  native_single_full400_accuracy: null
+  new_gate_issued: false
+  service_parameters_and_source_unchanged: true
+  independent_verification_sha256: 112c2e43dca4508953641d899910449cf510ea06da2ad83241a1b6ed90428a84
+  final_summary_sha256: 8155cdb391f7f73d13b91951c99d0423eb27657229f533b4f3e7fffce048afb4
+  terminal_review_sha256: dcb8dc4eb1d5ef49291fc84e840e6696ae2d410717ac5816882d2fc7c7a7f753
+  monitor_status: deleted_after_completion
+- experiment_id: erqa-default-sampling-c64-20261106-001
+  document: ../optimize/erqa-default-sampling-c64-20261106-001.md
+  scope: accuracy_only_single_native_ERQA400_model_default_sampling_thinking_C64
+  status: independently_verified_complete
+  samples: 400
+  completed: 400
+  correct: 236
+  accuracy: 0.59
+  threshold: null
+  new_GPQA_gate_issued: false
+  generation:
+    temperature: 1.0
+    top_p: 0.95
+    top_k: 20
+    max_tokens: 65536
+    chat_template_kwargs:
+      enable_thinking: true
+  concurrency_limit: 64
+  client_HTTP_inflight_peak: 64
+  HTTP200: 400
+  request_failures: 0
+  timeouts: 0
+  finish_stop: 397
+  finish_length: 3
+  length_missing_final_counted_wrong: 3
+  all400wire_default_sampling_verified: true
+  service_source_launch_unchanged: true
+  independent_verification_sha256: f54bdd59d7d9d54fd75ffe21459a4dc7fb9a2820df0fad86338cad24253a7335
+  summary_sha256: 17cce7f189723c888960d4ecfe8aa7d92e40215e2fc98b0abfa48c618071666b
+  terminal_review_sha256: f6ef5f89dd04e584a038f33d7ecbed2a0034594664ff3d08e9760615d2ba3692
+  terminal_fresh_manifest_sha256: 051cdfd25853eb7759cb46e71da0e314cc4abd1c2c95d5f862aa4cd8ebd5523b
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/accuracy/erqa-default-sampling-c64-20261106-001
+  monitor_status: deleted_after_independent_terminal_review
+  performance_status: not_run
+metrics: []

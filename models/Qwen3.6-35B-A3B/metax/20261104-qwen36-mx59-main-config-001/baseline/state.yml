@@ -1,0 +1,23 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen36-mx59-main-config-001
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: image-c4673aea
+  topology: user-specified qwen36-35b; TP2/GPU4/5 service; isolated GPU0 operator
+    compatibility
+stage: baseline
+current:
+  status: source_snapshot_verified_no_performance_baseline
+  candidate: image-c4673aea
+  next_action: No new baseline measured in this deployment-only task.
+experiments: []
+metrics: []
+source_snapshot:
+  host: mx-59
+  container: qwen36-35b
+  image_ID: sha256:9f420f54d1e6f60d7fa9fc9ba8bc4f7bd68fb79f60b31598273c8a976436517e
+  FGV_HEAD: e1a02b6b2e47abea9a6cfeaaf3431f50f7f476f8
+  before_source_sha256: c4673aea289a2ad815ca20a01046c014add163756846675556027781a8aa7c73
+  remote_evidence: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/application-001/protected-before.json

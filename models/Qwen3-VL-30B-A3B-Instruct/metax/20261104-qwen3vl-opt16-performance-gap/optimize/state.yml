@@ -1,0 +1,571 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen3vl-opt16-performance-gap
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: historical-opt15-unbound
+  topology: TP2:GPU0,1; historical comparison not device-bound
+experiments:
+- experiment_id: diag-001-opt16-gap
+  document: diag-001-opt16-gap.md
+  scenario_id: p1024-d1024-c64-n128,p4096-d1024-c64-n128,p16384-d1024-c64-n128,p32768-d1024-c64-n128
+  status: completed
+  decision: incomplete
+  direction: framework/steady-state diagnosis; no code change
+  analysis_status: read-only analysis completed; causal attribution incomplete
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: opt16_observed
+  metric: total_throughput
+  value: 2061.18
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt16_observed
+  metric: output_throughput
+  value: 1030.59
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt16_observed
+  metric: TTFT_mean
+  value: 2688.43
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt16_observed
+  metric: TPOT_mean
+  value: 49.94
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt16_observed
+  metric: ITL_median
+  value: 38.8
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt16_observed
+  metric: duration
+  value: 127.41
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 3181.19
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 1590.6
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 1626.23
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 38.63
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 37.03
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 82.41
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt16_observed
+  metric: total_throughput
+  value: 5432.63
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt16_observed
+  metric: output_throughput
+  value: 1086.53
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt16_observed
+  metric: TTFT_mean
+  value: 4816.11
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt16_observed
+  metric: TPOT_mean
+  value: 54.03
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt16_observed
+  metric: ITL_median
+  value: 45.32
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt16_observed
+  metric: duration
+  value: 120.63
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 5621.01
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 1124.2
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 4737.52
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 52.14
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 43.19
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 116.59
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt16_observed
+  metric: total_throughput
+  value: 6363.5
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt16_observed
+  metric: output_throughput
+  value: 374.32
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt16_observed
+  metric: TTFT_mean
+  value: 75051.89
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt16_observed
+  metric: TPOT_mean
+  value: 79.73
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt16_observed
+  metric: ITL_median
+  value: 49.91
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt16_observed
+  metric: duration
+  value: 350.16
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 6499.96
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 382.35
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 73664.12
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 77.93
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 47.75
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 342.81
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt16_observed
+  metric: total_throughput
+  value: 5817.9
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt16_observed
+  metric: output_throughput
+  value: 176.3
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt16_observed
+  metric: TTFT_mean
+  value: 222514.89
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt16_observed
+  metric: TPOT_mean
+  value: 84.95
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt16_observed
+  metric: ITL_median
+  value: 40.98
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt16_observed
+  metric: duration
+  value: 743.46
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 6013.93
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 182.24
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 215246.07
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 82.0
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 38.09
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 719.23
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+stage: optimize
+current:
+  status: incomplete
+  candidate: existing opt16 unchanged
+  next_action: CPU diagnosis complete; proposed next falsifier is hot same-device
+    P1K with actual sampler shape/dtype warmup after current run naturally ends.
+observed_asia: '2026-11-04T23:03:44.822756+08:00'
+service:
+  host: mx-59
+  container: qwen3vl
+  name: qwen3vl-opt16
+  port: 8030
+  TP: 2
+  GPU:
+  - 0
+  - 1
+  dtype: BF16
+  batch_tokens: 8192
+  max_seqs: 64
+  gpu_memory_utilization: 0.91
+  prefix_cache: false
+  KV_tokens: 562992
+  graph: FULL_AND_PIECEWISE64; startup11sizes each; no per-request hit counter
+  sampling: model defaults temperature0.7/top_p0.8/top_k20/repetition1; benchmarkCLI
+    omits sampling overrides and request seed
+scope:
+  new_model_requests: 0
+  service_restarts: 0
+  source_mutations: 0
+  remote_writes: 0
+  container: qwen3vl
+  host: mx-59
+comparisons:
+  '1024':
+    opt15_total_throughput_change_percent: -35.20726520578778
+    last_two_spread_fraction: 0.08462143044275602
+  '16384':
+    opt15_total_throughput_change_percent: -2.099397534754066
+    last_two_spread_fraction: 0.004051229669207301
+  '32768':
+    opt15_total_throughput_change_percent: -3.25959896440432
+    last_two_spread_fraction: 0.00315577785798994
+  '4096':
+    opt15_total_throughput_change_percent: -3.3513550055950803
+    last_two_spread_fraction: 0.0005264485157282167
+phase_views:
+  prefill: Client TTFT proxies only. P1K TTFT +65.3%; P4/P16/P32 +1.7/1.9/3.4% versus
+    opt15; no pure-device stage trace.
+  decode: Client median ITL +4.5..7.6% versus opt15; sampling real model T.7/P.8/K20.
+    Out-of-place clone newly added, cost unmeasured.
+  mixed: P1K throughput -35.2%, duration +54.6%, last-two spread8.46%; P4/P16/P32
+    throughput -2.1..3.4%. No raw request trace to attribute individual stalls.
+compilation_evidence:
+  benchmark_start_asia: '2026-11-04T21:03:14+08:00'
+  metadata_after_start: 1394
+  kernel_counts:
+    reduce_then_scan_root_scan_kernel_row: 8
+    fused_moe_kernel: 10
+    _sort_value_tiles: 1
+    _merge_value_runs: 6
+    _extract_top_k: 64
+    _find_first_keep: 63
+    _fill_zero: 124
+    _guarded_hist: 62
+    _guarded_zero: 62
+    _guarded_sweep: 992
+    _copy_kernel_kernel_rank_2: 1
+    moe_align_block_size_stage1: 1
+  extract_shapes:
+    i32:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 35
+    - 36
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+    - 44
+    - 45
+    - 46
+    - 47
+    - 48
+    - 49
+    - 50
+    - 51
+    - 52
+    - 53
+    - 54
+    - 55
+    - 56
+    - 57
+    - 58
+    - 59
+    - 60
+    - 61
+    - 62
+    - 63
+    - 64
+  extract_source_locations:
+  - /workspace/FlagGems-vllm/src/flaggems_vllm/runtime/backend/_metax/ops/top_k_top_p.py
+  real_k32_metadata_time_range:
+  - '2026-11-04T21:03:52.515655+08:00'
+  - '2026-11-04T21:23:53.374894+08:00'
+  startup_seen:
+  - M: 64
+    k_dtype: i64
+    time: '2026-11-04T21:01:21.408784+08:00'
+  counts_are: unique compiler-cache metadata entries, not execution counts or compilation-duration
+    estimates
+  NFS_mtime_vs_last_log_timestamp_seconds: 225.60482454299927
+  clock_limit: Single snapshot suggests NFS mtime about225.6s behind logged host time;
+    do not assign compiler events to individual Run3/4 precisely.
+source_comparison:
+  old_topk_sha256: 941bdc544401872327ee299aa0ab73387b43893e363f8c25b465fb607eb551eb
+  new_topk_sha256: 0f3f4eeb160032a6832e0ac214e947bb9fe435570f4de22eb1791f63d4befbb4
+  changed_shared_topk_helpers:
+  - _sorted_values
+  M_gt_1_sort_body: unchanged; _sorted_values adds M1 fast branch only
+  new_steady_work: out-of-place logits.clone before filtering; cost not measured
+  unchanged_key_sources:
+    Attention: f81fa552667b3ed98d1cf141d2dee33ba10476cda9a997744495bdbc36289ef2
+    FlagGems_sort: 06208cc0d074bd5a38a9ed84afa5870ccbea062fe3d244a1b438c2dc5df2e184
+    native_sampler: 1a2f18ddc91c89f3744ab5a93624be056bf20b7a8b2e6e13d0236182718a2253
+  generic_INT8_fix: not in current unquantized BF16 quantization=None model path
+  PR638: still reverted; Attention same as opt15 record; decode default split0
+  historical_binding_limit: opt15 source snapshot from accuracy task; CSV lacks linked
+    exact perf runtime manifest. GPU/host/cache preparation are not a single controlled
+    variable.
+planning_review:
+  id: plan-opt16-gap-001-20261104
+  cumulative_benefit: No new retained change or measured E2E benefit. Historical cross-run
+    observations only.
+  old_decision: PR1069 component and MoE correctness validation retained; no changes
+    made in this diagnosis.
+  candidates:
+  - priority: 1
+    direction: framework
+    hypothesis: Sampler real M1..64/int32 K JIT causes short-input stalls.
+    first_falsifier: After user benchmark ends, freeze same-source/hardware workload,
+      warm actual sampler shapes and K dtype, verify another pass yields no new metadata,
+      then retain all three P1K measurement rounds under pre-frozen <=5% spread rule.
+      Residual gap falsifies JIT-only explanation.
+    stop: No model intervention before current matrix ends; instability means incomplete,
+      no selective discard.
+  - priority: 2
+    direction: operator/improve
+    hypothesis: Separate full-logit clone contributes residual hot sampler overhead.
+    first_falsifier: Only if hot E2E gap remains, compare actual M64 FP32 full filtering
+      API and profile clone/mask; preserve out-of-place semantics. Potential fused
+      copy-and-mask is a proposal, not implemented.
+    compiler_capability: Current FlagTree/Triton JIT is observed. No new TLE primitive
+      or compiler upgrade assumed; check installed capabilities if kernel work proceeds.
+    stop: No numerical/API/config changes and no benefit claim without same-device
+      measurement.
+  - priority: 3
+    direction: framework/runtime isolation
+    hypothesis: GPU topology/CPU NUMA and stochastic scheduling differ across historical
+      samples.
+    first_falsifier: Bind future baseline/candidate/revert to same GPU pair, host,
+      source and warmup; do not attribute cross-device CSV difference to hardware.
+  required_skills:
+  - inference-performance-evaluation
+  - inference-profiling if residual attribution needed
+  no_new_execution_contract: true
+evidence:
+- path: /tmp/qwen3vl-opt16-gap-20261104/snapshot.json
+  sha256: 71960f2fe2c3751f43eb3d1aad0d5f519f8b5742601623bde7517ac5314d6e1b
+  retention: local temporary snapshot; original remote evidence unchanged
+- path: /tmp/qwen3vl-opt16-gap-20261104/paths.json
+  sha256: 6c87855584f86490be8fce0e5d474807a2016e53eb2f393652bb253f5932db9d
+  retention: local temporary snapshot; original remote evidence unchanged
+- path: /tmp/qwen3vl-opt16-gap-20261104/extra.json
+  sha256: 18ed18d86951ecb2cdcc5b4ff313389e3c7415196d5780aabf5e6e4d2ae16f75
+  retention: local temporary snapshot; original remote evidence unchanged
+- path: /tmp/qwen3vl-opt16-gap-20261104/history.json
+  sha256: 00101976bff547ec00ae6122b7ea6782afe78ad70347894d5d7c7a4e3bf0c42f
+  retention: local temporary snapshot; original remote evidence unchanged
+- path: /tmp/qwen3vl-opt16-gap-20261104/shape-provenance.json
+  sha256: e9bb2a6a4c0ef2d5cab9a0bc9ab8b83d8e5191dbdc4b62395eae4d3729bd0af5
+  retention: local temporary snapshot; original remote evidence unchanged
+- path: /tmp/qwen3vl-opt16-gap-20261104/final-results.json
+  sha256: 2d7fcbfe1b18f2c429bae825c9274901abcbfcb26e072d55d93521543be943a1
+  retention: local temporary snapshot; original remote evidence unchanged
+- path: /tmp/qwen3vl-opt16-gap-20261104/analysis-final.json
+  sha256: a66d8b8812d6e49212c96dd807032bafc124820b1f96a364f987343df287b833
+  retention: local temporary snapshot; original remote evidence unchanged
+commands:
+- path: /tmp/qwen3vl-opt16-gap-20261104/analyze_existing.py
+  sha256: a284ed600e12a49af89f5c1eb87f061a28e68be639ef42a89a8931279adc4824
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/analyze_final.py
+  sha256: f840533438274bf7ed1927853fb972f363daf211d1eeaae0a25c3b885f0f95fd
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/collect_extra_readonly.py
+  sha256: b5fc4723ec40bc60a42335b90879166f14b5af37888bec3e5b0f73fb4b47cb85
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/collect_history_readonly.py
+  sha256: a9cb961d4f55887296d60f927d255c0831e1aa0238ab00901ad3420ace2b85a0
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/collect_paths_readonly.py
+  sha256: 27882751f6336b40a70bc66284503fc1e831d075b0d118360bf096708aae8ca0
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/collect_readonly.py
+  sha256: 15549058069e3ec07bbccf0d7023d064cc356eb247dfa67d8055070aaef012ad
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/fetch_extra.py
+  sha256: a91a11e7f256dd5203e69e636a099655ca8a3d66e5cd0f28fc57861f608ac8fd
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/fetch_history.py
+  sha256: 7a6eb7605e8b71d640795ee8b2c283ded4ea0c24fefe63c7587754470dc0a5fe
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/fetch_paths.py
+  sha256: 75c981d692a94941b3e39418f1bb4fbbc2468406e1e0f80f6d498c520fc896b5
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/fetch_readonly.py
+  sha256: 0096f8b889593373b293c39f959d75178aadb58e69a83669cc308865abc1aff5
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/read_shape_provenance.py
+  sha256: 1920a2c29aead367b0e8bd0860aff6604d065b160d5c37fb325a8fd98b5fed4c
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/refresh_results.py
+  sha256: 91469e4d28f53f034e58ec66c8d6039e6e75d6b3dc200077ffdc774ae3cddbb5
+  effect: read-only remote inspection or local arithmetic; no inference
+- path: /tmp/qwen3vl-opt16-gap-20261104/refresh_results_final.py
+  sha256: 753dba9d03e64165fa29d34768aa21596fd2b3d50a3ae96a863878c754dc661c
+  effect: read-only remote inspection or local arithmetic; no inference
+remote_artifact_root: /public-flash/jinghao/qwen3-VL/test/perf_test/benchmark_results
+formal_verdict: incomplete
+accuracy: No new model evaluation or gate; prior component correctness is not an E2E
+  gate.

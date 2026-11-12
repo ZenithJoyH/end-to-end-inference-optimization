@@ -1,0 +1,23 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen3vl-opt16-performance-gap
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: historical-opt15-unbound
+  topology: TP2:GPU0,1; historical comparison not device-bound
+experiments: []
+metrics: []
+stage: acceptance
+current:
+  status: incomplete
+  candidate: null
+  next_action: No final validation. Need bound anchor/candidate/revert, steady-state
+    admission and current accuracy gate.
+formal_scenarios:
+  p1024-d1024-c64-n128: not_run
+  p4096-d1024-c64-n128: not_run
+  p16384-d1024-c64-n128: not_run
+  p32768-d1024-c64-n128: not_run
+no_new_gate: true
+no_E2E_benefit_claim: true

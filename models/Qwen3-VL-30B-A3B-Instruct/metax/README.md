@@ -1,5 +1,17 @@
 # Qwen3-VL 在沐曦上的端到端优化
 
+2026-11-06：[opt17/C64精度最终记录](20261105-qwen3vl-c64-accuracy-mx59-001/README.md)：GPQA129/198=65.15、ERQA165/400=41.25均通过，cap131072。ERQA clientread7200，仅续跑36超时题，364题未重复；0拒答，源服务保留、独立审核passed，未测新性能。监控已删除，本轮已结束。
+
+2026-11-05：[opt16热态1K同机受控诊断](20261105-qwen3vl-opt16-hot1k-mx59-001/README.md)已完成：独立GPU6/7旧/当前/旧中位总TPS3045.66/3046.84/3071.25，当前+0.04%、回切漂移0.84%；9计时轮缓存增量0，未复现采样代码热态大回退。源服务保留、代码不变，无新精度/四场景正式验收。
+
+
+2026-11-04：[opt16已有性能差距诊断](20261104-qwen3vl-opt16-performance-gap/README.md)：对opt15 P1K/4K/16K/32K总吞吐-35.21%/-3.35%/-2.10%/-3.26%；真实采样M1..64/int32编译覆盖缺口、out-of-place clone为证据支持的候选解释，尚未同机归因。只读，用户服务/测试未动。
+
+
+2026-11-04：[mx-59 top-k/top-p PR整理](20261104-qwen3vl-mx59-topk-topp-pr/README.md)：Draft [#1069](https://github.com/flagos-ai/FlagGems-vllm/pull/1069)优化后ce0fedd已同步qwen3vl，调用方已核验；目标容器91测试、20组位级对照、18算子+18实际hook变化输入replay通过。其他配置不变，原启动脚本保持；无新模型/E2E验收。此前独立组件M1改善2.27–4.94x，不推算模型收益。
+
+同案例后续[MoE修复与同步](20261104-qwen3vl-mx59-topk-topp-pr/optimize/fix-007-int8-large-stride.md)：通用INT8大stride非法访问已用整数偏移归并修复；保留main208ab通用MoE加此小补丁、精确主线MetaX文件和PR1069。62项MoE测试/42次变化输入replay及实际MetaX/PR1069护栏通过，111项真实配置保持，独立最终审计通过；无新模型/E2E结论。
+
 2026-10-27 容器维护：已删除其他8个Qwen-VL实验/评测容器，只保留 `qwen3vl-pr943-split1-mx104-20261023`，私有源码/评测文件已归档，镜像和Host数据保留。最终检查容器仍运行，但9999模型服务未运行；未自动重启，退出原因未定位。[维护记录](20261023-qwen3vl-metax-mx104-migration/optimize/maint-005-remove-other-qwen-vl-containers.md)。下文已完成精度分数是各次测量时的历史结果。
 
 

@@ -1,0 +1,42 @@
+schema_version: 4
+identity:
+  case_id: 20261105-qwen3vl-c64-accuracy-mx59-001
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: opt17-user-restarted
+  topology: TP2:GPU0,1
+stage: acceptance
+current:
+  status: incomplete
+  accuracy_status: passed
+  reason: GPQA129/19865.15 and resumedERQA165/40041.25 passed; no performance acceptance
+    performed
+  performance_acceptance: not_run
+experiments: []
+metrics: []
+latest_accuracy:
+  GPQA_percent: 65.15151515151516
+  GPQA_correct: 129
+  GPQA_N: 198
+  GPQA_C: 64
+  GPQA_cap: 131072
+  GPQA_threshold: 64
+  GPQA_gate:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-c64-accuracy-mx59-001/full-c64-cap131072-20261106/results/gpqa-accuracy-gate.json
+    sha256: 0a910e015968e2b575a41ea20c2a42ab2f534de1858427f7f622f26868b5de79
+    scope: original acc005 measured same service/transport only
+  ERQA_percent: 41.25
+  ERQA_all400_percent: 41.25
+  ERQA_correct: 165
+  ERQA_N: 400
+  ERQA_rejected: 0
+  ERQA_C_limit: 64
+  ERQA_cap: 131072
+  ERQA_client_read_timeout: 7200
+  ERQA_threshold: 40
+  ERQA_basis: native400 resume with364originalexact+36timeoutIDs
+  source_current_preserved: true
+  independent_audit:
+    path: /public-flash/jinghao/qwen3-VL/20261105-qwen3vl-c64-accuracy-mx59-001/full-c64-cap131072-20261106/erqa-resume-timeout7200-20261106/results/independent-final-audit.json
+    sha256: 3e459f53ce19c61a789fa774e8212b740e77d5a6606ce61dd866ebdb865b423f

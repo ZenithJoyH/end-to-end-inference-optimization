@@ -1,0 +1,168 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen3vl-opt16-performance-gap
+  model: Qwen3-VL-30B-A3B-Instruct
+  platform: metax
+  host: mx-59
+  baseline_id: historical-opt15-unbound
+  topology: TP2:GPU0,1; historical comparison not device-bound
+experiments: []
+metrics:
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 3181.19
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 1590.6
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 1626.23
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 38.63
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 37.03
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p1024-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 82.41
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 5621.01
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 1124.2
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 4737.52
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 52.14
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 43.19
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p4096-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 116.59
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 6499.96
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 382.35
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 73664.12
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 77.93
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 47.75
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p16384-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 342.81
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: total_throughput
+  value: 6013.93
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: output_throughput
+  value: 182.24
+  unit: token/s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TTFT_mean
+  value: 215246.07
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: TPOT_mean
+  value: 82.0
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: ITL_median
+  value: 38.09
+  unit: ms
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+- scenario_id: p32768-d1024-c64-n128
+  role: opt15_historical_unbound
+  metric: duration
+  value: 719.23
+  unit: s
+  scope: existing CSV last-two summary; observational, not new controlled measurement
+stage: baseline
+current:
+  status: incomplete
+  candidate: null
+  next_action: After current user matrix ends, design same-device steady-state comparison;
+    no new baseline run.
+historical_binding: opt15 primary whole-version; opt10 secondary confirmed stable
+  P1K. Historical CSV lacks exact perf launch manifest; not an anchor baseline.
+formal_scenarios:
+  p1024-d1024-c64-n128: not_run; historical imported observations only
+  p4096-d1024-c64-n128: not_run; historical imported observations only
+  p16384-d1024-c64-n128: not_run; historical imported observations only
+  p32768-d1024-c64-n128: not_run; historical imported observations only
+correctness_gate: null

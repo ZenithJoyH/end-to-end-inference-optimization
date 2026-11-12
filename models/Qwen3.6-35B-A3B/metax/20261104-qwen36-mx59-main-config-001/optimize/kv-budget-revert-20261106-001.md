@@ -1,0 +1,13 @@
+# 用户要求回退 KV cache 预算修正
+
+用户准备自行运行ERQA观察OOM是否复现，明确要求先回退当前容器的KV计算修正。目标仅mx-59/qwen36-35b，私有Plugin基线1bc0c775ffbdf4a0b0e2efb5e847d586e902273f。不修改另一release容器，不重启服务，不发评测请求，不恢复此前已回退的GDN延迟注册。
+
+范围：将worker.py从精确PR702 SHA3e8963cd52bf3ca4c1c3e66ce052fd90f57ec83b6fff14f605568b46d8d4bf9f恢复到当前Git HEAD，删除初始non-Torch自动预算补扣及requested-limit DEBUG建议补扣。与其配套的未跟踪memory_policy.py和test_memory_policy.py先完整备份，再从源码树移除；确认无其他生产调用。保留原增量non_torch_memory/free-memory建议和其余采样、MoE、GDN实现、启动参数。
+
+执行脚本commands/apply.py SHA256 fc66af7d373c685b9f16c9087d19413b73542e6a02ef410f152749eb24562aa2。执行前Host验证容器ID b96e1f3a3c61bcf2946803b8d88aace5bcff7599466023de86007db9e9fb4094以及私有源码挂载范围，三文件精确SHA及HEAD guard后备份；失败时按当前字节安全恢复。检查AST、worker逐字等于HEAD、其他Python源码和服务身份不变。无新GPU/模型测试，不能据此宣称OOM已复现或已排除。回退只改磁盘，下次服务启动生效；既有精度gate不自动绑定新实例。
+
+远端唯一目录：/public-flash/jinghao/qwen3.6-35B/20261104-qwen36-main-config-compat-mx59-001/kv-budget-revert-20261106-001。状态prepared。C1/C2/C3/F1/F4/F7按原机制恢复及精确内容/导入引用检查；本次无公共PR改动、提交推送或性能验收。
+
+完成：原生exit0，结果passed。worker恢复SHA51a168eae6dbe45b3598eefb1dba7fb5ce6bfb9344ffe3ec5d9df4d725cd2bc5，与当前HEAD逐字一致；配套helper/test已备份后移除。只有这3文件变化，其他扫描4164个Python文件不变，AST及diff检查通过，服务身份前后保持。独立读回git diff确认worker和model_runner已无差异，现有采样/MoE改动仍保留。未发ERQA、未重启或热加载；用户须重启后才能用原预算逻辑评测，OOM是否复现尚未验证。
+
+result.json SHA256 cb5c48f3cecfe7440e280f48c3104d7c8586a9e9277b83a93397bf4d4d611267；原3文件与元数据在backup/和plan.json。恢复修复时必须校验当前worker为上述原版SHA且helper/test仍不存在，再恢复备份，不覆盖后续修改。既有精度/性能记录保持历史范围，不声明回退后实例已验收。

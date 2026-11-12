@@ -1,0 +1,65 @@
+schema_version: 1
+status: completed
+scope: operator PR and target-container component deployment/MoE correctness repair only
+model_accuracy: not_run
+e2e_performance: not_run
+pr_url: https://github.com/flagos-ai/FlagGems-vllm/pull/1069
+draft: true
+pr_readiness: pending_review
+reason: Measured M1 regression removed; component-only checks pass. No model/E2E acceptance.
+head: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+component_validation: 91 device tests, 18 changed-input graph replays, 20 bitwise-old cases
+  passed
+source_container_unchanged: false
+production_deployment: true
+ci:
+  head: ce0feddceb0d74a031081e57ce9ff9d24fef3b84
+  rule_check: success
+  basic_ci: success
+  rule_check_run: 41800956811
+  basic_ci_run: 41800957375
+  code_change: export order only
+  gpu_regression_not_repeated: true
+container_code_deployed: true
+model_service_started: false
+model_graph: not_run
+container_validation:
+  component_tests: 91
+  bitwise_before_cases: 20
+  component_changed_input_replays: 18
+  actual_hook_changed_input_replays: 18
+  input_rng_preserved: true
+  actual_api: top_k_top_p(logits,p=p,k=k)
+  model_graph: not_run_no_model_service
+  formal_gate: not_issued
+  performance: not_run
+configuration_unchanged: true
+final_audit:
+  path: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/moe007/results/final-audit.json
+  sha256: e29ebbc4e382732ca58636c765337b53ff5e0d937504b70df5c278d4894583be
+startup_script_policy:
+  path: /public-flash/jinghao/qwen3-VL/start-model.sh
+  sha256: 86cd7f6222d6f293870478be0a47bdd852a29ace09a3dbb0f07564dec87a2a0a
+  existing_switch_lines:
+  - export VLLM_FL_USE_FLAGGEMS_VLLM=1
+  sets_flaggems_vllm_to_one: true
+  modified: false
+current_terminal: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/moe007/results/completed.json
+source_change_authorization: User explicitly requested sync/fix in mx-59 qwen3vl; only requested
+  source/tests changed, runtime config preserved
+prior_pr1069_deployment_audit:
+  path: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy004/results/final-audit.json
+  sha256: a2c91c250338ef0a2677debd5cad1d908d0d59c58ac3103a099199dfd136eb12
+prior_pr1069_terminal: /public-flash/jinghao/qwen3-VL/20261104-qwen3vl-mx59-topk-topp-pr/deploy004/results/completed.json
+moe_fix:
+  experiment: fix-007-int8-large-stride
+  status: component_correctness_and_graph_passed
+  generic_main_plus_patch_sha256: 4434453dc5eab0b2f3a9f8f80c2143f5e2b60bbfc891dc5713ea32e1f7f91146
+  main: 208ab5802fc9a3ea5458481f4a92b7bff330e283
+  tests: 62
+  changed_input_replays: 42
+  runtime_configs_unchanged: 111
+  PR1069_preserved: true
+  model_or_e2e_gate: not_issued
+  upstream_main_contains_fix: false
+  separate_pr_submitted: false

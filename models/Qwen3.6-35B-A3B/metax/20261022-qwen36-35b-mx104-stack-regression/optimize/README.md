@@ -1,5 +1,7 @@
 # 20261022-qwen36-35b-mx104-stack-regression / optimize
 
+上游提交：[MoE配置 PR #1067](https://github.com/flagos-ai/FlagGems-vllm/pull/1067) 在59完成22项GPU/44次变化输入Graph验证。相对当前主线，M64集中路由与M8192非快路径GEMM1分别慢9.70%/13.96%；另一个GEMM2因漂移超限incomplete，已如实披露并保留草稿。测试已追加PR，未改104容器或模型服务，详见[原调参实验](fgv-moe-gemm-tune-001.md)。
+
 原B接续只读复测：[retest-old](perf-retest-20261103-001.md#retest-old只读结果)同样下降，P32K各3轮总TPS-2.45%，P64K各前2轮-11.77%（本轮第3轮尚未完成）。确认opt4上午完成、KV预算补丁下午应用；补丁前后6515可比源码记录仅worker.py变化，当前原B仍保留修正。无新压测或服务操作。
 
 当前稳态总吞吐诊断：[11月3日 retest](perf-retest-20261103-001.md)，对opt4的P32K/P64K全部三轮总TPS均值分别-2.13%/-11.77%。当前KV178.6万token，日志满载时Running49/26并排队；59,534源码/包记录相同，仅启动脚本变更。主解释为安全KV预算修正后的驻留限制，历史prefix/实例未完全绑定，因果占比尚未A/B量化；0新压测或服务修改。

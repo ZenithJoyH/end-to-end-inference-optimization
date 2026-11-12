@@ -1,0 +1,1392 @@
+schema_version: 4
+identity:
+  case_id: 20261104-qwen36-mx59-pr1067-verification-001
+  model: Qwen3.6-35B-A3B
+  platform: metax
+  host: mx-59
+  baseline_id: main-00f4ed653
+  topology: operator-GPU0; model-TP2-GPU0-1-if-needed
+stage: optimize
+current:
+  status: completed_numerical_pass_performance_regressions_PR_remains_draft
+  candidate: PR1067@fb7c9f9461e5b88b64617eb996db42636ddfc423
+  next_action: No automatic retuning or full model evaluation. Proposed defaults are
+    not recommended; tests and negative results are published.
+experiments:
+- experiment_id: pr1067-hardware-001
+  document: pr1067-hardware-001.md
+  scenario_id: MoE-BF16-E256-H2048-I256-topk8-M64-M8192
+  status: verified_numerical_pass_performance_regressions_draft
+  direction: operator/improve/config verification
+  source_image: harbor.baai.ac.cn/flagrelease-public/qwen3.6-35b-metax001-gems5.5.0-tree0.7.0-cxnone-plugin0.2.0-vllm0.20.2-sglangnone-sglangflnone-cp312-pt28-maca37-x64-3.8.1:202611020932
+  image_id: sha256:9f420f54d1e6f60d7fa9fc9ba8bc4f7bd68fb79f60b31598273c8a976436517e
+  source_image_matches_mx104_qwen36_container_parent: true
+  current_gpu_observation: 8 MetaX C550, no compute processes at preflight; refresh
+    before execution
+  remote_work_root: /public-flash/jinghao/qwen3.6-35B
+  connectivity: passed
+  new_containers_created: true
+  new_GPU_executions: 5
+  model_requests: 0
+  service_changes: false
+  scope: current-main vs PR1067 operator numerical/Graph/paired timing; no full GPQA/ERQA
+    or formal model performance
+  baseline_commit: 00f4ed653bcdf9dae33fb418a60eac01396813ba
+  candidate_commit: a1913e73af9c2517601b9b69a00fd734ebd349e3
+  fresh_observation_limit: No instantaneous GPU reservation or future-idle guarantee.
+  remote_root: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-mx59-pr1067-verification-001
+  directory_authorization: 'user: 可以沿用这个目录'
+  setup_script_sha256: f0154fae987451181450c35a0bca55be9eb8be7d7fd48e006780db40d70a03e8
+  prepared_plan_sha256: 01eeffc914ac584b5a1b551e5827a2880510e03a45659511f8a91956bd1f58a9
+  image_lineage: verified_user_image_exact_ID
+  mount_parity: passed_empty_mounts
+  source_container: qwen36-pr1067-source-mx59-20261104
+  verification_container: qwen36-pr1067-verify-mx59-20261104
+  setup_native_exit_code: 0
+  minimal_regression_contract:
+    kind: operator public API numerical/Graph
+    dtype:
+    - BF16
+    - FP16 sentinel
+    shape:
+    - 256
+    - 2048
+    - 256
+    - 8
+    active_cases: 11
+    BF16_uniform_M:
+    - 1
+    - 63
+    - 64
+    - 65
+    - 8191
+    - 8192
+    - 8193
+    BF16_concentrated_M:
+    - 64
+    - 8192
+    FP16_uniform_M:
+    - 64
+    - 8192
+    reference: independent full FP32 expert projections/SiLU/weighted sum; same old
+      tolerance rtol0.1 atol0.01
+    graph: capture plus two distinct changed-input replays; NaN output sentinel before
+      each replay
+    roles:
+    - main
+    - PR1067
+    timeout_per_role_seconds: 1800
+    no_formal_model_gate: true
+  main_public_import: passed_exact_MetaX_ops_module
+  public_import_log_sha256: d0e06ad4ac8abd77c33f785204785e7046dc88ba622529957528823cb2d787f8
+  main_GPU_minimal_regression:
+    result: passed
+    tests: 11
+    changed_input_graph_replays_per_case: 2
+    native_exit_code: 0
+    log_sha256: 9ad6b0c824af59535f452af77161e3276430763ff5c607861a85e41258f17455
+  operator_benchmark_contract:
+    roles:
+    - main
+    - candidate
+    - revert
+    source_variable: only PR1067 get_default_config; kernels unchanged
+    full_M_BF16_uniform:
+    - 63
+    - 64
+    - 65
+    - 8191
+    - 8192
+    - 8193
+    full_M_BF16_concentrated:
+    - 64
+    - 8192
+    full_M_FP16_uniform:
+    - 64
+    - 8192
+    internal_nonfast_stage_points:
+    - - 64
+      - gemm1
+    - - 64
+      - gemm2
+    - - 8192
+      - gemm1
+    - - 8192
+      - gemm2
+    timing_helper: repository benchmark.base.do_bench_cudagraph
+    warmup: 10 calls + up to8 windows; last3 range/median<=3%
+    measured_rounds: 7
+    rep_ms: 50
+    revert_drift_limit: 0.03
+    kernel_resource_failures: record unsupported_resource_limit, no invented latency/speedup
+    script_sha256: ea5256fb6d896b55f744cf8d94027d5997c4e64f0f40faf1903a1deed7893ff7
+    hardware_scope: single C550 GPU0; not TP/model/E2E
+  candidate_GPU_minimal_regression:
+    result: passed
+    tests: 11
+    changed_input_graph_replays_per_case: 2
+    native_exit_code: 0
+    log_sha256: 5060521fd5ca004fbdec96e05ac86fdcf2d8f1dd58848304a5cfb69ebb796c36
+  main_benchmark:
+    status: completed
+    rows: 14
+    native_exit_code: 0
+    log_sha256: 493fea60c34d70daecf45d28eaa1662631269e46e009df6bfeb83a9d0d65d601
+  independent_verification:
+    path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-mx59-pr1067-verification-001/independent-verification-001/verification.json
+    sha256: 899d3082f8c984d832f1d6e68e734cf846a2dd80c30cdf3ea3367db25002dabc
+    native_exit_code: 0
+    report_status: incomplete_drift_with_valid_case_regressions
+    max_revert_drift_percent: 5.864438755537504
+    invalid_case: internal_nonfast_stage/M8192/gemm2
+    valid_regressions:
+    - case: full_public_MoE/M64/BF16/concentrated
+      baseline_revert_average_ms: 0.102095217019048
+      candidate_ms: 0.11200101791866242
+      latency_change_percent: 9.702512212463677
+      BR_drift_percent: -0.6716365106571254
+    - case: internal_nonfast_gemm1/M8192
+      baseline_revert_average_ms: 1.4322503594791187
+      candidate_ms: 1.6321791966756185
+      latency_change_percent: 13.959070484660941
+      BR_drift_percent: 0.02707663852150599
+  revert_benchmark:
+    status: completed
+    rows: 14
+    native_exit_code: 0
+    log_sha256: e83f279f11314bbdb1aa819b35f078bab2fa526a8443dd55ef411a7a417ebe15
+  candidate_benchmark:
+    status: completed
+    rows: 14
+    native_exit_code: 0
+    log_sha256: 36a1e4cbd5c46849ea516bfed56980c682b7965524001e447da87d96b04c4259
+  formal_model_accuracy: not_run
+  model_E2E_performance: not_run
+  PR:
+    url: https://github.com/flagos-ai/FlagGems-vllm/pull/1067
+    head_commit: fb7c9f9461e5b88b64617eb996db42636ddfc423
+    draft: true
+    new_GPU_test_sha256: 7d9264fe65716d47b71c35c0567ccef7ff857800f9caeaaa19e68d85e19372fc
+    production_source_unchanged_by_test_followup: true
+    status: negative_performance_disclosed_not_ready_for_merge
+  engineering_review:
+    operator_standard:
+      A2_B1_B3: vendor selection only; actual public API target and launch configurations
+        verified
+      E1_E2_E4: independent FP32 reference and 22 GPU tests/44 changed-input Graph
+        replays passed
+      F1_F2: 42 timing cases, identical inputs, seven rounds retained; two valid regressions
+        and one inconclusive case disclosed
+      F3_F4: new numerical tests published; 81 host tests/pre-commit/build/source
+        parity passed
+    pr_readiness: needs_revision_performance_regressions
+  closeout:
+    status: completed_verified_own_container_stopped
+    verification_container_running: false
+    GPU_after_no_processes: true
+    sha256: 60ffebe844938b948db7e6fefb5b4991aa18ce56b75f48f265081cadeef2f85b
+    source_container_not_started: true
+    other_services_untouched: true
+  comparison_details:
+  - kind: full_public_moe
+    M: 63
+    routing: uniform
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 0.49867744052533025
+    candidate_ms: 0.49868278114163145
+    revert_ms: 0.49858290019788243
+    reference_BR_ms: 0.49863017036160634
+    candidate_latency_change_percent: 0.010551062320796056
+    speedup: 0.9998945005081092
+    revert_drift_percent: -0.018958212215947068
+    drift_guard_passed: true
+    max_spread: 0.0006302035392442978
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 63
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 504
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 63
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 504
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 64
+    routing: uniform
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 0.49049208115558235
+    candidate_ms: 0.49477066596349084
+    revert_ms: 0.4897227773861009
+    reference_BR_ms: 0.4901074292708416
+    candidate_latency_change_percent: 0.9514723536403036
+    speedup: 0.990574953178422
+    revert_drift_percent: -0.1568432598685332
+    drift_guard_passed: true
+    max_spread: 0.0005962710292946948
+    input_sha256_identical: true
+    same_configs_as_main: false
+    main_actual_launches:
+    - A:
+      - 64
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 512
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 64
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 2
+      FUSE_SILU: true
+    - A:
+      - 512
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 2
+        SWAP_AB: true
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 65
+    routing: uniform
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 0.4844852369658801
+    candidate_ms: 0.4842713546752929
+    revert_ms: 0.4844483444371175
+    reference_BR_ms: 0.4844667907014988
+    candidate_latency_change_percent: -0.040340438180064275
+    speedup: 1.0004035671825704
+    revert_drift_percent: -0.0076147890477828994
+    drift_guard_passed: true
+    max_spread: 0.00034799858873737225
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 65
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 520
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 65
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 520
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 8191
+    routing: uniform
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 2.3353843688964844
+    candidate_ms: 2.3243885948544456
+    revert_ms: 2.3626301175072077
+    reference_BR_ms: 2.349007243201846
+    candidate_latency_change_percent: -1.0480448035504408
+    speedup: 1.0105914511893146
+    revert_drift_percent: 1.166649437822409
+    drift_guard_passed: true
+    max_spread: 0.00239667814197146
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 8191
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65528
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 8191
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65528
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 8192
+    routing: uniform
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 2.33432996840704
+    candidate_ms: 2.348221006847563
+    revert_ms: 2.3714437938871837
+    reference_BR_ms: 2.352886881147112
+    candidate_latency_change_percent: -0.19830423370265082
+    speedup: 1.0019869826076604
+    revert_drift_percent: 1.589913421943101
+    drift_guard_passed: true
+    max_spread: 0.002161647908000421
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 8192
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65536
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 8192
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65536
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 8193
+    routing: uniform
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 2.4392960197047184
+    candidate_ms: 2.4414316478528475
+    revert_ms: 2.5073350270589194
+    reference_BR_ms: 2.473315523381819
+    candidate_latency_change_percent: -1.289114762251442
+    speedup: 1.0130594995592084
+    revert_drift_percent: 2.7892886638021697
+    drift_guard_passed: true
+    max_spread: 0.0017839014170374934
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 8193
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65544
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 4
+        num_warps: 8
+        num_stages: 1
+        pipeline: basic
+        pipeline_load_num: 1
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 8193
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65544
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 4
+        num_warps: 8
+        num_stages: 1
+        pipeline: basic
+        pipeline_load_num: 1
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 64
+    routing: concentrated
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 0.1024392266427317
+    candidate_ms: 0.11200101791866242
+    revert_ms: 0.10175120739536431
+    reference_BR_ms: 0.102095217019048
+    candidate_latency_change_percent: 9.702512212463677
+    speedup: 0.9115561529377507
+    revert_drift_percent: -0.6716365106571254
+    drift_guard_passed: true
+    max_spread: 0.0005675009246964895
+    input_sha256_identical: true
+    same_configs_as_main: false
+    main_actual_launches:
+    - A:
+      - 64
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 512
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 64
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 2
+      FUSE_SILU: true
+    - A:
+      - 512
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 2
+        SWAP_AB: true
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 8192
+    routing: concentrated
+    dtype: torch.bfloat16
+    stage: null
+    main_ms: 1.7703634670802526
+    candidate_ms: 1.770832626907914
+    revert_ms: 1.76987886428833
+    reference_BR_ms: 1.7701211656842912
+    candidate_latency_change_percent: 0.040192797951643655
+    speedup: 0.9995982335016804
+    revert_drift_percent: -0.02737306778712867
+    drift_guard_passed: true
+    max_spread: 0.00046481115950024193
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 8192
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65536
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 8192
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65536
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 64
+    routing: uniform
+    dtype: torch.float16
+    stage: null
+    main_ms: 0.48985862731933594
+    candidate_ms: 0.48937795600112605
+    revert_ms: 0.48948518025506405
+    reference_BR_ms: 0.4896719037872
+    candidate_latency_change_percent: -0.0600295389219796
+    speedup: 1.0006006559602232
+    revert_drift_percent: -0.07623568177527185
+    drift_guard_passed: true
+    max_spread: 0.000651929079461053
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 64
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 512
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 64
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+      FUSE_SILU: true
+    - A:
+      - 512
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 16
+        BLOCK_SIZE_N: 64
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 3
+        SWAP_AB: true
+      FUSE_SILU: false
+  - kind: full_public_moe
+    M: 8192
+    routing: uniform
+    dtype: torch.float16
+    stage: null
+    main_ms: 2.3815744400024412
+    candidate_ms: 2.3791679382324222
+    revert_ms: 2.4393081665039062
+    reference_BR_ms: 2.4104413032531737
+    candidate_latency_change_percent: -1.297412427282274
+    speedup: 1.0131446647872977
+    revert_drift_percent: 2.4241831593307506
+    drift_guard_passed: true
+    max_spread: 0.001617771913221113
+    input_sha256_identical: true
+    same_configs_as_main: true
+    main_actual_launches:
+    - A:
+      - 8192
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65536
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+    candidate_actual_launches:
+    - A:
+      - 8192
+      - 2048
+      B:
+      - 256
+      - 512
+      - 2048
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 128
+        GROUP_SIZE_M: 1
+        num_warps: 4
+        num_stages: 4
+        pipeline: cpasync
+      FUSE_SILU: false
+    - A:
+      - 65536
+      - 256
+      B:
+      - 256
+      - 2048
+      - 256
+      config:
+        BLOCK_SIZE_M: 128
+        BLOCK_SIZE_N: 128
+        BLOCK_SIZE_K: 64
+        GROUP_SIZE_M: 8
+        num_warps: 4
+        num_stages: 1
+      FUSE_SILU: false
+  - kind: internal_nonfast_stage
+    M: 64
+    routing: null
+    dtype: null
+    stage: gemm1
+    main_ms: 0.3082941140338873
+    candidate_ms: 0.31604197118189425
+    revert_ms: 0.30784665144883194
+    reference_BR_ms: 0.3080703827413596
+    candidate_latency_change_percent: 2.5875867617002335
+    speedup: 0.9747768044518786
+    revert_drift_percent: -0.14514146222271984
+    drift_guard_passed: true
+    max_spread: 0.0010795524494858063
+    input_sha256_identical: true
+    main_config:
+      BLOCK_SIZE_M: 16
+      BLOCK_SIZE_N: 64
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 4
+      num_stages: 3
+    candidate_config:
+      BLOCK_SIZE_M: 16
+      BLOCK_SIZE_N: 64
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 4
+      num_stages: 2
+  - kind: internal_nonfast_stage
+    M: 64
+    routing: null
+    dtype: null
+    stage: gemm2
+    main_ms: 0.15913061261570494
+    candidate_ms: 0.1595927720824724
+    revert_ms: 0.15925035550612812
+    reference_BR_ms: 0.15919048406091652
+    candidate_latency_change_percent: 0.252708586150141
+    speedup: 0.9974792842037482
+    revert_drift_percent: 0.07524818038144865
+    drift_guard_passed: true
+    max_spread: 0.0005447496521858465
+    input_sha256_identical: true
+    main_config:
+      BLOCK_SIZE_M: 16
+      BLOCK_SIZE_N: 64
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 4
+      num_stages: 3
+      SWAP_AB: true
+    candidate_config:
+      BLOCK_SIZE_M: 16
+      BLOCK_SIZE_N: 64
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 4
+      num_stages: 2
+      SWAP_AB: true
+  - kind: internal_nonfast_stage
+    M: 8192
+    routing: null
+    dtype: null
+    stage: gemm1
+    main_ms: 1.4320564831004423
+    candidate_ms: 1.6321791966756185
+    revert_ms: 1.4324442358577953
+    reference_BR_ms: 1.4322503594791187
+    candidate_latency_change_percent: 13.959070484660941
+    speedup: 0.877508034899777
+    revert_drift_percent: 0.02707663852150599
+    drift_guard_passed: true
+    max_spread: 0.009091631846249053
+    input_sha256_identical: true
+    main_config:
+      BLOCK_SIZE_M: 128
+      BLOCK_SIZE_N: 128
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 8
+      num_stages: 4
+    candidate_config:
+      BLOCK_SIZE_M: 128
+      BLOCK_SIZE_N: 128
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 8
+      num_stages: 2
+      SPLIT_K: 1
+      PAIR_GATE_UP_DOT: false
+  - kind: internal_nonfast_stage
+    M: 8192
+    routing: null
+    dtype: null
+    stage: gemm2
+    main_ms: 0.9852851104736329
+    candidate_ms: 1.0186346769332886
+    revert_ms: 1.043066552344789
+    reference_BR_ms: 1.014175831409211
+    candidate_latency_change_percent: 0.4396521181028179
+    speedup: 0.9956227236073473
+    revert_drift_percent: 5.864438755537504
+    drift_guard_passed: false
+    max_spread: 0.009835518844239433
+    input_sha256_identical: true
+    main_config:
+      BLOCK_SIZE_M: 128
+      BLOCK_SIZE_N: 128
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 8
+      num_warps: 4
+      num_stages: 1
+    candidate_config:
+      BLOCK_SIZE_M: 128
+      BLOCK_SIZE_N: 128
+      BLOCK_SIZE_K: 64
+      GROUP_SIZE_M: 1
+      num_warps: 4
+      num_stages: 1
+      SPLIT_K: 1
+      PAIR_GATE_UP_DOT: false
+      pipeline: basic
+      pipeline_load_num: -1
+  all_input_hashes_identical: true
+  all_steady_admitted: true
+  rounds_retained: 294
+  candidate_not_promoted: true
+  final_artifact_manifest:
+    path: /public-flash/jinghao/qwen3.6-35B/20261104-qwen36-mx59-pr1067-verification-001/artifacts-final-002.json
+    sha256: bf00571850e65a2ff128e79be2da70f21bd637fc752b20536a4273befe8db08e
+    stable_artifact_count: 72
+    exclusions:
+    - self
+    - manifest-final-002.native-result.json
+  benchmark_report_sha256:
+    main: a4f8d6aab91ab023912ab00bff5633db0bc484ed77c05c92628c1c581bc086d0
+    candidate: 4d7c17615f98943c4c9492749128631d696d6139f080cfe0caebe113493a7fc5
+    revert: b314b61d4cd9b18b2cbfb022513c2f9616a37420ab3b0519911667f30726a51c
+  local_record_validation:
+    YAML_metric_and_document_checks: passed
+    upstream_pre_commit: passed
+    project_wide_records_check: failed_unrelated_existing_document_field_and_Qwen38_process_artifacts
+    unrelated_files_modified_to_silence_checks: false
+    published_GPU_test_matches_tested_bytes: true
+metrics:
+- scenario_id: full-MoE-bfloat16-M63-uniform
+  role: main
+  metric: graph_latency_median
+  value: 0.49867744052533025
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M63-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 0.49868278114163145
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M63-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 0.49858290019788243
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M64-uniform
+  role: main
+  metric: graph_latency_median
+  value: 0.49049208115558235
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M64-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 0.49477066596349084
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M64-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 0.4897227773861009
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M65-uniform
+  role: main
+  metric: graph_latency_median
+  value: 0.4844852369658801
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M65-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 0.4842713546752929
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M65-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 0.4844483444371175
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8191-uniform
+  role: main
+  metric: graph_latency_median
+  value: 2.3353843688964844
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8191-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 2.3243885948544456
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8191-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 2.3626301175072077
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8192-uniform
+  role: main
+  metric: graph_latency_median
+  value: 2.33432996840704
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8192-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 2.348221006847563
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8192-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 2.3714437938871837
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8193-uniform
+  role: main
+  metric: graph_latency_median
+  value: 2.4392960197047184
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8193-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 2.4414316478528475
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8193-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 2.5073350270589194
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M64-concentrated
+  role: main
+  metric: graph_latency_median
+  value: 0.1024392266427317
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M64-concentrated
+  role: candidate
+  metric: graph_latency_median
+  value: 0.11200101791866242
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M64-concentrated
+  role: revert
+  metric: graph_latency_median
+  value: 0.10175120739536431
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8192-concentrated
+  role: main
+  metric: graph_latency_median
+  value: 1.7703634670802526
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8192-concentrated
+  role: candidate
+  metric: graph_latency_median
+  value: 1.770832626907914
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-bfloat16-M8192-concentrated
+  role: revert
+  metric: graph_latency_median
+  value: 1.76987886428833
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-float16-M64-uniform
+  role: main
+  metric: graph_latency_median
+  value: 0.48985862731933594
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-float16-M64-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 0.48937795600112605
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-float16-M64-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 0.48948518025506405
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-float16-M8192-uniform
+  role: main
+  metric: graph_latency_median
+  value: 2.3815744400024412
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-float16-M8192-uniform
+  role: candidate
+  metric: graph_latency_median
+  value: 2.3791679382324222
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: full-MoE-float16-M8192-uniform
+  role: revert
+  metric: graph_latency_median
+  value: 2.4393081665039062
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm1-BF16-M64
+  role: main
+  metric: graph_latency_median
+  value: 0.3082941140338873
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm1-BF16-M64
+  role: candidate
+  metric: graph_latency_median
+  value: 0.31604197118189425
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm1-BF16-M64
+  role: revert
+  metric: graph_latency_median
+  value: 0.30784665144883194
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm2-BF16-M64
+  role: main
+  metric: graph_latency_median
+  value: 0.15913061261570494
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm2-BF16-M64
+  role: candidate
+  metric: graph_latency_median
+  value: 0.1595927720824724
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm2-BF16-M64
+  role: revert
+  metric: graph_latency_median
+  value: 0.15925035550612812
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm1-BF16-M8192
+  role: main
+  metric: graph_latency_median
+  value: 1.4320564831004423
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm1-BF16-M8192
+  role: candidate
+  metric: graph_latency_median
+  value: 1.6321791966756185
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm1-BF16-M8192
+  role: revert
+  metric: graph_latency_median
+  value: 1.4324442358577953
+  unit: ms
+  scope: operator_only_BR_guard_passed
+- scenario_id: nonfast-gemm2-BF16-M8192
+  role: main
+  metric: graph_latency_median
+  value: 0.9852851104736329
+  unit: ms
+  scope: incomplete_BR_drift_exceeds_3percent
+- scenario_id: nonfast-gemm2-BF16-M8192
+  role: candidate
+  metric: graph_latency_median
+  value: 1.0186346769332886
+  unit: ms
+  scope: incomplete_BR_drift_exceeds_3percent
+- scenario_id: nonfast-gemm2-BF16-M8192
+  role: revert
+  metric: graph_latency_median
+  value: 1.043066552344789
+  unit: ms
+  scope: incomplete_BR_drift_exceeds_3percent
