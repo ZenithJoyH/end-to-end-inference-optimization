@@ -53,6 +53,10 @@ Check at least one competing explanation. Low roof efficiency may reflect depend
 
 ## Produce the next experiment
 
+Before deepening a hotspot, apply [hotspot screening and net-benefit ranking](references/roofline.md#热点筛选与净收益排序) and [SOP C2](../../docs/performance-optimization-sop.md#c2-生成并维护实际候选排名). Identify its contribution to the chosen TTFT/ITL/throughput/SLO objective through a dependency path or evidenced contention, real call/shape coverage, and whether Roofline can change the next action. Repeated small calls can matter; large cumulative GPU time can be hidden by overlap. Do not profile every model operator or use a universal time-share/utilization cutoff.
+
+For selected candidates, return a bounded net-benefit estimate, not just roof efficiency: distinguish fixed-F/Q headroom from removing work, include full-call overhead, and count workload coverage once. Use the serial/Amdahl estimate only under its assumptions; recompute the dependency critical path for overlap and preserve unknowns where contention or dynamic batching prevents a reliable estimate. Do not reuse a mean-step reduction as P99, throughput or goodput improvement. Counter data and no-profiler timings must retain their collection provenance and cannot be silently spliced into a measured gain.
+
 Route by the mechanism in the reference decision table and the project classification:
 
 - `framework`: remove demonstrated orchestration waste, change batching/graph working point, or reorganize data/communication;
@@ -60,6 +64,8 @@ Route by the mechanism in the reference decision table and the project classific
 - `operator/improve`: reduce traffic/work or improve the current kernel, fusion, layout, parallelism or code generation; recommend `$key-operator-opt` and SOP C4 to the coordinator when relevant.
 
 For each proposed direction, state the evidence, affected critical-path share, predicted change in bytes/operations/waits, added full-call costs, applicability guard, one primary variable, smallest falsification experiment, success/stop conditions, rollback, and cross-phase metrics. Use ranges or `unknown` where the evidence does not support precise gains. `1/eta` is fixed-work model headroom, not an end-to-end speedup promise.
+
+Return the shortlisted candidates with net-benefit intervals, assumptions/confidence and implementation/validation costs so the coordinator/planning workflow can rank them automatically. Explain screening exclusions and why the first proposed experiment has more decision value than alternatives. High model headroom with weak evidence should normally lead to a cheap falsification probe rather than a full implementation. Preserve known unsupported gaps and matching active requests under SOP C5; ranking does not restart collection.
 
 The executor follows existing correctness/accuracy and target graph capture/replay requirements. Propose no-profiler `targeted/checkpoint` Mixed measurements and cross-phase guards through `$inference-performance-evaluation`; the coordinator dispatches them at the existing promotion point, reusing valid results. After a retained change, reassess the working point and evidence freshness; recommend scoped collection through Profiling only when necessary and return conclusions for the next planning decision. Do not automatically start a full planning review after every analysis; follow its existing triggers. This Skill cannot declare formal acceptance or authorize weight/tokenizer changes.
 

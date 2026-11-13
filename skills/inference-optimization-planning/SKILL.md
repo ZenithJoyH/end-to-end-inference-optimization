@@ -71,19 +71,23 @@ Before choosing the next experiment, automatically evaluate the [SOP C5 triggers
 
 The main coordinator owns this review and any follow-up dispatch. An analysis or supplement returns to the same decision point; it does not create another planning review. Reuse matching active requests and documented capability gaps, not just completed successful analyses. When a supplement adds no usable evidence, close that request with its limitation and reopening condition, select a supported alternative or replan; do not restart the same collection from another Skill or reset its budget. A source/configuration change requires an impact and binding check before claiming other phases remain reusable.
 
-Generate a short ranked list, normally the next 1–3 directions. Rank by evidence-supported end-to-end value rather than code convenience:
+Generate a short ranked list, normally the next 1–3 directions, using [SOP C2](../../docs/performance-optimization-sop.md#c2-生成并维护实际候选排名) and the shared [hotspot/net-benefit method](../inference-roofline-analysis/references/roofline.md#热点筛选与净收益排序). Automatically screen for objective-specific critical-path impact or evidenced contention, actual shape/call coverage, and whether further Roofline analysis would change the decision. Reuse the current analysis shortlist; do not require counters or kernel tuning for every operator.
 
 ```text
-priority ≈ bottleneck contribution × eliminable fraction × production hit rate × evidence confidence
-           - implementation/validation cost - correctness/compatibility/maintenance risk
+objective-specific hotspot → removable critical-path cost minus added execution cost
+→ net-benefit interval → evidence confidence, engineering/validation cost and risk
+→ first falsification experiment and guards
 ```
 
-Use qualitative ranges when the inputs do not support precise numbers. Re-evaluate the default order—obvious low-risk framework waste, existing faster operator replacement, then deeper current-operator optimization—against current evidence; measurement can override it.
+Use the serial/Amdahl mapping only for its stated assumptions; for concurrent kernels, collectives or ranks, recompute the changed dependency path and newly exposed bottleneck. Do not simply multiply cumulative kernel time, or overlap-subtracted time, by a kernel speedup fraction. Separate fixed-work roof headroom from reductions in FLOPs/bytes, count coverage once, deduct only additions not already included in candidate full-call timing, and keep profiler and no-profiler timing provenance distinct. Tail percentiles and throughput/goodput require their own workload evidence rather than arithmetic on mean phase latency.
+
+Compare net-benefit intervals first, then explain confidence, production applicability, implementation/validation cost, correctness/compatibility and maintenance risk. Do not numerically subtract dimensionless risk or developer time from milliseconds, invent confidence probabilities, or choose the largest theoretical headroom by itself. When intervals overlap, prefer supported, cheaper-to-validate, reversible alternatives; when upside is large but evidence weak, choose the smallest discriminating probe before deep implementation. If no credible positive net benefit is supported, select a bounded diagnostic or defer explicitly. Re-evaluate the default framework/replace/improve order against this evidence after retained changes; isolated candidate gains are not additive.
 
 For every proposed direction include:
 
 - rank, layer/strategy, target phase and bottleneck, supporting and opposing evidence;
 - expected main-metric effect and guarded regressions;
+- objective/timing unit, raw hotspot time and window, critical-path share or contention evidence, coverage weighting, fixed-work or work-reduction assumptions, full-call added costs, net-benefit interval and its provenance/confidence;
 - applicable scenario/shape/dtype/layout/graph/platform boundary;
 - dependencies, implementation scope, correctness risk, validation cost, and rollback path;
 - the smallest first experiment that can falsify it, including `scenario_id`, performance Skill mode, correctness trigger, profiling need, success threshold, and stop condition.

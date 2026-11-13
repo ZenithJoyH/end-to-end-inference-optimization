@@ -11,6 +11,8 @@ Use this skill to turn an end-to-end bottleneck into a bounded operator investig
 
 Before deep operator work, identify evidence that the operator or its surrounding dispatch, layout, synchronization, or communication path materially affects the target end-to-end metric. A high theoretical FLOP count alone is not sufficient.
 
+Screen and rank the operator against framework alternatives with [SOP C2](../../docs/performance-optimization-sop.md#c2-生成并维护实际候选排名) and the [shared net-benefit method](../inference-roofline-analysis/references/roofline.md#热点筛选与净收益排序). Carry the caller's hotspot shortlist, objective-specific critical-path/contending-resource evidence and actual shape coverage. Estimate full-call net benefit with overhead and overlap boundaries; a large kernel duration or low roof efficiency alone does not justify deep tuning. If the mechanism is weakly supported, propose a cheap falsification experiment before implementation, returning the result to the original coordinator rather than opening another analysis loop.
+
 If the evidence still points to request scheduling, networking, tokenization, batching, service configuration, or framework orchestration, continue the system-level investigation without loading the operator knowledge base.
 
 ## Shared method
