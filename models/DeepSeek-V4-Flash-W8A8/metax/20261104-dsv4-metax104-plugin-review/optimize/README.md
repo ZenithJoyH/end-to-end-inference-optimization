@@ -1,15 +1,22 @@
+<!-- op008 latest:115 startupfailed beforemodel readiness due missinglegacy-inner49.py;0 newperformance batches.3knownactorsgone/8idle/整改 untouched.116 ASTclosurecomplete/117 preparingexactfrozendependency+freshselectorpaths, no NaN/kernelchange. GPQA165/198 valid/recoveryqualified; oldfailedruns retained. -->
+<!-- op008 latest:115 actualuniqueTop108 launched1794560825.7738516, candidate OFF activation,0 newperformance batches. GPQA103165/198 valid,103failedcleanup preserved andindependentphysicalrecoveryqualified. Full4case C/B/R132batches pendingfreshgraph/minimal/nativebinding. Original整改 untouched/no commitpush. -->
+<!-- op008 live status: native103 GPQA165/198=83.3333% verified; failed cleanup-controller103 preserved; physical cleanup108A verified. 111/112 static controls reviewed;113 CPU integration underway, no fresh performance rounds or approval yet. Original整改 container untouched; no commit/push. -->
 # 20261104-dsv4-metax104-plugin-review / optimize
+
+当前 op-008：NaN 私有修复已通过数值、真实 dispatch、graph 和正式 GPQA103：**165/198（83.33%）**。原清理控制器103失败保留，独立物理清理及原生精度证据已核验。
+
+新对照115在模型 readiness 前因执行目录缺少旧控制模块而退出，**准备/预热/正式均0轮**；3个关联进程已退出、8卡空闲。116已定位两份需原样补齐的冻结依赖；117/118正在准备新目录重启，未改模型数值代码。整改容器、安装源码和启动脚本未动，不提交推送。全部历史失败和慢轮保留，完整四场景 C/B/R 仍未完成。
 
 <!-- e2e:summary:start -->
 
 - 案例：20261104-dsv4-metax104-plugin-review
-- 当前状态：NaN已隔离到SDK BF16 MQA返回路径，私有Plugin接入现有FGV接口并通过数值、dispatch、graph及GPQA165/198（83.3333%）。后续调参DB身份从4aaa变为8ce，旧门禁不能原生绑定新性能实例；73已唯一启动当前缓存身份的新ON实例，新ON门禁及真实客户端预检已过、GPQA198题原生完成、396行样本通过；收尾配置接口错误仅CPU恢复，暂未签新门禁，端到端仍0正式轮。
+- 当前状态：正式GPQA103为165/198（83.3333%），原生分数有效；清理控制器失败经独立恢复核验保留。115对照启动缺依赖，0性能轮且已清理；116依赖定位完成，117/118新目录准备中。历史E2E74候选44批/5632请求全成功，但16K/32K TTFT波动超限，B/R未测；所有轮次保留，未交付整改容器。
 - 当前候选：独立测试容器私有 `model-validation59`（含NaN修复）+FGV `prefill-nonfinite46`（Decode97d）；整改容器、安装源码和启动脚本未改，无提交推送。
-- 下一步：当前缓存身份的新ON实例先通过实际resident客户端预检，再正式GPQA；通过后以原生门禁绑定OFF实例并完成P1K/4K/16K/32K的C/B/R全轮对照。保留旧165分、68全部12准备及所有失败，不拼轮、不挑分、不绕过缓存身份；原30h总截止不重置。
+- 下一步：仅补齐冻结启动依赖，核验新的CPU导入闭包后在独立TEST执行全四场景C/B/R；每场景3准备+5预热+3正式，保留132批。原30小时STOP保持不变，不再重跑GPQA追分。
 
 | 实验 | 状态/决定 | 场景 | 文档 |
 |---|---|---|---|
-| op-008 | SDK BF16 MQA有限输入→非有限输出已隔离；私有替换数值/dispatch/graph及GPQA165/198通过；当前DB身份变化后新formal73准备中，E2E0正式 | Prefill正确性与四场景组合回归 | [op-008.md](op-008.md) |
+| op-008 | NaN fix/formal103 165/198 passed；115启动缺依赖0轮且清理；116完成、117/118待新启动；E2E74全部慢轮保留 | Prefill correctness + four-scenario engineering checkpoint | [op-008.md](op-008.md) |
 | refactor-015 | PR #1145 更新到 9dd07431，保留 Draft、完整慢轮与已知边界；未安装 | Decode PR 独立发布与复核 | [refactor-015.md](refactor-015.md) |
 | op-006 | fixed9 中 6/9 达 SDK×1.05；full11 全长点仍慢；非有限值 partial-selection 门禁待修复 | Decode Top-k | [op-006.md](op-006.md) |
 | op-005 | milestone完整；原target SDK TTFT11.63%超限保留；诊断确认Mixed准入排队约0.48秒步长；recheck19全新B/C/R完整，稳定性/漂移通过，SDK32K收益3.11%不足5% | current安装版 vs SDK反事实，P1K/P32K原负载 | [op-005.md](op-005.md) |
@@ -159,3 +166,38 @@ run74 observation1794527964.9155: prep7/12 (P1K3+P4K3+P16K1), 896main success0fa
 run74 observation1794533520.3153 after local tool-connection interruption: original remote main/host/API exact ticks live at3488.4012, health200/no core result; no duplicate launch. Prep12/12 1536main success0fail, nativewarm10/20 + measured6/12 (1K/4K5+3 each), 2048native main success0fail; P16K warmup inferred next, B/R not_started. All three formal rounds per completed case retained in state; 1K output/TTFT/TPOT spreads0.9715/1.3355/1.9697%, 4K0.5048/6.4578/0.7081%, all below10%. These are C-only, not overall admission or relative benefit. Original30h deadline/source/container unchanged.
 
 Transport76 completed read-only within budget: resultb44494...; single bounded reconnect at1794534202 rc0, original main/host/API exact ticks live, no core result; root cause of pre-auth kex reset unknown, no task failure inferred/no replacement launch. Observer resumption4243.0721 prep12/warm12/formal6, 3840total main success0fail, C P16K warmup, B/R0. Local parent monitor now accumulates all stdout chunks before JSON parsing; no remote observer/native tool/source modified.
+
+run74 at1794537462.3640 exactmain/host/API live, health200; observer7327.4113 prep12/warm16/formal9. C P16K formal all3valid: output372.884881/373.079134/373.885465, TTFT4683.876154/4694.413440/5457.815670ms, TPOT163.222349/162.555351/161.906030ms. Relative spread0.268196/16.486394/0.809766%; TTFT exceeds frozen10%, not promotable, all rounds retained. C32K currently warmup; do not edit running assets or start B/R manually. CPU ttft_guard77 preassigned: existing records/contracts/native stop rule, raw start/TTFT/ITL timeline identity as needed, no API/GPU/source/cache/signals/mutation; STOP20min cap originalwhole, goal5min. Output local LC/ttft-guard77 exact stop behavior + bounded source of metric spread/unknowns/recommendation, no new workload/re-score, no stats duplication. Parent only actual native evidence review/local records/dispatch AGENTS5.5(3/4/5). Start=1794537527.01897.
+
+Planning review77 cutoff8274.638: privateNaNfix60 retained/GPUdispatchgraph passed, formal75 strict165/198 valid, C46+Decode97d/commonPlugin59 vs actualbefore69e/commonfix; no cumulative gain withoutB/R. P1K/P4K all3stable; P16K TTFT16.486% failed; P32Kwarm2/5 active. Analysis77 result7ed277... accepted: physical native times, all3SHA, <=.603s all-stream gap; lateclientcohort shift explains measuredmedian movement but unique worker/scheduler/kernel cause unknown. Matchedintendedseeds NOT actualrequestbyteproof (promptbytes absent), no arbitrary extra warmup. Ranked1 existing currentidentity client/worker phase timing inventory; if absent narrow native capture afterCcleanup;2 evidence-supported frameworksinglevariable only; numericnewkernel/thresholdrelax deferred. Roofline cannot choose without devicephase/timeline evidence, no newcounter capture. Same-review supplement78 assigned existingbuiltin ttft_guard77: readonly narrow logs/metadata/hook + installednativeprofile CLI/config/source ability and requesthashavailability; proposedbounded gap capture contract only, no implementation/requests/CLIimports/GPU/signals/remotechanges, STOP15min cap whole, goal5min. Parent review actual artifacts/rules/docs only5.5(1/3/4/5). Start=1794538425.997914 STOP=1794539325.997914.
+
+78 completed9240.8366<9325, result048940825a70a9cde9485253b9f8dbbb022527b15e040e8c040b884797e6e769; no existing currentidentity perrequeststepGPU evidence. Nativebench actualhelp supports prefix/header but fixedprofile wrapper doesnotpassthrough; actual defaultbenchUUID mustobserved, engine appendsrandomsuffix. Frontend profiler false NOTmax8bounded, rejectwholebatchfrontend trace. VerifiedTP0 CPU NewRequestData.prompt_token_ids list canbehashed once/request, modeltokenhash NOTHTTPpayloadSHA. Currentcontrols tokenbudget4096/maxseq64/chunkedTrue/FULL_DECODE_ONLY/OFF/.85.
+New79 purelocal implementation/CPUfixtures preassigned builtin ttft_guard77: read existingLC78 exactsnapshots; write ONLY LC/mixed-metadata79, new private diagnostic module + bounded mocktests + versionguards/installproposal, inactivebydefault/no filesbydefault; no remote/API/GPU/importrealTorch/vLLM, no production/currentrun/source/assets modified. FullactualIDmapping, perstep metadata all8, rank0 CPU prompttokenSHA once/mainreq, boundedbuffer/overflowdiagnosis, monotonic times/optionalinjectable record_function onlyactive; no GPUtensorread/sync/computechange. UnknownadapterAPI stays needsreview, nofakeproof. Remote dsh precheck failed at SSHbanner before anyremote writer; no repeatedretry/install/policychange. Purelocaltask doesnot needremote dsh. Future remoteintegration/launch separate guardedunit afterconnection/Ccleanup + parentactualdiff. Earlier local record command syntax error occurred before any write and didnotdispatch.
+{'start': 1794539446.988124, 'stop': 1794540946.988124, 'budget_seconds': 1500, 'goal_seconds': 600, 'original_whole_STOP': 1794620115.1426158}
+
+Second transport episode: newdshentryprecheck and later bounded projectconnectivitycheck both SSHbanner timeout beforeexecution. No dsh writer/newGPU started, no signal to74, remote currentstateunknown; lastobserver9052 Cprep12/warm18/formal9/B-R0, lastactor8464 same-tickslivehealth200 historicalonly. Recovery81 assigned existingbuiltin transport_recovery76: minimalconfiguredmx104endpoint capability diagnosis; no credential/fullenv/securitypolicy/host expansion; only one bounded SSHexistingstatusread if freshbanner evidence recovers, no mechanicalrepeat/authloops or model/API/observerworkloads/signals/mutation; local LC/transport-recovery81 structuredoutput. Start=1794539712.95025 STOP=1794540912.95025. Same originalwholeSTOP/hard; no taskreplacement or budgetreset.
+
+81 readonlyreconnect9786.9956 exactoriginalmain/host/API same-ticksnonZ; result36343e..., no newworkload/mutation; banner-timeoutcause unknown. Refreshedobserver9855.6153 Cprep12/warm19/formal9 =>5120total main success0fail, 32Klastwarm inferred, B/R0. C16Kguardfailure unchanged/no promotion. 79purelocalmetadata/80purelocalcontrol preparation ongoing, no newdiagnostic installation/launch.
+
+79 delivered0696.6375<0946, module4fffec.../contract268b9c.../resultb2ce72...; parent actual401line module+293line36mocktests review acceptedCPU-only(no Torch/vLLM/GPU/remote/notinstalled). ExactdefaultWorkerFLsourcef51 guarded, no constructoractivation; nativeprofileTrue->latefactory afterTPready; nativeFalse->explicitreport_sink outsideobservedsteps; allnativeerrorssame/no numericalretry. Module noenv/defaultIO, bounds4096steps/262144rows/160requests/8ranges, TP0 CPUtokenSHA once/request, actualobservedbenchprefix/fullID. ForwardendCPUenqueue/returnNOTGPUduration. Actualimportloader/rank/CID/NSpid/nativeprofiler/Mixedtrace/graph allpending80. Parent sentfinalAPI to80; no newcaptureallowed beforeCcleanup/guardreview. Observer0586.1324 Cprep12/warm20/formal10 (32Kformal1/3), B/R0, 5376main success0fail. 16KTTFTfailure unchanged.
+
+run74 FINAL at1794541967.9890: C12prep+20warm+12measured all44native batches valid/5632main success0fail; no B/R. Nativeguardfail at16KTTFT16.4864% and32KTTFT14.2245%, no formalround discarded; nativecompare not_run/incomplete. C runrecord486d372...; resultc9d3f9...; cleanup e329b0... ownnone/all8idle/noKILL/no containerstop; identityafterc1afda... actualprivate source unchanged. Parent2057 exactmain/host/API gone; independent2572 bothcontainerIDs/images/mounts/no model/script737... unchanged,8idle. No originalrestore. 84 defaultremote dsh current0.2.2-rc.1 headless launched2820.3169/host2520624@1285356687 existing32KCPUanalysis only; 2943 substantive structuredtools active, no resultyet/no GPUorAPI. 83 versionedlocalmetadata correction/stageproposal continues, no diagnostic launched.
+
+All candidate measured rounds74 (output-only tok/s; TTFT/TPOT are client Mixed proxies):
+
+| P | Round | Output tok/s | median TTFT ms | median TPOT ms | Success/failure |
+|---|---|---|---|---|---|
+| 1024 | 6 | 1247.263163219 | 2389.736876823 | 48.828150248 | 128/0 |
+| 1024 | 7 | 1259.402852005 | 2371.820266359 | 47.867296846 | 128/0 |
+| 1024 | 8 | 1249.535060276 | 2358.060601167 | 48.782544058 | 128/0 |
+| 4096 | 6 | 846.032008925 | 2228.196997195 | 72.037139598 | 128/0 |
+| 4096 | 7 | 849.042595614 | 2114.391759969 | 72.547129911 | 128/0 |
+| 4096 | 8 | 850.318080729 | 2091.654529795 | 72.550844854 | 128/0 |
+| 16384 | 6 | 372.884881134 | 4683.876154013 | 163.222348888 | 128/0 |
+| 16384 | 7 | 373.079134166 | 4694.413440302 | 162.555350516 | 128/0 |
+| 16384 | 8 | 373.885465113 | 5457.815670408 | 161.906030148 | 128/0 |
+| 32768 | 6 | 212.743565938 | 9596.700433642 | 282.497184023 | 128/0 |
+| 32768 | 7 | 212.292902512 | 8461.156487465 | 285.323525475 | 128/0 |
+| 32768 | 8 | 212.763610990 | 8393.141154200 | 283.394644575 | 128/0 |
+
+Current op008 review97: NaN provider-boundary repair passed; formal75 strict165/198=83.3333% valid for historical evaluated cache. C74 all44batches/5632main0fail retained,16K/32K TTFTspread16.4864%/14.2245% failed, B/R absent, no E2E gain claimed. Diagnostic92/analysis94+96+97 complete; profiler-only stop/export41.314s gap is not a proven cause of no-profiler C74 variability.256GPUactivities remain unknown. Latest SOP C2 supports no new8192/async/math change. Next98 unchanged canonical current-cache legal formal +full matched4case comparison; templates only, targetCPU100 and peer99 pending, no model currently claimed active. All rounds/old scores preserved; original整改 container unchanged/no commit or push. Details in [op-008.md](op-008.md).
