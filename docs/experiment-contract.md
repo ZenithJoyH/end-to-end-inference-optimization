@@ -112,6 +112,18 @@ TTFT 和 TPOT/ITL 是客户端可见代理指标，不自动等于纯 Prefill �
 - 失败、超时和未完成请求不能静默从 SLO 分母消失。失败轮可保留诊断证据，不能当作完整成功轮参与最终收益。
 - 主指标与必要守护指标必须为可解释的有限数；缺失用 `null` 并保持验收未完成。资源采样注明范围、间隔与每设备口径；采样峰值不冒充绝对峰值，瞬时功率不推导能耗。
 
+### Roofline 诊断记录（按需）
+
+当使用 Roofline 支持瓶颈判断或候选排名时，在当前优化点 Markdown 中保存下列口径，方法见 [SOP C5](performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)与 [Roofline Skill](../skills/inference-roofline-analysis/SKILL.md)：
+
+- **绑定与范围**：scenario、当前候选/服务身份、稳态窗口、phase、rank/worker、kernel/range 与调用数、实际 shape/batch/query/KV 长度、dtype/量化及 graph 路径；阶段切分方法、mixed 共享事件与覆盖缺口。
+- **采集与来源**：工具/版本、指标全名/单位/公式、原始产物路径与必要 SHA、replay/cache/clock/concurrency 设置；哪些值为硬件实测，哪些来自 shape/算法估算或外推。采样或代表性 kernel 数据不得无标注地外推成全阶段实测。
+- **分子与时间**：`F_algo` 与可取得的 `F_exec`、HBM read/write bytes、计时边界，是否包含空隙/通信；统计按 kernel 或完整阶段分别报告。缺失用 `null`，不能用显存占用代替流量，不能把客户端 TTFT/ITL 直接用作 kernel 时间。
+- **屋顶与距离**：算力/带宽上限的来源和适用精度、执行单元、稀疏/分区/频率口径；计算强度、实际 FLOP/s、实际带宽、Roofline 效率与限制。规格和实测校准屋顶分列，不混算；公式超过 100% 时先排查口径和采集误差。
+- **决策闭环**：支持/反对瓶颈假设的证据、可消除流量/计算/等待、关键路径贡献、下一项 `framework`/`operator/replace`/`operator/improve` 实验、预测变化、守护项与停止条件；链接正确性、graph、无 profiler Mixed 结果及优化后热点迁移。
+
+`profiling`、阶段分析、候选假设和规划字段继续保存摘要及证据链接，不增加必填 YAML 字段或更改 runner/native gate。计数器缺失只限制相应 Roofline 结论：保留 `estimated/incomplete` 及补证条件，仍可依据其他有效证据开展已授权实验。Roofline 效率与模型上限空间不是正式性能通过阈值，不追认历史记录为已测。
+
 ## 3. 实验记录最小字段
 
 下面是记录格式，不是已实现的自动 schema 校验器；当前工具覆盖情况见[性能入口](../evaluation/performance/README.md)。具体 warmup/统计执行规则见 SOP B1/D5。不适用项说明原因，未知项保持空值，历史记录保留原版本。

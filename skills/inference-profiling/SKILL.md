@@ -11,18 +11,19 @@ Use this Skill to turn a representative inference scenario into valid trace evid
 
 | Mode | Trigger | Output |
 |---|---|---|
-| `capture` | Low-overhead metrics cannot localize the bottleneck, or no valid trace exists for the current service and scenario | A newly generated, validated trace set with service, rank/worker, scenario, and command identity |
-| `analyze` | A valid current trace set already exists | Phase decomposition, hotspot evidence, competing explanations, and the next falsifiable experiment |
-| `reprofile` | A retained optimization, combined candidate, or changed workload may have moved the hotspot | A comparable diagnostic trace and hotspot-migration conclusion; not a speedup claim |
+| `capture` | A decision-relevant timeline or native-counter evidence gap requires collection | A validated new trace set and/or scoped native counter report, with binding and coverage |
+| `analyze` | Sufficient valid current traces/counter reports already exist | Phase decomposition, hotspot evidence, competing explanations, and the next falsifiable experiment |
+| `reprofile` | A retained optimization, combined candidate, or changed workload may have moved the hotspot | A comparable diagnostic capture and hotspot-migration conclusion; not a speedup claim |
 
-When a request includes both collection and analysis, run `capture` followed by `analyze`. Use `reprofile` only when the earlier trace and capture conditions are available for comparison.
+First apply the shared evidence, in-flight task and gap checks in [SOP C5](../../docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验). A request for collection and analysis does not require recollecting sufficient valid data: use `analyze` directly, or collect only the missing scope before analysis. Use `reprofile` only when the earlier evidence and capture conditions are available for comparison. Known unsupported or exhausted requests return a gap and reopening condition rather than another attempt on unchanged inputs.
 
 ## Read only relevant sources
 
 - Read the `Profiling 与 SGLang 诊断` section of `evaluation/performance/README.md` for maintained commands, result semantics, and current tool limitations.
 - Read the active case and experiment contract for scenario IDs, service identity, external artifact directory, and the bottleneck question.
+- When compute/HBM counters are needed for Roofline diagnosis, read the [Roofline measurement reference](../inference-roofline-analysis/references/roofline.md) for phase/rank binding, counter discovery and capture limitations. Collection and validity remain here; quantitative roof-distance analysis belongs to `$inference-roofline-analysis`.
 - If container/service preparation is required, read `docs/container-isolation.md` before changing the optimization environment.
-- After analysis converges to a specific operator, dispatch, layout, or adjacent fusion path, invoke `$key-operator-opt`; do not preload the whole operator knowledge base.
+- After analysis converges to a specific operator, dispatch, layout, or adjacent fusion path, recommend `$key-operator-opt` to the main coordinator; reuse any existing operator task and do not preload the whole knowledge base or recursively launch it from a counter-supplement task.
 
 ## Establish the diagnostic contract
 
@@ -30,12 +31,14 @@ Before capture, record:
 
 - Profiling mode, experiment ID, representative `scenario_id`, required phase coverage (`prefill`, `decode`, `mixed`), the phase-boundary method, the question the trace must answer, and why lower-overhead evidence is insufficient.
 - Model, Host, optimization container, service instance, engine, Plugin/FlagGems-vllm/FlagGems revisions, hardware/topology, graph mode, profiler mechanism, and expected worker/rank coverage.
-- Input/output lengths, endpoint, EOS/sampling, concurrency, requests, warmup, profiled rounds, timeout, trace directory, output directory, and stop rules.
+- Input/output lengths, endpoint, EOS/sampling, concurrency, requests, warmup, profiled rounds, timeout, relevant trace/native-report and output directories, and stop rules; mark inapplicable output types explicitly.
 - The nearest no-profiler baseline or targeted performance run. It provides context only; do not mix its timings with profiler-on timings.
 
 Choose the smallest scenario that still exercises the suspected path. Use the user-provided remote work directory only through the current case-specific subdirectory, and verify how the server writes traces and how the client sees them. Do not infer a container/Host path mapping.
 
-## Capture and validate traces
+## Capture and validate evidence
+
+Declare whether the missing evidence is timeline, native counters or both. Keep existing valid artifacts and bindings. For a timeline, use the steps below; for counters only, use the native-report branch afterward. Do not collect a second timeline merely to satisfy the trace checks when the requested output is a counter report.
 
 1. Confirm the target service supports and has enabled the intended profiler without modifying the source adaptation container.
 2. Inventory the trace directory before the run, including filenames, sizes, timestamps, and checksums when practical.
@@ -46,6 +49,12 @@ Choose the smallest scenario that still exercises the suspected path. Use the us
 
 On timeout or non-zero exit, retain evidence and inspect profiler/service state. Do not silently restart services, reuse a stale trace, or retry indefinitely.
 
+For a **native counter supplement**, first verify the installed vendor tool, supported metrics, permissions and existing report coverage. The maintained `vllm_profile.py`/`sglang_profile.py` trace runners do not automatically produce FLOPs/HBM counters. Dispatch a saved, bounded vendor-native capture command under the same authorization, assigned optimization container, device ownership and frozen total budget; use the [measurement reference](../inference-roofline-analysis/references/roofline.md) to define the scope, not as an executable wrapper.
+
+Validate the original native report/export: report identity and new capture time, parseability, exact metrics/units, kernel/range and call coverage, phase/rank/shape/graph/backend binding, tool errors and replay/cache/clock conditions. Retain the original timeline ID and document how the reports can be associated; unmatched conditions remain separate evidence. Native report validity does not require a new trace, and trace existence does not validate native counters. Unsupported metrics, missing permission or incomplete coverage return a scoped gap, attempted evidence and reopening condition; no fake trace pass or cross-vendor fallback.
+
+One main coordinator owns dispatch and deduplication. Before collection, reference any matching in-flight analysis/capture task and wait or merge through its owner instead of starting another. A supplement returns artifacts and validity to its original request; it does not automatically start the full analysis-to-operator chain below. Re-enter Roofline only after new evidence or changed inputs, within the original budget.
+
 ## Analyze bottlenecks
 
 Build an evidence chain from end-to-end behavior to the narrowest supported layer:
@@ -55,7 +64,8 @@ Build an evidence chain from end-to-end behavior to the narrowest supported laye
 3. Distinguish host runtime/driver activity, device kernels, communication, memory copies, synchronization, graph gaps, and unclassified events.
 4. Identify per-phase cumulative time, call counts, representative shapes, rank imbalance, serialization, gaps, fallback, and implementation-hit evidence, then describe Prefill/Decode interference in the mixed timeline.
 5. Compare each leading explanation against at least one plausible alternative, such as client limitation, warmup, cache state, graph break, load imbalance, phase interference, or an adjacent copy/merge cost.
-6. Convert the result into one falsifiable phase-scoped experiment with an expected cross-phase and mixed end-to-end effect plus a stop condition.
+6. Automatically check the [SOP C5 triggers](../../docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验) at analysis handoff. When the decision depends on compute versus bandwidth or distance to a hardware ceiling, pass representative hotspot counters, shape/work estimates and the phase timeline to `$inference-roofline-analysis` without requiring the user to name it. Reuse a valid result for unchanged evidence. Preserve FLOPs/traffic/time conventions, counter coverage and replay/cache/clock effects. If it requests missing evidence, perform only the scoped capture under existing authorization, then return the evidence; a missing counter does not block independently supported experiments.
+7. Convert the result into one falsifiable phase-scoped experiment with an expected cross-phase and mixed end-to-end effect plus a stop condition. Explain which bytes, computation, or waits it should remove and what evidence would reject that mechanism.
 
 Use `trace_to_summary.py` only as a category summary. Its possibly overlapping activity-duration sums are not critical-path time, device utilization, CPU self time, or proof of end-to-end impact. Inspect the timeline and relevant events before attributing a root cause.
 
@@ -63,15 +73,17 @@ Classify the next optimization as `framework`, `operator/replace`, or `operator/
 
 ## Reprofile without overstating results
 
-For `reprofile`, keep the scenario, profiler settings, warmup, rounds, and trace interpretation comparable to the earlier capture. Report whether the hotspot persisted, shrank, moved, or became ambiguous. Then invoke `$inference-performance-evaluation` in `targeted` or `checkpoint` mode to measure actual no-profiler performance. Do not derive a speedup percentage by comparing profiler traces.
+For `reprofile`, keep the scenario, profiler settings, warmup, rounds, and evidence interpretation comparable to the earlier capture. Report whether the hotspot persisted, shrank, moved, or became ambiguous. Return this diagnosis to the coordinator, which schedules any still-required no-profiler `targeted/checkpoint` performance validation at the existing promotion point and reuses valid results. A counter supplement alone does not trigger another benchmark. Do not derive a speedup percentage by comparing profiler traces.
 
 ## Record and route artifacts
 
 Write the mode, scenario, service identity, profiler configuration, trace inventory/checksums, worker/rank coverage, phase coverage and boundary evidence, separate Prefill/Decode/Mixed hotspot summaries, interference, competing explanations, confidence, next experiment, result state, and artifact paths into the current experiment record.
+
+When Roofline is used, include the measured/estimated status, FLOPs convention, HBM read/write totals, timing scope, ceiling sources, arithmetic intensity, achieved throughput/bandwidth, roof efficiency, and resulting hypothesis as specified in the [experiment contract](../../docs/experiment-contract.md#roofline-诊断记录按需). Keep missing values unknown and do not treat roof efficiency as an acceptance gate or a predicted end-to-end speedup.
 
 - Profiling conclusions, stable profile IDs, decision boundaries, and external links update `models/<model>/<platform>/optimize/state.yml`. When profiling supports an active optimization point, add its phase-separated bottleneck evidence, competing explanations, and resulting direction to the matching `optimize/<experiment-id>.md`, then update the linked multi-round summary in `optimize/README.md`. Keep trace captures within that one optimization-point document; do not create an `optimize/history/`, a profiling subdirectory, or separate Markdown per trace.
 - Large traces, raw logs, and tool outputs remain in the external or remote case directory.
 - Capture/analyze scripts, service manifests, trace summaries, source excerpts, and generated commands remain external; do not copy the profiling work directory under `models/`.
 - Profiling artifacts do not enter `acceptance/` as formal performance evidence.
 
-Return a compact result containing: mode, scenario ID, service identity, trace validity and worker/rank coverage, phase-boundary evidence, separate Prefill/Decode/Mixed hotspots and interference, rejected or unresolved alternatives, conclusion boundary, artifact paths, and the next Skill to invoke.
+Return a compact result containing: mode, original request/task identity, scenario ID, service identity, separate timeline/native-report validity and worker/rank coverage as applicable, reused artifacts, phase-boundary evidence, separate Prefill/Decode/Mixed hotspots and interference, rejected or unresolved alternatives, conclusion boundary, artifact paths, unresolved gaps and reopening conditions, and the next-action recommendation for the coordinator. A supplement returns only its assigned evidence and validity, not a new optimization cycle.

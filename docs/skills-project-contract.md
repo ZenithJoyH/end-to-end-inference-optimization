@@ -128,6 +128,15 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
 - 精度问题记录与复现：当前案例的 `optimize/` 及批准的远端 case 目录。
 - Profiling：`evaluation/performance/vllm_profile.py`、`sglang_profile.py` 和
   `trace_to_summary.py`；实际 Trace 目录和 rank/worker 覆盖必须现场核实。
+  仅缺 FLOPs/HBM 计数器时复用有效时间线，在现有 Profiling 模式下按实际厂商工具补采原生报告，
+  单独校验指标、范围及绑定；这些 trace runner 不提供通用 native-counter 包装器，也不要求为补采再生成 trace。
+- Roofline 定位：[inference-roofline-analysis](../skills/inference-roofline-analysis/SKILL.md) 消费当前案例已有的
+  阶段/shape、FLOPs、HBM 流量、计时和上限证据，输出瓶颈、上限距离及下一项可证伪实验。
+  它不自行启动采集或 workload；缺口路由 Profiling，算子实验路由关键算子 Skill，排名路由规划复盘，
+  收益回到无 profiler 性能 Skill。现有 runner 不自动产出全链 FLOPs/HBM 计数器，也不新增能力 ID、
+  执行模式、强制记录 schema 或 native gate。计数器不可用时保留估算与缺口，不伪造实测。
+  四个 Skill 的交接、有效/在途/不可用证据复用及补证停止规则统一见 [SOP C5](performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)；
+  主 Agent 合并并派发任务，子任务返回原决策点，不通过互相调用展开第二套优化循环。
 - 关键算子实现、测试和知识沉淀遵守 Plugin/FlagGems 源码边界及当前案例记录规则。
 
 ## 生命周期和结论

@@ -64,6 +64,7 @@ Agent 的职责是：
 - **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
 - **性能评测**：本地 [inference-performance-evaluation](skills/inference-performance-evaluation/SKILL.md) 负责无 profiler 性能测量及 Prefill、Decode、Mixed 证据；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。
 - **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、Prefill/Decode 阶段切分、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
+- **Roofline 定位**：[推理 Roofline 分析技能](skills/inference-roofline-analysis/SKILL.md) 消费已有阶段/shape 证据与计数器或明确标注的估算，判断计算、HBM 带宽和执行效率限制，形成下一项可证伪实验；缺失采集交回 Profiling，候选排名交给规划复盘。
 - **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断 Prefill/Decode/Mixed 热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
 - **模型实验产物**：`models/<model>/<platform>/<case-id>/` 保存该案例的 `baseline/`、`optimize/` 和 `acceptance/`。案例目录保留可读摘要并链接到具体产物；归档与知识沉淀要求见第 11 节。
@@ -263,6 +264,12 @@ Agent 的职责是：
 - 低开销指标无法继续归因或需要确认执行路径时调用 `$inference-profiling`；收敛到具体算子
   后调用 `$key-operator-opt`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由调用方显式选择，
   对应 Skill 校验支持范围，不在本文件维护模式副本。
+- 需要判断计算、HBM 带宽或执行效率限制并选择下一步实验时，按 [SOP C5](docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)
+  由 Agent 按需自动调用 `$inference-roofline-analysis`，无需用户逐次点名；选择新场景方向、profiling 后归因、
+  热点迁移或规划复盘时检查触发条件，已有同身份、同口径的有效结论可复用。分析当前目标的
+  Prefill/Decode/Mixed，区分实测与估算、kernel 与阶段关键路径。计数器缺失保留证据缺口，不阻止
+  其他证据支持的已授权优化；将结论、置信度和缺口用于下一轮候选排序，记录采纳/暂缓理由、首个证伪实验与停止条件。
+  不适用时在既有方向决策中简述原因，不为调用而采集；Roofline 效率不作为正式性能通过条件。
 - 当前 Agent 的正式性能优化目标目录固定为以下四个 finite-batch 场景，长度单位均为 token：
   `P1024/D1024/C64/N128`、`P4096/D1024/C64/N128`、`P16384/D1024/C64/N128`、
   `P32768/D1024/C64/N128`，其中 P/D/C/N 分别表示输入长度、
@@ -374,6 +381,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
   inference-accuracy-diagnosis/   # 精度回退、输出异常与数值问题定位
   inference-performance-evaluation/  # 分层无 profiler 性能测量与正式性能门禁
   inference-profiling/            # trace 采集、热点归因与优化后复查
+  inference-roofline-analysis/    # 计算/访存上限、瓶颈证据与下一项实验
   inference-optimization-planning/  # 多轮实验归纳与下一阶段优先级重排
   key-operator-opt/               # 热点算子优化方法、平台经验与算子地图
 ```

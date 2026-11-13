@@ -56,14 +56,20 @@ Separate:
 - correctness debt, untested scenarios, engineering debt, and rollback readiness;
 - eliminated, reduced, unchanged, newly exposed, and still-ambiguous bottlenecks.
 
+When Roofline evidence informs the decision, consume the result of [$inference-roofline-analysis](../inference-roofline-analysis/SKILL.md) and check that its phase/rank/shape, FLOPs convention, HBM traffic, timing scope, and ceiling match the current candidate. Request a refreshed analysis when those inputs changed; missing collection goes through Profiling. Distinguish hardware measurements from estimates and missing coverage. Compare kernel headroom with timeline gaps, communication, and the target critical path; a kernel near its roof can still waste bytes or computation. Do not interpret a low FLOP/s percentage alone as poor execution, or assume Prefill is compute-bound and Decode bandwidth-bound by name.
+
 Use admitted steady-state measurements as the default evidence for bottleneck ranking and cumulative benefit. Cold-start,
 first-request, first-batch, and pre-steady anomalies may expose an insufficient warmup contract, but must not redirect the
 optimization plan toward startup-only work unless the user explicitly made cold start an objective. Do not repair apparent
 instability by dropping the first measured round after seeing it; request a new comparable measurement contract instead.
 
-If several changes are retained but the combined candidate lacks coverage of all affected scenarios, invoke `$inference-performance-evaluation` in `checkpoint` mode before treating the combination as established. If the new bottleneck is ambiguous, invoke `$inference-profiling`. If the configured accuracy trigger is due, invoke `$inference-accuracy-evaluation`. Keep the planning result `incomplete` when required evidence cannot be obtained.
+If several changes are retained but the combined candidate lacks coverage of all affected scenarios, invoke `$inference-performance-evaluation` in `checkpoint` mode before treating the combination as established. If the new bottleneck is ambiguous, first check existing evidence, analyses and in-flight tasks under SOP C5; dispatch analysis on valid data before requesting any new capture. Route only a decision-relevant remaining gap through `$inference-profiling`, preserving valid timelines and requesting counters alone when appropriate. If the configured accuracy trigger is due, invoke `$inference-accuracy-evaluation`. Keep the planning result `incomplete` when required evidence cannot be obtained; an optional unavailable Roofline counter does not invalidate independently supported decisions.
 
 ## Rank the next directions
+
+Before choosing the next experiment, automatically evaluate the [SOP C5 triggers](../../docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验) for `$inference-roofline-analysis`; do not wait for the user to request it. Reuse a current, adequately scoped result or dispatch a bounded analysis when the trigger applies. If Roofline cannot change the decision, record why in the existing review and proceed with the supported alternative. Missing counters alone do not require blocking the next experiment.
+
+The main coordinator owns this review and any follow-up dispatch. An analysis or supplement returns to the same decision point; it does not create another planning review. Reuse matching active requests and documented capability gaps, not just completed successful analyses. When a supplement adds no usable evidence, close that request with its limitation and reopening condition, select a supported alternative or replan; do not restart the same collection from another Skill or reset its budget. A source/configuration change requires an impact and binding check before claiming other phases remain reusable.
 
 Generate a short ranked list, normally the next 1–3 directions. Rank by evidence-supported end-to-end value rather than code convenience:
 
@@ -81,6 +87,10 @@ For every proposed direction include:
 - applicable scenario/shape/dtype/layout/graph/platform boundary;
 - dependencies, implementation scope, correctness risk, validation cost, and rollback path;
 - the smallest first experiment that can falsify it, including `scenario_id`, performance Skill mode, correctness trigger, profiling need, success threshold, and stop condition.
+
+For Roofline-derived directions, state the predicted reduction in traffic, computation, or waits, the affected critical-path share, competing explanations, and the measurement that would falsify the mechanism. Missing counters reduce confidence without vetoing otherwise supported experiments. After a retained change, reassess intensity, batch/KV working point and hotspot migration before reusing the old ranking; use `reprofile` when new collection is needed and confirm gains with no-profiler Mixed measurements and cross-phase guards.
+
+Explain how the Roofline result changed or confirmed the ranking: which direction was adopted, downgraded or deferred and why, then bind the selected direction to the immediate experiment, guards and stop conditions. Do not merely link the analysis while carrying forward an unsupported old priority. If counter collection is needed, specify its narrow question and scope instead of creating an open-ended profiling loop.
 
 Also list deferred directions and why they are lower priority. Do not present an unmeasured kernel hotspot, historical speedup, or theoretical peak as expected end-to-end gain without discounting and an explicit validation plan.
 

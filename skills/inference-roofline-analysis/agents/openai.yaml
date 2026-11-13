@@ -1,0 +1,6 @@
+interface:
+  display_name: "推理 Roofline 分析"
+  short_description: "按推理阶段分析计算与访存上限，定位性能瓶颈并选择下一项可证伪实验"
+  default_prompt: "Use $inference-roofline-analysis to analyze the current inference evidence, identify the supported bottleneck and Roofline headroom, and propose the next falsifiable optimization experiment."
+policy:
+  allow_implicit_invocation: true
