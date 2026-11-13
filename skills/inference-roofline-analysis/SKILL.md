@@ -7,6 +7,8 @@ description: Analyze phase-separated LLM inference FLOPs, HBM traffic, timing, a
 
 Use Roofline to connect current Prefill/Decode/Mixed evidence to the next optimization decision. This Skill consumes existing evidence and produces a bounded diagnosis; it does not launch services, collect counters, change code, or run benchmarks itself. Read [references/roofline.md](references/roofline.md) for measurement conventions, platform discovery, formulas, examples, and the decision table.
 
+When the decision needs a reproducible memory/KV ledger or shape-derived algorithmic FLOPs, read [references/offline-estimates.md](references/offline-estimates.md). The offline tools consume explicit snapshots/shapes; their estimates do not supply hardware counters, physical HBM traffic, runtime dispatch proof or formal performance evidence. Reuse their sidecars under the existing scope instead of starting a separate optimization loop.
+
 ## Automatic use in the optimization loop
 
 The user does not need to name this Skill on each optimization task. At scenario direction selection, profiling handoff, hotspot/working-point migration and planning review, apply the automatic trigger rules in [SOP C5](../../docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验). Invoke when compute/bandwidth/efficiency attribution could change the next experiment, a hardware-headroom claim supports costly tuning, or changed inputs invalidate the earlier conclusion. The main Agent dispatches concrete analysis under the existing delegation rules.

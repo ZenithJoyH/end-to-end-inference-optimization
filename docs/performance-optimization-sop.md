@@ -258,6 +258,8 @@ TTFT 包含排队、调度、网络等开销，TPOT/ITL 也可能包含调度、
 
 需要区分计算、HBM 带宽与执行效率限制时，按 C5 将 Roofline 证据接入候选排名。若瓶颈收敛到具体算子，使用 `skills/key-operator-opt/SKILL.md`，并把算子收益重新映射到端到端指标。
 
+已有有效材料可按需交给[离线分析工具](analysis-tooling-integration.md)：trace 分层/导航与 overlap/fusion 候选交回 Profiling；上游 PR 检索交回关键算子候选选择；显存/KV 分账和 shape/FLOPs 估算交回 Roofline 或框架工作点判断。工具只产生带输入 SHA、假设和缺口的诊断 sidecar，仍按 C2 排名并回到无 profiler 实测。缺少可验证边界、组布局或实际 shape 时保留 unknown，不为使用工具新增采集或门禁。
+
 ### C1. 两层优化分类与优先级
 
 瓶颈定位可以有请求、调度、通信、内存等多个维度；实施工作按用户指定的两个层面组织：

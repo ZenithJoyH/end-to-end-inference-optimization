@@ -21,6 +21,7 @@ First apply the shared evidence, in-flight task and gap checks in [SOP C5](../..
 
 - Read the `Profiling 与 SGLang 诊断` section of `evaluation/performance/README.md` for maintained commands, result semantics, and current tool limitations.
 - Read the active case and experiment contract for scenario IDs, service identity, external artifact directory, and the bottleneck question.
+- For offline forward/layer navigation or overlap/fusion candidate extraction from an existing trace, read [trace-analysis.md](references/trace-analysis.md). Use the maintained analyzer with explicit, checksum-bound boundaries; it does not collect traces or prove critical-path savings.
 - When compute/HBM counters are needed for Roofline diagnosis, read the [Roofline measurement reference](../inference-roofline-analysis/references/roofline.md) for phase/rank binding, counter discovery and capture limitations. Collection and validity remain here; quantitative roof-distance analysis belongs to `$inference-roofline-analysis`.
 - If container/service preparation is required, read `docs/container-isolation.md` before changing the optimization environment.
 - After analysis converges to a specific operator, dispatch, layout, or adjacent fusion path, recommend `$key-operator-opt` to the main coordinator; reuse any existing operator task and do not preload the whole knowledge base or recursively launch it from a counter-supplement task.
@@ -69,6 +70,8 @@ Build an evidence chain from end-to-end behavior to the narrowest supported laye
 7. Convert the result into one falsifiable phase-scoped experiment with an expected cross-phase and mixed end-to-end effect plus a stop condition. Explain which bytes, computation, or waits it should remove and what evidence would reject that mechanism.
 
 Use `trace_to_summary.py` only as a category summary. Its possibly overlapping activity-duration sums are not critical-path time, device utilization, CPU self time, or proof of end-to-end impact. Inspect the timeline and relevant events before attributing a root cause.
+
+When layer/pass structure or concurrency could change the next experiment, use `evaluation/performance/trace_analysis.py` on the existing valid trace. Preserve unknown attribution, crossing-boundary events, per-rank/device groups and source-event links. Treat its overlap/fusion rows as hypotheses requiring dependency and full-call checks under SOP C2, not as removable time. Keep the diagnostic sidecar external and reference it from the same optimization-point record.
 
 Classify the next optimization as `framework`, `operator/replace`, or `operator/improve` using the project's mechanism-based rules. A hot kernel is a candidate, not proof that optimizing it will improve the service.
 

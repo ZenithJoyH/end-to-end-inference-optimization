@@ -78,6 +78,8 @@ TTFT and TPOT/ITL are client-visible proxies and may include queuing, scheduler,
 
 ## Enforce the service gate
 
+When the revision or launch flags changed, optionally inspect the explicit saved argv against that target CLI's saved help using the [offline flag checker](../../evaluation/performance/README.md#离线-cli-参数兼容检查). This can catch unsupported flag names before launch; it does not run the command or verify values, help provenance or the live service. Reuse the original client capability probe for benchmark-client compatibility.
+
 For every new vLLM baseline, candidate, and revert performance service:
 
 1. Confirm the installed CLI supports `--no-enable-prefix-caching`.

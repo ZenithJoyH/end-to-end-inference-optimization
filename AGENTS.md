@@ -41,6 +41,7 @@ Agent 的职责是：
 |---|---|---|
 | [性能优化 SOP](docs/performance-optimization-sop.md) | 优化阶段、实验顺序、候选决策与验收流程 | 每个实际优化任务开始前必读 |
 | [实验契约](docs/experiment-contract.md) | workload、指标、通过标准及实验记录字段 | 开始任务时确定契约，测量前冻结 |
+| [离线分析工具集成](docs/analysis-tooling-integration.md) | trace 分层/候选表、上游 PR 检索、容量与 FLOPs 估算、CLI 参数检查的现有流程落点 | 有对应诊断问题时按需使用，不新增正式门禁 |
 | [模型产物契约](docs/model-artifact-contract.md) | `baseline/`、`optimize/`、`acceptance/` 的双视图文件、外部产物和清理规则 | 创建模型目录、写回 Skill 结果和案例收尾时 |
 | [容器隔离流程](docs/container-isolation.md) | 容器复刻、挂载比较与共享源码隔离 | 创建优化环境和修改共享目录中的源码前 |
 | [Plugin 设计与 PR 准备](docs/plugin-change-review.md) | 扩展点选择、多模型/多平台兼容与最终补丁要求 | Plugin 修改前及形成最终候选时 |

@@ -139,6 +139,12 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
   主 Agent 合并并派发任务，子任务返回原决策点，不通过互相调用展开第二套优化循环。
 - 关键算子实现、测试和知识沉淀遵守 Plugin/FlagGems 源码边界及当前案例记录规则。
 
+### 离线分析辅助工具
+
+[集成说明](analysis-tooling-integration.md)维护 trace 分层与 overlap/fusion、上游 PR 检索、显存/KV 分账、shape/FLOPs 估算和离线 CLI 参数检查的路由。具体输入和命令分别位于现有 Profiling、关键算子、Roofline 引用与性能工具说明中，按当前问题加载。
+
+这些工具只读取明确提供的文件，不连接目标服务、不执行输入命令，不新增 Skill 能力 ID、评测模式或原生 gate。报告是外部诊断 sidecar；在当前优化点已有的 evidence/hypothesis/next-action 记录其路径、SHA、适用范围及决策影响，不新增模型历史目录或必填 schema。离线文件哈希只绑定所读文件，现场服务、rank、graph 和实现命中仍由原流程核实。
+
 ## 生命周期和结论
 
 优化容器、共享服务、源码修改和破坏性操作的授权仍由 `AGENTS.md` 管理。本地 Skill 不扩大

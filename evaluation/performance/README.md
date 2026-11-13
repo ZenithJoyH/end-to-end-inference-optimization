@@ -11,6 +11,11 @@
 | `sglang_perf.py` | 参数化 SGLang 诊断，检查原生详细 JSONL；不自动签发正式验收 |
 | `all_perf.py` | 历史矩阵与文本报告入口，显式指定目标，复用公共 vLLM 原生结果检查 |
 | `trace_to_summary.py` | 分开统计主机、设备和未分类活动的累计时长 |
+| `trace_analysis.py` | 对已有 trace 做分组/分层导航、活动区间并集和 overlap/fusion 候选诊断 |
+| `capacity_analysis.py` | 对显式逐 rank 显存账本与 KV 分组/分页布局做离线容量诊断 |
+| `shape_flops.py` | 对显式算子 shape 估算算法 FLOPs，供 Roofline 使用 |
+
+上述离线工具与[上游 PR 检索、CLI 参数检查](../../docs/analysis-tooling-integration.md)接入现有优化流程；它们不发请求、不签发正式门禁。输入、输出和使用时机见链接的专项引用。源文件 SHA 证明分析读取了哪些材料，不证明材料对应当前运行实例。
 
 原始 `test/perf_test/` 保持导入基准；此目录的维护版修复了失败传播：非零退出、缺少成功计数、失败请求或不完整轮次不能成为成功汇总。预热失败也使整组失败；保留逐轮信息，缺轮不取剩余轮的均值，任何 case 失败整体非零退出。
 
@@ -171,6 +176,42 @@ vLLM profiling 默认 temperature=0；分析 temperature=1 的目标服务时显
 维护版 SGLang 使用固定随机长度、无限到达率和独立并发上限，分别保存每轮 JSONL、stdout/stderr 与 validation。原生 `request_rate=Infinity` 是该客户端的有限批次表示；决策指标仍须有限。接口按 [SGLang v0.5.11 源码](https://github.com/sgl-project/sglang/blob/v0.5.11/python/sglang/bench_serving.py)核对，区分 `--request-rate` 与 `--max-concurrency`，并使用其 `--output-details` 结果核验计数、长度和指标。此前 SGLang profiling 将并发作为到达率，旧性能脚本使用不同随机长度设置，不能与本次修复后的结果直接混比。当前未做 SGLang 真实服务集成验证。
 
 `trace_to_summary.py` 按活动类别分组：CUDA runtime/driver 调用留在主机侧，不能因名称含 CUDA 或参数含 stream 就计入设备耗时。未知类别单列，需要时用 `--device-category` 显式补充经核实的平台类别。输出是可能重叠的活动时长之和，不是设备忙碌时间、关键路径时间或 CPU self time；缺失/非法 trace、空目录及目录中任一文件处理失败返回非零，已有摘要拒绝覆盖。
+
+## 离线 CLI 参数兼容检查
+
+切换 revision、平台或启动候选参数时，可先用已保存的目标 CLI help 快照核对 flag 拼写：
+
+```bash
+python3 scripts/validate_cli_flags.py \
+  --argv-json /external/case/launch-argv.json \
+  --help-text /external/case/target-serve-help.txt \
+  --output /external/case/flag-check.json
+```
+
+argv 文件示例（仅演示结构）：
+
+```json
+{
+  "schema_version": 1,
+  "argv": ["vllm", "serve", "MODEL", "--tensor-parallel-size=8", "--no-enable-prefix-caching"],
+  "command_scope": {"executable": "vllm", "subcommands": ["serve"]},
+  "help_scope": {"executable": "vllm", "subcommands": ["serve"]},
+  "positional_indices": [2]
+}
+```
+
+工具只读取这两个文件，保存其路径/SHA，提取 help 中的 option 声明并逐 token 精确核对。
+它不运行 argv、不执行 shell、不补采 help，也不根据 flag 猜测参数个数或消费下一 token。
+普通值/位置参数、参数值语义和 `--` 后的 literal 保留为未验证内容；负数不误当 flag。
+未显式声明的 `--no-*`、短选项组合/附值或动态参数不会被猜测为支持。
+
+可直接提供 argv 数组，但缺 command/help scope 时报告 `incomplete`；对象中的两个 scope 也只是调用方声明，
+需要原始 help 采集命令、目标容器/import/revision 等证据证明其实际来源。
+`flags_recognized` 仅说明离线识别到所用 flag，不表示值有效、参数组合兼容或服务能启动。
+未知 flag、scope 冲突等保留 `incomplete`；格式错误返回非零。输出必须使用新文件。
+
+该检查接入服务启动前的参数预检；现有 runtime 取证、readiness、graph capture/replay、精度 gate、
+四场景及 baseline/candidate/revert 流程仍由原入口完成，不能用离线报告代替。
 
 ## 项目范围冻结与最终验收
 

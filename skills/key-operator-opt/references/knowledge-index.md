@@ -6,6 +6,7 @@
 
 - [operator-analysis-method.md](operator-analysis-method.md)：定义、理论性能建模、源码到 Kernel 的调用链、benchmark、profiling、优化验证与报告规范。新算子或完整分析任务优先阅读。
 - [case-to-knowledge.md](case-to-knowledge.md)：实际端到端案例结束后，将完整案例提炼为算子证据卡、优化地图和稳定理解的规则。关闭算子优化案例时必须阅读。
+- [upstream-pr-history.md](upstream-pr-history.md)：需要寻找已有融合、后端或框架实现及回归风险时，按模型/算子查询少量有来源的上游 PR；历史发现、diff 审阅与本平台复现分别标记。
 
 ## 平台经验
 

@@ -38,6 +38,7 @@
 - **理解通用算子层**：[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于追踪 PyTorch/ATen 注册、通用实现、vendor 特化和调优入口。三份分析资料使用时都要核对目标代码 revision 与真实导入路径。
 - **优化热点算子**：使用[关键算子优化技能](skills/key-operator-opt/SKILL.md)匹配目标平台、算子和实际 shape。沐曦案例已整理为[ATen 与 vLLM 融合算子的首个对照实验](skills/key-operator-opt/references/platforms/metax.md)。
 - **借鉴已有实验**：[案例索引](docs/cases/README.md) 提供具体环境、结果和失败证据；[优化模式](docs/optimization-patterns.md) 提供提炼后的候选思路与适用边界。
+- **使用离线分析工具**：[集成说明](docs/analysis-tooling-integration.md)连接现有 trace 分层与候选表、上游 PR 检索、显存/KV 分账、shape/FLOPs 估算及 CLI 参数检查；报告作为诊断证据交回原优化流程。
 
 ## 优化范围
 

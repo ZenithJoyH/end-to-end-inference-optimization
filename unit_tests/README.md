@@ -33,3 +33,9 @@ PYTHONPYCACHEPREFIX=/tmp/e2e-eval-pycache \
 默认 `--all` 汇总二者，即使记录审计失败也保留完整代码检查结果。
 新增回归覆盖人工接管/恢复/变更后接续、原始与规范化计划绑定、案例隔离/备份恢复/人工文字保护，
 以及使用原生合成精度和性能证据的四场景项目验收。合成数据测试不代表目标设备已通过。
+
+离线分析工具的回归分别位于 `test_trace_analysis.py`、`test_upstream_pr_query.py`、
+`test_capacity_analysis.py`、`test_shape_flops.py` 和 `test_validate_cli_flags.py`。
+它们使用合成时间线、显式分页/shape、临时本地索引和 help 快照，覆盖跨 rank/跨流长尾、
+未知边界与裁剪、审阅等级、hybrid KV 组/块对齐、算法计算量及离线 flag 识别。
+这些测试不联网、不启动服务；工具报告均为诊断 sidecar，不能替代原生精度或性能验收。
