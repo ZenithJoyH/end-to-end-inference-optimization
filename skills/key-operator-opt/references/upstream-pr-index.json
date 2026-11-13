@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "description": "少量原创上游 PR 导航卡；离线检索，不替代本地算子案例或目标运行证据。",
+  "updated_on": "2026-11-13",
+  "claim_scope": "historical_navigation_only; no current dispatch, correctness or performance claim",
+  "entries": [
+    {
+      "id": "vllm-21116-mla-projection-fusion",
+      "framework": "vllm",
+      "models": [
+        "DeepSeek-V2",
+        "DeepSeek-V3",
+        "DeepSeek-R1"
+      ],
+      "operators": [
+        "mla_attention",
+        "qkv_projection",
+        "rms_norm"
+      ],
+      "keywords": [
+        "fusion",
+        "strided",
+        "layout",
+        "low-rank",
+        "融合",
+        "布局"
+      ],
+      "title": "MLA 低秩投影合并与跨步归一化",
+      "summary": "PR 描述提出合并 Q/KV 低秩投影，并让归一化接受带步长输入，以减少一次调用和中间复制。这里仅记录候选机制。",
+      "pr": {
+        "repository": "vllm-project/vllm",
+        "number": 21116,
+        "url": "https://github.com/vllm-project/vllm/pull/21116",
+        "state": "closed",
+        "merged": true,
+        "head_commit": "070dfa4b77e10f75ea466e704f369c941654b7fb",
+        "merge_commit": "4fb56914c5f27ef062e10d44a0f79c6ceab382f9",
+        "created_on": "2025-07-17",
+        "closed_on": "2025-07-22",
+        "merged_on": "2025-07-22"
+      },
+      "metadata_verified": true,
+      "metadata_audited_on": "2026-11-13",
+      "review": {
+        "level": "discovery",
+        "diff_reviewed_on": null,
+        "diff_evidence": [],
+        "target_reproduced_on": null,
+        "target_scope": null,
+        "target_evidence": []
+      },
+      "applicability": {
+        "conditions": [
+          "目标 MLA 路径存在 q_lora_rank，且投影与归一化的数据布局符合真实调用约束。",
+          "需要分别核对权重加载、量化后端、TP 后 shape 和 graph 路径。"
+        ],
+        "gaps": [
+          "本索引未审阅完整 diff 或当前调用方；需先核实相应实现是否仍存在。",
+          "未在当前 MetaX/PPU 服务做命中、数值或端到端复现；PR 中结果不作为本项目收益。"
+        ],
+        "current_dispatch": "unknown"
+      },
+      "source_cards": [
+        {
+          "id": "discovery",
+          "kind": "discovery_document",
+          "location": "https://github.com/BBuf/AI-Infra-Auto-Driven-SKILLS/blob/5df356636bf9da3a1446653043942ff3487c1430/model-pr-optimization-history/vllm/deepseek-v3-r1/README.en.md",
+          "revision": "5df356636bf9da3a1446653043942ff3487c1430",
+          "audited_on": "2026-11-13",
+          "note": "固定上游资料中的 PR 导航线索；未承接外部资料的 diff 审阅或测试等级。"
+        },
+        {
+          "id": "metadata",
+          "kind": "upstream_metadata",
+          "location": "https://github.com/vllm-project/vllm/pull/21116",
+          "revision": "070dfa4b77e10f75ea466e704f369c941654b7fb",
+          "audited_on": "2026-11-13",
+          "note": "通过 GitHub get_pr_info 只读核实真实 PR 对象、open/closed/merged 状态及 head/merge SHA；没有审阅实际 diff。"
+        }
+      ]
+    },
+    {
+      "id": "vllm-27578-shared-expert-overlap",
+      "framework": "vllm",
+      "models": [
+        "Qwen3-Next"
+      ],
+      "operators": [
+        "fused_moe",
+        "shared_expert"
+      ],
+      "keywords": [
+        "overlap",
+        "concurrency",
+        "stream",
+        "MoE",
+        "多流",
+        "并发"
+      ],
+      "title": "Qwen3-Next 共享专家与路由专家并发候选",
+      "summary": "PR 说明为共享专家和所选专家引入并行执行。可用来检索 MoE 调用组织及同步边界，不能据此推断当前后端已启用重叠。",
+      "pr": {
+        "repository": "vllm-project/vllm",
+        "number": 27578,
+        "url": "https://github.com/vllm-project/vllm/pull/27578",
+        "state": "closed",
+        "merged": true,
+        "head_commit": "32e914becfaad22ea816c27761a45d38bdef68d2",
+        "merge_commit": "8df98c2161e28387391b667201f8458c2bdf29f4",
+        "created_on": "2025-10-27",
+        "closed_on": "2025-10-29",
+        "merged_on": "2025-10-29"
+      },
+      "metadata_verified": true,
+      "metadata_audited_on": "2026-11-13",
+      "review": {
+        "level": "discovery",
+        "diff_reviewed_on": null,
+        "diff_evidence": [],
+        "target_reproduced_on": null,
+        "target_scope": null,
+        "target_evidence": []
+      },
+      "applicability": {
+        "conditions": [
+          "模型同时有共享专家和路由专家，实际后端/stream 与依赖语义允许并行。",
+          "应检查设备资源竞争、同步成本、graph 捕获与 Prefill/Decode 的不同工作量。"
+        ],
+        "gaps": [
+          "未审阅完整 diff；PR 已合并只证明历史状态，不证明当前实现与默认值。",
+          "无当前平台同配置端到端或精度证据；吞吐和另一阶段守护均待测。"
+        ],
+        "current_dispatch": "unknown"
+      },
+      "source_cards": [
+        {
+          "id": "discovery",
+          "kind": "discovery_document",
+          "location": "https://github.com/BBuf/AI-Infra-Auto-Driven-SKILLS/blob/5df356636bf9da3a1446653043942ff3487c1430/model-pr-optimization-history/vllm/qwen3-next/README.en.md",
+          "revision": "5df356636bf9da3a1446653043942ff3487c1430",
+          "audited_on": "2026-11-13",
+          "note": "固定上游资料中的 PR 导航线索；未承接外部资料的 diff 审阅或测试等级。"
+        },
+        {
+          "id": "metadata",
+          "kind": "upstream_metadata",
+          "location": "https://github.com/vllm-project/vllm/pull/27578",
+          "revision": "32e914becfaad22ea816c27761a45d38bdef68d2",
+          "audited_on": "2026-11-13",
+          "note": "通过 GitHub get_pr_info 只读核实真实 PR 对象、open/closed/merged 状态及 head/merge SHA；没有审阅实际 diff。"
+        }
+      ]
+    },
+    {
+      "id": "vllm-37421-persistent-indexer-topk",
+      "framework": "vllm",
+      "models": [
+        "DeepSeek-V3.2"
+      ],
+      "operators": [
+        "indexer_topk",
+        "sparse_attention"
+      ],
+      "keywords": [
+        "graph",
+        "persistent",
+        "fixed-grid",
+        "decode",
+        "DSA",
+        "索引",
+        "图"
+      ],
+      "title": "面向 DSA 的固定网格 TopK 调度候选",
+      "summary": "PR 描述在一个固定网格 kernel 中按行选择 TopK 路径，并自管理状态。可为动态长度与 graph 兼容的候选设计提供检索入口。",
+      "pr": {
+        "repository": "vllm-project/vllm",
+        "number": 37421,
+        "url": "https://github.com/vllm-project/vllm/pull/37421",
+        "state": "closed",
+        "merged": true,
+        "head_commit": "ea5243934e0ea325e0594d3f65166245fb22dd6b",
+        "merge_commit": "b55d830ec782b47f89c8457ba453f521fa092660",
+        "created_on": "2026-03-18",
+        "closed_on": "2026-04-08",
+        "merged_on": "2026-04-08"
+      },
+      "metadata_verified": true,
+      "metadata_audited_on": "2026-11-13",
+      "review": {
+        "level": "discovery",
+        "diff_reviewed_on": null,
+        "diff_evidence": [],
+        "target_reproduced_on": null,
+        "target_scope": null,
+        "target_evidence": []
+      },
+      "applicability": {
+        "conditions": [
+          "目标是 attention indexer TopK，不能与词表采样 TopK 混用。",
+          "需按实际长度、TopK、行数、共享状态初始化和多 CTA 同步能力核对实现边界。"
+        ],
+        "gaps": [
+          "没有审阅完整 CUDA diff 或跨平台移植；NVIDIA kernel 不能直接视为 MetaX/PPU 可用。",
+          "变化输入的 capture/replay、空行和长行边界以及完整调用成本均需目标环境验证。"
+        ],
+        "current_dispatch": "unknown"
+      },
+      "source_cards": [
+        {
+          "id": "discovery",
+          "kind": "discovery_document",
+          "location": "https://github.com/BBuf/AI-Infra-Auto-Driven-SKILLS/blob/5df356636bf9da3a1446653043942ff3487c1430/model-pr-optimization-history/vllm/deepseek-v3-r1/README.en.md",
+          "revision": "5df356636bf9da3a1446653043942ff3487c1430",
+          "audited_on": "2026-11-13",
+          "note": "固定上游资料中的 PR 导航线索；未承接外部资料的 diff 审阅或测试等级。"
+        },
+        {
+          "id": "metadata",
+          "kind": "upstream_metadata",
+          "location": "https://github.com/vllm-project/vllm/pull/37421",
+          "revision": "ea5243934e0ea325e0594d3f65166245fb22dd6b",
+          "audited_on": "2026-11-13",
+          "note": "通过 GitHub get_pr_info 只读核实真实 PR 对象、open/closed/merged 状态及 head/merge SHA；没有审阅实际 diff。"
+        }
+      ]
+    },
+    {
+      "id": "vllm-27532-fp8-kv-sparse-prefill",
+      "framework": "vllm",
+      "models": [
+        "DeepSeek-V3.2"
+      ],
+      "operators": [
+        "mla_attention",
+        "kv_cache_gather",
+        "fused_moe"
+      ],
+      "keywords": [
+        "fp8",
+        "bf16",
+        "prefill",
+        "workspace",
+        "sparse",
+        "KV",
+        "稀疏"
+      ],
+      "title": "FP8 KV 的稀疏 Prefill 路径与 workspace 复用候选",
+      "summary": "PR 说明在部分条件下把 FP8 KV 转换到 BF16 Prefill 路径，并组织共享 workspace。可用于检查阶段分流、每 rank 形状和转换成本。",
+      "pr": {
+        "repository": "vllm-project/vllm",
+        "number": 27532,
+        "url": "https://github.com/vllm-project/vllm/pull/27532",
+        "state": "closed",
+        "merged": true,
+        "head_commit": "14dd4fe396f4c06aa654b27ff55338df7962efe7",
+        "merge_commit": "3e41992fecdc31ee60715bb350f18fec18ed6680",
+        "created_on": "2025-10-26",
+        "closed_on": "2025-12-12",
+        "merged_on": "2025-12-12"
+      },
+      "metadata_verified": true,
+      "metadata_audited_on": "2026-11-13",
+      "review": {
+        "level": "discovery",
+        "diff_reviewed_on": null,
+        "diff_evidence": [],
+        "target_reproduced_on": null,
+        "target_scope": null,
+        "target_evidence": []
+      },
+      "applicability": {
+        "conditions": [
+          "实际路径使用 FP8 KV 与对应稀疏 attention 后端。",
+          "选择边界依赖每 rank 的有效 head 数和完整调用成本；历史阈值不作为新平台默认值。"
+        ],
+        "gaps": [
+          "本索引没有完整 diff 审阅；量化 scale、缓存布局、临时内存及 graph 生命周期需重新核实。",
+          "没有当前目标精度 gate 或 Mixed 性能证据；不能把上游不同并行布局的结果合并比较。"
+        ],
+        "current_dispatch": "unknown"
+      },
+      "source_cards": [
+        {
+          "id": "discovery",
+          "kind": "discovery_document",
+          "location": "https://github.com/BBuf/AI-Infra-Auto-Driven-SKILLS/blob/5df356636bf9da3a1446653043942ff3487c1430/model-pr-optimization-history/vllm/deepseek-v3-r1/README.en.md",
+          "revision": "5df356636bf9da3a1446653043942ff3487c1430",
+          "audited_on": "2026-11-13",
+          "note": "固定上游资料中的 PR 导航线索；未承接外部资料的 diff 审阅或测试等级。"
+        },
+        {
+          "id": "metadata",
+          "kind": "upstream_metadata",
+          "location": "https://github.com/vllm-project/vllm/pull/27532",
+          "revision": "14dd4fe396f4c06aa654b27ff55338df7962efe7",
+          "audited_on": "2026-11-13",
+          "note": "通过 GitHub get_pr_info 只读核实真实 PR 对象、open/closed/merged 状态及 head/merge SHA；没有审阅实际 diff。"
+        }
+      ]
+    },
+    {
+      "id": "vllm-35968-closed-indexer-overlap",
+      "framework": "vllm",
+      "models": [
+        "DeepSeek-V3.2"
+      ],
+      "operators": [
+        "indexer_topk",
+        "mla_attention",
+        "layer_norm"
+      ],
+      "keywords": [
+        "overlap",
+        "dual-stream",
+        "decode",
+        "closed",
+        "未合并",
+        "同步"
+      ],
+      "title": "已关闭且未合并的 Indexer 多流方案",
+      "summary": "该 PR 提议重叠 Indexer 的两段投影/归一化计算。核实的对象状态为 closed 且 merged=false，因此只能作为待审候选，不能作为已上线实现。",
+      "pr": {
+        "repository": "vllm-project/vllm",
+        "number": 35968,
+        "url": "https://github.com/vllm-project/vllm/pull/35968",
+        "state": "closed",
+        "merged": false,
+        "head_commit": "ce6782acef4c71047b5de04b6e8f2f17c34dc43a",
+        "merge_commit": null,
+        "created_on": "2026-03-04",
+        "closed_on": "2026-04-27",
+        "merged_on": null
+      },
+      "metadata_verified": true,
+      "metadata_audited_on": "2026-11-13",
+      "review": {
+        "level": "discovery",
+        "diff_reviewed_on": null,
+        "diff_evidence": [],
+        "target_reproduced_on": null,
+        "target_scope": null,
+        "target_evidence": []
+      },
+      "applicability": {
+        "conditions": [
+          "关注 Decode 小投影与另一支计算的可并行性，并单独检查 Prefill 的竞争与同步成本。",
+          "需核对实际后端、stream 事件、torch.compile 与 graph 的依赖语义。"
+        ],
+        "gaps": [
+          "PR 未合并；没有据此确认拒绝原因，也不推断后续替代 PR 的状态。",
+          "只核实元数据和描述，未审 diff、未复现其 NVIDIA 测量、未在当前平台验证。"
+        ],
+        "current_dispatch": "unknown"
+      },
+      "source_cards": [
+        {
+          "id": "discovery",
+          "kind": "discovery_document",
+          "location": "https://github.com/BBuf/AI-Infra-Auto-Driven-SKILLS/blob/5df356636bf9da3a1446653043942ff3487c1430/model-pr-optimization-history/vllm/deepseek-v3-r1/README.en.md",
+          "revision": "5df356636bf9da3a1446653043942ff3487c1430",
+          "audited_on": "2026-11-13",
+          "note": "固定上游资料中的 PR 导航线索；未承接外部资料的 diff 审阅或测试等级。"
+        },
+        {
+          "id": "metadata",
+          "kind": "upstream_metadata",
+          "location": "https://github.com/vllm-project/vllm/pull/35968",
+          "revision": "ce6782acef4c71047b5de04b6e8f2f17c34dc43a",
+          "audited_on": "2026-11-13",
+          "note": "通过 GitHub get_pr_info 只读核实真实 PR 对象、open/closed/merged 状态及 head/merge SHA；没有审阅实际 diff。"
+        }
+      ]
+    },
+    {
+      "id": "flaggems-vllm-943-metax-moe-tuning",
+      "framework": "flaggems-vllm",
+      "models": [
+        "Qwen3-VL",
+        "Qwen3"
+      ],
+      "operators": [
+        "fused_moe"
+      ],
+      "keywords": [
+        "metax",
+        "TP2",
+        "tuning",
+        "stage-specific",
+        "shape",
+        "MoE",
+        "配置"
+      ],
+      "title": "MetaX TP2 MoE 配置分流的上游入口",
+      "summary": "当前 PR 描述区分 Qwen 与 Qwen-VL 的 MetaX TP2 配置选择，并强调形状、dtype 与共享内存保护。历史本地案例仅作发现入口。",
+      "pr": {
+        "repository": "flagos-ai/FlagGems-vllm",
+        "number": 943,
+        "url": "https://github.com/flagos-ai/FlagGems-vllm/pull/943",
+        "state": "closed",
+        "merged": true,
+        "head_commit": "97da71f95d72941a29a5b9b256a35521115b8a2b",
+        "merge_commit": "ddce1d66c98cfdbdcfff36364f3d10e3af9d499c",
+        "created_on": "2026-10-19",
+        "closed_on": "2026-10-27",
+        "merged_on": "2026-10-27"
+      },
+      "metadata_verified": true,
+      "metadata_audited_on": "2026-11-13",
+      "review": {
+        "level": "discovery",
+        "diff_reviewed_on": null,
+        "diff_evidence": [],
+        "target_reproduced_on": null,
+        "target_scope": null,
+        "target_evidence": []
+      },
+      "applicability": {
+        "conditions": [
+          "仅在目标版本实际走 MetaX TP2 的相关 fused MoE 配置选择时有参考性。",
+          "需检查当前模型边界、dtype/量化条件、stage 参数及配置优先级。"
+        ],
+        "gaps": [
+          "当前 PR head 为元数据核实时的新身份；本索引不把本地旧 head 的测试绑定到它。",
+          "未重新审阅当前完整 diff、验证当前 dispatch 或进行目标硬件复现；合并不等于模型验收。"
+        ],
+        "current_dispatch": "unknown"
+      },
+      "source_cards": [
+        {
+          "id": "discovery",
+          "kind": "local_record",
+          "location": "docs/cases/20261022-qwen3vl-metax-pr977/README.md",
+          "revision": null,
+          "audited_on": "2026-11-13",
+          "note": "当前工作树中的本地案例只提供 PR 导航；不继承其历史复现或精度状态。"
+        },
+        {
+          "id": "metadata",
+          "kind": "upstream_metadata",
+          "location": "https://github.com/flagos-ai/FlagGems-vllm/pull/943",
+          "revision": "97da71f95d72941a29a5b9b256a35521115b8a2b",
+          "audited_on": "2026-11-13",
+          "note": "通过 GitHub get_pr_info 只读核实真实 PR 对象、open/closed/merged 状态及 head/merge SHA；没有审阅实际 diff。"
+        }
+      ]
+    }
+  ]
+}

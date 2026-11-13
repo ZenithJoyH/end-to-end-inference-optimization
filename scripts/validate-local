@@ -30,8 +30,8 @@ if [[ "${mode}" != --records ]]; then
   run 'Inventory' ./scripts/inventory
   run 'Shell and playbooks' ./scripts/syntax-check
   for entry in evaluation/accuracy/{verify_accuracy,formal_accuracy,acceptance}.py \
-    evaluation/performance/{vllm_perf,vllm_profile,compare_performance,final_acceptance,sglang_perf,sglang_profile,all_perf,trace_to_summary}.py \
-    test/Accuracy_test/llmrun.py scripts/{verify-container-mounts,case_records,agent_step}.py; do
+    evaluation/performance/{vllm_perf,vllm_profile,compare_performance,final_acceptance,sglang_perf,sglang_profile,all_perf,trace_to_summary,trace_analysis,capacity_analysis,shape_flops}.py \
+    test/Accuracy_test/llmrun.py scripts/{verify-container-mounts,case_records,agent_step,dsh_recovery,upstream_pr_query,validate_cli_flags}.py; do
     run "Help ${entry}" "${python}" "${entry}" --help >/dev/null
   done
   run 'Original asset hashes' "${python}" - <<'PY'
