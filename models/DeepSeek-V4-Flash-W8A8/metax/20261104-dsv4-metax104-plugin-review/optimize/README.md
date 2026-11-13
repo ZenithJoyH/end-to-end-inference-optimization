@@ -3,12 +3,15 @@
 <!-- e2e:summary:start -->
 
 - 案例：20261104-dsv4-metax104-plugin-review
-- 当前状态：op005_recheck19_完整BCR及独立审计完成_稳定性通过_32K收益未达5%_整改容器未改
-- 当前候选：main025-reuse-op004-ref008-ref009-ref010-whole-adaptation-convergence
-- 下一步：FGV验证与规范复核已完成：9个PR Ready、3个SDK性能/继承稳定性门禁未过而Draft；设备CI/review待上游，不自动部署或操作模型服务。
+- 当前状态：NaN已隔离到SDK BF16 MQA返回路径，私有Plugin接入现有FGV接口并通过数值、dispatch、graph及GPQA165/198（83.3333%）。后续调参DB身份从4aaa变为8ce，旧门禁不能原生绑定新性能实例；73已唯一启动当前缓存身份的新ON实例，新ON门禁及真实客户端预检已过、GPQA198题原生完成、396行样本通过；收尾配置接口错误仅CPU恢复，暂未签新门禁，端到端仍0正式轮。
+- 当前候选：独立测试容器私有 `model-validation59`（含NaN修复）+FGV `prefill-nonfinite46`（Decode97d）；整改容器、安装源码和启动脚本未改，无提交推送。
+- 下一步：当前缓存身份的新ON实例先通过实际resident客户端预检，再正式GPQA；通过后以原生门禁绑定OFF实例并完成P1K/4K/16K/32K的C/B/R全轮对照。保留旧165分、68全部12准备及所有失败，不拼轮、不挑分、不绕过缓存身份；原30h总截止不重置。
 
 | 实验 | 状态/决定 | 场景 | 文档 |
 |---|---|---|---|
+| op-008 | SDK BF16 MQA有限输入→非有限输出已隔离；私有替换数值/dispatch/graph及GPQA165/198通过；当前DB身份变化后新formal73准备中，E2E0正式 | Prefill正确性与四场景组合回归 | [op-008.md](op-008.md) |
+| refactor-015 | PR #1145 更新到 9dd07431，保留 Draft、完整慢轮与已知边界；未安装 | Decode PR 独立发布与复核 | [refactor-015.md](refactor-015.md) |
+| op-006 | fixed9 中 6/9 达 SDK×1.05；full11 全长点仍慢；非有限值 partial-selection 门禁待修复 | Decode Top-k | [op-006.md](op-006.md) |
 | op-005 | milestone完整；原target SDK TTFT11.63%超限保留；诊断确认Mixed准入排队约0.48秒步长；recheck19全新B/C/R完整，稳定性/漂移通过，SDK32K收益3.11%不足5% | current安装版 vs SDK反事实，P1K/P32K原负载 | [op-005.md](op-005.md) |
 | refactor-011 | 9_ready_3_draft_performance_blocked; combined527pass18skip | FGV-upstream-operator-PR-series | [refactor-011.md](refactor-011.md) |
 | refactor-010 | retained_source_convergence_user_authorized_no_service_action | whole-adaptation-convergence | [refactor-010.md](refactor-010.md) |
@@ -128,3 +131,31 @@ PR CI侧线见[refactor-014.md](refactor-014.md)：#1145环境依赖下载超时
 2026-11-12 Decode PR更新优先：仅授权更新[#1145](https://github.com/flagos-ai/FlagGems-vllm/pull/1145)，精确当前head570da31的五文件最小补丁CPU检查通过，GPU28正在验证，尚未提交推送；保留Draft和全部262K历史慢轮。新Prefill仍未通过模型；baseline捕获22已22/22正确并保存真实[3618,904]/I32元数据，全部自身模型清理、8卡独立核验空闲；离线逐tensor比较排在Decode发布之后，不重复捕获或发GPQA。原整改容器/安装源码/脚本不改。见[refactor-015](refactor-015.md)及[op-008](op-008.md)。
 
 Decode PR[#1145](https://github.com/flagos-ai/FlagGems-vllm/pull/1145)已非force更新到`9dd07431`，两生产文件/五文件最小增量，精确测试树与发布tree一致；仍Draft。29quick/15focused及支持域graph/dispatch/初始化sentinel通过，8继承输出layout失败完整保留；fixed9 B/C/R所有三轮均齐，两口径6/9达到SDK×1.05，fullvalid仍慢10–12%，原full11新33点仍全部慢SDK，全部历史/新慢轮保留，无模型/GPQA/E2E冒称。GPU28清理/8卡idle，原整改容器不动；已开始op008新40min真实tensor离线对照任务，不自动重发模型。见[refactor-015](refactor-015.md)。
+
+op008继续NaN取证与正式验证：私有Prefill修复的原22请求已22/22恢复，但NaN源头尚未确认，新GPQA/E2E均未运行。CPU51已追到实际DeepGEMM BF16 MQA生产者；53捕获准备和54模板修订完整保留，父复核后未批准其旧控制器启动。当前55先补齐首次同调用生产者输入捕获的剩余守卫，56独立仅CPU补齐官方C64/198题正式生命周期，均不动整改容器/安装/脚本，无本轮新提交推送。正式精度明确prefixON，性能OFF且必须原生schema7绑定；后续四case工程checkpoint保留每role/case3显式准备+5预热+3测量，不称整个项目最终验收。见同一[op-008](op-008.md)。
+
+历史取证阶段：独立 GPU0 反事实在 TopK 前已重现 BF16 MQA 返回值异常；baseline/private TopK 均保持输入字节及已记录哨兵不变。正在核对生产者契约和最窄私有修复，尚无新正式 GPQA/E2E 结果；原整改容器与启动脚本未改。详见 [op-008](op-008.md)。
+
+更新：op-008 的 MetaX BF16 MQA 分发候选已通过原始完整矩阵数值及两次全矩阵新输入 graph replay；复用现有 FGV 接口，仅私有 Plugin 改1文件。新正式 GPQA 和完整四场景 B/C/R 仍未运行，等待最终实例准入；原整改容器未修改。
+
+GPQA启动前快照：NaN已隔离到原MQA producer调用路径；私有Plugin复用既有FGV API后完整矩阵数值/两新输入graph通过，新实例22/22、7capture/native schema和实际8rank关键调用也通过。正式GPQA仍0/198，official挂载清单排序这一编排检查修复中；完整B/C/R尚未测，不报告端到端收益。全部旧失败保留，整改容器/启动脚本未改，无提交推送。
+
+formal59阶段：NaN生产路径修复的数值/真实dispatch/fullmatrix graph及新模型22/22通过；唯一正式GPQA C64/prefixON完整198，strict165/198=83.3333%≥80%，原生schema3 issue/check通过，396行/两filter各198唯一及源码身份独立核验。模型已停/资源已释放，整改容器和启动脚本未动，无提交推送。端到端性能仍0轮，正在恢复CPU控制器归档证据并冻结B/C/R输入；不以GPQA或局部算子通过宣称E2E收益。
+
+- op-008 历史进度：NaN修复正式GPQA **165/198（83.3333%）**、native schema3通过；清理66focusedCPU通过后，完整C/B/R协调器已唯一启动（G/performance-run65，30h上限），1K/4K/16K/32K各保留3准备+5预热+3正式。首次freshC已22/22通过，但metadata的HOST/容器PID映射及ARM时序错误使命中证据门禁停止；已清理ownnone后完成producer控制修复和19CPU检查，run67已实际通过22/schema/all8×5，之后adapter路径构造错误在native绑定前终止；已清理ownnone，68已完成真实adapter/native历史绑定/STOP CPU闭环，新run68本实例22/schema/all8命中及原生schema7绑定已通过，最近候选完整准备11/12（1408请求全部成功）、32K第三批准备中；首32K准备209.49 output tok/s、TTFT11661.40/TPOT280.59ms（非正式）；原生warm/formal0，暂无相对收益。旧失败和全部原始材料保留；整改容器不动。
+
+run68终态：正式GPQA165/198=83.3333%通过；run68候选12/12明确准备1536成功0失败，但native客户端version/help各超30秒，0原生预热/0正式，端到端仍incomplete。自身模型已清理、8卡空闲、整改容器未动。当时71仅定位并准备原生120秒预检参数验证，未重跑GPQA、不丢旧轮次、不重置总预算。
+
+后续72已于1794521324.8376唯一启动，先新实例门禁及resident严格客户端预检，再完整C/B/R；当前0新准备/0原生预热/0正式，未报告性能通过。原30h截止不重置，整改容器未动。
+
+72终态：当前实例精度ON→性能OFF原生绑定被拒绝，唯一差异为调参DB SHA4aaa→8ce（其他原生稳定字段相同），尚未执行客户端预检及任何准备/性能轮；模型已精确收尾，8卡空闲，原整改未动。此前GPQA165/198和68全部准备保留，不视作端到端通过。
+
+Current op-008: GPQA73 strict165/198 (83.3333%) and original native schema3 gate75 verified; cache main8ce unchanged. Unique E2E74 launched at1794525970.9558, freshC loading, 0 new prep/warm/measured. Original container untouched; all old rounds/failures retained; no commit/push.
+
+E2E74 actual OFF gates/native schema7/resident client120 passed. Last verified prep: candidate1/12 (128 success,0 failure), warm0/measured0; B/R not started. All old results kept; no relative performance conclusion yet.
+
+run74 observation1794527964.9155: prep7/12 (P1K3+P4K3+P16K1), 896main success0fail; nativewarm0/20, measured0/12, B/R not_started. At7948.6883 exactmain/host/API all same-ticks live, health200, no core result. Runtime elapsed33.23min from unique5970.9558 launch. All previous evidence retained; no workload/source/config/cache/deadline changes. Parent direct scope: existing observer + exact identity/health review + local records, AGENTS5.5 exceptions2/3/4/5.
+
+run74 observation1794533520.3153 after local tool-connection interruption: original remote main/host/API exact ticks live at3488.4012, health200/no core result; no duplicate launch. Prep12/12 1536main success0fail, nativewarm10/20 + measured6/12 (1K/4K5+3 each), 2048native main success0fail; P16K warmup inferred next, B/R not_started. All three formal rounds per completed case retained in state; 1K output/TTFT/TPOT spreads0.9715/1.3355/1.9697%, 4K0.5048/6.4578/0.7081%, all below10%. These are C-only, not overall admission or relative benefit. Original30h deadline/source/container unchanged.
+
+Transport76 completed read-only within budget: resultb44494...; single bounded reconnect at1794534202 rc0, original main/host/API exact ticks live, no core result; root cause of pre-auth kex reset unknown, no task failure inferred/no replacement launch. Observer resumption4243.0721 prep12/warm12/formal6, 3840total main success0fail, C P16K warmup, B/R0. Local parent monitor now accumulates all stdout chunks before JSON parsing; no remote observer/native tool/source modified.

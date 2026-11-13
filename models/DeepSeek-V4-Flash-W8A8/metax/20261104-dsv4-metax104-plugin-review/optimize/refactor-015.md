@@ -202,3 +202,5 @@ fixed9为R1/8/64,N16640,valid512/4096/16640，B/C/R每点四计时路径各三�
 Prefill诊断单行被复用为独立Decode接口输入（N904/K512/len513/58NaN），实际PR26公有MetaXDecode路径返回456唯一nonnegative索引，但将未写的-12345初始槽排序到前部，暴露partial-selection依赖输出初值/有效prefix填充问题。不是304重复行结论的直接Decode复刻，不推定真实Decode请求会遇到此NaN分布或E2E回退。父只读核对actual public source及common selector SHA与测试manifest相同，回执SHA `1378a579cf1bb22f96222a578bf607f8d93c1b46f8485afc8f0f5829f39f2ea1`。
 
 #1145已补充该已知correctness gate并回读确认；仅PR正文metadata更新，head仍`9dd07431`/Draft，未新增source commit/push、未动安装。原全部finite quick/SDK各轮及旧完整历史继续保留，不拿新cornercase抹除，也不再仅称nonfinite未测。当前Prefill portable修复不会解决Decodecanonical此问题，Ready仍需后续独立修复与完整验证。新正文备份`publication29/published-body-nonfinite-followup46.md`。
+
+后续Prefill私有portable修复已完成原22模型用例复验（long62/280 tokens正常stop）与离线审计50，见[op-008.md](op-008.md)。该结果不覆盖本Decode PR非有限canonical边界或SDK性能缺口；#1145仍同一commit/Draft，未额外source push/Ready/merge，整改安装保持不变。
