@@ -22,6 +22,7 @@ First apply the shared evidence, in-flight task and gap checks in [SOP C5](../..
 - When using maintained trace/benchmark runners, read the `Profiling 与 SGLang 诊断` section of `evaluation/performance/README.md` for commands, result semantics, and current tool limitations.
 - Read the active case and experiment contract for scenario IDs, service identity, external artifact directory, and the bottleneck question.
 - For CPU hotspots/waits, communication, rank imbalance, or unresolved request/scheduler/KV/system gaps, read the relevant branch of [system-bottlenecks.md](references/system-bottlenecks.md). Start with its coverage table and reuse existing evidence; do not collect every category.
+- When a selected system branch needs executable target-Linux steps, read only the matching [system-diagnosis-tools.md](references/system-diagnosis-tools.md) recipe. It provides bounded native commands and interpretation, not a new collector or permission to run attach commands on the local control machine.
 - For offline forward/layer navigation or overlap/fusion candidate extraction from an existing trace, read [trace-analysis.md](references/trace-analysis.md). Use the maintained analyzer with explicit, checksum-bound boundaries; it does not collect traces or prove critical-path savings.
 - When compute/HBM counters are needed for Roofline diagnosis, read the [Roofline measurement reference](../inference-roofline-analysis/references/roofline.md) for phase/rank binding, counter discovery and capture limitations. Collection and validity remain here; quantitative roof-distance analysis belongs to `$inference-roofline-analysis`.
 - If container/service preparation is required, read `docs/container-isolation.md` before changing the optimization environment.
@@ -37,6 +38,16 @@ Before capture, record:
 - The nearest available no-profiler baseline or targeted performance run, or its deferred/not-run state. It provides context only; an unfinished baseline does not prevent authorized static-first or scoped diagnosis. Do not mix its timings with profiler-on timings or fabricate a completed baseline.
 
 Choose the smallest scenario that still exercises the suspected path. Use the user-provided remote work directory only through the current case-specific subdirectory, and verify how the chosen tool writes artifacts and how they are accessed. Do not infer a container/Host path mapping.
+
+Select the method automatically from the signal and current evidence; do not wait for the user to choose a tool. Existing sufficient metrics/reports go directly to `analyze`; a bounded unknown/unavailable result can also be delivered without new collection. Only an unresolved gap that could change the next candidate justifies the cheapest relevant recipe below. Reuse one capture across matching diagnostic branches, assigning only uncovered scope under C5 and the original budget; entering another branch is not a new collection cycle.
+
+| Signal | First method/report | Decision-relevant upgrade |
+|---|---|---|
+| Thread/host hotspot or delayed submission | [Thread interval statistics and existing stacks](references/system-diagnosis-tools.md#cpu) | One bounded Python/native on-CPU sample; device correlation only if needed |
+| Low CPU with stalls, quota/lock/IPC suspicion | [PID/TID state and verified cgroup deltas](references/system-diagnosis-tools.md#waits) | Only authorized PID-filtered off-CPU/scheduling evidence with sufficient event coverage |
+| Long collective or slow scaling | [Group/step/ready/completion and link counters](references/system-diagnosis-tools.md#communication) | Installed native communication probe only with exclusive resources and verified CLI |
+| Rank/stage/expert/replica skew | [Existing source-event comparison table](references/system-diagnosis-tools.md#rank) | Just the missing logical step/role/peer evidence; not all-rank recapture |
+| Queue, return, KV, graph or system drift | [Service/request metrics](references/system-diagnosis-tools.md#request-scheduler), [KV/graph](references/system-diagnosis-tools.md#kv-graph), [resources](references/system-diagnosis-tools.md#system) | Missing service events or [device timeline](references/system-diagnosis-tools.md#timeline) only when attribution affects the decision |
 
 ## Capture and validate evidence
 
@@ -90,6 +101,8 @@ Write the mode, scenario, service identity, profiler configuration, artifact inv
 For system diagnosis, add only decision-relevant process/thread roles, sampling window/rate and losses, on/off-CPU interpretation, cgroup/NUMA constraints, communication group/message and correlation evidence, comparable per-rank workload and skew, clock uncertainty, and exposed wait/critical-path evidence. Reuse existing evidence/hypothesis/next-action fields; these are not a new schema or acceptance gate. Preserve raw stacks/resource/native reports externally and do not retain unfiltered environment dumps or secrets.
 
 Make the diagnostic return consumable by the original planning decision: name the selected branch, whether each original hypothesis is supported, rejected or still unknown, the current binding/coverage, removable critical-path cost and added CPU/copy/communication/queueing costs (or what remains unmeasured), affected candidates and the assigned return point. The coordinator uses this result to change or confirm the ranking in that same review; a diagnostic subtask does not launch another planning loop, and a supported CPU/wait/communication experiment need not first pass through Roofline.
+
+For a system recipe, return why it was the cheapest useful method, actual command/window/tool/permission outcome and any failure alternative. The coordinator explicitly records adopted/downgraded/deferred candidates and the immediate falsification experiment in the existing C2/planning point; storing a report alone does not satisfy the handoff, and collection success alone triggers no additional benchmark.
 
 When Roofline is used, include the measured/estimated status, FLOPs convention, HBM read/write totals, timing scope, ceiling sources, arithmetic intensity, achieved throughput/bandwidth, roof efficiency, and resulting hypothesis as specified in the [experiment contract](../../docs/experiment-contract.md#roofline-诊断记录按需). Keep missing values unknown and do not treat roof efficiency as an acceptance gate or a predicted end-to-end speedup.
 
