@@ -7,9 +7,9 @@
 
 ## 1. 先定义范围，再决定测什么
 
-绑定既有 `experiment-id`、当前 `scenario_id`、同配置 baseline 和当前候选身份。
+绑定既有 `experiment-id`、当前 `scenario_id` 和候选身份，记录可用的同配置 baseline 身份或其 deferred/not-run 状态；完整 baseline 不是静态/估算分析的前置。
 继承已批准的 Host、独立优化容器、工作根、资源、源码与服务边界，不因采集工具需要而扩大权限。
-先读时间线，再提出最小代表性范围的计数器需求；不得对整个长服务默认开启全指标、多次 replay。
+先读现有有效证据，再判断是否需要最小代表性范围的计数器或时序补证；这不要求先生成一份新时间线，不得对整个长服务默认开启全指标、多次 replay。已有可绑定的原生报告、设备计时、实际 shape 与执行路径资料可支持局部分析或明确假设的估算；缺少依赖时序时保留关键路径未知，不因估算可交付就声称已证明生产瓶颈。
 
 | 视图 | 必须辨认的执行状态 | 常见判断问题 |
 |---|---|---|
@@ -23,20 +23,21 @@ CPU range 的持续时间不等于 GPU 时间；graph replay 也不能依靠 cap
 混合 batch 的 GEMM 可能服务两类 token，无法独立计量时保留为 Mixed/shared，不能按 token 比例伪造两份 HBM 流量。
 TTFT、TPOT/ITL 包含的排队、调度和网络成本另列，不能直接代入 kernel Roofline。
 
-先满足稳态准入，排除模型加载、JIT、首次 allocator 行为和 graph capture；保留实际 graph 模式。
+使用运行计时/计数器解释稳态时先核对稳态准入，排除模型加载、JIT、首次 allocator 行为和 graph capture；保留实际 graph 模式。静态或纯算法估算不要求先完成 baseline/profile，但必须显式保留未验证的运行条件；无计时不计算 achieved throughput/efficiency，无依赖证据不宣称端到端贡献。
 阶段专项缩减 workload 要记录与目标场景的差异及残余成本，不以短探针代表正式场景。
 按 rank/worker/device 分开记录并标明覆盖；只采 rank 0 不能代表 MoE、TP/EP 通信或慢 rank。
 
-## 2. 检查两类证据，明确能力与补证需求
+## 2. 按问题检查证据，明确能力与补证需求
 
-检查已有两类证据是否充分：时间线确定设备关键路径、热点 shape、调用次数、主机间隙、通信及重叠；
-代表性 kernel/graph/range 的硬件计数器解释受限资源，必要时覆盖热点 shape 分布与不同 rank。
+按当前问题检查已有证据：时间线及经核验的服务/依赖事件可解释设备关键路径、主机间隙、通信及重叠；
+代表性 kernel/graph/range 的硬件计数器解释受限资源，实际 shape/算法与设备计时也可形成有边界估算。不是每个问题都需要两类证据齐备；仅有 CPU/等待证据且 Roofline 不会改变方向时，向协调者返回不适用原因和系统诊断分支，不强制补设备数据。
 以下采集说明用于定义交给 Profiling Skill 的补证任务，不意味着本分析 Skill 可自行重启服务、启动 workload 或采集。
 保留原始报告、导出数据、过滤条件、工具版本、命令和采集范围；抽样热点的结果不得标成全阶段覆盖。
 
 | 数据 | 首选依据 | 不能替代它的数据 |
 |---|---|---|
-| 设备 kernel/range 时间与关键路径 | 设备时间线、适用的设备计时或 profiler workload duration | CPU dispatch 时间、HTTP 时长、重叠活动时间之和 |
+| 设备 kernel/range 时间 | 同范围设备时间线、适用的设备计时或 profiler workload duration | CPU dispatch 时间、HTTP 时长、重叠活动时间之和 |
+| 目标关键路径与暴露成本 | 经关联的依赖/服务事件、设备时间线或有边界的受控干预证据 | 单个 kernel/native duration、活动时长排行或资源利用率本身 |
 | HBM 读写量 | 实际 DRAM/HBM 硬件字节计数器及其范围定义 | 显存占用、分配量、张量 `numel × bytes`、global load/store 请求量 |
 | 执行 FLOPs `F_exec` | 匹配指令路径的工具统计或可核验的指令语义换算 | 任意 SM 利用率、Tensor 指令数乘固定常数 |
 | 算法 FLOPs `F_algo` | 实际 shape、有效工作量与算法公式 | 总参数量近似对所有模型/阶段通用套用 |
@@ -81,10 +82,10 @@ Tensor Core kernel 要选择安装版本支持且与该精度匹配的 Tensor Ro
 可用 shape 估算 FLOPs、最低流量与设备计时提出候选，但标记 `estimated`；无法确定的项留 `unknown/incomplete`。
 缺口只限制相应归因/效率声明，不阻止依据独立有效证据开展已授权实验；既有正确性与性能验收要求保持有效。
 
-仅缺计数器时保留现有有效时间线，由主协调者派发 Profiling 的 native report 补证分支；不重新运行 trace runner 来满足 counter 请求。
-原生报告单独核验指标/单位、调用范围、rank/shape、计时、graph/backend 与采集条件，并记录与旧时间线的关联依据。
+仅缺计数器时保留已有有效时间线（如有），由主协调者派发 Profiling 的 native report 补证分支；不重新运行 trace runner 来满足 counter 请求。没有时间线时用原生报告的 workload/range/call 身份绑定局部分析，不要求不存在的 timeline ID。
+原生报告的指标/单位、调用范围、rank/shape、计时、graph/backend 与采集条件由 Profiling 核验，Roofline 消费其结果并判断当前问题的覆盖充分性，不为补齐全部字段重新采集；与旧时间线的关联仅在其存在时适用。
 相同或覆盖该需求的任务在途时引用原任务回收点；已确认能力缺口或补证无新增有效数据时返回有边界结论与重新打开条件。
-去重、局部失效和原调用返回点统一见 [SOP C5](../../../docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)，不因跨 Skill 交接启动第二份采集或重置总预算。
+去重、局部失效和原调用返回点统一见 [SOP C5](../../../docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)，按问题/绑定/范围/缺口匹配而非文件名或 Skill 名；没有可消除缺口或改变待定决策的新证据/前提时，不重开相同已耗尽请求。补证结果交回协调者，不直接触发新 benchmark 或下一 Skill，不因交接启动第二份采集或重置总预算。
 
 ## 3. 统一 FLOPs、流量、时间和屋顶的口径
 
@@ -166,7 +167,7 @@ batch、chunk、上下文长度、GQA/KV 精度、前缀命中和 graph padding 
 **先绑定目标并筛选。** 以下三项共同决定是否继续做 Roofline：
 
 1. **影响当前主指标。** TTFT 看首 token 前的路径，ITL/TPOT 看稳态 Decode；吞吐/goodput 看持续限制服务能力的资源、调度与队列，分别保留另一阶段和 Mixed 守护项。
-2. **存在可兑现贡献。** 时间线显示直接关键路径成本，或有资源竞争证据表明该工作拖慢关键路径。区分累计 kernel 时间、完整调用成本、关键路径贡献和其分母；无法确认暴露程度时报告范围或未知，不把活动时间占比当延迟占比。
+2. **存在可兑现贡献或值得证伪的边界。** 已有时序/依赖或干预证据显示直接关键路径成本，或资源竞争证据表明该工作拖慢关键路径。仅有实际 shape、静态路径和局部计时时，可以先给条件性局部成本上界与最小证伪方向，端到端贡献保持未知；不为筛选一律重采 trace。区分累计 kernel 时间、完整调用成本、关键路径贡献和其分母，不把活动时间占比当延迟占比。
 3. **分析可能改变行动。** 计算、HBM 带宽或执行效率的不同判断会改变替换/融合/调优方向、投入或停止条件。已有证据足以支持主机同步/排队实验时可直接形成框架候选，不为绘图补采所有计数器。
 
 按 phase、实际实现、shape、dtype、layout、graph/backend、rank 等建立代表性组，记录调用次数与生产分布。
@@ -234,9 +235,9 @@ TTFT/ITL 的尾部百分位、开放负载排队、goodput 和持续吞吐不直
 | 热点 `I < I_ridge`、HBM 接近屋顶且位于关键路径 | 减少冗余 copy/KV 搬运（`framework`）；已有更少流量实现（`operator/replace`）；融合/复用（`operator/improve`） | 固定 shape 只改一项；检查 `Q` 是否下降、完整调用是否变快；守护临时内存、数值和 Mixed ITL |
 | GEMM `I > I_ridge`、计算管线接近对应屋顶 | 比较已有 backend（`operator/replace`）；减少无效工作、布局或 tile 改善（`operator/improve`） | 固定 dtype/shape 对比完整调用，核验有用/执行 FLOPs、实际命中及转换成本；守护 Decode |
 | 计算和 HBM 都低，kernel 内等待高 | 并行度、依赖链、L2/shared、指令吞吐与访存并发（`operator/improve`） | 只变一个资源/布局参数，用 occupancy/stall/分层计数检验；不能直接断言 HBM 已跑满 |
-| kernel 内效率高，但阶段有明显空隙或无效 padding | graph、主机同步、调度/batch 与执行组织（`framework`） | 一项配置或限域改动，核验间隙/有效 token 与原始 shape；守护 KV 容量、TTFT/ITL |
+| kernel 内效率高，但阶段有明显空隙或无效 padding | 先由协调者按系统诊断区分 CPU 工作/等待、graph、调度/batch 与执行组织（`framework`） | 对已有证据支持的机制只改一项，核验间隙/有效 token 与原始 shape；不从设备空隙直接断言 CPU 热点，守护 KV 容量、TTFT/ITL |
 | HBM 字节随上下文显著增长，Attention 成为关键路径热点 | KV 访问 backend（`operator/replace`）或布局/融合（`operator/improve`） | 固定上下文、batch、KV dtype 比较完整调用；量化需独立数值/精度验证，不默认修改权重或 tokenizer |
-| 慢 rank、collective 或通信组织支配关键路径 | 通信组织/并行布局（`framework`），已有 collective 替换（`operator/replace`） | 保持授权资源预算，隔离一项改变；记录各 rank 工作量、通信与重叠，不用 HBM 图解释全部通信 |
+| 慢 rank、collective 或通信组织支配关键路径 | 返回协调者按系统诊断区分晚到 CPU/工作量偏斜、传输与重叠；证据支持后才选通信组织/布局（`framework`）或 collective 替换（`operator/replace`） | 同组/迭代绑定工作量、消息与时钟边界，不用 HBM 图解释通信；保持授权资源预算，只对已支持机制隔离一项改变 |
 | 仅 Mixed 中 Decode ITL 恶化 | chunk、token 预算或调度（`framework`） | 固定混合到达序列只扫一项；共同看 TTFT、ITL、吞吐和排队，不能只优化阶段均值 |
 
 每个方向至少保留一种竞争解释。按关键路径贡献、可消除比例、生产 shape 命中率、证据强度、成本和风险排序。
@@ -244,7 +245,7 @@ TTFT/ITL 的尾部百分位、开放负载排队、goodput 和持续吞吐不直
 算子方案返回主协调者，由其复用已有算子任务或另派 `$key-operator-opt` 并检查 SOP C4 的编译器能力候选；不从子分析反向重启调用者。框架与算子组合拆成关联实验，不相加收益。
 先验证数值/dispatch 与目标 graph capture、至少两次 replay，再按既有精度触发规则和无 profiler 性能 Skill 晋级。
 比较包含转换、临时张量、同步、通信与 dispatch 的完整成本，阶段专项必须回到当前目标 Mixed 验证并守护另一阶段。
-保留改动后检查热点迁移；必要时 `reprofile`，并在规划复盘中更新 Roofline 假设、证据缺口和下一轮排名。
+保留改动后先复用当前有效证据检查热点迁移；仅有决策相关采集缺口且有可比旧证据时建议 `reprofile`，否则只建议必要的 `capture` 并标记比较边界。由协调者派发并在原规划点更新 Roofline 假设、证据缺口和下一轮排名。
 
 ## 6. 测量扰动和落盘要求
 
