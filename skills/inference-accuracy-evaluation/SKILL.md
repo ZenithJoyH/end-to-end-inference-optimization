@@ -1,6 +1,6 @@
 ---
 name: inference-accuracy-evaluation
-description: Orchestrate graph-mode correctness checks and formal GPQA accuracy gates during end-to-end LLM inference optimization. Use before establishing a performance baseline, after every retained optimization for scoped regression, after 4–5 low-risk changes, immediately after high-risk changes, before formal performance, and when validating a final candidate; do not use as a generic benchmark suite unrelated to the active optimization target.
+description: Orchestrate graph-mode service correctness and formal GPQA accuracy gates during end-to-end LLM inference optimization. Use before a service baseline, at service-integration points or batches for model regression, after 4–5 integrated low-risk changes, immediately when a high-risk integration batch enters the candidate service, before formal performance, and for final validation. Isolated operator trials use key-operator-opt local tests rather than a model-service invocation per trial.
 ---
 
 # Inference Accuracy Evaluation
@@ -23,11 +23,13 @@ Require one explicit mode from the caller and record it with the experiment IDs 
 | Mode | Trigger | Output scope |
 |---|---|---|
 | `baseline-sanity` | Before accepting the optimization container and performance baseline | Baseline service correctness status; no formal gate |
-| `minimal-regression` | After every optimization point before retaining its performance result | Only the changed path, boundary/fallback shapes, and required graph capture/replay behavior |
-| `formal-gate` | After 4–5 retained low-risk points, immediately after a high-risk change, or for a final candidate without an exact valid gate | Full GPQA score and service-bound accuracy gate |
+| `minimal-regression` | At each service-integration point/bounded batch before mainline retention | Changed service paths, representative model smoke, affected boundary/fallback coverage, and required graph capture/replay |
+| `formal-gate` | After 4–5 integrated low-risk points, immediately for a high-risk integration batch, or for a final candidate without an exact valid gate | Full GPQA score and service-bound accuracy gate |
 | `gate-check` | Immediately before formal candidate performance | Validity of an existing gate against the current service identity |
 
-Low-risk batching changes only the frequency of `formal-gate`; it never removes `minimal-regression`. Treat numerical semantics, dtype/quantization, attention/KV cache, MoE routing, sampling/top-k/top-p, cross-op fusion, new algorithms/backends, broad custom-op dispatch, rank layout/communication, graph/fallback coverage, or suspicious output as high risk.
+Low-risk batching changes only the frequency of `formal-gate`; it never removes model `minimal-regression` at a service-integration point/batch. Under [SOP D0](../../docs/performance-optimization-sop.md#d0-并行探索局部筛选与批次集成), isolated operator trials retain their reference/numerical/real-shape/fallback, complete-call and applicable graph tests through `$key-operator-opt`; those target-device tests are not a new operator-only mode of this Skill and do not require a model service or GPQA. Locally passed pending candidates are not integrated low-risk points or model-accuracy passes. Compatible local winners can enter one bounded candidate batch; validate that service combination before mainline promotion, rather than separately running a full model for every offline member and then again for the batch.
+
+Treat numerical semantics, dtype/quantization, attention/KV cache, MoE routing, sampling/top-k/top-p, cross-op fusion, new algorithms/backends, broad custom-op dispatch, rank layout/communication, graph/fallback coverage, or suspicious output as high risk. Such candidates may be screened in isolation, but a batch containing them receives immediate original full-accuracy/model validation at integration; do not stack additional unvalidated changes into that batch. An isolated trial's numerical failure rejects/repairs that candidate and prevents its integration; other independently isolated branches on a valid baseline may continue. A required service/mainline regression failure, formal model-score failure or inherited accuracy blocker retains the existing stop-stacking and diagnosis rules; renaming a branch does not bypass a known service failure.
 
 ## Read only the needed workflow
 
@@ -77,7 +79,7 @@ Use the explicit `performance-bind` procedure below instead of editing the evalu
 2. Test representative, boundary, non-aligned, fallback, empty/zero-token, dtype and layout cases that the change can affect. Require the target graph service to start, capture, and complete at least two replays. Eager service validation is not required for performance optimization.
 3. Run fixed smoke and C8 service checks when the change can affect request-level behavior. Inspect timeouts, empty or truncated output, malformed text, abnormal repetition, errors, and target-path/fallback evidence.
 4. Record `passed`, `failed`, or `incomplete` with the exact experiment ID in structured state and the matching optimization-point Markdown. A minimal pass is not a formal model-accuracy pass.
-5. On a required minimal-regression failure or invalid evidence, stop candidate promotion and invoke `$inference-accuracy-diagnosis`. Fix or revert before adding another optimization point. Timeout, empty/truncated output, repetition, or formatting symptoms may trigger diagnosis, but do not independently fail accuracy when a valid formal score meets the frozen threshold.
+5. On a required service minimal-regression failure or invalid evidence, freeze the failed combination, affected dependencies and promotion, then route diagnosis through the coordinator. Fix or revert before stacking changes into that failed candidate. Apply D0's failure scope: independent branches on a verified unaffected baseline may continue, while a suspect shared baseline/environment pauses every affected branch. Timeout, empty/truncated output, repetition, or formatting symptoms may trigger diagnosis, but do not independently fail accuracy when a valid formal score meets the frozen threshold.
 
 ## Formal gate
 
@@ -90,7 +92,7 @@ Use the prescribed target-machine flow; do not substitute an auxiliary runner:
 5. Validate task/config/service identity and native evidence needed to prove that the reported score belongs to this candidate and frozen threshold. Record timeout, truncation, empty or duplicate output only as optional diagnostics.
 6. Issue the gate with `evaluation/accuracy/acceptance.py issue`. The accuracy verdict is `passed` exactly when the valid formal `score >= threshold`; equality passes.
 
-If a batched set of 4–5 changes scores below the threshold, freeze the set and invoke `$inference-accuracy-diagnosis`. Isolate the responsible point by rollback or splitting, fix or revert it, run minimal regression, then rerun the same formal scope. Do not resume stacking performance changes until a new valid `score >= threshold` gate exists. A combined pass proves only the bound combination, not every point independently.
+If an integrated batch scores below the threshold, freeze the failed combination and affected dependencies and request `$inference-accuracy-diagnosis` through the coordinator. Isolate the responsible point by rollback or splitting, fix or revert it, run minimal regression, then rerun the same formal scope. Do not resume stacking or performance promotion of that failed candidate until a new valid `score >= threshold` gate exists; independent unaffected research and shared-baseline pauses follow D0. A combined pass proves only the bound combination, not every point independently. Count the 4–5 cadence under D0/D6's unique integrated-point/implementation rule, not per trial or repeated batch inclusion.
 
 When the formal score is below threshold or score evidence is invalid, invoke `$inference-accuracy-diagnosis` with the frozen contract, service identity, failed artifacts, last known-good evidence, and covered experiment IDs. Locate and repair or revert the regression, then rerun the same formal contract; do not loosen the metric, filter, sample set, or threshold as a substitute for diagnosis. Output-health observations alone remain non-gating when the valid score meets threshold.
 

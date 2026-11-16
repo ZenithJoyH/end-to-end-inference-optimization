@@ -21,11 +21,15 @@ operation. Project gates and original business records remain authoritative.
 | Mode | Trigger | Minimum scope | Supported conclusion |
 |---|---|---|---|
 | `baseline` | A new optimization container has passed environment and correctness gates, or a scenario has no comparable baseline | Freeze the scenario catalog, then measure the acceptance set or a clearly identified scenario baseline without profiler | Baseline facts for exactly the measured scenarios |
-| `targeted` | Testing one optimization hypothesis | Directly affected scenario(s), plus a cheap adjacent/fallback/stage sentinel when spillover risk exists | Local result for the listed `scenario_id` values only |
-| `checkpoint` | Several changes are retained, the hotspot moves, candidates are combined, or a cross-scenario mechanism changes | Every affected scenario | Stage result for the listed affected set |
+| `targeted` | Testing a service-integrated hypothesis or bounded batch milestone | Directly affected scenario(s), plus a cheap adjacent/fallback/stage sentinel when spillover risk exists | Service result for the listed `scenario_id` values only |
+| `checkpoint` | Several changes enter the service combination, the service hotspot moves, or a cross-scenario mechanism changes | Every affected scenario | Stage result for the listed affected set |
 | `formal` | A milestone meets its pre-frozen major-improvement trigger, the current target is ready to close, or the final combination is frozen; the candidate has an exact valid accuracy gate | Intermediate: the current single ordered target scenario. Final: the complete acceptance set. Both use comparable baseline, candidate, and revert repetitions | Formal result for the current target, or the final all-target performance gate, according to the recorded lifecycle |
 
 The caller must explicitly provide one mode. If missing or unsupported, return `incomplete` with the accepted modes; do not infer it from these triggers. State the supplied mode, scenarios, and conclusion boundary before executing.
+
+The modes measure a model service, not every isolated operator trial. Under [SOP D0](../../docs/performance-optimization-sop.md#d0-并行探索局部筛选与批次集成), `$key-operator-opt` screens target-device numerical/shape/fallback/graph correctness and complete-call microbenchmarks locally; that evidence may select a pending candidate without a model restart, Mixed run or a `targeted` invocation. Locally passed candidates remain outside the current service combination until a bounded integration batch receives model smoke/minimal regression and representative `targeted`, with `checkpoint` only for its required affected scope. High-risk integration immediately follows original full-accuracy triggers. Reuse valid matching/in-flight service results under SOP D7; never relabel microbenchmarks as service results or sum isolated speedups.
+
+Independent branches may measure concurrently only with isolated sources/imports/caches, services/ports, devices and relevant CPU/NIC/memory/disk budgets. Serialize contested measurements or shared-service lifecycle operations; separate GPU IDs alone do not establish independence. This is scheduling under existing modes and authorization, not a parallel runner/interface change or broader Host scope.
 
 ## Read only what the mode needs
 
@@ -74,7 +78,7 @@ Before choosing an optimization direction for the current target scenario, maint
 - `decode`: autoregressive iterations, TPOT/ITL/output-token throughput, KV behavior, and decode batch shapes;
 - `mixed`: phase interference, scheduling/queuing, resource contention, and the complete target workload.
 
-TTFT and TPOT/ITL are client-visible proxies and may include queuing, scheduler, sampling, network, or streaming costs. Do not relabel them as pure device phase time. A phase-focused targeted plan may use a single-token/short-output prefill probe or a sufficiently long-output decode probe, but it must record the isolation method and residual costs, use its own comparable baseline, and map to a parent target scenario. Guard a prefill candidate with decode and mixed metrics; guard a decode candidate with prefill and mixed metrics. A phase-focused pass is an optimization signal only: verify every retained candidate on the parent `mixed` workload before treating the target scenario as improved or complete.
+TTFT and TPOT/ITL are client-visible proxies and may include queuing, scheduler, sampling, network, or streaming costs. Do not relabel them as pure device phase time. A phase-focused targeted plan may use a single-token/short-output prefill probe or a sufficiently long-output decode probe, but it must record the isolation method and residual costs, use its own comparable baseline, and map to a parent target scenario. Guard a prefill candidate with decode and mixed metrics; guard a decode candidate with prefill and mixed metrics. A phase-focused pass is an optimization signal only: verify the integrated service candidate/bounded batch on the parent `mixed` workload before treating the target scenario as improved or complete; this promotion requirement does not trigger a model run for each isolated operator trial.
 
 ## Enforce the service gate
 
@@ -110,7 +114,7 @@ If prefix caching is the explicit optimization variable, require a separate cont
 
 Stop and keep `incomplete` when the client is the bottleneck, the service identity or prefix-cache state is unproven, workloads differ, results are partial, warmup is unstable, repetitions are insufficient, or revert drift prevents attribution. Do not cherry-pick successful rounds or scenarios.
 
-When performance evidence cannot localize the bottleneck, return the unresolved attribution and recommend a separate profiling invocation to the caller. Keep all profiler-on timings outside the comparison. The caller chooses any subsequent `targeted` or `checkpoint` invocation.
+When performance evidence cannot localize a decision-relevant bottleneck, return the unresolved attribution to the coordinator for C5 reuse/deduplication before requesting any missing profiling. Do not automatically open another collection or benchmark cycle. Keep all profiler-on timings outside the comparison. The coordinator reuses valid/in-flight covering results under D7 or assigns only the remaining measurement scope.
 
 ## Formal performance measurement
 

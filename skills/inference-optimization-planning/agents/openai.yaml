@@ -1,6 +1,6 @@
 interface:
   display_name: "推理优化规划复盘"
-  short_description: "归纳多轮优化证据并重排下一阶段框架与算子优化优先级"
-  default_prompt: "Use $inference-optimization-planning to consolidate the completed inference optimization experiments and produce an evidence-ranked plan for the next cycle."
+  short_description: "复盘优化证据，自动衔接 CPU、通信、rank 与 Roofline 诊断并重排方向"
+  default_prompt: "Use $inference-optimization-planning to consolidate evidence, route diagnosis, and automatically assess communication-compute fusion/overlap when relevant. Rank one integration direction with bounded independent explorations, screen operators locally, and batch compatible winners for service validation with Mixed, cross-phase and formal guards."
 policy:
   allow_implicit_invocation: true
