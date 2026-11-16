@@ -8,8 +8,8 @@ Agent 的职责是：
 
 1. 根据用户指定的模型、平台、机器和服务确认当前运行事实。
 2. 建立可复现且正确的端到端性能基线。
-3. 从请求接入到输出返回分层定位瓶颈，并把当前目标场景的 Prefill 与 Decode 分开分析，再检查 Mixed workload 中的阶段干扰。
-4. 用单变量实验优化延迟、吞吐、显存、稳定性或成本。
+3. 从请求接入到输出返回分层定位瓶颈，涵盖 CPU、通信、rank 负载、内存与算子；把当前目标场景的 Prefill 与 Decode 分开分析，再检查 Mixed workload 中的阶段干扰。
+4. 自动按瓶颈和净收益选择方向；每项独立实验保持单变量，资源允许时并行探索，按局部筛选、批次集成与正式验收优化延迟、吞吐、显存、稳定性或成本。
 5. 完成正确性回归、性能复测、结果归档和回退准备。
 
 执行分工采用“主 Agent 规划、协调和验收，执行子 Agent 承担具体执行”。除第 5.5 节列明的直接执行例外外，可独立交付的分析、实现和测试必须拆成有明确边界的子任务并委派；远端默认使用对应目标机器上的 `dsh headless`，按恢复规则回退到内置子 Agent，纯本地任务在本地委派。具体要求见第 5.5 节。
@@ -25,9 +25,9 @@ Agent 的职责是：
    - **接入更好的算子（`replace`）**：比较现有 FlagGems、平台 vendor/native 等实现，通过 Plugin dispatch/backend 接入在目标 shape 上更快且数值兼容的实现。
    - **优化当前算子（`improve`）**：对当前实现做 tile、warp、stage、并行划分、访存、layout 或算法调整；也可以融合现有推理链路中相邻或可共同执行的多个算子，减少中间张量、访存、同步和 kernel launch。需要时形成当前实现的特化版本或新的融合算子。结合目标平台实际支持的 FlagTree/Triton 编译器特性（如 TLE、布局与流水线能力）定向优化热点算子，也是明确的候选方向。
 
-分类按主要收益机制：为替换算子增加 dispatch、shape 白名单和 fallback，仍归入 `operator/replace`；降低通用 dispatch 开销归入 `framework`；新增融合 kernel 归入 `operator/improve`。跨层方案拆成关联实验，明确依赖并分别验证贡献，不重复计算收益。
+分类按主要收益机制：为替换算子增加 dispatch、shape 白名单和 fallback，仍归入 `operator/replace`；降低通用 dispatch 开销归入 `framework`；新增融合 kernel 归入 `operator/improve`。通算融合、通信/拷贝与计算 overlap、kernel 内预取/流水按 [SOP C3.1](docs/performance-optimization-sop.md#c31-通算融合与-overlap-候选)区分排程组织、已有算子接入和新实现。跨层方案保留关联实验、依赖和回退，按 D0 集成验证；仅归因会改变选择或失败定位需要时按 D3 拆分/消融，未证实的单点端到端贡献保持 unknown，不重复计算收益。
 
-默认先检查框架中的明显浪费和低风险配置，再评估热点算子的已有实现，最后投入当前算子的深度优化。这是默认排查顺序而不是强制串行阶段；实际执行按瓶颈、预期端到端净收益、证据强度、验证成本和风险排序，每次保留改动后重新排序。具体规则见 SOP 的“两层优化分类与优先级”。
+默认先检查框架中的明显浪费和低风险配置，再评估热点算子的已有实现，最后投入当前算子的深度优化。这是默认排查顺序而不是强制串行阶段；实际执行按瓶颈、预期端到端净收益、证据强度、验证成本和风险排序，每次保留改动后重新排序。具体规则见 [SOP C1](docs/performance-optimization-sop.md#c1-两层优化分类与优先级)。
 
 热点收敛到算子后，按 [SOP C4](docs/performance-optimization-sop.md#c4-利用平台编译器特性做算子特化) 检查目标平台编译器特性是否提供可证伪的改善机制；初次选择方向及后续规划复盘时均纳入候选评估。按实际安装版本、构建与具体原语核实支持，不把支持 TLE 等同于支持全部接口，也不要求所有算子改写为 TLE。采用特性的实现归入 `operator/improve`，接入已有实现归入 `operator/replace`；保留能力/shape guard 和正确 fallback，通过既有正确性、graph 与端到端性能流程验证。若瓶颈来自生成代码，还可在当前任务的独立优化容器内修改、重建并使用其私有 FlagTree，按同一算子源码验证编译器改动，归入 `operator/improve`。
 
@@ -62,11 +62,11 @@ Agent 的职责是：
 - **推理栈架构资料**：[vllm-plugin-FL-analysis.md](docs/vllm-plugin-FL-analysis.md) 用于理解 Plugin 调用链与扩展点；[FlagGems-vllm 仓库讲解](docs/flaggems-vllm-analysis.md) 用于理解 vLLM 专用算子、vendor backend 和测试/benchmark；[FlagGems 仓库讲解](docs/flaggems-analysis.md) 用于理解通用算子、ATen 注册和多后端特化。三者都是特定 revision 的静态分析，分阶段使用要求见第 6 节。
 - **算子优化**：热点收敛到具体算子、dispatch、布局或融合路径后，用[关键算子优化技能](skills/key-operator-opt/SKILL.md)按平台和算子选择首个实验。沐曦任务可从[平台案例经验](skills/key-operator-opt/references/platforms/metax.md)匹配现场信号，再查单点实验和回退记录。其他平台沿用算子地图，在有案例依据时补充相应平台经验。
 - **精度评测**：本地 [inference-accuracy-evaluation](skills/inference-accuracy-evaluation/SKILL.md) 负责精度操作；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。自动发现不可用时直接完整读取该入口，不依赖全局同名 Skill。
-- **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
+- **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、模型必要最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
 - **性能评测**：本地 [inference-performance-evaluation](skills/inference-performance-evaluation/SKILL.md) 负责无 profiler 性能测量及 Prefill、Decode、Mixed 证据；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。
-- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责代表性场景的 trace 采集、有效性与 rank/worker 覆盖核验、Prefill/Decode 阶段切分、热点归因及优化后复测。Profiler-on 时间不作为正式性能收益，归因后必须回到性能评测 Skill 验证。
+- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责 trace、CPU/系统/通信与原生计数器报告的按需采集、分类有效性与进程/线程/rank/group 覆盖核验、阶段归因及热点复查。已有有效报告可直接分析，不强制设备 trace；诊断结果回原决策点，Profiler-on 时间不作为正式收益，服务晋级缺少的无 profiler 验证按 D7 统一派发。
 - **Roofline 定位**：[推理 Roofline 分析技能](skills/inference-roofline-analysis/SKILL.md) 消费已有阶段/shape 证据与计数器或明确标注的估算，判断计算、HBM 带宽和执行效率限制，形成下一项可证伪实验；缺失采集交回 Profiling，候选排名交给规划复盘。
-- **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责阶段性归纳已执行实验、重建当前组合候选的累计收益与证据缺口、判断 Prefill/Decode/Mixed 热点迁移，并为下一轮框架/算子优化重新排序。它不以孤立加速比相加替代组合实测。
+- **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责归纳当前组合及局部待验候选、阶段热点与证据缺口，按系统信号、融合/overlap 机制和净收益自动重排方向，协调有限并行与批次集成。结果须改变或确认采纳/降级/暂缓和每方向首个实验；不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
 - **模型实验产物**：`models/<model>/<platform>/<case-id>/` 保存该案例的 `baseline/`、`optimize/` 和 `acceptance/`。案例目录保留可读摘要并链接到具体产物；归档与知识沉淀要求见第 11 节。
 
@@ -168,7 +168,7 @@ Agent 的职责是：
 - 聚焦的只读诊断可使用 SSH；可复现或多 Host 操作优先写成 Ansible Playbook。
 - 变更前解析精确 Host、容器、服务、PID、端口和代码目录。
 - 新的远端变更命令先保存到当前实验记录再执行；已提供远程工作目录时，将远端执行副本放入对应 `<case-id>/commands/`，本地记录其路径和 SHA。
-- 先在一台 Host 验证；扩大到多 Host 时串行执行并逐台报告。
+- 新操作先在一台已授权 Host 验证；确认方法后可在用户已明确授权且资源独立的 Host/设备上并行，逐项报告。共享资源或存在依赖的操作串行，不能因并行扩大 Host 授权。
 - Ansible 模块支持时，变更前先使用 `--check --diff`。
 - 只停止或重启当前任务明确指定的推理服务及其关联进程，并记录操作原因、PID、端口、命令、时间和 readiness。
 - 不停止、重启或删除承载适配环境的容器，除非用户明确要求并确认影响。
@@ -212,7 +212,7 @@ Agent 的职责是：
 - **例外与阶段记录**：主 Agent 直接执行时，须在既有任务、阶段或实验记录中简述例外类别、具体原因和操作范围；纯本地规则维护可在当前任务说明中记录。阶段结束时汇总子 Agent 已交付和未完成的工作单元、主 Agent 直接执行的例外及验收结果，保留失败和未完成项，不另建业务账本。环境能力、路径或权限不足不自动构成接管理由；例外记录不新增审批要求，也不能代替原有必须取得的授权。
 - **精确派发**：远端子任务只下发到该任务明确指定的对应 Host。主 Agent 提供任务与 `experiment-id`（适用时）、当前已验证状态、相关上下文和适用规则/Skill、准确工作目录、Host/容器/设备/源码授权范围、允许和禁止的操作、成功/停止条件、时间预算及预期产物。容器内的工作必须在指定容器和已核验的实际导入路径执行，不能以宿主机结果替代容器结果。子任务不得自行扩大范围、递归委派或提交/推送代码。
 - **入口与权限**：执行前核实对应环境中 `dsh` 的实际入口、版本与 headless 参数，不猜测调用接口。按子任务选择只读或限定写入的权限，只读分析不授予写权限；执行模式不能绕过命令审批。远端连接、工作根、命令留档、容器隔离和源码写入仍遵守本节及第 4 节；inventory 中存在该 Host 不等于已授权操作。纯本地维护仍在本地完成，本规则不为其新增远端操作授权。
-- **执行与协调**：优先使用结构化事件及可核验产物回收结果，保存必要的调用命令、任务身份、状态和证据位置。独立且资源不冲突的子任务可以并行；同一源码副本的写入、共享设备上的测量、同一服务的启停及有依赖的步骤必须协调和串行，不以多 Agent 同时写入或争抢设备推进任务。
+- **执行与协调**：优先使用结构化事件及可核验产物回收结果，保存必要的调用命令、任务身份、状态和证据位置。资源足够时，主 Agent 按价值、预算和依赖自动并行派发有限多个独立的 CPU/通信/算子等方向；单变量约束作用于各自实验对照，不要求全任务只有一个方向。同一源码副本写入、同设备测量、同服务启停及有依赖的操作串行；共享 NIC、CPU、内存、存储等也须核验争用，不能只按设备号判断隔离。并行方向使用任务私有源码/缓存，按需隔离进程、服务实例或容器及端口、产物路径，记录分配资源与各自冻结 baseline/候选身份，不修改共享原状态；镜像/挂载门禁不变，不为隔离新增不一致挂载。缺资源时串行相关执行，独立分析和局部开发可继续；不重复同问题、不扩大 Host 授权。具体局部筛选与批次集成见 [SOP D0](docs/performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)。
 - **恢复优先，有限回退**：`dsh` 调用异常时，先报告已知原因，区分传输故障、控制器超时、执行器故障和任务本身未通过；按 [dsh 恢复与回退](docs/agent-execution.md#dsh-恢复与回退) 处理。SSH 断开或本地等待结束不证明远端任务退出；先重新核验进程身份、任务子进程、session、部分改动和原始产物。仍在执行或状态未知时不得启动替代写入者。软观察时限到达且有实质进展时，在预冻结总预算内继续观察；长任务优先远端独立运行、按产物拆分和保存检查点，不能用短命令超时机械终止。确认旧执行已停止后，优先回收既有结果；仅在上下文一致、能力已验证且检查点有效时恢复同一 session，无副作用且确认未启动或已终止的瞬时故障才允许有限重试。累计恢复最多 2 次，同一错误连续出现 2 次停止机械重试；恢复和换执行者均不得重置总预算。不可恢复或次数耗尽时自动回退到内置子 Agent，无需另行确认；总预算耗尽则先重规划，副作用未知则先核验，不能以回退绕过它们。缺少入口、配置或权限问题不盲目重试、不自动安装或放宽权限；精度/测试失败不作为执行器故障回退重测。回退只交接已验证状态及未完成工作。`dsh` 故障不自动允许主 Agent 接管具体执行；内置子 Agent 也无法承担时，记录能力缺口并重规划，主 Agent 只能执行本节明确例外内的操作。
 - **验收责任**：主 Agent 必须复核实际 diff、执行路径、测试/评测原始产物及原生校验结果，必要时发起有针对性的独立复核。`dsh` 或内置子 Agent 自述完成、退出码 0、模型自评或单算子提升不能替代本项目精度、graph、端到端性能及最终验收要求；子任务执行与主 Agent 验收均须保留失败和未完成项。
 - **运行中切换**：已有任务从下一个可安全拆分的工作单元采用此分工。先检查已有进程、部分改动、资源占用和有效证据；已启动的测试/评测可继续完成并复用结果，不因切换执行方式重复启动、强行终止或重置任务。人工暂停/接管仍优先。独立 worktree 的后续执行也须采用本节要求，并将相关规则限域写入其自身 `AGENTS.md`，不覆盖其他本地修改或整份同步工作区。
@@ -245,7 +245,7 @@ Agent 的职责是：
 4. 优先选择最窄扩展点：配置参数，其次 Plugin shim/dispatch/backend；新增数值计算归入对应算子库并通过公开 API 接入，正式扩展点不足时才考虑限域 runtime patch。请求/调度 metadata 的 GPU/Triton 实现仍按开发规范 A3 归属框架侧，不能以输出为索引为由把评分、排序或 Top-k 数值计算留在 Plugin。
 5. 不以 fallback 成功证明目标 backend 已命中；必须记录实际 `impl_id`、dispatch 日志或等价证据。
 6. Plugin hook 必须幂等，因为 general plugin 可能在多个 worker 中重复加载。
-7. 性能优化以 graph 服务为准；新实现必须验证目标 graph 模式可以启动、capture 并至少 replay 两次。eager 只在定位 graph 差异时作为可选诊断，不是进入优化或候选晋级的门禁。
+7. 服务集成和正式性能以目标 graph 服务为准；快速 trial、入选局部实现与服务候选按 [SOP D0](docs/performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)分层验证。入选者补齐适用局部 graph capture/至少两次变输入 replay，不能以局部通过代替服务 graph；不为每个 trial 启动整模。eager 只作按需诊断，不是独立晋级门禁。
 8. FlagGems 与 FlagGems-vllm 存在同名或相近算子时，从运行中函数对象、import、注册 key 和 profiler 反向确认来源，不按文件名推断。
 9. 当前常规修改授权覆盖目标推理环境实际使用的 `vllm-plugin-FL`、`FlagGems-vllm` 和 `FlagGems` 源码副本，以及第 4 节所述的私有 FlagTree；修改前分别记录 revision、工作区状态、真实导入路径、生效方式和回退方法。该授权不扩大到其他容器、共享安装或无关工作区。
 
@@ -253,7 +253,7 @@ Agent 的职责是：
 
 完整阶段步骤统一维护在 [SOP](docs/performance-optimization-sop.md)，workload 可比性、指标、实验 schema 和最终报告字段统一维护在 [实验契约](docs/experiment-contract.md)。开始实际优化前必须阅读两者并创建案例。
 
-执行顺序：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → smoke/C8 护栏 → 无 profiler 基线尝试（过慢时可转 baseline-recovery）→ 分层诊断与单变量实验 → milestone/正式性能检查 → 候选回归 → 最终精度与性能验收 → 复盘。
+任务入口：目标与授权 → 源容器事实 → 独立优化容器及镜像/挂载门禁 → 服务预检/smoke/C8 → 无 profiler 基线尝试（过慢时可转 baseline-recovery）。随后按 [SOP D0](docs/performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)协调诊断、有限并行的独立实验、局部筛选与批次集成，在适用里程碑回归并最终完成精度/性能验收；不是每个离线变体重复整条整模流程。
 
 - 精度和性能测试必须分别读取并执行本地 `$inference-accuracy-evaluation` 与
   `$inference-performance-evaluation`。测试等级/模式、触发条件、配置字段、并发、预热、重复、
@@ -262,9 +262,12 @@ Agent 的职责是：
 - 执行前读取 `docs/skills-project-contract.md`，将 Skill 方法映射到本项目的 runner、容器、
   服务、目录和原生回执。该契约只承担项目适配；本项目规则和用户范围可以收紧执行边界，
   但不能静默替换或削弱 Skill 方法。
-- 低开销指标无法继续归因或需要确认执行路径时调用 `$inference-profiling`；收敛到具体算子
-  后调用 `$key-operator-opt`，性能收益仍须回到无 profiler 性能 Skill 验证。具体模式由调用方显式选择，
-  对应 Skill 校验支持范围，不在本文件维护模式副本。
+- 选新场景/方向、收到影响决策的新结果、热点迁移或规划复盘时，按 [SOP C0.4](docs/performance-optimization-sop.md#c04-系统诊断自动衔接规划复盘)
+  自动检查 CPU 热点/等待、通信和 rank 负载信号；按 [C3.1](docs/performance-optimization-sop.md#c31-通算融合与-overlap-候选)评估通算融合、通信/拷贝与计算 overlap、kernel 内预取/流水，
+  无需用户逐次点名，不强制实施或全量诊断。核实目标平台实际能力/依赖，不把晚到当网络慢或双 stream 图当收益；不相关或已有证据足够时不新增采集。
+- 低开销证据归因不足且会改变选择时，通过 `$inference-profiling` 按需分析或补证；收敛到算子/融合路径后使用 `$key-operator-opt`。
+  [SOP C5](docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)统一当前绑定的有效、在途、缺失、不可用和失效证据处置；
+  协调者去重、冻结缺口/预算并派发，交付只回同一决策点，不跨 Skill 重启循环。具体模式由调用方显式选择并由对应 Skill 校验，不在本文件维护模式副本。
 - 需要判断计算、HBM 带宽或执行效率限制并选择下一步实验时，按 [SOP C5](docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)
   由 Agent 按需自动调用 `$inference-roofline-analysis`，无需用户逐次点名；选择新场景方向、profiling 后归因、
   热点迁移或规划复盘时检查触发条件，已有同身份、同口径的有效结论可复用。分析当前目标的
@@ -273,7 +276,8 @@ Agent 的职责是：
   不适用时在既有方向决策中简述原因，不为调用而采集；Roofline 效率不作为正式性能通过条件。
 - 每次选择下一轮方向，按 [SOP C2](docs/performance-optimization-sop.md#c2-生成并维护实际候选排名)自动筛选对目标关键路径或资源竞争有实际影响的热点，
   将局部空间与完整调用新增成本换算为有边界的主指标净收益，再结合覆盖、置信度、实现/验证成本和风险排序。
-  空间大但证据弱时先做最小证伪；不得按累计 kernel 时间、低利用率或未校验的理论上限直接决定优先级。
+  空间大但证据弱时先做最小证伪；支持/反对/unknown 必须影响采纳、降级或暂缓及每方向首个实验，不只归档报告沿用旧排序。
+  不得按累计 kernel 时间、低利用率或未校验的理论上限直接决定优先级；资源/依赖允许时按 D0 并行执行有价值方向。
 - 当前 Agent 的正式性能优化目标目录固定为以下四个 finite-batch 场景，长度单位均为 token：
   `P1024/D1024/C64/N128`、`P4096/D1024/C64/N128`、`P16384/D1024/C64/N128`、
   `P32768/D1024/C64/N128`，其中 P/D/C/N 分别表示输入长度、
@@ -292,8 +296,10 @@ Agent 的职责是：
   prompt 处理、TTFT/input-token 吞吐及其 shape；Decode 重点记录逐 token 循环、TPOT/ITL/output-token
   吞吐、KV 访问及 batch shape；Mixed 重点记录调度干扰、排队、资源竞争和端到端结果。TTFT/TPOT
   只能作为阶段代理指标，不能在包含网络、排队或调度开销时冒充纯设备阶段时间。阶段专项可以使用缩减
-  milestone，但必须建立同配置 baseline；任何单阶段收益都要用当前目标的 Mixed workload 验证，并把另一
-  阶段指标列为守护项，不能以 Prefill 或 Decode 的孤立提升宣称端到端完成。
+  milestone，并建立该测量范围的可比 baseline；证据不足可保留 `unknown/incomplete`，基线过慢时可用
+  已核验 shape/静态证据做有边界局部探索，不为选方向强采 trace 或补完整整模 baseline。
+  单阶段服务收益/场景晋级需当前目标的 Mixed 与另一阶段守护；局部 trial 按 D0 筛选，不每次回验整模，
+  不能以 Prefill 或 Decode 的孤立提升宣称端到端完成。
 - 默认优化目标和最终性能结论都是服务完成编译、graph capture、allocator 等预热后的稳态表现。服务启动后的
   首请求、首批次或进入稳态前的首轮只用于诊断预热是否充分，不作为默认优化目标，也不能因其耗时较高就把
   优化方向带到冷启动路径；只有用户明确把冷启动列为目标时才建立独立契约优化。正式比较必须使用预先冻结的
@@ -313,18 +319,22 @@ Agent 的职责是：
 - 每个优化点在实施前必须分配稳定 `experiment-id`，同时在 `optimize/state.yml` 建立结构化条目并创建
   `optimize/<experiment-id>.md`。后续的 profiling、源码/配置改动、最小正确性、完整精度、性能测量和
   保留/回退决定持续更新同一文档；`optimize/README.md` 只维护多轮总览、累计效果和链接索引。
-- 默认每完成 2–3 个有结果的优化实验后调用 [推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md)。组合改动、热点迁移、跨场景结论冲突、连续失败/证据不足，或准备投入高成本框架/算子方案时提前触发。复盘必须覆盖失败与回退项，以同配置 baseline→当前组合测量作为累计收益依据，并把下一轮 1–3 个候选、首个证伪实验、所需评测 Skill、停止条件和旧决策摘要写入 `optimize/state.yml`，同步更新 `optimize/README.md`；不得创建 `optimize/history/`。
-- 每个优化点仍执行最小正确性回归；低风险点默认累计 4–5 个再运行一次正式完整精度，高风险改动、当前目标场景 formal 前缺少有效 gate、以及最终组合候选仍按触发条件立即执行或补做。
-- 正式分数低于预冻结阈值或评测证据无效时调用 `$inference-accuracy-diagnosis`，冻结证据并停止叠加新优化；
+- 按 [SOP D8](docs/performance-optimization-sop.md#d8-阶段性优化规划复盘)调用 [规划复盘技能](skills/inference-optimization-planning/SKILL.md)：默认每 2–3 个有决策产物的实验，系统信号/新结果可能改变方向、热点迁移、冲突/失败、高成本决策或待验候选达到集成边界时即时触发，不等待计数或用户点名。按 C0.4/C3.1 自动分流与评估，按 C2 排名、D0 分配有限并行方向，保留每方向首个单变量实验与集成/停止条件。累计收益仍用同配置 baseline→当前组合测量；当前决定、失败/回退与旧决策摘要写回既有 `state.yml`、优化点 Markdown 和 README，不创建额外账本或 `history/`。
+- [SOP D0](docs/performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)是 quick 部分筛选、完整局部验证、pending、候选批次与服务 retained 的共同生命周期权威。入选者须完成目标设备的适用局部覆盖；局部 pending 不加入 `current_combined_candidate`，创建候选服务也不等于主线保留。不逐 tile/warp 运行整模回归、Mixed/profile 或 GPQA；优胜/互补小批集成后按 D0/D6 验证，最终精度、四场景与身份门禁不变。
+- 分支回收按 D0 比较派发时 parent、补丁依赖与当前主线；私有集成副本合并/重基后冻结批次身份，只补受影响的局部验证，不能盲用旧 pending、转绑旧服务 gate 或全量重跑无影响检查。低风险 4–5 依 D0/D6 按最近有效正式精度覆盖集合与唯一已集成点/当前实现身份计数，trial、重试或重复入批不重复计；高风险批次进入候选服务即对冻结组合执行原正式精度，不先逐成员整模再跑组合，也不无限积压未验候选。
+- 按 [SOP D7](docs/performance-optimization-sop.md#d7-性能场景与分层测试频率)核验已有/在途验证的实际身份、契约和范围。同批合法 checkpoint/formal 已覆盖代表性 targeted/守护要求时复用原 purpose/回执，不固定逐模式重跑；不追认 targeted 为 formal、不把复用充作独立重复。缺失或失效范围再统一派发，正式验收范围不缩减。
+- 下述失败冻结按 D0 的候选/依赖及共同 baseline/环境影响面执行：局部失败不触发整模，可信且不受影响的隔离分支可继续已授权局部研究；正式失败组合不晋级，共同基线/环境存疑则暂停全部受影响分支，不豁免既有精度 gate。
+- 正式分数低于预冻结阈值或评测证据无效时调用 `$inference-accuracy-diagnosis`，冻结证据并停止对该失败组合及其依赖叠加新性能优化/晋级；
   必须定位精度下降原因并修复或回退，以相同正式契约重新评测，只有新的 `score >= threshold` gate
-  生成后才能恢复性能优化。输出健康异常单独记录或按需诊断，不改变 `score >= threshold` 结论。
+  生成后才能恢复该组合的性能优化/晋级。输出健康异常单独记录或按需诊断，不改变 `score >= threshold` 结论。
 - 上游交付已经低于阈值时，记录 `inherited-accuracy-blocker`，不推定为本次优化导致，也不以最小回归替代正式达标。
   默认只继续证据核验、问题定位及其必要复现/修复，不叠加新性能优化或关闭正式场景。
   用户另行明确允许诊断性性能探索时，记录指令来源、范围和有效期；仍不得签发精度 gate 或宣称正式验收通过。
 - 精度评测必须开启 prefix cache；默认性能评测关闭 prefix cache。具体启动、运行取证与强制校验由对应 Skill 维护。
   两种配置之间通过精度工具的 `performance-bind` 核验并绑定，不改写已评测服务 manifest 或原分数。
 - 相同候选仅重启服务时，旧精度 gate 不自动有效；按精度工具的 `rebind` 流程核验稳定身份、当前运行证据、
-  graph capture/两次 replay 和最小回归后可签发新绑定回执。精度开启→性能关闭仅按上述专用绑定流程处理；其余源码、配置、设备或环境变化仍须重新评测。
+  graph capture/两次 replay 和最小回归后可签发新绑定回执。精度开启→性能关闭仅按上述专用绑定流程处理。
+  其余源码、配置、设备或环境变化先核实是否进入当前服务并按 D0/C5 判定受影响绑定；失效的精度/性能证据按对应 Skill 重评，原生重绑仅限该 Skill 既有支持情形，真实服务源码/配置变化不得凭局部无影响续用旧模型 gate。证明不受影响的局部证据可复用，尚未集成的私有分支不使未改主线的 gate 失效。
 - 每次 Skill 结果都写回当前实验记录，保留准确服务身份、场景/样本范围、原生证据路径、
   结果和结论边界；不能只在对话中给出口头结论。
 
@@ -348,11 +358,11 @@ Agent 的职责是：
 - 优先复用 Plugin 已有 dispatch、backend 和 OOT operator 入口。
 - FlagGems 实现必须核对当前符号、支持 dtype、shape/layout 和 graph 能力。
 - 缺少兼容数值实现时，先在 FlagGems 或对应框架专用算子库补充公开 API 与独立参考测试，再通过既有分发层接入；禁止将数值 kernel 复制进 Plugin 或按私有文件路径加载。混合职责按 A3 拆分，无关历史实现不因本次规范导入自动迁移。
-- 覆盖数值、dtype、shape、stride/layout、设备、边界 batch 和 zero-token 场景。
-- graph 服务必须能够启动并完成 capture 和至少两次 replay；不要求另行验证 eager 服务，除非 graph 问题定位需要对照。
+- 入选/集成及最终候选按影响面覆盖数值、dtype、shape、stride/layout、设备、边界 batch 和 zero-token 场景；快速 trial 的小范围筛选不等于完整局部通过，按 SOP D0 补齐并复用有效检查。
+- graph 按第 6 节第 7 条和 SOP D0 分层验证；服务候选须满足目标 graph 启动/capture/至少两次变输入 replay，局部通过不能替代服务验证，也不为每个 trial 启动整模；eager 仅作按需对照。
 - 避免 capture-time host sync、动态分配、数据依赖主机控制流和不稳定地址。
 - fallback 仅允许在计算尚未开始且无副作用时按既有策略选择同契约实现；原地写入、状态更新、异步 kernel 或 collective 一旦开始，错误必须向上抛出，禁止捕获后切换后端重试。
-- 性能改动附带最小正确性测试和同条件端到端 benchmark。
+- 性能改动按 SOP D0 附带对应层次的正确性与同条件测量：局部筛选保留算子验证和完整调用 microbenchmark，服务集成里程碑验证模型回归和端到端表现，最终候选完成正式验收；局部收益不冒充端到端收益。
 
 ## 11. 项目产物结构
 
@@ -384,7 +394,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
   inference-accuracy-evaluation/  # 优化期间的正确性回归与正式精度门禁
   inference-accuracy-diagnosis/   # 精度回退、输出异常与数值问题定位
   inference-performance-evaluation/  # 分层无 profiler 性能测量与正式性能门禁
-  inference-profiling/            # trace 采集、热点归因与优化后复查
+  inference-profiling/            # trace/系统报告取证、热点归因与优化后复查
   inference-roofline-analysis/    # 计算/访存上限、瓶颈证据与下一项实验
   inference-optimization-planning/  # 多轮实验归纳与下一阶段优先级重排
   key-operator-opt/               # 热点算子优化方法、平台经验与算子地图
@@ -420,7 +430,7 @@ skills/                  # 项目级可复用技能与按需加载的知识库
 
 ## 12. 实验记录
 
-使用 [实验契约中的 schema](docs/experiment-contract.md)，每轮实验独立编号，记录规则版本、验收范围、未知项和原始产物位置。配置是事实主记录；案例与报告引用它，避免重复维护同一状态。
+使用 [实验契约中的 schema](docs/experiment-contract.md)，给独立优化点稳定编号，记录规则版本、验证层次/验收范围、未知项和原始产物位置；同点局部调参变体复用主记录，明细外置，不为每个 tile 新建模型文档；实际执行仍保留唯一原生 run ID。配置是事实主记录；案例与报告引用它，避免重复维护同一状态。
 
 ## 13. 代码和配置要求
 

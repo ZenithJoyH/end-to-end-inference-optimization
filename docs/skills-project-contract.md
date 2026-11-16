@@ -35,6 +35,11 @@
 - 规划复盘与最终决策由主 Agent 负责，需要新增源码/trace 分析、统计、代码或实验时另行委派。
   主 Agent 可按明确例外调用不启动新 workload 的现成校验器；需重跑评测时仍须委派，不改 Skill
   方法、runner、接口或原生 gate 来适应执行者差异。
+- 资源足够时按 [SOP D0](performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)自动派发有限多个独立方向；
+  每实验单变量、实际源码/缓存/运行态与资源隔离，同源码写/同设备测量/同服务启停及共享 NIC/CPU/内存争用串行或先隔离。
+  并行不扩大 Host 授权，不降低容器镜像/挂载门禁，不重复相同问题。
+  D0 是 quick 部分筛选、完整局部 pending、候选批次、服务 retained，以及分支回收重基/受影响验证和已集成点唯一计数的共同权威；
+  各 Skill 只映射方法，不各建计数或生命周期。分支原基准与当前主线有变化时先协调核绑定，不盲用旧局部结论或转绑旧服务回执。
 
 ## 运行身份与产物
 
@@ -43,13 +48,20 @@ graph 模式、启动参数、endpoint、服务实例、客户端和 workload �
 JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目录；本地案例记录只保存摘要、
 准确路径和必要 SHA。
 
+写回前从当前案例记录解析实际目录：新案例为 `models/<model>/<platform>/<case-id>/`，旧布局兼容读取，
+不自动迁移或在平台根部另建 `optimize/`；各 Skill 写回同一案例既有 `state.yml`、优化点 Markdown 与 README。
+
 ## 精度评测映射
 
 - 方法入口：`skills/inference-accuracy-evaluation/SKILL.md`；模式为 `baseline-sanity`、`minimal-regression`、`formal-gate`、`gate-check`。
 - 本项目的精度通过条件只有一个：预冻结的正式指标值 `score >= threshold`，等于阈值视为通过。
   不再使用相对 baseline、最大允许回退或输出健康审查作为附加精度门槛。
-- 每个优化点执行最小回归；低风险改动默认累计 4–5 个后触发 `formal-gate`，高风险改动和缺少
-  当前正式性能所需有效 gate 时提前触发。正式分数低于阈值后必须调用精度定位 Skill，修复或回退并
+- 快速 trial 先以代表 shape 数值和完整调用 microbenchmark 筛选；入选局部算子候选在目标平台设备补齐 reference/边界/真实目标与 fallback shape、适用 graph capture/至少两次变输入 replay；
+  不逐 tile/warp/局部分支运行模型最小回归、smoke、Mixed/profile 或 GPQA。局部可保留但整模未验证、未加入当前组合，沿用已有状态/字段，不影响未变主线 gate。
+  优胜/互补候选批次进入隔离候选服务后统一做 smoke/模型最小回归及代表性 targeted/必要 checkpoint；
+  低风险完整精度默认按 D0 的最近正式 gate 覆盖集合与唯一已集成点累计 4–5 个，并结合风险/预算/里程碑触发 `formal-gate`，不重复计离线变体、重试或批次。
+  高风险改动可先局部研究，进入服务集成批次即对组合执行既有正式精度/graph/模型验证，不强制每支先单独整模再重跑组合；缺少
+  当前正式性能所需有效 gate 时仍提前触发。正式分数低于阈值后必须冻结失败组合/晋级并调用精度定位 Skill，修复或回退并
   重跑相同正式契约，新的 `score >= threshold` gate 生成前不恢复性能优化。
 - `baseline-sanity`：在当前 graph 优化服务上使用项目冻结的 10 个 GPQA 类问题、并发 8；按
   本地方法生成早期观察，不代替正式阈值判定，也不增加独立精度通过条件。
@@ -128,8 +140,19 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
 - 精度问题记录与复现：当前案例的 `optimize/` 及批准的远端 case 目录。
 - Profiling：`evaluation/performance/vllm_profile.py`、`sglang_profile.py` 和
   `trace_to_summary.py`；实际 Trace 目录和 rank/worker 覆盖必须现场核实。
-  仅缺 FLOPs/HBM 计数器时复用有效时间线，在现有 Profiling 模式下按实际厂商工具补采原生报告，
+  CPU 热点/等待、通信与 rank 偏斜使用该 Skill 的
+  [系统诊断引用](../skills/inference-profiling/references/system-bottlenecks.md)，可直接分析有效 CPU/系统/通信报告和可比工作量，
+  这些 trace runner 不自动采集通用 CPU/off-CPU 或通信链路报告；按产物类型单独核验，不强制设备 trace。
+  仅缺 FLOPs/HBM 计数器时保留已有有效证据（若有时间线则复用），在现有 Profiling 模式下按实际厂商工具补采原生报告，
   单独校验指标、范围及绑定；这些 trace runner 不提供通用 native-counter 包装器，也不要求为补采再生成 trace。
+- 规划复盘：[inference-optimization-planning](../skills/inference-optimization-planning/SKILL.md) 在每次选方向/复盘及收到新结果时，
+  自动按 [SOP C0.4](performance-optimization-sop.md#c04-系统诊断自动衔接规划复盘) 检查 CPU、通信和 rank 偏斜信号；
+  可能改变选择时即时分流，无需用户点名、不等待 2–3 个实验，也不要求先做 Roofline。
+  有效分析直接消费，有效证据交 Profiling `analyze`，在途任务合并等待，仅缺决策相关证据时限预算 `capture`；
+  不可用/耗尽和候选身份失效按 [SOP C5](performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验) 保留边界与重开条件。
+  委派交付回同一规划点，主 Agent 复核当前候选/服务/阶段与角色/组绑定后，将支持、反对或 unknown 更新到统一候选排名，
+  明确采纳/降级/暂缓、关键路径贡献、净收益与完整调用额外成本及首个单变量实验，沿用另一阶段/Mixed 守护和无 profiler 回验。
+  沿用当前 state.yml、优化点 Markdown 和 README，不新增模式、能力 ID、schema 或门禁，不因换分支重置补证预算。
 - Roofline 定位：[inference-roofline-analysis](../skills/inference-roofline-analysis/SKILL.md) 消费当前案例已有的
   阶段/shape、FLOPs、HBM 流量、计时和上限证据，输出瓶颈、上限距离及下一项可证伪实验。
   它不自行启动采集或 workload；缺口路由 Profiling，算子实验路由关键算子 Skill，排名路由规划复盘，
@@ -138,6 +161,19 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
   四个 Skill 的交接、有效/在途/不可用证据复用及补证停止规则统一见 [SOP C5](performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)；
   主 Agent 合并并派发任务，子任务返回原决策点，不通过互相调用展开第二套优化循环。
 - 关键算子实现、测试和知识沉淀遵守 Plugin/FlagGems 源码边界及当前案例记录规则。
+  通算融合、communication–compute/copy–compute overlap 与 kernel 内 prefetch/pipeline 按
+  [SOP C3.1](performance-optimization-sop.md#c31-通算融合与-overlap-候选)在选方向、复盘和热点迁移时自动评估，
+  按实际收益机制归 `framework`、`operator/replace` 或 `operator/improve`，结果进入同一候选排名；
+  具体局部方法见[通算融合与 overlap](../skills/key-operator-opt/references/comm-compute-fusion-overlap.md)，沿用 D0 局部筛选与批次集成，不逐 trial 触发整模/Profiler/Roofline。
+
+跨 Skill 去重统一按 SOP C5 的决策问题、候选/服务绑定、所需范围/方法与缺口判断，复用有边界的 unknown/不可用结论。
+新文件/SHA、换问题名称或入口不等于决策进展；只有实质改变覆盖/可靠性、机制或下一步的变化才重入，
+已知阻塞还须满足原重开条件，保持同一总预算与尝试历史。`analyze` 不采集；`reprofile` 需可比旧证据且仍有新采缺口，
+已有材料充分则直接分析，无可比旧证据则仅 `capture` 必需范围并注明比较边界。
+
+无 profiler 验证依 [SOP D7](performance-optimization-sop.md#d7-性能场景与分层测试频率)核对已有合法原生结果/在途任务的身份、范围、契约与正确性前提；
+同批合法 checkpoint/formal 可直接满足其覆盖的代表性 targeted/守护要求，formal 亦可支持更窄 checkpoint；保留原 purpose/回执，不按固定模式顺序重跑，不把 targeted 追认为 formal 或将复用当独立重复。
+在途 formal/checkpoint 已覆盖则等待，未覆盖部分按 D0 的依赖/资源规则另派，不并发争抢；仅诊断补证或局部变体不新增整模测试，不省略集成里程碑、正式范围与当前服务/精度绑定检查。
 
 ### 离线分析辅助工具
 

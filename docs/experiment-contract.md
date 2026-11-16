@@ -59,6 +59,18 @@ targeted 可以减少请求数、重复轮和场景数，但同一实验的 base
 
 中间 `milestone` 可以改变输入长度、输出长度、并发、请求数或测试层次，也可以采用阶段专项和 microbenchmark。它必须通过 `parent_target_scenario_ids` 映射回最终目标，记录 `workload_delta`、成功/停止条件及 `promotion_validation`。milestone 内部的 A/B 必须可比，但其结果不能与不同 workload 的目标 baseline 直接计算加速比。
 
+### 并行探索与局部验证范围
+
+按 [SOP D0](performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)，单变量约束属于每个独立实验对照，不要求全任务串行。资源足够时自动并行有限多个有价值方向，沿用既有任务/实验记录保存执行者、依赖、私有源码与实际导入、缓存、服务实例/端口、设备/CPU/内存/NIC 预算、可比 baseline/候选身份和停止/集成条件，不新增必填 schema。
+
+相同源码写入、同设备测量、同服务启停或共享 NIC/CPU/内存争用串行或先隔离；其他独立分析/开发可继续。可在已核验优化容器内隔离真实源码/进程/缓存，无需为每个离线参数另建容器；新建容器/服务仍满足原镜像/挂载、身份与端口门禁，不修改共享原状态或扩大 Host 授权。每实验固定自身 reference/原路径、shape/dtype/graph/缓存及实际设备与资源放置，不能让其他并行方向成为未声明的测量竞争。局部 baseline 是对应完整调用的原路径，不要求为每个局部变体重建整模 baseline；服务集成使用真实同配置场景 baseline。
+
+局部筛选、入选完整局部验证、pending、候选服务批次与主线 retained 的唯一共同生命周期以 [SOP D0](performance-optimization-sop.md#d0-并行探索局部筛选与批次集成)为准。快速部分通过不能标局部完整通过；pending 不加入当前组合，也不填写模型/GPQA/Mixed passed。分支回收时按 D0 比较原基准组合与当前主线、重基并只补受影响的局部验证，不转绑旧服务性能/gate；记录每点稳定 ID、实现身份、依赖、补丁和回退入口，低风险 4–5 依 D0 与最近正式 gate 覆盖集合唯一计数，不按 trial/重试/重复批次增加。
+
+集成里程碑沿用 D0/D6 的模型、graph 与风险精度要求；高风险批次是对冻结组合立即完整精度一次，不是先逐成员整模再重跑组合。性能证据按 [D7](performance-optimization-sop.md#d7-性能场景与分层测试频率)覆盖复用：已有合法同批 checkpoint/formal 能满足代表性 targeted/守护时直接使用原回执，不固定逐模式重跑、不追认 targeted 为 formal。失败按 D0 限域冻结/二分，共同 baseline/环境存疑暂停所有受影响分支；最终精度、四场景和身份门禁不变。
+
+局部收益、集成组合收益和已消融单点贡献分别说明；未消融的独立端到端贡献保持 unknown，不把局部加速相加，也不机械要求每点消融。批次大小按价值、风险、资源与预算选择，冻结待验范围与集成触发，不设新固定批大小、不无限积压未验候选；未覆盖模型验证的记录保持相应 `not_run/incomplete`。
+
 ### Prefill、Decode 与 Mixed 阶段契约
 
 每个当前目标场景在选择优化方向前分别记录 `prefill`、`decode`、`mixed` 三个视图。Prefill 关注 prompt 处理、TTFT/input-token 吞吐和实际 shape；Decode 关注自回归循环、TPOT/ITL/output-token 吞吐、KV 访问和实际 batch；Mixed 关注两个阶段并存时的调度干扰、排队、资源竞争及完整端到端结果。每个视图记录证据方法、主/守护指标、热点、置信度和状态；证据不足使用 `unknown/incomplete`，不强行归因。
