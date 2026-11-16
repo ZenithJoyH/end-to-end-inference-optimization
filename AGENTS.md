@@ -64,7 +64,7 @@ Agent 的职责是：
 - **精度评测**：本地 [inference-accuracy-evaluation](skills/inference-accuracy-evaluation/SKILL.md) 负责精度操作；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。自动发现不可用时直接完整读取该入口，不依赖全局同名 Skill。
 - **精度定位**：[推理精度问题定位技能](skills/inference-accuracy-diagnosis/SKILL.md) 在正式分数低于预冻结阈值、模型必要最小回归失败或评测证据无效时，通过最小复现、单变量二分和执行路径证明定位根因。超时、空输出、截断、重复或格式异常可按需触发运行问题诊断，但不单独使精度失败或阻止性能优化。
 - **性能评测**：本地 [inference-performance-evaluation](skills/inference-performance-evaluation/SKILL.md) 负责无 profiler 性能测量及 Prefill、Decode、Mixed 证据；入口发现、版本和 runner 映射见 `docs/skills-project-contract.md`。
-- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责 trace、CPU/系统/通信与原生计数器报告的按需采集、分类有效性与进程/线程/rank/group 覆盖核验、阶段归因及热点复查。已有有效报告可直接分析，不强制设备 trace；诊断结果回原决策点，Profiler-on 时间不作为正式收益，服务晋级缺少的无 profiler 验证按 D7 统一派发。
+- **Profiling**：[推理 Profiling 技能](skills/inference-profiling/SKILL.md) 负责 trace、CPU/系统/通信与原生计数器报告的按需采集、分类有效性与进程/线程/rank/group 覆盖核验、阶段归因及热点复查。已有有效报告可直接分析，不强制设备 trace；缺失证据的方法/工具选择引用 [SOP C0.5](docs/performance-optimization-sop.md#c05-症状驱动的工具选择与退出)，诊断结果回原决策点，Profiler-on 时间不作为正式收益，服务晋级缺少的无 profiler 验证按 D7 统一派发。
 - **Roofline 定位**：[推理 Roofline 分析技能](skills/inference-roofline-analysis/SKILL.md) 消费已有阶段/shape 证据与计数器或明确标注的估算，判断计算、HBM 带宽和执行效率限制，形成下一项可证伪实验；缺失采集交回 Profiling，候选排名交给规划复盘。
 - **优化规划**：[推理优化规划复盘技能](skills/inference-optimization-planning/SKILL.md) 负责归纳当前组合及局部待验候选、阶段热点与证据缺口，按系统信号、融合/overlap 机制和净收益自动重排方向，协调有限并行与批次集成。结果须改变或确认采纳/降级/暂缓和每方向首个实验；不以孤立加速比相加替代组合实测。
 - **案例与经验**：[案例索引](docs/cases/README.md) 用于检索相似实验，[优化模式](docs/optimization-patterns.md) 用于选择有边界的候选思路。实际任务开始前检索案例，并用 [案例模板](docs/cases/TEMPLATE.md) 创建记录；结束时更新复盘与索引，判断证据是否足以修订 SOP。
@@ -267,7 +267,7 @@ Agent 的职责是：
   无需用户逐次点名，不强制实施或全量诊断。核实目标平台实际能力/依赖，不把晚到当网络慢或双 stream 图当收益；不相关或已有证据足够时不新增采集。
 - 低开销证据归因不足且会改变选择时，通过 `$inference-profiling` 按需分析或补证；收敛到算子/融合路径后使用 `$key-operator-opt`。
   [SOP C5](docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)统一当前绑定的有效、在途、缺失、不可用和失效证据处置；
-  协调者去重、冻结缺口/预算并派发，交付只回同一决策点，不跨 Skill 重启循环。具体模式由调用方显式选择并由对应 Skill 校验，不在本文件维护模式副本。
+  协调者先复用已有分析/报告并映射共享覆盖，仅决策相关缺口按 [C0.5](docs/performance-optimization-sop.md#c05-症状驱动的工具选择与退出)自动选最低成本方法、在原预算/资源边界内派发；已有分析直接消费排名，不为离线分析要求活 PID、新 metrics 或采集预检。工具失败/部分覆盖按 C0.5/C5 限定结论，交付只回同一决策点，不跨 Skill 重启循环。具体模式由调用方显式选择并由对应 Skill 校验，不在本文件维护模式副本。
 - 需要判断计算、HBM 带宽或执行效率限制并选择下一步实验时，按 [SOP C5](docs/performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验)
   由 Agent 按需自动调用 `$inference-roofline-analysis`，无需用户逐次点名；选择新场景方向、profiling 后归因、
   热点迁移或规划复盘时检查触发条件，已有同身份、同口径的有效结论可复用。分析当前目标的

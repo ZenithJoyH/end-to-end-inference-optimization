@@ -142,13 +142,15 @@ JSON、日志、响应、样本和 Trace 保存在用户批准的远端 case 目
   `trace_to_summary.py`；实际 Trace 目录和 rank/worker 覆盖必须现场核实。
   CPU 热点/等待、通信与 rank 偏斜使用该 Skill 的
   [系统诊断引用](../skills/inference-profiling/references/system-bottlenecks.md)，可直接分析有效 CPU/系统/通信报告和可比工作量，
+  方法/工具选择依 [SOP C0.5](performance-optimization-sop.md#c05-症状驱动的工具选择与退出)的症状与最低成本证据分流，具体命令/产物/退出见[系统诊断工具步骤](../skills/inference-profiling/references/system-diagnosis-tools.md)；
+  已有有效分析直接消费排名，已有报告按适用类型/身份核验；仅新增采集才做工具/权限预检，不要求离线分析提供活 PID。只有改变选择的缺口才升级，工具失败/部分覆盖按 C0.5 保留有边界结论，结果回同一 C2/D8，不把工具缺失变成整套重采或新循环。
   这些 trace runner 不自动采集通用 CPU/off-CPU 或通信链路报告；按产物类型单独核验，不强制设备 trace。
   仅缺 FLOPs/HBM 计数器时保留已有有效证据（若有时间线则复用），在现有 Profiling 模式下按实际厂商工具补采原生报告，
   单独校验指标、范围及绑定；这些 trace runner 不提供通用 native-counter 包装器，也不要求为补采再生成 trace。
 - 规划复盘：[inference-optimization-planning](../skills/inference-optimization-planning/SKILL.md) 在每次选方向/复盘及收到新结果时，
   自动按 [SOP C0.4](performance-optimization-sop.md#c04-系统诊断自动衔接规划复盘) 检查 CPU、通信和 rank 偏斜信号；
   可能改变选择时即时分流，无需用户点名、不等待 2–3 个实验，也不要求先做 Roofline。
-  有效分析直接消费，有效证据交 Profiling `analyze`，在途任务合并等待，仅缺决策相关证据时限预算 `capture`；
+  有效分析直接消费，有效证据交 Profiling `analyze`，共享报告按 C5 映射覆盖、在途任务合并等待；仅缺决策相关证据时按 [C0.5](performance-optimization-sop.md#c05-症状驱动的工具选择与退出)自动选方法，在原预算/资源边界内 `capture`；
   不可用/耗尽和候选身份失效按 [SOP C5](performance-optimization-sop.md#c5-用-roofline-连接瓶颈证据与下一步实验) 保留边界与重开条件。
   委派交付回同一规划点，主 Agent 复核当前候选/服务/阶段与角色/组绑定后，将支持、反对或 unknown 更新到统一候选排名，
   明确采纳/降级/暂缓、关键路径贡献、净收益与完整调用额外成本及首个单变量实验，沿用另一阶段/Mixed 守护和无 profiler 回验。
