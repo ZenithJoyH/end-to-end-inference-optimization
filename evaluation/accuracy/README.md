@@ -1,6 +1,6 @@
 # 精度工具
 
-实际评测由 [推理精度评测技能](../../skills/inference-accuracy-evaluation/SKILL.md) 编排。启动 baseline sanity、最小回归或正式评测进程前，Skill 创建绑定当前 Codex 任务的 heartbeat 进度通知，默认每 30 分钟一次，并在终态后停用；本目录工具不自行创建或管理计划任务。
+实际评测由 [推理精度评测技能](../../skills/inference-accuracy-evaluation/SKILL.md) 编排。启动 baseline sanity、最小回归或正式评测进程时，进度监控绑定当前 Agent 任务，默认每 30 分钟通知一次可验证进展，并在终态后停用；该监控在长评测需要后台跟进且调度可用时自动启用，无需逐次审批，Codex 环境使用任务 heartbeat/automation，dsh 环境自动创建绑定当前任务的进度定时任务或使用后台 job。本目录工具不自行创建或管理计划任务，环境差异见 [执行说明](../../docs/agent-execution.md#执行环境适配codex-与-dsh)。
 
 当分数低于阈值时，由 [推理精度问题定位技能](../../skills/inference-accuracy-diagnosis/SKILL.md) 消费冻结产物进行定位。输出异常可作为运行问题单独诊断，但不否决已达阈值的精度结论。
 

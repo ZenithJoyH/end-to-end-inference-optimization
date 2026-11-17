@@ -46,7 +46,10 @@ When the user supplied a remote work directory, place configs, inspect evidence,
 
 Use foreground progress for short sanity/minimal checks. Create or reuse a heartbeat only when the user
 requests scheduled updates or a long evaluation needs background monitoring and scheduling is available.
-Scheduling availability is not an accuracy prerequisite. Report monitoring limitations and retain native
+Use the current environment's mechanism: a task heartbeat where the agent runtime provides one, otherwise a
+scheduled progress task for the current evaluation or a background job; the project pre-authorizes this
+monitoring, so no per-run approval is required. Scheduling availability is not an accuracy prerequisite.
+Report monitoring limitations and retain native
 progress artifacts. Notify on meaningful progress, completion, failure or required action; periodic unchanged
 reports require an explicit user preference. Stop the monitor on completion, cancellation or failure.
 

@@ -3,11 +3,14 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 venv_dir="${repo_root}/.venv"
+# Prefer system Python; the Codex runtime path stays as a fallback so the same
+# script works in Codex environments. dsh environments normally use system
+# Python or an explicit PYTHON_BIN.
 codex_python="${HOME}/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3"
 python_bin="${PYTHON_BIN:-}"
 
 if [[ -z "${python_bin}" ]]; then
-  for candidate in python3.13 python3.12 python3 "${codex_python}"; do
+  for candidate in python3.14 python3.13 python3.12 python3 "${codex_python}"; do
     if command -v "${candidate}" >/dev/null 2>&1 \
       && "${candidate}" -c 'import sys; raise SystemExit(sys.version_info < (3, 12))'; then
       python_bin="$(command -v "${candidate}")"

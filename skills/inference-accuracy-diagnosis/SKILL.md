@@ -42,7 +42,7 @@ Preserve the failing artifacts and do not overwrite them with retries. Use the c
 4. Repeat enough to separate deterministic divergence from stochastic variance. Do not use temperature or seed changes to make a failing sample disappear.
 5. Do not specialize code to GPQA item IDs, answer strings, prompt text, or evaluation-only paths. Failing benchmark samples are localization evidence, not optimization targets.
 
-When a rerun uses `$inference-accuracy-evaluation`, reuse its case-specific progress heartbeat. Do not create a duplicate monitor; keep the default 30-minute notifications and terminal cleanup behavior.
+When a rerun uses `$inference-accuracy-evaluation`, reuse its case-specific progress monitor (Codex heartbeat or dsh scheduled update/background job). Do not create a duplicate monitor; keep the default 30-minute notifications where requested or needed for the long run and scheduling is available, plus terminal cleanup behavior.
 
 ## Bisect by risk and execution boundary
 

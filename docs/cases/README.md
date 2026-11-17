@@ -96,4 +96,4 @@ Hy4-preview 2026-10-23 更新：007 C32 已完成并冻结：54轮全新测量�
 
 ## 维护方式
 
-案例 ID 沿用 `YYYYMMDD-<model>-<platform>-<short-objective>`。新案例用[摘要模板](TEMPLATE.md)记录目标、结论、适用边界和证据链接。每个案例只占一行，结果变化时更新原案例；逐轮实验写入模型的 `optimize/`。历史直接指向模型主记录的条目沿用原入口。
+历史记录中的 heartbeat/automation 标识、`codex/*` 分支和 `~/.codex` 产物路径是当时执行器的证据，不代表当前环境；新旧执行器的进度监控、会话和权限映射见[执行说明](../agent-execution.md#执行环境适配codex-与-dsh)。案例 ID 沿用 `YYYYMMDD-<model>-<platform>-<short-objective>`。新案例用[摘要模板](TEMPLATE.md)记录目标、结论、适用边界和证据链接。每个案例只占一行，结果变化时更新原案例；逐轮实验写入模型的 `optimize/`。历史直接指向模型主记录的条目沿用原入口。

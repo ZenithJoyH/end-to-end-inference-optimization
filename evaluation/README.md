@@ -6,7 +6,7 @@
 
 端到端优化任务通过 [推理精度评测技能](../skills/inference-accuracy-evaluation/SKILL.md) 选择 baseline sanity、最小回归、正式 gate 或 gate check 模式；该 Skill 调用本页工具和命令，本页仍是实际执行接口的唯一维护位置。
 
-当 Skill 实际启动 baseline sanity、最小回归或正式精度进程时，它会先创建绑定当前 Codex 任务的 heartbeat，默认每 30 分钟通知一次可验证进展，并在完成、失败、取消或提前停止后停用。`gate-check` 只核验证据，不创建监控；automation ID、实际频率和清理证据写入实验记录。
+当 Skill 实际启动 baseline sanity、最小回归或正式精度进程时，进度监控绑定当前 Agent 任务，默认每 30 分钟通知一次可验证进展，并在完成、失败、取消或提前停止后停用；该监控在长评测需要后台跟进且调度可用时自动启用，无需逐次审批；调度不可用不阻断评测。Codex 环境使用任务 heartbeat/automation，dsh 环境自动创建绑定当前任务的进度定时任务或使用后台 job，同一评测不得重复创建监控。`gate-check` 只核验证据，不创建监控；监控标识、实际频率和清理证据写入实验记录，接口映射见 [执行说明](../docs/agent-execution.md#执行环境适配codex-与-dsh)。
 
 精度评测出现失败、回退或输出异常时，使用 [推理精度问题定位技能](../skills/inference-accuracy-diagnosis/SKILL.md) 冻结失败证据、区分测量/身份问题与真实模型回退，并组织最小复现、改动二分和原范围复测。本页工具提供评测证据，不自动给出代码根因。
 

@@ -3,20 +3,28 @@
 <!-- op008 live status: native103 GPQA165/198=83.3333% verified; failed cleanup-controller103 preserved; physical cleanup108A verified. 111/112 static controls reviewed;113 CPU integration underway, no fresh performance rounds or approval yet. Original整改 container untouched; no commit/push. -->
 # 20261104-dsv4-metax104-plugin-review / optimize
 
-当前 op-008：NaN 私有修复已通过数值、真实 dispatch、graph 和正式 GPQA103：**165/198（83.33%）**。原清理控制器103失败保留，独立物理清理及原生精度证据已核验。
+**Latest user scope 2026-11-16:** Preserve current version; stop whole-model testing and prioritize remaining operator correctness. Exact own-workflow physical cleanup verified at1794812548.99: all104 own identities gone,8GPU idle, original/C46 unchanged; strict partial-ACK controller failure retained. No B/R continuation, model/GPQA launch, original container change or commit/push. Current performance remains incomplete; all rounds retained.
 
-新对照115在模型 readiness 前因执行目录缺少旧控制模块而退出，**准备/预热/正式均0轮**；3个关联进程已退出、8卡空闲。116已定位两份需原样补齐的冻结依赖；117/118正在准备新目录重启，未改模型数值代码。整改容器、安装源码和启动脚本未动，不提交推送。全部历史失败和慢轮保留，完整四场景 C/B/R 仍未完成。
+**Live guard result 2026-11-16:** C16K native8 batches valid1024/0, but measured medianTTFT spread13.243% exceeds10%; candidate unaccepted, overallcheckpoint incomplete. The pre-frozen variance-only policy continues full C/B/R REFERENCE collection without newtest/retry/sourcechange; C32K warm1 active at1794807731, B/R pending. Original container untouched.
+
+**2026-11-16 02:47UTC live:** new performance_only133 uniquely launched in private TEST; candidate ready/7capture/singleFULL511/22minimal/40actualdispatchhits; all12prep1536success0failure complete; P1K/P4K each5warm+3measured complete2048native success0failure, all local spread pass; P16K warm1 running/B-R0 at1794804581. All controls/remoteCPU/freshsource/8idle/port guards passed; original container untouched, no newGPQA/commit/push. Historical scores and oldincomplete runs retained.
+
+**2026-11-16继续：** 新performance_only133窗口，先控制闭包/CPU验证与当前环境预检、独立复核，再全新四场景C/B/R；历史精度与慢轮/失败保留，不重复GPQA，不动整改容器，不提交推送。当前0新GPU请求，Nov13空闲不是当前占用事实。详见op-008新分配。
+
+当前 op-008：NaN 私有修复通过数值、真实 dispatch、graph 和正式 GPQA103：**165/198（83.33%）**；原始分数和清理控制器失败均保留，原生精度与物理清理已独立核验。
+
+Old C completed44batches5632success0failure; B stopped on undeclared natural cache-DB fingerprint change and R never started, so old C/B/R remains incomplete. User now asks to continue: new performance_only133 controls and CPU validation are in progress before independent review and a fresh complete comparison. Historical scores/manifests/contracts/slow rounds/failures stay immutable; no new GPQA/model/GPU request yet, original container untouched, no commit/push.
 
 <!-- e2e:summary:start -->
 
 - 案例：20261104-dsv4-metax104-plugin-review
-- 当前状态：正式GPQA103为165/198（83.3333%），原生分数有效；清理控制器失败经独立恢复核验保留。115对照启动缺依赖，0性能轮且已清理；116依赖定位完成，117/118新目录准备中。历史E2E74候选44批/5632请求全成功，但16K/32K TTFT波动超限，B/R未测；所有轮次保留，未交付整改容器。
+- 当前状态：正式GPQA103 165/198有效；127独立OFF门禁已通过、进入候选准备；候选12批准备全部完整1536成功0失败，候选四场景32原生轮完整4096成功0失败且波动通过；另12准备1536成功，原生与清理通过、B缓存指纹身份差异停测、R未启动、整体incomplete。此前控制路径失败、资源拦截和历史E2E74所有慢轮均保留，完整C/B/R仍待完成。
 - 当前候选：独立测试容器私有 `model-validation59`（含NaN修复）+FGV `prefill-nonfinite46`（Decode97d）；整改容器、安装源码和启动脚本未改，无提交推送。
-- 下一步：仅补齐冻结启动依赖，核验新的CPU导入闭包后在独立TEST执行全四场景C/B/R；每场景3准备+5预热+3正式，保留132批。原30小时STOP保持不变，不再重跑GPQA追分。
+- Next: after new controls/review pass, run ALL NEW four-scenario C/B/R in the existing private TEST. Per case3prep+5warm+3measured,132batches total. New independent16h window includes CPU preparation and cleanup; old expired window unchanged. No new GPQA/formal binding claim.
 
 | 实验 | 状态/决定 | 场景 | 文档 |
 |---|---|---|---|
-| op-008 | NaN fix/formal103 165/198 passed；115启动缺依赖0轮且清理；116完成、117/118待新启动；E2E74全部慢轮保留 | Prefill correctness + four-scenario engineering checkpoint | [op-008.md](op-008.md) |
+| op-008 | NaN fix/formal103 165/198 passed；127独立OFF门禁通过/候选12准备1536成功0失败/四场景44批完整5632成功0失败/局部波动通过/原生与清理通过/缓存指纹身份差异停测/B-R不完整/CPU候选通过待选择后续口径；旧控制/资源失败和E2E74慢轮保留 | Prefill correctness + four-scenario engineering checkpoint | [op-008.md](op-008.md) |
 | refactor-015 | PR #1145 更新到 9dd07431，保留 Draft、完整慢轮与已知边界；未安装 | Decode PR 独立发布与复核 | [refactor-015.md](refactor-015.md) |
 | op-006 | fixed9 中 6/9 达 SDK×1.05；full11 全长点仍慢；非有限值 partial-selection 门禁待修复 | Decode Top-k | [op-006.md](op-006.md) |
 | op-005 | milestone完整；原target SDK TTFT11.63%超限保留；诊断确认Mixed准入排队约0.48秒步长；recheck19全新B/C/R完整，稳定性/漂移通过，SDK32K收益3.11%不足5% | current安装版 vs SDK反事实，P1K/P32K原负载 | [op-005.md](op-005.md) |
